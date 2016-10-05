@@ -16,7 +16,7 @@ class Algorithm implements PmmlAlgorithmParser {
         return this
     }
 
-    static parsePmml=getPmmlParser(Algorithm, ExplanatoryPredictor, IntermediatePredictor)
+    static parsePmml: (pmml: string) => Promise<Algorithm> = getPmmlParser(Algorithm, ExplanatoryPredictor, IntermediatePredictor)
 }
 
 export default Algorithm
