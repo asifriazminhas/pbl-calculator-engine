@@ -1,0 +1,25 @@
+
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "allowUnreachableCode": false,
+    "moduleResolution": "node",
+    "noUnusedParameters": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "outDir": "./built",
+    "strictNullChecks": true,
+    "noUnusedLocals": true
+  },
+  "include": [
+    "./src/**/*.ts",
+    "./test/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "built"
+  ]
+}
