@@ -1,4 +1,4 @@
-enum OpType {
+export enum OpType {
     Continuous=0,
     Categorical=1
 }
