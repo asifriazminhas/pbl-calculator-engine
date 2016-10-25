@@ -19,6 +19,7 @@ import {
     UnaryExpressionAST,
     MemberExpressionAST,
     ConditionalExpressionAST,
+    CallExpressionAST,
     AST
 } from '../interfaces/ast'
 
@@ -239,7 +240,7 @@ export function getASTForIfApply(apply: IfApply): ConditionalExpressionAST {
     return getConditionalExpressionAST(test, consequent, alternate)
 }
 
-export function getASTForCallExpressionApply(apply: CallExpressionApply) {
+export function getASTForCallExpressionApply(apply: CallExpressionApply): CallExpressionAST {
     return getCallExpressionAST(getMemberExpressionAST(getLiteralAST(apply.$.function), 'func'), apply.$$.map((apply) => {
         switch(apply['#name']) {
             case 'Constant': {
