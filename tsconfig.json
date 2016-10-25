@@ -10,7 +10,8 @@
     "noUnusedParameters": true,
     "experimentalDecorators": true,
     "sourceMap": true,
-    "outDir": "./built",
+    "outDir": "./lib",
+    "declaration": true,
     "strictNullChecks": true,
     "noUnusedLocals": true
   },
