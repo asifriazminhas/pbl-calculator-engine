@@ -1,17 +1,14 @@
 //models
-import {
-    PmmlIntermediatePredictorParser
-} from '../parsers/pmml'
 import Predictor from './predictor'
-import HelperFunctions from './helper_functions'
+import func from './helper_functions'
 import Datum from '../data/datum'
 
-class IntermediatePredictor extends Predictor implements PmmlIntermediatePredictorParser {
+class IntermediatePredictor extends Predictor {
     equation: string
     explanatoryPredictors: Array<string>
 
     constructFromPmml(name: string, opType: string, equation: string, explanatoryPredictors: Array<string>): IntermediatePredictor {
-        super.constructFromPmml(name, opType)
+        super.constructFromNameAndOpType(name, opType)
 
         this.equation = equation
         this.explanatoryPredictors = explanatoryPredictors
@@ -37,8 +34,6 @@ class IntermediatePredictor extends Predictor implements PmmlIntermediatePredict
                 obj[explanatoryPredictor] = dataForCurrentExplanatoryPredictor.coefficent
             }
         })
-
-        var func = HelperFunctions
 
         return eval(this.equation)
     }

@@ -1,14 +1,11 @@
 //models
 import Predictor from './predictor'
-import {
-    PmmlExplanatoryPredictorParser
-} from '../parsers/pmml'
 
-class ExplanatoryPredictor extends Predictor implements PmmlExplanatoryPredictorParser {
+class ExplanatoryPredictor extends Predictor {
     beta: number
 
     constructFromPmml(name: string, opType: string, beta: string): ExplanatoryPredictor {
-        super.constructFromPmml(name, opType)
+        super.constructFromNameAndOpType(name, opType)
 
         this.beta = Number(beta)
 
