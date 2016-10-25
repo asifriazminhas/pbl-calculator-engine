@@ -1,12 +1,9 @@
 //models
 import IntermediatePredictor from './predictors/intermediate_predictor'
 import ExplanatoryPredictor from './predictors/explanatory_predictor'
-import getPmmlParser, {
-    PmmlAlgorithmParser
-} from './parsers/pmml'
 import Datum from './data/datum'
 
-class Algorithm implements PmmlAlgorithmParser {
+class Algorithm {
     explanatoryPredictors: Array<ExplanatoryPredictor>
     intermediatePredictors: Array<IntermediatePredictor>
 
@@ -16,8 +13,6 @@ class Algorithm implements PmmlAlgorithmParser {
 
         return this
     }
-
-    static parsePmml: (pmml: string) => Promise<Algorithm> = getPmmlParser(Algorithm, ExplanatoryPredictor, IntermediatePredictor)
 
     private getExplanatoryPredictorDataForIntermediatePredictor(intermediatePredictor: IntermediatePredictor, data: Array<Datum>): Array<Datum> {
         return intermediatePredictor.explanatoryPredictors.map((explanatoryPredictor) => {
