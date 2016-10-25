@@ -4,6 +4,7 @@ import ExplanatoryPredictor from './predictors/explanatory_predictor'
 import Datum from './data/datum'
 
 class Algorithm {
+    name: string
     explanatoryPredictors: Array<ExplanatoryPredictor>
     intermediatePredictors: Array<IntermediatePredictor>
 
@@ -14,7 +15,7 @@ class Algorithm {
         return this
     }
 
-    private getExplanatoryPredictorDataForIntermediatePredictor(intermediatePredictor: IntermediatePredictor, data: Array<Datum>): Array<Datum> {
+    getExplanatoryPredictorDataForIntermediatePredictor(intermediatePredictor: IntermediatePredictor, data: Array<Datum>): Array<Datum> {
         return intermediatePredictor.explanatoryPredictors.map((explanatoryPredictor) => {
             var dataForExplanatoryPredictor = data.find((datum) => {
                 return datum.name ===  explanatoryPredictor
