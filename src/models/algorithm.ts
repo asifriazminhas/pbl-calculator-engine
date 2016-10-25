@@ -1,7 +1,17 @@
 //models
-import IntermediatePredictor from './predictors/intermediate_predictor'
-import ExplanatoryPredictor from './predictors/explanatory_predictor'
+import IntermediatePredictor, {
+    IntermediatePredictorObj
+} from './predictors/intermediate_predictor'
+import ExplanatoryPredictor, {
+    ExplanatoryPredictorObj
+} from './predictors/explanatory_predictor'
 import Datum from './data/datum'
+
+export interface AlgorithmObj {
+    name: string
+    explanatoryPredictors: Array<ExplanatoryPredictorObj>
+    intermediatePredictors: Array<IntermediatePredictorObj>
+}
 
 class Algorithm {
     name: string
@@ -11,6 +21,20 @@ class Algorithm {
     constructFromPmml(explanatoryPredictors: Array<ExplanatoryPredictor>, intermediatePredictors: Array<IntermediatePredictor>): Algorithm {
         this.explanatoryPredictors = explanatoryPredictors
         this.intermediatePredictors = intermediatePredictors
+
+        return this
+    }
+
+    constructFromAlgorithmObject(algorithmObj: AlgorithmObj): Algorithm {
+        this.name = algorithmObj.name
+        this.explanatoryPredictors = algorithmObj.explanatoryPredictors
+        .map((explanatoryPredictor) => {
+            return new ExplanatoryPredictor().constructFromExplanatoryPredictorObject(explanatoryPredictor)
+        })
+        this.intermediatePredictors = algorithmObj.intermediatePredictors
+        .map((intermediatePredictor) => {
+            return new IntermediatePredictor().constructFromIntermediatePredictorObject(intermediatePredictor)
+        })
 
         return this
     }

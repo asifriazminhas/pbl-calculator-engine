@@ -1,7 +1,14 @@
 //models
-import Predictor from './predictor'
+import Predictor, {
+    PredictorObj
+} from './predictor'
 import func from './helper_functions'
 import Datum from '../data/datum'
+
+export interface IntermediatePredictorObj extends PredictorObj {
+    equation: string
+    explanatoryPredictors: Array<string>
+}
 
 class IntermediatePredictor extends Predictor {
     equation: string
@@ -12,6 +19,15 @@ class IntermediatePredictor extends Predictor {
 
         this.equation = equation
         this.explanatoryPredictors = explanatoryPredictors
+
+        return this
+    }
+
+    constructFromIntermediatePredictorObject(intermediatePredictorObj: IntermediatePredictorObj): IntermediatePredictor {
+        super.constructFromPredictorObject(intermediatePredictorObj)
+
+        this.equation = intermediatePredictorObj.equation
+        this.explanatoryPredictors = intermediatePredictorObj.explanatoryPredictors
 
         return this
     }
