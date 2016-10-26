@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha './lib/tests/**/*.js'",
     "build": "tsc"
   },
   "repository": {
@@ -19,10 +19,16 @@
   "homepage": "https://github.com/Ottawa-mHealth/pbl-calculator-engine#readme",
   "devDependencies": {
     "@types/bluebird": "3.0.33",
+    "@types/chai": "3.4.34",
+    "@types/csv-parse": "1.1.5",
     "@types/escodegen": "0.0.6",
+    "@types/mocha": "2.2.32",
     "@types/node": "6.0.42",
     "@types/source-map-support": "0.2.28",
     "@types/xml2js": "0.0.28",
+    "chai": "3.5.0",
+    "csv-parse": "1.1.7",
+    "mocha": "3.1.2",
     "typescript": "2.0.3"
   },
   "dependencies": {
