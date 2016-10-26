@@ -2,7 +2,7 @@
 import Predictor, {
     PredictorObj
 } from './predictor'
-import func from './helper_functions'
+import HelperFunctions from './helper_functions'
 import Datum from '../data/datum'
 
 export interface IntermediatePredictorObj extends PredictorObj {
@@ -36,7 +36,9 @@ class IntermediatePredictor extends Predictor {
         var obj: {
             [index: string]: string | number
         } = {}
-
+        let derived: any = undefined
+        let func = HelperFunctions
+        
         this.explanatoryPredictors.forEach((explanatoryPredictor) => {
             var dataForCurrentExplanatoryPredictor = explanatoryPredictorsData
             .find((explanatoryPredictorData) => {
@@ -51,7 +53,9 @@ class IntermediatePredictor extends Predictor {
             }
         })
 
-        return eval(this.equation)
+        eval(this.equation)
+
+        return derived
     }
 }
 
