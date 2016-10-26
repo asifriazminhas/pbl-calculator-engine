@@ -64,6 +64,10 @@ class Algorithm {
         })
     }
 
+    private getBeta(coefficent: number, pmmlBeta: number): number {
+        return Math.pow(Math.E, (coefficent*pmmlBeta))
+    }
+
     evaluate(data: Array<Datum>): number {
         return this.explanatoryPredictors.reduce((currentValue, explanatoryPredictor) => {
             let foundDatumForCurrentPredictor = data.find((datum) => {
@@ -80,12 +84,30 @@ class Algorithm {
                     throw new Error(`No predictor found for ${explanatoryPredictor.name}`)
                 }
                 else {
-                    return foundIntermediatePredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(foundIntermediatePredictor, data))
+                    let coefficent = foundIntermediatePredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(foundIntermediatePredictor, data))
+                    let beta = this.getBeta(coefficent, explanatoryPredictor.beta)
+                    if(process.env.NODE_ENV === 'test') {
+                        console.log(`\t\tPredictor ${explanatoryPredictor.name}`)
+                        console.log(`\t\t\tCoefficent ${coefficent}`)
+                        console.log(`\t\t\tPMML Beta ${explanatoryPredictor.beta}`)
+                        console.log(`\t\t\tBeta ${beta}`)
+                    }
+
+                    return currentValue + beta
                 }
             }
             else {
                 if(typeof foundDatumForCurrentPredictor.coefficent === 'number') {
-                    return currentValue + foundDatumForCurrentPredictor.coefficent*explanatoryPredictor.beta
+                    let coefficent = foundDatumForCurrentPredictor.coefficent
+                    let beta = this.getBeta(coefficent, explanatoryPredictor.beta)
+                    if(process.env.NODE_ENV === 'test') {
+                        console.log(`\t\tPredictor ${explanatoryPredictor.name}`)
+                        console.log(`\t\t\tCoefficent ${coefficent}`)
+                        console.log(`\t\t\tPMML Beta ${explanatoryPredictor.beta}`)
+                        console.log(`\t\t\tBeta ${beta}`)
+                    }
+
+                    return currentValue + beta
                 }
                 else {
                     throw new Error(`Datum for predictor ${explanatoryPredictor.name} is not a number`)
