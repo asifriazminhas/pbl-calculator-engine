@@ -1,8 +1,8 @@
 class Datum {
     name: string
-    coefficent: number
+    coefficent: string | number
 
-    constructorForNewDatum(name: string, coefficent: number): Datum {
+    constructorForNewDatum(name: string, coefficent: string | number): Datum {
         this.name = name
         this.coefficent = coefficent
 

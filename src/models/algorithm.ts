@@ -84,7 +84,12 @@ class Algorithm {
                 }
             }
             else {
-                return currentValue + foundDatumForCurrentPredictor.coefficent*explanatoryPredictor.beta
+                if(typeof foundDatumForCurrentPredictor.coefficent === 'number') {
+                    return currentValue + foundDatumForCurrentPredictor.coefficent*explanatoryPredictor.beta
+                }
+                else {
+                    throw new Error(`Datum for predictor ${explanatoryPredictor.name} is not a number`)
+                }
             }
         }, 0)
     }

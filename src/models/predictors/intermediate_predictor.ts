@@ -34,7 +34,7 @@ class IntermediatePredictor extends Predictor {
 
     evaluate(explanatoryPredictorsData: Array<Datum>): number {
         var obj: {
-            [index: string]: number
+            [index: string]: string | number
         } = {}
 
         this.explanatoryPredictors.forEach((explanatoryPredictor) => {
