@@ -38,6 +38,8 @@ class IntermediatePredictor extends Predictor {
         } = {}
         let derived: any = undefined
         let func = HelperFunctions
+        //Do this since there could be values in the equation where the intermediate predictor is set to a variable called NA
+        let NA = 'NA'
         
         console.log(`\t\t------Intermediate Predictor------`)
         console.log(`\t\t\tName: ${this.name}`)
