@@ -62,13 +62,16 @@ function getDerivedFrom(tag: Apply): Array<string> {
 
         return currentDerivedFrom;
     }, [])
-        //Remove all duplicate predictor names
-        .reduce((currentDerivedFrom: Array<string>, derivedFrom: string) => {
-            if (currentDerivedFrom.indexOf(derivedFrom) < 0)
-                currentDerivedFrom.push(derivedFrom);
+    //Remove all duplicate predictor names
+    .reduce((currentDerivedFrom: Array<string>, derivedFrom: string) => {
+        if (currentDerivedFrom.indexOf(derivedFrom) < 0)
+            currentDerivedFrom.push(derivedFrom);
 
-            return currentDerivedFrom;
-        }, []);
+        return currentDerivedFrom;
+    }, [])
+    .filter((derivedFrom) => {
+        return derivedFrom !== 'NA'
+    })
 }
 
 export default async function (Algorithm: {
@@ -85,7 +88,8 @@ export default async function (Algorithm: {
         preserveChildrenOrder: true
     });
 
-    var explanatoryPredictors = parsedPmml.PMML.GeneralRegressionModel.ParamMatrix.PCell.map((pCell) => {
+    var explanatoryPredictors = parsedPmml.PMML.GeneralRegressionModel.ParamMatrix.PCell
+    .map((pCell) => {
         var ppCellForCurrentPCell = parsedPmml.PMML.GeneralRegressionModel.PPMatrix.PPCell
             .find((ppCell) => {
                 return ppCell.$.parameterName === pCell.$.parameterName
@@ -96,20 +100,34 @@ export default async function (Algorithm: {
         }
 
         var dataFieldForCurrentPCell = parsedPmml.PMML.DataDictionary.DataField
-            .find((dataField) => {
-                if (ppCellForCurrentPCell === undefined) {
-                    throw new Error(`No ppCell found for pCell ${pCell.$.parameterName}`)
-                }
-                else {
-                    return dataField.$.name === ppCellForCurrentPCell.$.predictorName
-                }
-            })
+        .find((dataField) => {
+            if (ppCellForCurrentPCell === undefined) {
+                throw new Error(`No ppCell found for pCell ${pCell.$.parameterName}`)
+            }
+            else {
+                return dataField.$.name === ppCellForCurrentPCell.$.predictorName
+            }
+        })
+
+        var parameterForCurrentPCell = parsedPmml.PMML.GeneralRegressionModel.ParameterList.Parameter
+        .find((parameterList) => {
+            if (ppCellForCurrentPCell === undefined) {
+                throw new Error(`No ppCell found for pCell ${pCell.$.parameterName}`)
+            }
+            else {
+                return parameterList.$.name === ppCellForCurrentPCell.$.parameterName
+            }
+        })
+
+        if (parameterForCurrentPCell === undefined) {
+            throw new Error(`No ParamaterList found for ppCell ${ppCellForCurrentPCell.$.predictorName}`)
+        }
 
         if (dataFieldForCurrentPCell === undefined) {
             throw new Error(`No DataField found for ppCell ${ppCellForCurrentPCell.$.predictorName}`)
         }
 
-        return new ExplanatoryPredictor().constructFromPmml(dataFieldForCurrentPCell.$.name, dataFieldForCurrentPCell.$.optype, pCell.$.beta)
+        return new ExplanatoryPredictor().constructFromPmml(dataFieldForCurrentPCell.$.name, dataFieldForCurrentPCell.$.optype, pCell.$.beta, parameterForCurrentPCell.$.referencePoint)
     })
 
     var intermediatePredictors: Array<IntermediatePredictor> = []
