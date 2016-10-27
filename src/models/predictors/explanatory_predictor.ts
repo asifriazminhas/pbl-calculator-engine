@@ -5,15 +5,18 @@ import Predictor, {
 
 export interface ExplanatoryPredictorObj extends PredictorObj {
     beta: number
+    referencePoint: number
 }
 
 class ExplanatoryPredictor extends Predictor {
     beta: number
+    referencePoint: number
 
-    constructFromPmml(name: string, opType: string, beta: string): ExplanatoryPredictor {
+    constructFromPmml(name: string, opType: string, beta: string, referencePoint: string): ExplanatoryPredictor {
         super.constructFromNameAndOpType(name, opType)
 
         this.beta = Number(beta)
+        this.referencePoint = Number(referencePoint)
 
         return this
     }
@@ -22,7 +25,8 @@ class ExplanatoryPredictor extends Predictor {
         super.constructFromPredictorObject(explanatoryPredictorObj)
 
         this.beta = explanatoryPredictorObj.beta
-
+        this.referencePoint = explanatoryPredictorObj.referencePoint
+        
         return this
     }
 }
