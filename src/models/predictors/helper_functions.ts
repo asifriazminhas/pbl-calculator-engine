@@ -5,8 +5,8 @@ export default {
     ln: function(value: number) {
         return Math.log(value)
     },
-    'is.na': function(value: number) {
-        return !isNaN(value)
+    'is.na': function(value: string) {
+        return value === 'NA'
     },
     not: function(value: boolean) {
         return !value
