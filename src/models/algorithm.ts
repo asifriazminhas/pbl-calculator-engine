@@ -72,8 +72,33 @@ class Algorithm {
         })
     }
 
-    private getBeta(coefficent: number, pmmlBeta: number): number {
-        return Math.pow(Math.E, (coefficent*pmmlBeta))
+    private getBeta(explanatoryPredictor: ExplanatoryPredictor, coefficent: number | string, pmmlBeta: number): number {
+        let formattedCoefficient: number = 0
+        if(typeof coefficent === 'string') {
+            if(coefficent === 'NA') {
+                coefficent = explanatoryPredictor.referencePoint
+            }
+            else {
+                throw new Error(`coefficient is not a number`)
+            }
+        }
+        else if(isNaN(coefficent)) {
+            formattedCoefficient = explanatoryPredictor.referencePoint
+        }
+        else {
+            formattedCoefficient = coefficent
+        }
+
+        var beta = Math.pow(Math.E, (formattedCoefficient*pmmlBeta))
+
+        if(process.env.NODE_ENV === 'test') {
+            console.log(`\t\tExplanatory Predictor ${explanatoryPredictor.name}`)
+            console.log(`\t\t\tCoefficent ${formattedCoefficient} ${formattedCoefficient === explanatoryPredictor.referencePoint ? 'Set to Reference Point' : ''}`)
+            console.log(`\t\t\tPMML Beta ${explanatoryPredictor.beta}`)
+            console.log(`\t\t\tBeta ${beta}`)
+        }
+
+        return beta
     }
 
     evaluate(data: Array<Datum>): number {
@@ -97,13 +122,7 @@ class Algorithm {
                 }
                 else {
                     let coefficent = foundIntermediatePredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(foundIntermediatePredictor, data))
-                    let beta = this.getBeta(coefficent, explanatoryPredictor.beta)
-                    if(process.env.NODE_ENV === 'test') {
-                        console.log(`\t\tPredictor ${explanatoryPredictor.name}`)
-                        console.log(`\t\t\tCoefficent ${coefficent}`)
-                        console.log(`\t\t\tPMML Beta ${explanatoryPredictor.beta}`)
-                        console.log(`\t\t\tBeta ${beta}`)
-                    }
+                    let beta = this.getBeta(explanatoryPredictor, coefficent, explanatoryPredictor.beta)
 
                     console.log('')
                     return currentValue + beta
@@ -112,13 +131,7 @@ class Algorithm {
             else {
                 if(typeof foundDatumForCurrentPredictor.coefficent === 'number') {
                     let coefficent = foundDatumForCurrentPredictor.coefficent
-                    let beta = this.getBeta(coefficent, explanatoryPredictor.beta)
-                    if(process.env.NODE_ENV === 'test') {
-                        console.log(`\t\tPredictor ${explanatoryPredictor.name}`)
-                        console.log(`\t\t\tCoefficent ${coefficent}`)
-                        console.log(`\t\t\tPMML Beta ${explanatoryPredictor.beta}`)
-                        console.log(`\t\t\tBeta ${beta}`)
-                    }
+                    let beta = this.getBeta(explanatoryPredictor, coefficent, explanatoryPredictor.beta)
 
                     console.log('')
                     return currentValue + beta
