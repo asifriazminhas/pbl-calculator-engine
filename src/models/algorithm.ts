@@ -39,25 +39,33 @@ class Algorithm {
         return this
     }
 
+    //Returns the array of Datum objects for all the explanatoryPredictors in an intermediatePredictors
     getExplanatoryPredictorDataForIntermediatePredictor(intermediatePredictor: IntermediatePredictor, data: Array<Datum>): Array<Datum> {
+        //Go through all the explanatory predictors for the intermediate predictor and return the Datum object for each
         return intermediatePredictor.explanatoryPredictors.map((explanatoryPredictor) => {
+            //Check if there is already a datum object for this explanatory predictor in the data param
             var dataForExplanatoryPredictor = data.find((datum) => {
                 return datum.name ===  explanatoryPredictor
             })
 
+            //If there isn't
             if(!dataForExplanatoryPredictor) {
+                //If there isn't then it means this is actually an intermediate predictor in the algorithm so get the intermediate predictor object from the list of intermediat predictors
                 var intermediatePredictorForExplanatoryPredictor = this.intermediatePredictors
                 .find((intermediatePredictor) => {
                     return intermediatePredictor.name === explanatoryPredictor
                 })
 
+                //If we didn't find one then there is a problem
                 if(!intermediatePredictorForExplanatoryPredictor) {
                     throw new Error(`No error for predictor ${explanatoryPredictor}`)
                 }
+                //Otherwise create a new Datum object using the name field as the identifier and evaluating this value for this intermediate predictor
                 else {
                     return new Datum().constructorForNewDatum(intermediatePredictorForExplanatoryPredictor.name, intermediatePredictorForExplanatoryPredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(intermediatePredictorForExplanatoryPredictor, data)))
                 }
             }
+            //If there is return it
             else {
                 return dataForExplanatoryPredictor
             }
@@ -69,7 +77,11 @@ class Algorithm {
     }
 
     evaluate(data: Array<Datum>): number {
-        return this.explanatoryPredictors.reduce((currentValue, explanatoryPredictor) => {
+        console.log(`------------Predictors------------`)
+
+        var output = this.explanatoryPredictors.reduce((currentValue, explanatoryPredictor) => {
+            console.log(`\t------${explanatoryPredictor.name}------`)
+
             let foundDatumForCurrentPredictor = data.find((datum) => {
                 return datum.name === explanatoryPredictor.name
             })
@@ -93,6 +105,7 @@ class Algorithm {
                         console.log(`\t\t\tBeta ${beta}`)
                     }
 
+                    console.log('')
                     return currentValue + beta
                 }
             }
@@ -107,6 +120,7 @@ class Algorithm {
                         console.log(`\t\t\tBeta ${beta}`)
                     }
 
+                    console.log('')
                     return currentValue + beta
                 }
                 else {
@@ -114,6 +128,9 @@ class Algorithm {
                 }
             }
         }, 0)
+        console.log(`------------Predictors------------`)
+
+        return output
     }
 }
 

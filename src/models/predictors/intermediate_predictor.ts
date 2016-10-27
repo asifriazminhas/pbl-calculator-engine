@@ -39,6 +39,12 @@ class IntermediatePredictor extends Predictor {
         let derived: any = undefined
         let func = HelperFunctions
         
+        console.log(`\t\t------Intermediate Predictor------`)
+        console.log(`\t\t\tName: ${this.name}`)
+        console.log(`\t\t\tIntermediate Predictor Equation: ${this.equation}`)
+        console.log(`\t\t\tIntermediate Predictor Data`)
+        console.table(explanatoryPredictorsData)
+
         this.explanatoryPredictors.forEach((explanatoryPredictor) => {
             var dataForCurrentExplanatoryPredictor = explanatoryPredictorsData
             .find((explanatoryPredictorData) => {
