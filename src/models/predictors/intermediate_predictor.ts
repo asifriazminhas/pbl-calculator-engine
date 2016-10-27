@@ -32,14 +32,15 @@ class IntermediatePredictor extends Predictor {
         return this
     }
 
-    evaluate(explanatoryPredictorsData: Array<Datum>): number {
+    evaluate(explanatoryPredictorsData: Array<Datum>): number | string {
         var obj: {
             [index: string]: string | number
-        } = {}
+        } = {
+            //Do this since there could be values in the equation where the intermediate predictor is set to a variable called NA
+            'NA': 'NA'
+        }
         let derived: any = undefined
         let func = HelperFunctions
-        //Do this since there could be values in the equation where the intermediate predictor is set to a variable called NA
-        let NA = 'NA'
         
         console.log(`\t\t------Intermediate Predictor------`)
         console.log(`\t\t\tName: ${this.name}`)
