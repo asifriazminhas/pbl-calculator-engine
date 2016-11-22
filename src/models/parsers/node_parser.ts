@@ -61,7 +61,8 @@ const SpecialFunctions: Array<string> = [
     'exp',
     'ln',
     'is.na',
-    'not'
+    'not',
+    'notEqual'
 ]
 export function getASTForApply(apply: Apply): AST {
     if(BinaryExpressionOperators[apply.$.function] !== undefined) {

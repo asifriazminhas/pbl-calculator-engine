@@ -10,5 +10,8 @@ export default {
     },
     not: function(value: boolean) {
         return !value
+    },
+    notEqual: function(valueOne: any, valueTwo: any) {
+        return valueOne !== valueTwo
     }
 }
