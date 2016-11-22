@@ -7,6 +7,11 @@ import ExplanatoryPredictor, {
 } from './predictors/explanatory_predictor'
 import Datum from './data/datum'
 
+//util
+import {
+    logPredictors
+} from '../util/env'
+
 export interface AlgorithmObj {
     name: string
     explanatoryPredictors: Array<ExplanatoryPredictorObj>
@@ -76,7 +81,7 @@ class Algorithm {
         let formattedCoefficient: number = 0
         if(typeof coefficent === 'string') {
             if(coefficent === 'NA') {
-                coefficent = explanatoryPredictor.referencePoint
+                formattedCoefficient = explanatoryPredictor.referencePoint
             }
             else {
                 throw new Error(`coefficient is not a number`)
@@ -91,9 +96,9 @@ class Algorithm {
 
         var beta = Math.pow(Math.E, (formattedCoefficient*pmmlBeta))
 
-        if(process.env.NODE_ENV === 'test') {
+        if(logPredictors() === true) {
             console.log(`\t\tExplanatory Predictor ${explanatoryPredictor.name}`)
-            console.log(`\t\t\tCoefficent ${formattedCoefficient} ${formattedCoefficient === explanatoryPredictor.referencePoint ? 'Set to Reference Point' : ''}`)
+            console.log(`\t\t\tInput ${formattedCoefficient} ${formattedCoefficient === explanatoryPredictor.referencePoint ? 'Set to Reference Point' : ''}`)
             console.log(`\t\t\tPMML Beta ${explanatoryPredictor.beta}`)
             console.log(`\t\t\tBeta ${beta}`)
         }
@@ -102,10 +107,14 @@ class Algorithm {
     }
 
     evaluate(data: Array<Datum>): number {
-        console.log(`------------Predictors------------`)
+        if(logPredictors() === true) {
+            console.log(`------------Predictors------------`)
+        }
 
         var output = this.explanatoryPredictors.reduce((currentValue, explanatoryPredictor) => {
-            console.log(`\t------${explanatoryPredictor.name}------`)
+            if(logPredictors() === true) {
+                console.log(`\t------${explanatoryPredictor.name}------`)
+            }
 
             let foundDatumForCurrentPredictor = data.find((datum) => {
                 return datum.name === explanatoryPredictor.name
@@ -125,23 +134,21 @@ class Algorithm {
                     let beta = this.getBeta(explanatoryPredictor, coefficent, explanatoryPredictor.beta)
 
                     console.log('')
-                    return currentValue + beta
+                    return currentValue*beta
                 }
             }
             else {
-                if(typeof foundDatumForCurrentPredictor.coefficent === 'number') {
-                    let coefficent = foundDatumForCurrentPredictor.coefficent
-                    let beta = this.getBeta(explanatoryPredictor, coefficent, explanatoryPredictor.beta)
+                let coefficent = foundDatumForCurrentPredictor.coefficent
+                let beta = this.getBeta(explanatoryPredictor, coefficent, explanatoryPredictor.beta)
 
-                    console.log('')
-                    return currentValue + beta
-                }
-                else {
-                    throw new Error(`Datum for predictor ${explanatoryPredictor.name} is not a number`)
-                }
+                console.log('')
+                return currentValue*beta
             }
         }, 0)
-        console.log(`------------Predictors------------`)
+
+        if(logPredictors() === true) {
+            console.log(`------------Predictors------------`)
+        }
 
         return output
     }

@@ -5,6 +5,11 @@ import Predictor, {
 import HelperFunctions from './helper_functions'
 import Datum from '../data/datum'
 
+//util
+import {
+    logPredictors
+} from '../../util/env'
+
 export interface IntermediatePredictorObj extends PredictorObj {
     equation: string
     explanatoryPredictors: Array<string>
@@ -42,11 +47,13 @@ class IntermediatePredictor extends Predictor {
         let derived: any = undefined
         let func = HelperFunctions
         
-        console.log(`\t\t------Intermediate Predictor------`)
-        console.log(`\t\t\tName: ${this.name}`)
-        console.log(`\t\t\tIntermediate Predictor Equation: ${this.equation}`)
-        console.log(`\t\t\tIntermediate Predictor Data`)
-        console.table(explanatoryPredictorsData)
+        if(logPredictors() === true) {
+            console.log(`\t\t------Intermediate Predictor------`)
+            console.log(`\t\t\tName: ${this.name}`)
+            console.log(`\t\t\tIntermediate Predictor Equation: ${this.equation}`)
+            console.log(`\t\t\tIntermediate Predictor Data`)
+            console.table(explanatoryPredictorsData)
+        }
 
         this.explanatoryPredictors.forEach((explanatoryPredictor) => {
             var dataForCurrentExplanatoryPredictor = explanatoryPredictorsData
