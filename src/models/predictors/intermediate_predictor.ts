@@ -46,6 +46,8 @@ class IntermediatePredictor extends Predictor {
         }
         let derived: any = undefined
         let func = HelperFunctions
+        //Do this line to remove the error for unused locals
+        func
         
         if(logPredictors() === true) {
             console.log(`\t\t------Intermediate Predictor------`)
