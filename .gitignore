@@ -1,4 +1,5 @@
 node_modules
-built
 lib
 npm-debug.log
+.vscode
+dist
