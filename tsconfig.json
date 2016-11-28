@@ -10,17 +10,16 @@
     "noUnusedParameters": true,
     "experimentalDecorators": true,
     "sourceMap": true,
-    "outDir": "./lib",
     "declaration": true,
+    "outDir": "./lib",
     "strictNullChecks": true,
     "noUnusedLocals": true
   },
   "include": [
-    "./src/**/*.ts",
-    "./test/**/*.ts"
+    "./src/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "built"
+    "lib"
   ]
 }
