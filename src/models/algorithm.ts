@@ -7,11 +7,6 @@ import ExplanatoryPredictor, {
 } from './predictors/explanatory_predictor'
 import Datum from './data/datum'
 
-//util
-import {
-    logPredictors
-} from '../util/env'
-
 export interface AlgorithmObj {
     name: string
     explanatoryPredictors: Array<ExplanatoryPredictorObj>
@@ -45,7 +40,7 @@ class Algorithm {
     }
 
     //Returns the array of Datum objects for all the explanatoryPredictors in an intermediatePredictors
-    getExplanatoryPredictorDataForIntermediatePredictor(intermediatePredictor: IntermediatePredictor, data: Array<Datum>): Array<Datum> {
+    getExplanatoryPredictorDataForIntermediatePredictor(intermediatePredictor: IntermediatePredictor, data: Array<Datum>, logData: boolean): Array<Datum> {
         //Go through all the explanatory predictors for the intermediate predictor and return the Datum object for each
         return intermediatePredictor.explanatoryPredictors.map((explanatoryPredictor) => {
             //Check if there is already a datum object for this explanatory predictor in the data param
@@ -67,7 +62,7 @@ class Algorithm {
                 }
                 //Otherwise create a new Datum object using the name field as the identifier and evaluating this value for this intermediate predictor
                 else {
-                    return new Datum().constructorForNewDatum(intermediatePredictorForExplanatoryPredictor.name, intermediatePredictorForExplanatoryPredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(intermediatePredictorForExplanatoryPredictor, data)))
+                    return new Datum().constructorForNewDatum(intermediatePredictorForExplanatoryPredictor.name, intermediatePredictorForExplanatoryPredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(intermediatePredictorForExplanatoryPredictor, data, logData), logData))
                 }
             }
             //If there is return it
@@ -77,7 +72,7 @@ class Algorithm {
         })
     }
 
-    private getBeta(explanatoryPredictor: ExplanatoryPredictor, coefficent: number | string, pmmlBeta: number): number {
+    private getBeta(explanatoryPredictor: ExplanatoryPredictor, coefficent: number | string, pmmlBeta: number, logData: boolean): number {
         let formattedCoefficient: number = 0
         if(typeof coefficent === 'string') {
             if(coefficent === 'NA') {
@@ -96,7 +91,7 @@ class Algorithm {
 
         var beta = Math.pow(Math.E, (formattedCoefficient*pmmlBeta))
 
-        if(logPredictors() === true) {
+        if(logData === true) {
             console.log(`\t\tExplanatory Predictor ${explanatoryPredictor.name}`)
             console.log(`\t\t\tInput ${formattedCoefficient} ${formattedCoefficient === explanatoryPredictor.referencePoint ? 'Set to Reference Point' : ''}`)
             console.log(`\t\t\tPMML Beta ${explanatoryPredictor.beta}`)
@@ -106,13 +101,13 @@ class Algorithm {
         return beta
     }
 
-    evaluate(data: Array<Datum>): number {
-        if(logPredictors() === true) {
+    evaluate(data: Array<Datum>, logData: boolean): number {
+        if(logData === true) {
             console.log(`------------Predictors------------`)
         }
 
         var output = this.explanatoryPredictors.reduce((currentValue, explanatoryPredictor) => {
-            if(logPredictors() === true) {
+            if(logData === true) {
                 console.log(`\t------${explanatoryPredictor.name}------`)
             }
 
@@ -130,8 +125,8 @@ class Algorithm {
                     throw new Error(`No predictor found for ${explanatoryPredictor.name}`)
                 }
                 else {
-                    let coefficent = foundIntermediatePredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(foundIntermediatePredictor, data))
-                    let beta = this.getBeta(explanatoryPredictor, coefficent, explanatoryPredictor.beta)
+                    let coefficent = foundIntermediatePredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(foundIntermediatePredictor, data, logData), logData)
+                    let beta = this.getBeta(explanatoryPredictor, coefficent, explanatoryPredictor.beta, logData)
 
                     console.log('')
                     return currentValue*beta
@@ -139,14 +134,14 @@ class Algorithm {
             }
             else {
                 let coefficent = foundDatumForCurrentPredictor.coefficent
-                let beta = this.getBeta(explanatoryPredictor, coefficent, explanatoryPredictor.beta)
+                let beta = this.getBeta(explanatoryPredictor, coefficent, explanatoryPredictor.beta, logData)
 
                 console.log('')
                 return currentValue*beta
             }
         }, 0)
 
-        if(logPredictors() === true) {
+        if(logData === true) {
             console.log(`------------Predictors------------`)
         }
 

@@ -5,11 +5,6 @@ import Predictor, {
 import HelperFunctions from './helper_functions'
 import Datum from '../data/datum'
 
-//util
-import {
-    logPredictors
-} from '../../util/env'
-
 export interface IntermediatePredictorObj extends PredictorObj {
     equation: string
     explanatoryPredictors: Array<string>
@@ -37,7 +32,7 @@ class IntermediatePredictor extends Predictor {
         return this
     }
 
-    evaluate(explanatoryPredictorsData: Array<Datum>): number | string {
+    evaluate(explanatoryPredictorsData: Array<Datum>, logData: boolean): number | string {
         var obj: {
             [index: string]: string | number
         } = {
@@ -49,7 +44,7 @@ class IntermediatePredictor extends Predictor {
         //Do this line to remove the error for unused locals
         func
         
-        if(logPredictors() === true) {
+        if(logData === true) {
             console.log(`\t\t------Intermediate Predictor------`)
             console.log(`\t\t\tName: ${this.name}`)
             console.log(`\t\t\tIntermediate Predictor Equation: ${this.equation}`)
