@@ -92,10 +92,10 @@ class Algorithm {
         var beta = Math.pow(Math.E, (formattedCoefficient*pmmlBeta))
 
         if(logData === true) {
-            console.log(`\t\tExplanatory Predictor ${explanatoryPredictor.name}`)
-            console.log(`\t\t\tInput ${formattedCoefficient} ${formattedCoefficient === explanatoryPredictor.referencePoint ? 'Set to Reference Point' : ''}`)
-            console.log(`\t\t\tPMML Beta ${explanatoryPredictor.beta}`)
-            console.log(`\t\t\tBeta ${beta}`)
+            console.log(`Explanatory Predictor ${explanatoryPredictor.name}`)
+            console.log(`Input ${formattedCoefficient} ${formattedCoefficient === explanatoryPredictor.referencePoint ? 'Set to Reference Point' : ''}`)
+            console.log(`PMML Beta ${explanatoryPredictor.beta}`)
+            console.log(`Beta ${beta}`)
         }
 
         return beta
@@ -103,12 +103,12 @@ class Algorithm {
 
     evaluate(data: Array<Datum>, logData: boolean): number {
         if(logData === true) {
-            console.log(`------------Predictors------------`)
+            console.groupCollapsed(`Predictors`)
         }
 
         var output = this.explanatoryPredictors.reduce((currentValue, explanatoryPredictor) => {
             if(logData === true) {
-                console.log(`\t------${explanatoryPredictor.name}------`)
+                console.groupCollapsed(`${explanatoryPredictor.name}`)
             }
 
             let foundDatumForCurrentPredictor = data.find((datum) => {
@@ -128,7 +128,7 @@ class Algorithm {
                     let coefficent = foundIntermediatePredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(foundIntermediatePredictor, data, logData), logData)
                     let beta = this.getBeta(explanatoryPredictor, coefficent, explanatoryPredictor.beta, logData)
 
-                    console.log('')
+                    console.groupEnd()
                     return currentValue*beta
                 }
             }
@@ -136,13 +136,13 @@ class Algorithm {
                 let coefficent = foundDatumForCurrentPredictor.coefficent
                 let beta = this.getBeta(explanatoryPredictor, coefficent, explanatoryPredictor.beta, logData)
 
-                console.log('')
+                console.groupEnd();
                 return currentValue*beta
             }
         }, 0)
 
         if(logData === true) {
-            console.log(`------------Predictors------------`)
+            console.groupEnd();
         }
 
         return output
