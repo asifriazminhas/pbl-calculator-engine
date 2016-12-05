@@ -45,7 +45,7 @@ class IntermediatePredictor extends Predictor {
         func
         
         if(logData === true) {
-            console.groupCollapsed(`Intermediate Predictor`)
+            console.groupCollapsed(`Intermediate Predictor: ${this.name}`)
             console.log(`Name: ${this.name}`)
             console.log(`Intermediate Predictor Equation: ${this.equation}`)
             console.log(`Intermediate Predictor Data`)
