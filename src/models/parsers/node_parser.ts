@@ -95,7 +95,7 @@ const BinaryExpressionOperators: {
     'greaterOrEqual': '>=',
     'lessOrEqual': '<='
 }
-export function getASTForBinaryExpressionApply(apply: BinaryExpressionApply): BinaryExpressionAST {
+export function getASTForBinaryExpressionApply(apply: BinaryExpressionApply): BinaryExpressionAST | UnaryExpressionAST {
     var left: BinaryExpressionASTLeftAndRight
     var leftNode = apply.$$[0]
     switch(leftNode['#name']) {
@@ -118,6 +118,11 @@ export function getASTForBinaryExpressionApply(apply: BinaryExpressionApply): Bi
 
     var right: BinaryExpressionASTLeftAndRight
     var rightNode = apply.$$[1]
+
+    if(!rightNode) {
+        return getUnaryExpressionAST(BinaryExpressionOperators[apply.$.function] as string, left as any);
+    }
+
     switch(rightNode['#name']) {
         case 'Constant': {
             right = getASTForConstant(rightNode as Constant)
