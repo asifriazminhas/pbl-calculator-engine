@@ -17,10 +17,12 @@ class Algorithm {
     name: string
     explanatoryPredictors: Array<ExplanatoryPredictor>
     intermediatePredictors: Array<IntermediatePredictor>
+    baselineHazard: number
 
-    constructFromPmml(explanatoryPredictors: Array<ExplanatoryPredictor>, intermediatePredictors: Array<IntermediatePredictor>): Algorithm {
+    constructFromPmml(explanatoryPredictors: Array<ExplanatoryPredictor>, intermediatePredictors: Array<IntermediatePredictor>, baselineHazard: number): Algorithm {
         this.explanatoryPredictors = explanatoryPredictors
         this.intermediatePredictors = intermediatePredictors
+        this.baselineHazard = baselineHazard
 
         return this
     }
@@ -95,7 +97,7 @@ class Algorithm {
             console.log(`Explanatory Predictor ${explanatoryPredictor.name}`)
             console.log(`Input ${formattedCoefficient} ${formattedCoefficient === explanatoryPredictor.referencePoint ? 'Set to Reference Point' : ''}`)
             console.log(`PMML Beta ${explanatoryPredictor.beta}`)
-            console.log(`Beta ${beta}`)
+            console.log(`Component ${beta}`)
         }
 
         return beta
@@ -106,7 +108,7 @@ class Algorithm {
             console.groupCollapsed(`Predictors`)
         }
 
-        var output = this.explanatoryPredictors.reduce((currentValue, explanatoryPredictor) => {
+        var score = this.explanatoryPredictors.reduce((currentValue, explanatoryPredictor) => {
             if(logData === true) {
                 console.groupCollapsed(`${explanatoryPredictor.name}`)
             }
@@ -139,13 +141,13 @@ class Algorithm {
                 console.groupEnd();
                 return currentValue*beta
             }
-        }, 0)
+        }, 1)
 
         if(logData === true) {
             console.groupEnd();
         }
 
-        return output
+        return 1 - (this.baselineHazard*score);
     }
 }
 
