@@ -84,7 +84,7 @@ export interface Pmml {
                 }>
             },
             $: {
-                baselineHazard: number
+                baselineHazard: string
             }
         },
         DataDictionary: {
