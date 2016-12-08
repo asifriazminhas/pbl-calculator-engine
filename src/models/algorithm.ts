@@ -10,7 +10,8 @@ import Datum from './data/datum'
 export interface AlgorithmObj {
     name: string
     explanatoryPredictors: Array<ExplanatoryPredictorObj>
-    intermediatePredictors: Array<IntermediatePredictorObj>
+    intermediatePredictors: Array<IntermediatePredictorObj>,
+    baselineHazard: number
 }
 
 class Algorithm {
@@ -37,6 +38,7 @@ class Algorithm {
         .map((intermediatePredictor) => {
             return new IntermediatePredictor().constructFromIntermediatePredictorObject(intermediatePredictor)
         })
+        this.baselineHazard = algorithmObj.baselineHazard
 
         return this
     }
