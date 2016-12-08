@@ -82,6 +82,9 @@ export interface Pmml {
                 PPCell: Array<{
                     $: PPCell
                 }>
+            },
+            $: {
+                baselineHazard: number
             }
         },
         DataDictionary: {
