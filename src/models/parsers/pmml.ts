@@ -142,5 +142,5 @@ export default async function (Algorithm: {
 
     const baselineHazard = parsedPmml.PMML.GeneralRegressionModel.$.baselineHazard;
 
-    return new Algorithm().constructFromPmml(explanatoryPredictors, intermediatePredictors);
+    return new Algorithm().constructFromPmml(explanatoryPredictors, intermediatePredictors, baselineHazard);
 }
