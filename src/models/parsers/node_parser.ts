@@ -35,7 +35,10 @@ import {
 } from './ast'
 
 export function getASTForConstant(constant: Constant): UnaryExpressionAST | LiteralAST {
-    if(constant.$.dataType === 'double') {
+    if(!constant.$ || constant.$.dataType === 'string') {
+        return getLiteralAST(constant._)
+    }
+    else if(constant.$.dataType === 'double') {
         let value = Number(constant._)
 
         if(value < 0) {
@@ -44,9 +47,6 @@ export function getASTForConstant(constant: Constant): UnaryExpressionAST | Lite
         else {
             return getLiteralAST(value)
         }
-    }
-    else if(constant.$.dataType === 'string') {
-        return getLiteralAST(constant._)
     }
     else {
         throw new Error(`Unknown dataType ${constant.$.dataType} for Constant`)
@@ -62,7 +62,8 @@ const SpecialFunctions: Array<string> = [
     'ln',
     'is.na',
     'not',
-    'notEqual'
+    'notEqual',
+    'formatDatetime'
 ]
 export function getASTForApply(apply: Apply): AST {
     if(BinaryExpressionOperators[apply.$.function] !== undefined) {
