@@ -1,13 +1,14 @@
 {
   "name": "@ottawamhealth/pbl-calculator-engine",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "engines": {
     "node": "~7.x.x"
   },
   "description": "The engine used to parse PMML files and evaluate algoirithms generated using PMML files",
   "main": "lib/index.js",
   "scripts": {
-    "prepublish": "webpack --config ./webpack/umd.config.js && tsc"
+    "prepublish": "webpack --config ./webpack/umd.config.js && tsc",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -36,12 +37,14 @@
     "csv-parse": "1.1.7",
     "http-server": "0.9.0",
     "mocha": "3.1.2",
+    "source-map-support": "0.4.3",
     "typescript": "2.0.3",
     "webpack": "1.13.3"
   },
   "dependencies": {
     "bluebird": "3.4.6",
     "escodegen": "1.8.1",
+    "moment": "2.17.1",
     "source-map-support": "0.4.3",
     "xml2js": "0.4.17"
   }
