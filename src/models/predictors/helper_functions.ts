@@ -1,3 +1,5 @@
+import * as moment from 'moment';
+
 export default {
     exp: function(value: number) {
         return Math.exp(value)
@@ -13,5 +15,10 @@ export default {
     },
     notEqual: function(valueOne: any, valueTwo: any) {
         return valueOne !== valueTwo
+    },
+    formatDatetime: function(date: moment.Moment, format: string): string {
+        const momentFormatString = format.replace(/%y/gi, 'YYYY').replace(/%d/gi, 'DD').replace(/%m/gi, 'MM');
+
+        return date.format(momentFormatString);
     }
 }
