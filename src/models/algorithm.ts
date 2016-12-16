@@ -6,6 +6,7 @@ import ExplanatoryPredictor, {
     ExplanatoryPredictorObj
 } from './predictors/explanatory_predictor'
 import Datum from './data/datum'
+import * as moment from 'moment';
 
 export interface AlgorithmObj {
     name: string
@@ -76,7 +77,7 @@ class Algorithm {
         })
     }
 
-    private getBeta(explanatoryPredictor: ExplanatoryPredictor, coefficent: number | string, pmmlBeta: number, logData: boolean): number {
+    private getBeta(explanatoryPredictor: ExplanatoryPredictor, coefficent: number | string | moment.Moment, pmmlBeta: number, logData: boolean): number {
         let formattedCoefficient: number = 0
         if(typeof coefficent === 'string') {
             if(coefficent === 'NA') {
@@ -86,11 +87,14 @@ class Algorithm {
                 throw new Error(`coefficient is not a number`)
             }
         }
-        else if(isNaN(coefficent)) {
+        else if(coefficent instanceof moment) {
+            throw new Error(`coefficent is a moment object`)
+        }
+        else if(isNaN(coefficent as number)) {
             formattedCoefficient = explanatoryPredictor.referencePoint
         }
         else {
-            formattedCoefficient = coefficent
+            formattedCoefficient = coefficent as number
         }
 
         var beta = Math.pow(Math.E, (formattedCoefficient*pmmlBeta))
@@ -105,7 +109,15 @@ class Algorithm {
         return beta
     }
 
+    get pmmlData(): Array<Datum> {
+        return [
+            new Datum().constructorForNewDatum('StartDate', moment())
+        ]
+    }
+
     evaluate(data: Array<Datum>, logData: boolean): number {
+        let calculatorData = data.concat(this.pmmlData);
+
         if(logData === true) {
             console.groupCollapsed(`Predictors`)
         }
@@ -115,7 +127,7 @@ class Algorithm {
                 console.groupCollapsed(`${explanatoryPredictor.name}`)
             }
 
-            let foundDatumForCurrentPredictor = data.find((datum) => {
+            let foundDatumForCurrentPredictor = calculatorData.find((datum) => {
                 return datum.name === explanatoryPredictor.name
             })
 
@@ -129,7 +141,7 @@ class Algorithm {
                     throw new Error(`No predictor found for ${explanatoryPredictor.name}`)
                 }
                 else {
-                    let coefficent = foundIntermediatePredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(foundIntermediatePredictor, data, logData), logData)
+                    let coefficent = foundIntermediatePredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(foundIntermediatePredictor, calculatorData, logData), logData)
                     let beta = this.getBeta(explanatoryPredictor, coefficent, explanatoryPredictor.beta, logData)
 
                     console.groupEnd()
