@@ -5,6 +5,8 @@ import Predictor, {
 import HelperFunctions from './helper_functions'
 import Datum from '../data/datum'
 
+import * as moment from 'moment';
+
 export interface IntermediatePredictorObj extends PredictorObj {
     equation: string
     explanatoryPredictors: Array<string>
@@ -34,7 +36,7 @@ class IntermediatePredictor extends Predictor {
 
     evaluate(explanatoryPredictorsData: Array<Datum>, logData: boolean): number | string {
         var obj: {
-            [index: string]: string | number
+            [index: string]: string | number | moment.Moment
         } = {
             //Do this since there could be values in the equation where the intermediate predictor is set to a variable called NA
             'NA': 'NA'
