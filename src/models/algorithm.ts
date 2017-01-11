@@ -77,7 +77,7 @@ class Algorithm {
         })
     }
 
-    private getBeta(explanatoryPredictor: ExplanatoryPredictor, coefficent: number | string | moment.Moment, pmmlBeta: number, logData: boolean): number {
+    private getComponent(explanatoryPredictor: ExplanatoryPredictor, coefficent: number | string | moment.Moment, pmmlBeta: number, logData: boolean): number {
         let formattedCoefficient: number = 0
         if(typeof coefficent === 'string') {
             if(coefficent === 'NA') {
@@ -142,7 +142,7 @@ class Algorithm {
                 }
                 else {
                     let coefficent = foundIntermediatePredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(foundIntermediatePredictor, calculatorData, logData), logData)
-                    let beta = this.getBeta(explanatoryPredictor, coefficent, explanatoryPredictor.beta, logData)
+                    let beta = this.getComponent(explanatoryPredictor, coefficent, explanatoryPredictor.beta, logData)
 
                     console.groupEnd()
                     return currentValue*beta
@@ -150,7 +150,7 @@ class Algorithm {
             }
             else {
                 let coefficent = foundDatumForCurrentPredictor.coefficent
-                let beta = this.getBeta(explanatoryPredictor, coefficent, explanatoryPredictor.beta, logData)
+                let beta = this.getComponent(explanatoryPredictor, coefficent, explanatoryPredictor.beta, logData)
 
                 console.groupEnd();
                 return currentValue*beta
