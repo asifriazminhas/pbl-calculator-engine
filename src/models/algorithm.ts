@@ -127,34 +127,38 @@ class Algorithm {
                 console.groupCollapsed(`${explanatoryPredictor.name}`)
             }
 
-            //
+            //Get the data for this predictor from which we can get the coefficent
             let foundDatumForCurrentPredictor = calculatorData.find((datum) => {
                 return datum.name === explanatoryPredictor.name
             })
 
+            //If we did not find the data for this predictor then it should have an intermediate predictor associated for it from which we can calculate the coefficent
             if(!foundDatumForCurrentPredictor) {
+                //Get the intermediate predictor for this explanatory predictor
                 let foundIntermediatePredictor = this.intermediatePredictors
                 .find((intermediatePredictor) => {
                     return intermediatePredictor.name === explanatoryPredictor.name
                 })
 
+                //If we did not find one then there is something wrtong so throw an error
                 if(!foundIntermediatePredictor) {
                     throw new Error(`No predictor found for ${explanatoryPredictor.name}`)
                 }
+                //Otherwise all is good.Continue with evaluating the score using this explanatory predictor
                 else {
                     let coefficent = foundIntermediatePredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(foundIntermediatePredictor, calculatorData, logData), logData)
-                    let beta = this.getComponent(explanatoryPredictor, coefficent, explanatoryPredictor.beta, logData)
+                    let component = this.getComponent(explanatoryPredictor, coefficent, explanatoryPredictor.beta, logData)
 
                     console.groupEnd()
-                    return currentValue*beta
+                    return currentValue*component
                 }
             }
             else {
                 let coefficent = foundDatumForCurrentPredictor.coefficent
-                let beta = this.getComponent(explanatoryPredictor, coefficent, explanatoryPredictor.beta, logData)
+                let component = this.getComponent(explanatoryPredictor, coefficent, explanatoryPredictor.beta, logData)
 
                 console.groupEnd();
-                return currentValue*beta
+                return currentValue*component
             }
         }, 1)
 
