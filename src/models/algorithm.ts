@@ -127,6 +127,7 @@ class Algorithm {
                 console.groupCollapsed(`${explanatoryPredictor.name}`)
             }
 
+            //
             let foundDatumForCurrentPredictor = calculatorData.find((datum) => {
                 return datum.name === explanatoryPredictor.name
             })
