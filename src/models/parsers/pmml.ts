@@ -15,6 +15,9 @@ import {
 import Algorithm from '../algorithm'
 import ExplanatoryPredictor from '../predictors/explanatory_predictor'
 import IntermediatePredictor from '../predictors/intermediate_predictor'
+import {
+    parseCustomFunction
+} from './custom_function';
 
 //interfaces
 import {
@@ -127,7 +130,7 @@ export default async function (Algorithm: {
             throw new Error(`No DataField found for ppCell ${ppCellForCurrentPCell.$.predictorName}`)
         }
 
-        return new ExplanatoryPredictor().constructFromPmml(dataFieldForCurrentPCell.$.name, dataFieldForCurrentPCell.$.optype, pCell.$.beta, parameterForCurrentPCell.$.referencePoint)
+        return new ExplanatoryPredictor().constructFromPmml(dataFieldForCurrentPCell.$.name, dataFieldForCurrentPCell.$.optype, pCell.$.beta, parameterForCurrentPCell.$.referencePoint, parseCustomFunction(parameterForCurrentPCell, parsedPmml.PMML.GeneralRegressionModel.RestrictedCubicSpline))
     })
 
     var intermediatePredictors: Array<IntermediatePredictor> = []
