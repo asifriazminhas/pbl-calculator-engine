@@ -7,6 +7,9 @@ import ExplanatoryPredictor, {
 } from './predictors/explanatory_predictor'
 import Datum from './data/datum'
 import * as moment from 'moment';
+import Spline from './custom_functions/spline';
+import CustomFunction from './custom_functions/custom_function';
+import Predictor from './predictors/predictor';
 
 export interface AlgorithmObj {
     name: string
@@ -97,7 +100,7 @@ class Algorithm {
             formattedCoefficient = coefficent as number
         }
 
-        var beta = Math.pow(Math.E, (formattedCoefficient*pmmlBeta))
+        var beta = formattedCoefficient*pmmlBeta
 
         if(logData === true) {
             console.log(`Explanatory Predictor ${explanatoryPredictor.name}`)
@@ -114,39 +117,121 @@ class Algorithm {
             new Datum().constructorForNewDatum('StartDate', moment())
         ]
     }
+    
+    /**
+     * Calculates the component for a predictor with a a custom function
+     * 
+     * @private
+     * @param {CustomFunction<any>} customFunction
+     * @param {Array<Datum>} data
+     * @returns {number}
+     * 
+     * @memberOf Algorithm
+     */
+    private getComponentForCustomFunction(customFunction: CustomFunction<any>, data: Array<Datum>, logData: boolean): number {
+        //If the custom function is a spline function
+        if(customFunction instanceof Spline) {
+            const firstVariablePredictor = (this.explanatoryPredictors as Array<Predictor>).concat(this.intermediatePredictors as Array<Predictor>)
+                .find((explanatoryPreditor) => {
+                    return explanatoryPreditor.name === customFunction.firstVariableName;
+                });
 
-    getComponentForPredictor(predictor: ExplanatoryPredictor, data: Array<Datum>, logData: boolean) {
-        //Get the data for this predictor from which we can get the coefficent
-        let foundDatumForCurrentPredictor = data.find((datum) => {
-            return datum.name === predictor.name
-        })
-
-        //If we did not find the data for this predictor then it should have an intermediate predictor associated for it from which we can calculate the coefficent
-        if(!foundDatumForCurrentPredictor) {
-            //Get the intermediate predictor for this explanatory predictor
-            let foundIntermediatePredictor = this.intermediatePredictors
-            .find((intermediatePredictor) => {
-                return intermediatePredictor.name === predictor.name
-            })
-
-            //If we did not find one then there is something wrtong so throw an error
-            if(!foundIntermediatePredictor) {
-                throw new Error(`No predictor found for ${predictor.name}`)
+            if(!firstVariablePredictor) {
+                throw new Error(`No first variable predictor found with name ${customFunction.firstVariableName} when evaluating spline custom function`);
             }
-            //Otherwise all is good.Continue with evaluating the score using this explanatory predictor
             else {
-                let coefficent = foundIntermediatePredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(foundIntermediatePredictor, data, logData), logData)
-                let component = this.calculateComponent(predictor, coefficent, predictor.beta, logData)
+                let firstVariableValue = this.getCoefficentForPredictor(firstVariablePredictor, data, logData);
 
-                console.groupEnd()
-                return component
+                if(firstVariableValue instanceof moment) {
+                    throw new Error(`firstVariableValue is not a number when evluating spline function`); 
+                }
+                if(isNaN(firstVariableValue as number)) {
+                    throw new Error(`firstVariableValue is not a number when evluating spline function`);
+                }
+                else {
+                    return customFunction.evaluate({
+                        firstVariableValue: Number(firstVariableValue)
+                    });
+                }
             }
         }
         else {
-            let coefficent = foundDatumForCurrentPredictor.coefficent
-            let component = this.calculateComponent(predictor, coefficent, predictor.beta, logData)
+            throw new Error(`Unknown custom function`);
+        }
+    }
+    
+    /**
+     * 
+     * 
+     * @private
+     * @param {Predictor} predictor
+     * @param {Array<Datum>} data
+     * @param {boolean} logData
+     * @returns {(number | string | moment.Moment)}
+     * 
+     * @memberOf Algorithm
+     */
+    private getCoefficentForPredictor(predictor: Predictor, data: Array<Datum>, logData: boolean): number | string | moment.Moment {
+        if(predictor instanceof ExplanatoryPredictor) {
+            //Get the data for this predictor from which we can get the coefficent
+            let foundDatumForCurrentPredictor = data.find((datum) => {
+                return datum.name === predictor.name
+            });
 
-            console.groupEnd();
+            //If no data was found
+            if(!foundDatumForCurrentPredictor) {
+                //Get the intermediate predictor for this explanatory predictor
+                let foundIntermediatePredictor = this.intermediatePredictors
+                .find((intermediatePredictor) => {
+                    return intermediatePredictor.name === predictor.name
+                });
+
+                //If we did not find one then there is something wrtong so throw an error
+                if(!foundIntermediatePredictor) {
+                    throw new Error(`Evaluating coefficent for predictor ${predictor.name} but no data found and no intermediate predictor found`)
+                }
+                //Otherwise all is good.Continue with getting the coefficent for this intermediate predictor
+                else {
+                    return this.getCoefficentForPredictor(foundIntermediatePredictor, data, logData);
+                }
+            }
+            //Otherwise return the coefficent in this data
+            else {
+                return foundDatumForCurrentPredictor.coefficent;
+            }
+        }
+        else if (predictor instanceof IntermediatePredictor) {
+            return predictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(predictor, data, logData), logData);
+        }
+        else {
+            throw new Error(`Unknown predictor type`);
+        }
+    }
+
+    /**
+     * Returns the component for the Predictor
+     * 
+     * @param {ExplanatoryPredictor} predictor
+     * @param {Array<Datum>} data
+     * @param {boolean} logData
+     * @returns {number}
+     * 
+     * @memberOf Algorithm
+     */
+    getComponentForPredictor(predictor: ExplanatoryPredictor, data: Array<Datum>, logData: boolean): number {
+        //If there is a custom function for this predictor then we use that to calculate the component
+        if(predictor.customFunction !== null) {
+            return this.getComponentForCustomFunction(predictor.customFunction, data, logData);
+        }
+        //Otherwise
+        else {
+            const coefficent = this.getCoefficentForPredictor(predictor, data, logData);
+            const component = this.calculateComponent(predictor, coefficent, predictor.beta, logData)
+
+            if(logData === true) {
+                console.groupEnd()
+            }
+
             return component
         }
     }
@@ -162,15 +247,16 @@ class Algorithm {
             if(logData === true) {
                 console.groupCollapsed(`${explanatoryPredictor.name}`)
             }
-
-            return currentValue*this.getComponentForPredictor(explanatoryPredictor, calculatorData, logData);
-        }, 1)
+            
+            let component = this.getComponentForPredictor(explanatoryPredictor, calculatorData, logData);
+            return currentValue + component
+        }, 0)
 
         if(logData === true) {
             console.groupEnd();
         }
 
-        return 1 - (this.baselineHazard*score);
+        return 1 - (this.baselineHazard*Math.pow(Math.E, score));
     }
 }
 
