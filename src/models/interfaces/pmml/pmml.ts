@@ -62,6 +62,17 @@ export interface DerivedField {
     Apply: Apply
 }
 
+export interface RestrictedCubicSplinePCell {
+    parameterName: string;
+    knotLocations: string;
+}
+
+export interface RestrictedCubicSpline {
+    PCell: Array<{
+        $: RestrictedCubicSplinePCell
+    }>
+}
+
 export interface Pmml {
     PMML: {
         LocalTransformations: {
@@ -83,6 +94,7 @@ export interface Pmml {
                     $: PPCell
                 }>
             },
+            RestrictedCubicSpline: RestrictedCubicSpline,
             $: {
                 baselineHazard: string
             }
