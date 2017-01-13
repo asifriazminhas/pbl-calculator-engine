@@ -220,7 +220,7 @@ class Algorithm {
      */
     getComponentForPredictor(predictor: ExplanatoryPredictor, data: Array<Datum>, logData: boolean): number {
         //If there is a custom function for this predictor then we use that to calculate the component
-        if(predictor.customFunction !== null) {
+        if(predictor.customFunction) {
             return this.getComponentForCustomFunction(predictor.customFunction, data, logData);
         }
         //Otherwise
