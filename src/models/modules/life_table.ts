@@ -156,16 +156,16 @@ function getCompleteLifeTable(baseLifeTableWithQx: Array<BaseLifeTableWithQxRow>
  * @returns {number}
  */
 function getLifeExpectancyForAge(age: number, lifeTable: Array<LifeTableRow>): number {
-    const yearsLeftToLive = lifeTable.reduce((lifeExpectancy, lifeTableRow) => {
-        if(lifeTableRow.age < age) {
-            return lifeExpectancy;
-        }
-        else {
-            return lifeExpectancy + lifeTableRow.ex;
-        }
-    }, 0)
+    const lifeTableRowForPassedAge = lifeTable.find((lifeTableRow) => {
+        return lifeTableRow.age === age;
+    });
 
-    return yearsLeftToLive + age;
+    if(!lifeTableRowForPassedAge) {
+        throw new Error(`No life table row found for age ${age}`);
+    }
+    else {
+        return lifeTableRowForPassedAge.ex + age;
+    }
 }
 
 /**
@@ -177,7 +177,7 @@ function getLifeExpectancyForAge(age: number, lifeTable: Array<LifeTableRow>): n
  * @param {Array<BaseLifeTableRow>} baseLifeTable
  * @returns {number}
  */
-export function getLifeExpectanceForAge(age: number, getPredictedRiskForAge: GetPredictedRiskForAge, baseLifeTable: Array<BaseLifeTableRow>): number {
+export function getLifeExpectancy(age: number, getPredictedRiskForAge: GetPredictedRiskForAge, baseLifeTable: Array<BaseLifeTableRow>): number {
     const baseLifeTableWithQx = getBaseLifeTableWithQx(baseLifeTable, getPredictedRiskForAge);
     const lifeTable = getCompleteLifeTable(baseLifeTableWithQx);
 
