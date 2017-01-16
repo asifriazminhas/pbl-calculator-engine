@@ -31,7 +31,7 @@ function getBaseLifeTableWithQx(baseLifeTable: Array<BaseLifeTableRow>, getPredi
 
     baseLifeTable.forEach((baseLifeTableRow) => {
         baseLifeTableWithQx.push(Object.assign({}, baseLifeTableRow, {
-            qx: getPredictedRiskForAge(baseLifeTableRow.age)
+            qx: 1 - getPredictedRiskForAge(baseLifeTableRow.age)
         }))
     });
 
