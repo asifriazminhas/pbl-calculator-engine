@@ -10,6 +10,7 @@ import * as moment from 'moment';
 import Spline from './custom_functions/spline';
 import CustomFunction from './custom_functions/custom_function';
 import Predictor from './predictors/predictor';
+import env from './env/env';
 
 export interface AlgorithmObj {
     name: string
@@ -48,7 +49,7 @@ class Algorithm {
     }
 
     //Returns the array of Datum objects for all the explanatoryPredictors in an intermediatePredictors
-    getExplanatoryPredictorDataForIntermediatePredictor(intermediatePredictor: IntermediatePredictor, data: Array<Datum>, logData: boolean): Array<Datum> {
+    getExplanatoryPredictorDataForIntermediatePredictor(intermediatePredictor: IntermediatePredictor, data: Array<Datum>): Array<Datum> {
         //Go through all the explanatory predictors for the intermediate predictor and return the Datum object for each
         return intermediatePredictor.explanatoryPredictors.map((explanatoryPredictor) => {
             //Check if there is already a datum object for this explanatory predictor in the data param
@@ -70,7 +71,7 @@ class Algorithm {
                 }
                 //Otherwise create a new Datum object using the name field as the identifier and evaluating this value for this intermediate predictor
                 else {
-                    return new Datum().constructorForNewDatum(intermediatePredictorForExplanatoryPredictor.name, intermediatePredictorForExplanatoryPredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(intermediatePredictorForExplanatoryPredictor, data, logData), logData))
+                    return new Datum().constructorForNewDatum(intermediatePredictorForExplanatoryPredictor.name, intermediatePredictorForExplanatoryPredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(intermediatePredictorForExplanatoryPredictor, data)))
                 }
             }
             //If there is return it
@@ -80,7 +81,7 @@ class Algorithm {
         })
     }
 
-    private calculateComponent(explanatoryPredictor: ExplanatoryPredictor, coefficent: number | string | moment.Moment, pmmlBeta: number, logData: boolean): number {
+    private calculateComponent(explanatoryPredictor: ExplanatoryPredictor, coefficent: number | string | moment.Moment, pmmlBeta: number): number {
         let formattedCoefficient: number = 0
         if(typeof coefficent === 'string') {
             if(coefficent === 'NA') {
@@ -102,7 +103,7 @@ class Algorithm {
 
         var beta = formattedCoefficient*pmmlBeta
 
-        if(logData === true) {
+        if(env.isEnvironmentTesting()) {
             console.log(`Explanatory Predictor ${explanatoryPredictor.name}`)
             console.log(`Input ${formattedCoefficient} ${formattedCoefficient === explanatoryPredictor.referencePoint ? 'Set to Reference Point' : ''}`)
             console.log(`PMML Beta ${explanatoryPredictor.beta}`)
@@ -128,7 +129,7 @@ class Algorithm {
      * 
      * @memberOf Algorithm
      */
-    private getComponentForCustomFunction(customFunction: CustomFunction<any>, data: Array<Datum>, logData: boolean): number {
+    private getComponentForCustomFunction(customFunction: CustomFunction<any>, data: Array<Datum>): number {
         //If the custom function is a spline function
         if(customFunction instanceof Spline) {
             const firstVariablePredictor = (this.explanatoryPredictors as Array<Predictor>).concat(this.intermediatePredictors as Array<Predictor>)
@@ -140,7 +141,7 @@ class Algorithm {
                 throw new Error(`No first variable predictor found with name ${customFunction.firstVariableName} when evaluating spline custom function`);
             }
             else {
-                let firstVariableValue = this.getCoefficentForPredictor(firstVariablePredictor, data, logData);
+                let firstVariableValue = this.getCoefficentForPredictor(firstVariablePredictor, data);
 
                 if(firstVariableValue instanceof moment) {
                     throw new Error(`firstVariableValue is not a number when evluating spline function`); 
@@ -166,12 +167,11 @@ class Algorithm {
      * @private
      * @param {Predictor} predictor
      * @param {Array<Datum>} data
-     * @param {boolean} logData
      * @returns {(number | string | moment.Moment)}
      * 
      * @memberOf Algorithm
      */
-    private getCoefficentForPredictor(predictor: Predictor, data: Array<Datum>, logData: boolean): number | string | moment.Moment {
+    private getCoefficentForPredictor(predictor: Predictor, data: Array<Datum>): number | string | moment.Moment {
         if(predictor instanceof ExplanatoryPredictor) {
             //Get the data for this predictor from which we can get the coefficent
             let foundDatumForCurrentPredictor = data.find((datum) => {
@@ -192,7 +192,7 @@ class Algorithm {
                 }
                 //Otherwise all is good.Continue with getting the coefficent for this intermediate predictor
                 else {
-                    return this.getCoefficentForPredictor(foundIntermediatePredictor, data, logData);
+                    return this.getCoefficentForPredictor(foundIntermediatePredictor, data);
                 }
             }
             //Otherwise return the coefficent in this data
@@ -201,7 +201,7 @@ class Algorithm {
             }
         }
         else if (predictor instanceof IntermediatePredictor) {
-            return predictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(predictor, data, logData), logData);
+            return predictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(predictor, data));
         }
         else {
             throw new Error(`Unknown predictor type`);
@@ -213,22 +213,21 @@ class Algorithm {
      * 
      * @param {ExplanatoryPredictor} predictor
      * @param {Array<Datum>} data
-     * @param {boolean} logData
      * @returns {number}
      * 
      * @memberOf Algorithm
      */
-    getComponentForPredictor(predictor: ExplanatoryPredictor, data: Array<Datum>, logData: boolean): number {
+    getComponentForPredictor(predictor: ExplanatoryPredictor, data: Array<Datum>): number {
         //If there is a custom function for this predictor then we use that to calculate the component
         if(predictor.customFunction) {
-            return this.getComponentForCustomFunction(predictor.customFunction, data, logData);
+            return this.getComponentForCustomFunction(predictor.customFunction, data);
         }
         //Otherwise
         else {
-            const coefficent = this.getCoefficentForPredictor(predictor, data, logData);
-            const component = this.calculateComponent(predictor, coefficent, predictor.beta, logData)
+            const coefficent = this.getCoefficentForPredictor(predictor, data);
+            const component = this.calculateComponent(predictor, coefficent, predictor.beta)
 
-            if(logData === true) {
+            if(env.isEnvironmentTesting() === true) {
                 console.groupEnd()
             }
 
@@ -236,23 +235,23 @@ class Algorithm {
         }
     }
 
-    evaluate(data: Array<Datum>, logData: boolean): number {
+    evaluate(data: Array<Datum>): number {
         let calculatorData = data.concat(this.pmmlData);
 
-        if(logData === true) {
+        if(env.isEnvironmentTesting() === true) {
             console.groupCollapsed(`Predictors`)
         }
 
         var score = this.explanatoryPredictors.reduce((currentValue, explanatoryPredictor) => {
-            if(logData === true) {
+            if(env.isEnvironmentTesting() === true) {
                 console.groupCollapsed(`${explanatoryPredictor.name}`)
             }
             
-            let component = this.getComponentForPredictor(explanatoryPredictor, calculatorData, logData);
+            let component = this.getComponentForPredictor(explanatoryPredictor, calculatorData);
             return currentValue + component
         }, 0)
 
-        if(logData === true) {
+        if(env.isEnvironmentTesting() === true) {
             console.groupEnd();
         }
 

@@ -4,6 +4,7 @@ import Predictor, {
 } from './predictor'
 import HelperFunctions from './helper_functions'
 import Datum from '../data/datum'
+import env from '../env/env';
 
 import * as moment from 'moment';
 
@@ -34,7 +35,7 @@ class IntermediatePredictor extends Predictor {
         return this
     }
 
-    evaluate(explanatoryPredictorsData: Array<Datum>, logData: boolean): number | string {
+    evaluate(explanatoryPredictorsData: Array<Datum>): number | string {
         var obj: {
             [index: string]: string | number | moment.Moment
         } = {
@@ -46,7 +47,7 @@ class IntermediatePredictor extends Predictor {
         //Do this line to remove the error for unused locals
         func
         
-        if(logData === true) {
+        if(env.isEnvironmentTesting() === true) {
             console.groupCollapsed(`Intermediate Predictor: ${this.name}`)
             console.log(`Name: ${this.name}`)
             console.log(`Intermediate Predictor Equation: ${this.equation}`)
