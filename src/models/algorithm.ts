@@ -7,7 +7,7 @@ import ExplanatoryPredictor, {
 } from './predictors/explanatory_predictor'
 import Datum from './data/datum'
 import * as moment from 'moment';
-import Spline from './custom_functions/spline';
+import RCSSpline from './custom_functions/rcs_spline';
 import CustomFunction from './custom_functions/custom_function';
 import Predictor from './predictors/predictor';
 import env from './env/env';
@@ -129,9 +129,9 @@ class Algorithm {
      * 
      * @memberOf Algorithm
      */
-    private getComponentForCustomFunction(customFunction: CustomFunction<any>, data: Array<Datum>): number {
+    private getComponentForCustomFunction(customFunction: CustomFunction<any>, data: Array<Datum>, beta: number): number {
         //If the custom function is a spline function
-        if(customFunction instanceof Spline) {
+        if(customFunction instanceof RCSSpline) {
             const firstVariablePredictor = (this.explanatoryPredictors as Array<Predictor>).concat(this.intermediatePredictors as Array<Predictor>)
                 .find((explanatoryPreditor) => {
                     return explanatoryPreditor.name === customFunction.firstVariableName;
@@ -152,7 +152,7 @@ class Algorithm {
                 else {
                     return customFunction.evaluate({
                         firstVariableValue: Number(firstVariableValue)
-                    });
+                    })*beta;
                 }
             }
         }
@@ -220,7 +220,7 @@ class Algorithm {
     getComponentForPredictor(predictor: ExplanatoryPredictor, data: Array<Datum>): number {
         //If there is a custom function for this predictor then we use that to calculate the component
         if(predictor.customFunction) {
-            return this.getComponentForCustomFunction(predictor.customFunction, data);
+            return this.getComponentForCustomFunction(predictor.customFunction, data, predictor.beta);
         }
         //Otherwise
         else {
