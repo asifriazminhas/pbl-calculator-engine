@@ -1,5 +1,10 @@
+import {
+    autobind
+} from 'core-decorators';
+
 export type environment = 'production' | 'testing';
 
+@autobind
 export class Env {
     private _environment: environment
 
@@ -9,6 +14,10 @@ export class Env {
 
     set environment(environment: environment) {
         this._environment = environment
+    }
+
+    isEnvironmentTesting() {
+        return this._environment === 'testing';
     }
 }
 
