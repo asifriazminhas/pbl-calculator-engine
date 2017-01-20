@@ -4,7 +4,7 @@ import {
     RestrictedCubicSpline
 } from '../interfaces/pmml/pmml';
 import CustomFunction from '../custom_functions/custom_function';
-import Spline from '../custom_functions/spline';
+import RCSSpline from '../custom_functions/rcs_spline';
 
 /**
  * Checks if the predictor has a spline custom function associated with it. It does if the name has an '_rcs'
@@ -70,7 +70,7 @@ export function parseCustomFunction(parameter: {
                 }
                 //Otherwise Return the Spline object
                 else {
-                    return new Spline().constructFromPmml(parseKnotLocations(restrictedCubicSplinePCell.$.knotLocations), `${predictorName}_rcs1`);
+                    return new RCSSpline().constructFromPmml(parseKnotLocations(restrictedCubicSplinePCell.$.knotLocations), `${predictorName}_rcs1`, splineVariableNumber);
                 }
             }
         }
