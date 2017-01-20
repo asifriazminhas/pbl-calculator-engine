@@ -1,5 +1,5 @@
-import Datum from './models/data/datum';
-
+import env, { Env } from './models/env/env';
 export {
-    Datum
-}
+    env,
+    Env
+};
