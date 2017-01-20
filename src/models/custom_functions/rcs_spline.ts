@@ -22,7 +22,7 @@ export interface EvaluateArgs {
  * @class Spline
  * @extends {CustomFunction<EvaluateArgs>}
  */
-class Spline extends CustomFunction<EvaluateArgs> { 
+class RCSSpline extends CustomFunction<EvaluateArgs> { 
     /**
      * 
      * 
@@ -37,12 +37,20 @@ class Spline extends CustomFunction<EvaluateArgs> {
      * @memberOf Spline
      */
     firstVariableName: string;
+    /**
+     * The variable number of the spline. eg. age_rcs2 it would be 2
+     * 
+     * @type {number}
+     * @memberOf Spline
+     */
+    variableNumber: number;
 
     constructor() {
         super();
 
         this.knots = [];
         this.firstVariableName = ''; 
+        this.variableNumber = 1;
     }
     
     /**
@@ -54,26 +62,48 @@ class Spline extends CustomFunction<EvaluateArgs> {
      * 
      * @memberOf Spline
      */
-    constructFromPmml(knots: Array<number>, firstVariableName: string) {
+    constructFromPmml(knots: Array<number>, firstVariableName: string, variableNumber: number) {
         this.knots = knots;
         this.firstVariableName = firstVariableName;
+        this.variableNumber = variableNumber;
 
         return this;
     }
 
+    get numberOfKnots(): number {
+        return this.knots.length;
+    }
+
     //Calculates the first term in the spline equation
     private getFirstTerm(firstVariableValue: number): number {
-        return Math.max(Math.pow(firstVariableValue - this.knots[0], 3), 0);
+        const numerator = firstVariableValue - this.knots[this.variableNumber - 2];
+        const denominator = Math.pow(this.knots[this.numberOfKnots - 1] - this.knots[0], (2/3));
+
+        return Math.pow(Math.max(numerator/denominator, 0), 3);
     }
     
     //Calculates the second term in the spline equation
     private getSecondTerm(firstVariableValue: number): number {
-        return ((this.knots[2] - this.knots[0])/(this.knots[2] - this.knots[1]))*Math.max(Math.pow(firstVariableValue - this.knots[1], 3), 0)
+        const coefficentNumerator = this.knots[this.numberOfKnots - 1] - this.knots[this.variableNumber - 2];
+        const coefficentDenominator = this.knots[this.numberOfKnots - 1] - this.knots[this.numberOfKnots - 2];
+        const coefficent = coefficentNumerator/coefficentDenominator;
+
+        const numerator = firstVariableValue - this.knots[this.numberOfKnots - 2];
+        const denominator = Math.pow(this.knots[this.numberOfKnots - 1] - this.knots[0], (2/3));
+
+        return coefficent*Math.pow(Math.max(numerator/denominator, 0), 3);
     }
 
     //Calculates the third term inthe spline equation
     private getThirdTerm(firstVariableValue: number): number {
-        return ((this.knots[1] - this.knots[0])/(this.knots[2] - this.knots[1]))*Math.max(Math.pow(firstVariableValue - this.knots[2], 3), 0)
+        const coefficentNumerator = this.knots[this.numberOfKnots - 2] - this.knots[this.variableNumber - 2];
+        const coefficentDenominator = this.knots[this.numberOfKnots - 1] - this.knots[this.numberOfKnots - 2];
+        const coefficent = coefficentNumerator/coefficentDenominator;
+
+        const numerator = firstVariableValue - this.knots[this.numberOfKnots - 1];
+        const denominator = Math.pow(this.knots[this.numberOfKnots - 1] - this.knots[0], (2/3));
+        
+        return coefficent*Math.pow(Math.max(numerator/denominator, 0), 3);
     }
 
     /**
@@ -89,5 +119,5 @@ class Spline extends CustomFunction<EvaluateArgs> {
     }
 }
 
-export default Spline;
+export default RCSSpline;
 
