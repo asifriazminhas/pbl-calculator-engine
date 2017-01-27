@@ -7,6 +7,7 @@
   "description": "The engine used to parse PMML files and evaluate algoirithms generated using PMML files",
   "main": "lib/index.js",
   "scripts": {
+    "build-umd": "webpack --config ./webpack/umd.config.js",
     "prepublish": "webpack --config ./webpack/umd.config.js && tsc",
     "build": "tsc"
   },
