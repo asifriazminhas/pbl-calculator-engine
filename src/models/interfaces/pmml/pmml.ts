@@ -59,7 +59,8 @@ export interface DerivedField {
 }
 
 export interface DerivedField {
-    Apply: Apply
+    Apply?: Apply;
+    Constant?: Constant
 }
 
 export interface RestrictedCubicSplinePCell {
