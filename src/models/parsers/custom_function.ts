@@ -61,7 +61,7 @@ export function parseCustomFunction(parameter: {
             else {
                 //Get the RestrictredCubicSpline PCell for this predictor  using the parameter name field
                 const restrictedCubicSplinePCell = restrictedCubicSpline.PCell.find((pCell) => {
-                    return pCell.$.parameterName === parameter.$.name;
+                    return pCell.$.parameterName.indexOf(parameter.$.name) > -1;
                 });
                 
                 //If there isn't one then we have a problem
