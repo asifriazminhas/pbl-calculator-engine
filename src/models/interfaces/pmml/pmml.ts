@@ -8,10 +8,19 @@ export interface PCell {
     beta: string
 }
 
+/**
+ * The Paramater node in a PMML file. Has information for a certain predictor.
+ * 
+ * @export
+ * @interface Parameter
+ */
 export interface Parameter {
-    name: string
-    label: string
-    referencePoint: string
+    $: {
+        name: string
+        //Human readable name
+        label: string
+        referencePoint: string
+    }
 }
 
 export interface DataField {
@@ -63,27 +72,21 @@ export interface DerivedField {
     Constant?: Constant
 }
 
-export interface RestrictedCubicSplinePCell {
-    parameterName: string;
-    knotLocations: string;
-}
-
-export interface RestrictedCubicSpline {
-    PCell: Array<{
-        $: RestrictedCubicSplinePCell
-    }>
-}
-
+/**
+ * The root XML node for a PMML file
+ * 
+ * @export
+ * @interface Pmml
+ */
 export interface Pmml {
     PMML: {
         LocalTransformations: {
             DerivedField: Array<DerivedField>
         }
         GeneralRegressionModel: {
+            //The nodes inside this nodes is what should be used to as the list of pedictors a certain algorithm needs
             ParameterList: {
-                Parameter: Array<{
-                    $: Parameter
-                }>
+                Parameter: Array<Parameter>
             }
             ParamMatrix: {
                 PCell: Array<{
@@ -95,7 +98,6 @@ export interface Pmml {
                     $: PPCell
                 }>
             },
-            RestrictedCubicSpline: RestrictedCubicSpline,
             $: {
                 baselineHazard: string
             }
