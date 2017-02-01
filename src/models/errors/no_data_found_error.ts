@@ -6,9 +6,11 @@
  * @extends {Error}
  */
 export class NoDataFoundError extends Error {
+    static readonly name = 'NoDataFoundError';
+
     constructor(predictorName: string) {
         super(`No data found for predictor ${predictorName}`);
 
-        this.name = 'NoDataFoundError';
+        this.name = NoDataFoundError.name;
     }
 }
