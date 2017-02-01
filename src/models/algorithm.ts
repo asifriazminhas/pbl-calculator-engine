@@ -313,7 +313,7 @@ class Algorithm {
         }
         catch(err) {
             //If we got an NoDataFoundError then data is missing so return true
-            if(err.name === NoDataFoundError.name) {
+            if(err.name === NoDataFoundError.ErrorName) {
                 return true;
             }
             //Unknown error so throw it
