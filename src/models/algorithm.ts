@@ -1,3 +1,4 @@
+import { NoDataFoundError } from './errors/no_data_found_error';
 //models
 import IntermediatePredictor, {
     IntermediatePredictorObj
@@ -25,6 +26,10 @@ class Algorithm {
     intermediatePredictors: Array<IntermediatePredictor>
     baselineHazard: number
 
+    static readonly PmmlData = [
+        new Datum().constructorForNewDatum('StartDate', moment())
+    ];
+
     constructFromPmml(explanatoryPredictors: Array<ExplanatoryPredictor>, intermediatePredictors: Array<IntermediatePredictor>, baselineHazard: number): Algorithm {
         this.explanatoryPredictors = explanatoryPredictors
         this.intermediatePredictors = intermediatePredictors
@@ -48,8 +53,41 @@ class Algorithm {
         return this
     }
 
-    //Returns the array of Datum objects for all the explanatoryPredictors in an intermediatePredictors
-    getExplanatoryPredictorDataForIntermediatePredictor(intermediatePredictor: IntermediatePredictor, data: Array<Datum>): Array<Datum> {
+
+    evaluate(userData: Array<Datum>): number {
+        let dataToUserInAlgorithm = this.getDataToUseInAlgorithm(userData);
+
+        if(env.isEnvironmentTesting() === true) {
+            console.groupCollapsed(`Predictors`)
+        }
+
+        var score = this.explanatoryPredictors.reduce((currentValue, explanatoryPredictor) => {
+            if(env.isEnvironmentTesting() === true) {
+                console.groupCollapsed(`${explanatoryPredictor.name}`)
+            }
+            
+            let component = this.getComponentForPredictor(explanatoryPredictor, dataToUserInAlgorithm);
+            return currentValue + component
+        }, 0)
+
+        if(env.isEnvironmentTesting() === true) {
+            console.groupEnd();
+        }
+
+        return 1 - (this.baselineHazard*Math.pow(Math.E, score));
+    }
+
+    /**
+     * Returns the data needed to compute the transformation for the IntermediatePredictor
+     * 
+     * @private
+     * @param {IntermediatePredictor} intermediatePredictor
+     * @param {Array<Datum>} data
+     * @returns {Array<Datum>}
+     * 
+     * @memberOf Algorithm
+     */
+    private getDataForIntermediatePredictor(intermediatePredictor: IntermediatePredictor, data: Array<Datum>): Array<Datum> {
         //Go through all the explanatory predictors for the intermediate predictor and return the Datum object for each
         return intermediatePredictor.explanatoryPredictors.map((explanatoryPredictor) => {
             //Check if there is already a datum object for this explanatory predictor in the data param
@@ -67,11 +105,11 @@ class Algorithm {
 
                 //If we didn't find one then there is a problem
                 if(!intermediatePredictorForExplanatoryPredictor) {
-                    throw new Error(`No error for predictor ${explanatoryPredictor}`)
+                    throw new NoDataFoundError(explanatoryPredictor);
                 }
                 //Otherwise create a new Datum object using the name field as the identifier and evaluating this value for this intermediate predictor
                 else {
-                    return new Datum().constructorForNewDatum(intermediatePredictorForExplanatoryPredictor.name, intermediatePredictorForExplanatoryPredictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(intermediatePredictorForExplanatoryPredictor, data)))
+                    return new Datum().constructorForNewDatum(intermediatePredictorForExplanatoryPredictor.name, intermediatePredictorForExplanatoryPredictor.evaluate(this.getDataForIntermediatePredictor(intermediatePredictorForExplanatoryPredictor, data)))
                 }
             }
             //If there is return it
@@ -111,12 +149,38 @@ class Algorithm {
         }
 
         return beta
-    }
-
-    get pmmlData(): Array<Datum> {
-        return [
-            new Datum().constructorForNewDatum('StartDate', moment())
-        ]
+    } 
+    
+    /**
+     * 
+     * 
+     * @private
+     * @param {Array<Datum>} userData
+     * @returns {Array<Datum>}
+     * 
+     * @memberOf Algorithm
+     */
+    private getDataToUseInAlgorithm(userData: Array<Datum>): Array<Datum> {
+        const missingData =  this.explanatoryPredictors
+            .map((explanatoryPredictor) => {
+                if(this.isDataMissingForExplanatoryPredictor(userData, explanatoryPredictor) === true) {
+                    if(explanatoryPredictor.customFunction !== null) {
+                        return null;
+                    }
+                    else {
+                        console.warn(`Setting data for ${explanatoryPredictor.name} to reference point due to missing data`);
+                        return new Datum().constructorForNewDatum(explanatoryPredictor.name, explanatoryPredictor.referencePoint);
+                    }
+                }
+                else {
+                    return null;
+                }
+            })
+            .filter((datum) => {
+                return datum !== null;
+            });
+        
+        return (missingData as Array<Datum>).concat(Algorithm.PmmlData).concat(userData);
     }
     
     /**
@@ -129,7 +193,7 @@ class Algorithm {
      * 
      * @memberOf Algorithm
      */
-    private getComponentForCustomFunction(customFunction: CustomFunction<any>, data: Array<Datum>, beta: number): number {
+    private getCoefficientForCustomFunction(customFunction: CustomFunction<any>, data: Array<Datum>): number {
         //If the custom function is a spline function
         if(customFunction instanceof RCSSpline) {
             const firstVariablePredictor = (this.explanatoryPredictors as Array<Predictor>).concat(this.intermediatePredictors as Array<Predictor>)
@@ -152,7 +216,7 @@ class Algorithm {
                 else {
                     return customFunction.evaluate({
                         firstVariableValue: Number(firstVariableValue)
-                    })*beta;
+                    });
                 }
             }
         }
@@ -180,6 +244,10 @@ class Algorithm {
 
             //If no data was found
             if(!foundDatumForCurrentPredictor) {
+                if(predictor.customFunction) {
+                    return this.getCoefficientForCustomFunction(predictor.customFunction, data);
+                }
+
                 //Get the intermediate predictor for this explanatory predictor
                 let foundIntermediatePredictor = this.intermediatePredictors
                 .find((intermediatePredictor) => {
@@ -201,7 +269,7 @@ class Algorithm {
             }
         }
         else if (predictor instanceof IntermediatePredictor) {
-            return predictor.evaluate(this.getExplanatoryPredictorDataForIntermediatePredictor(predictor, data));
+            return predictor.evaluate(this.getDataForIntermediatePredictor(predictor, data));
         }
         else {
             throw new Error(`Unknown predictor type`);
@@ -217,45 +285,90 @@ class Algorithm {
      * 
      * @memberOf Algorithm
      */
-    getComponentForPredictor(predictor: ExplanatoryPredictor, data: Array<Datum>): number {
-        //If there is a custom function for this predictor then we use that to calculate the component
-        if(predictor.customFunction) {
-            return this.getComponentForCustomFunction(predictor.customFunction, data, predictor.beta);
-        }
-        //Otherwise
-        else {
-            const coefficent = this.getCoefficentForPredictor(predictor, data);
-            const component = this.calculateComponent(predictor, coefficent, predictor.beta)
+    private getComponentForPredictor(predictor: ExplanatoryPredictor, data: Array<Datum>): number {
+        const coefficent = this.getCoefficentForPredictor(predictor, data);
+        const component = this.calculateComponent(predictor, coefficent, predictor.beta)
 
-            if(env.isEnvironmentTesting() === true) {
-                console.groupEnd()
-            }
-
-            return component
+        if(env.isEnvironmentTesting() === true) {
+            console.groupEnd()
         }
+
+        return component
     }
-
-    evaluate(data: Array<Datum>): number {
-        let calculatorData = data.concat(this.pmmlData);
-
-        if(env.isEnvironmentTesting() === true) {
-            console.groupCollapsed(`Predictors`)
+    
+    /**
+     * Checks if we have all the data necessary to compute the transformation for the passed IntermediatePredictor
+     * 
+     * @private
+     * @param {Array<Datum>} data
+     * @param {IntermediatePredictor} intermediatePredictor
+     * @returns {boolean}
+     * 
+     * @memberOf Algorithm
+     */
+    private isDataMissingForIntermediatePredictor(data: Array<Datum>, intermediatePredictor: IntermediatePredictor): boolean {
+        try {
+            //Try to get all the data needed to do the transformation for this intermediate predictor
+            this.getDataForIntermediatePredictor(intermediatePredictor, data);
         }
-
-        var score = this.explanatoryPredictors.reduce((currentValue, explanatoryPredictor) => {
-            if(env.isEnvironmentTesting() === true) {
-                console.groupCollapsed(`${explanatoryPredictor.name}`)
+        catch(err) {
+            //If we got an NoDataFoundError then data is missing so return true
+            if(err instanceof NoDataFoundError) {
+                return true;
             }
-            
-            let component = this.getComponentForPredictor(explanatoryPredictor, calculatorData);
-            return currentValue + component
-        }, 0)
-
-        if(env.isEnvironmentTesting() === true) {
-            console.groupEnd();
+            //Unknown error so throw it
+            else {
+                throw err;
+            }
         }
 
-        return 1 - (this.baselineHazard*Math.pow(Math.E, score));
+        //No errors thrown so all data is present
+        return false;
+    }
+    
+    /**
+     * Checks if we have all the data needed to compute the component for the passed ExplanatoryPredictor
+     * 
+     * @param {Array<Datum>} data
+     * @param {ExplanatoryPredictor} predictor
+     * @returns {boolean}
+     * 
+     * @memberOf Algorithm
+     */
+    private isDataMissingForExplanatoryPredictor(data: Array<Datum>, predictor: ExplanatoryPredictor): boolean {
+        //get the data associated with this predictor from the data arg
+        const datumForCurrentPredictor = data.find((datum) => {
+            return datum.name === predictor.name;
+        });
+
+        //If there isn't any data
+        if(datumForCurrentPredictor === undefined) {
+            //If this predictor has a custom function then it doesn't need any data so return false 
+            if(predictor.customFunction) {
+                return false;
+            }
+            //If there isn't a custom function.
+            else {
+                //Then get the intermediate predictor if any associated with this explanatory predictor
+                const intermediatePredictorForCurrentPredictor = this.intermediatePredictors
+                .find((intermediatePredictor) => {
+                    return intermediatePredictor.name === predictor.name;
+                });
+
+                //if there isn't one then return true since data is missing for this explanatory predictor
+                if(intermediatePredictorForCurrentPredictor === undefined) {
+                    return true;
+                }
+                //Otherwise check if we have all the data for the intermediate predictor
+                else {
+                    return this.isDataMissingForIntermediatePredictor(data, intermediatePredictorForCurrentPredictor);
+                }
+            }
+        }
+        //if there is data then it isn't missing so return true
+        else {
+            return true;
+        }
     }
 }
 
