@@ -207,10 +207,21 @@ class Algorithm {
             else {
                 let firstVariableValue = this.getCoefficentForPredictor(firstVariablePredictor, data);
 
+                if(firstVariableValue === 'NA') {
+                    if(firstVariablePredictor instanceof ExplanatoryPredictor) {
+                        return customFunction.evaluate({
+                            firstVariableValue: firstVariablePredictor.referencePoint
+                        });
+                    }
+                    else {
+                        throw new Error(`firstVariableValue is NA but predictor does not have a reference point`);
+                    }
+                }
+
                 if(firstVariableValue instanceof moment) {
                     throw new Error(`firstVariableValue is not a number when evluating spline function`); 
                 }
-                if(isNaN(firstVariableValue as number)) {
+                else if(isNaN(firstVariableValue as number)) {
                     throw new Error(`firstVariableValue is not a number when evluating spline function`);
                 }
                 else {
