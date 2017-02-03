@@ -63,7 +63,8 @@ const SpecialFunctions: Array<string> = [
     'is.na',
     'not',
     'notEqual',
-    'formatDatetime'
+    'formatDatetime',
+    'max'
 ]
 export function getASTForApply(apply: Apply): AST {
     if(BinaryExpressionOperators[apply.$.function] !== undefined) {
