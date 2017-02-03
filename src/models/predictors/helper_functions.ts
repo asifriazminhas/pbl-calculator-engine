@@ -20,5 +20,8 @@ export default {
         const momentFormatString = format.replace(/%y/gi, 'YYYY').replace(/%d/gi, 'DD').replace(/%m/gi, 'MM');
 
         return date.format(momentFormatString);
+    },
+    max: function(num1: number, num2: number): number {
+        return Math.max(num1, num2)
     }
 }
