@@ -57,12 +57,12 @@ class Algorithm {
     evaluate(userData: Array<Datum>): number {
         let dataToUserInAlgorithm = this.getDataToUseInAlgorithm(userData);
 
-        if(env.isEnvironmentDebugging() === true) {
+        if(env.shouldLogDebugInfo() === true) {
             console.groupCollapsed(`Predictors`)
         }
 
         var score = this.explanatoryPredictors.reduce((currentValue, explanatoryPredictor) => {
-            if(env.isEnvironmentDebugging() === true) {
+            if(env.shouldLogDebugInfo() === true) {
                 console.groupCollapsed(`${explanatoryPredictor.name}`)
             }
             
@@ -70,7 +70,7 @@ class Algorithm {
             return currentValue + component
         }, 0)
 
-        if(env.isEnvironmentDebugging() === true) {
+        if(env.shouldLogDebugInfo() === true) {
             console.groupEnd();
         }
 
@@ -141,7 +141,7 @@ class Algorithm {
 
         var beta = formattedCoefficient*pmmlBeta
 
-        if(env.isEnvironmentDebugging()) {
+        if(env.shouldLogDebugInfo()) {
             console.log(`Explanatory Predictor ${explanatoryPredictor.name}`)
             console.log(`Input ${formattedCoefficient} ${formattedCoefficient === explanatoryPredictor.referencePoint ? 'Set to Reference Point' : ''}`)
             console.log(`PMML Beta ${explanatoryPredictor.beta}`)
@@ -300,7 +300,7 @@ class Algorithm {
         const coefficent = this.getCoefficentForPredictor(predictor, data);
         const component = this.calculateComponent(predictor, coefficent, predictor.beta)
 
-        if(env.isEnvironmentDebugging() === true) {
+        if(env.shouldLogDebugInfo() === true) {
             console.groupEnd()
         }
 
