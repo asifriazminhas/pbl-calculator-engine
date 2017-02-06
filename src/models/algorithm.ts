@@ -11,7 +11,7 @@ import * as moment from 'moment';
 import RCSSpline from './custom_functions/rcs_spline';
 import CustomFunction from './custom_functions/custom_function';
 import Predictor from './predictors/predictor';
-import env from './env/env';
+import { env } from './env/env';
 
 export interface AlgorithmObj {
     name: string
@@ -57,12 +57,12 @@ class Algorithm {
     evaluate(userData: Array<Datum>): number {
         let dataToUserInAlgorithm = this.getDataToUseInAlgorithm(userData);
 
-        if(env.isEnvironmentTesting() === true) {
+        if(env.isEnvironmentDebugging() === true) {
             console.groupCollapsed(`Predictors`)
         }
 
         var score = this.explanatoryPredictors.reduce((currentValue, explanatoryPredictor) => {
-            if(env.isEnvironmentTesting() === true) {
+            if(env.isEnvironmentDebugging() === true) {
                 console.groupCollapsed(`${explanatoryPredictor.name}`)
             }
             
@@ -70,7 +70,7 @@ class Algorithm {
             return currentValue + component
         }, 0)
 
-        if(env.isEnvironmentTesting() === true) {
+        if(env.isEnvironmentDebugging() === true) {
             console.groupEnd();
         }
 
@@ -141,7 +141,7 @@ class Algorithm {
 
         var beta = formattedCoefficient*pmmlBeta
 
-        if(env.isEnvironmentTesting()) {
+        if(env.isEnvironmentDebugging()) {
             console.log(`Explanatory Predictor ${explanatoryPredictor.name}`)
             console.log(`Input ${formattedCoefficient} ${formattedCoefficient === explanatoryPredictor.referencePoint ? 'Set to Reference Point' : ''}`)
             console.log(`PMML Beta ${explanatoryPredictor.beta}`)
@@ -300,7 +300,7 @@ class Algorithm {
         const coefficent = this.getCoefficentForPredictor(predictor, data);
         const component = this.calculateComponent(predictor, coefficent, predictor.beta)
 
-        if(env.isEnvironmentTesting() === true) {
+        if(env.isEnvironmentDebugging() === true) {
             console.groupEnd()
         }
 
