@@ -100,6 +100,17 @@ export class Env {
     shouldLogWarnings(): boolean {
         return this.isEnvironmentDebugging() || this.isEnvironmentDevelopment();
     }
+    
+    /**
+     * 
+     * 
+     * @returns {boolean}
+     * 
+     * @memberOf Env
+     */
+    shouldLogDebugInfo(): boolean {
+        return this.isEnvironmentDebugging();
+    }
 }
 
 export const env = new Env();
