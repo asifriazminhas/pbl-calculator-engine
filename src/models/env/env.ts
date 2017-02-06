@@ -89,6 +89,17 @@ export class Env {
     isEnvironmentDebugging(): boolean {
         return this._environment === 'debugging';
     }
+    
+    /**
+     * 
+     * 
+     * @returns {boolean}
+     * 
+     * @memberOf Env
+     */
+    shouldLogWarnings(): boolean {
+        return this.isEnvironmentDebugging() || this.isEnvironmentDevelopment();
+    }
 }
 
 export const env = new Env();
