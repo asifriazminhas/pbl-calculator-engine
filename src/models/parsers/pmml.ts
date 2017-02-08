@@ -1,4 +1,4 @@
-import { getASTForConstant } from './node_parser';
+import { getASTForConstant, getASTForFieldRef } from './node_parser';
 
 //bluebird
 import * as bluebird from 'bluebird'
@@ -39,6 +39,9 @@ function getDerivedFieldEquation(derivedField: DerivedField): string {
     }
     else if (derivedField.Constant) {
         right = getASTForConstant(derivedField.Constant);
+    }
+    else if (derivedField.FieldRef) {
+        right = getASTForFieldRef(derivedField.FieldRef);
     }
     else {
         throw new Error(`Unknown root node in derived field`);
@@ -97,6 +100,11 @@ function getDerivedFrom(derivedField: DerivedField): Array<string> {
     }
     else if(derivedField.Apply) {
         return getDerivedFromForApplyTag(derivedField.Apply);
+    }
+    else if (derivedField.FieldRef) {
+        return [
+            derivedField.FieldRef.$.field
+        ];
     }
     else {
         throw new Error(`Unknown root tag in derivedField`);
