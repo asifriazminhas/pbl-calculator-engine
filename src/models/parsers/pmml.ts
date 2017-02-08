@@ -171,5 +171,20 @@ export default async function (Algorithm: {
 
     const baselineHazard = Number(parsedPmml.PMML.GeneralRegressionModel.$.baselineHazard);
 
-    return new Algorithm().constructFromPmml(explanatoryPredictors, intermediatePredictors, baselineHazard);
+    const parsedAlgorithm = new Algorithm().constructFromPmml(explanatoryPredictors, intermediatePredictors, baselineHazard);
+
+    //Find dangling intermediate predictors and throw an error if we find one
+    parsedAlgorithm.getTopLevelIntermediatePredictors()
+        .forEach((intermediatePredictor) => {
+            const explanatoryPredictorForIntermediatePredictor = parsedAlgorithm.explanatoryPredictors
+                .find((explanatoryPredictor) => {
+                    return explanatoryPredictor.name === intermediatePredictor.name
+                });
+
+            if(!explanatoryPredictorForIntermediatePredictor) {
+                throw new Error(`No explanatory predictor found for top most intermediate predictor with name ${intermediatePredictor.name}`)
+            }
+        });
+    
+    return parsedAlgorithm;
 }
