@@ -12,6 +12,7 @@ import RCSSpline from './custom_functions/rcs_spline';
 import CustomFunction from './custom_functions/custom_function';
 import Predictor from './predictors/predictor';
 import { env } from './env/env';
+import * as _ from 'lodash';
 
 export interface AlgorithmObj {
     name: string
@@ -55,6 +56,10 @@ class Algorithm {
 
 
     evaluate(userData: Array<Datum>): number {
+        if(env.shouldLogWarnings()) {
+            this.logWarningsForUnusedDatumInData(userData);
+        }
+
         let dataToUserInAlgorithm = this.getDataToUseInAlgorithm(userData);
 
         if(env.shouldLogDebugInfo() === true) {
@@ -161,6 +166,10 @@ class Algorithm {
      * @memberOf Algorithm
      */
     private getDataToUseInAlgorithm(userData: Array<Datum>): Array<Datum> {
+        if(env.shouldLogWarnings()) {
+            console.warn(`Logging predictors being set to reference\n`);
+        }
+
         const missingData =  this.explanatoryPredictors
             .map((explanatoryPredictor) => {
                 if(this.isDataMissingForExplanatoryPredictor(userData, explanatoryPredictor) === true) {
@@ -179,7 +188,11 @@ class Algorithm {
             .filter((datum) => {
                 return datum !== null;
             });
-        
+            
+        if(env.shouldLogWarnings()) {
+            console.warn(`\n`);
+        }
+
         return (missingData as Array<Datum>).concat(Algorithm.PmmlData).concat(userData);
     }
     
@@ -378,8 +391,91 @@ class Algorithm {
         }
         //if there is data then it isn't missing so return true
         else {
-            return true;
+            return false;
         }
+    }
+
+    private getExplanatoryPredictorsForIntermediatePredictor(intermediatePredictor: IntermediatePredictor): Array<ExplanatoryPredictor> {
+        const explanatoryPredictorForIntermediatePredictor = this.explanatoryPredictors
+            .find((explanatoryPredictor) => {
+                return explanatoryPredictor.name === intermediatePredictor.name;
+            });
+
+        if(!explanatoryPredictorForIntermediatePredictor) {
+            return _.flatten(this.intermediatePredictors
+                .filter((currentIntermediatePredictor) => {
+                    return currentIntermediatePredictor.explanatoryPredictors.indexOf(intermediatePredictor.name) > -1;
+                })
+                .map((currentIntermediatePredictor)=> {
+                    return this.getExplanatoryPredictorsForIntermediatePredictor(currentIntermediatePredictor);
+                }))
+                .reduce((currentExplanatoryPredictors: Array<ExplanatoryPredictor>, explanatoryPredictor) => {
+                    const isExplanatoryPredictorAlreadyAdded = currentExplanatoryPredictors
+                        .find((currentExplanatoryPredictor) => {
+                            return currentExplanatoryPredictor.name === explanatoryPredictor.name
+                        }) !== undefined;
+
+                    if(!isExplanatoryPredictorAlreadyAdded) {
+                        currentExplanatoryPredictors.push(explanatoryPredictor);
+                    }
+
+                    return currentExplanatoryPredictors;
+                }, []);
+        }
+        else {
+            return [
+                explanatoryPredictorForIntermediatePredictor
+            ];
+        }
+    }
+
+    private logWarningsForUnusedDatumInData(data: Array<Datum>): void {
+        console.warn(`Logging unused coefficents\n`);
+
+        data.forEach((datum) => {
+            const explanatoryPredictorForCurrentDatum = this.explanatoryPredictors
+                .find((explanatoryPredictor) => {
+                    return explanatoryPredictor.name === datum.name;
+                });
+
+            if(!explanatoryPredictorForCurrentDatum) {
+                let intermediatePredictorsForCurrentDatum = this.intermediatePredictors
+                    .filter((intermediatePredictor) => {
+                        return intermediatePredictor.name === datum.name || intermediatePredictor.explanatoryPredictors.indexOf(datum.name) > -1;
+                    });
+
+                if(intermediatePredictorsForCurrentDatum.length === 0) {
+                    console.warn(`${datum.name} - No coefficient identified. Not used for risk calculation.`);
+                }
+                else {
+                    const usedToCalculateAtLeastOneExplanatoryPredictor = _.flatten(intermediatePredictorsForCurrentDatum
+                        .map((intermediatePredictor) => {
+                            return this.getExplanatoryPredictorsForIntermediatePredictor(intermediatePredictor);
+                        }))
+                        .reduce((currentExplanatoryPredictors: Array<ExplanatoryPredictor>, explanatoryPredictor) => {
+                            const isExplanatoryPredictorAlreadyAdded = currentExplanatoryPredictors
+                                .find((currentExplanatoryPredictor) => {
+                                    return currentExplanatoryPredictor.name === explanatoryPredictor.name
+                                }) !== undefined;
+
+                            if(!isExplanatoryPredictorAlreadyAdded) {
+                                currentExplanatoryPredictors.push(explanatoryPredictor);
+                            }
+
+                            return currentExplanatoryPredictors;
+                        }, [])
+                        .find((explanatoryPredictor) => {
+                            return !this.isDataMissingForExplanatoryPredictor(data, explanatoryPredictor);
+                        }) !== undefined;
+
+                    if(!usedToCalculateAtLeastOneExplanatoryPredictor) {
+                        console.warn(`${datum.name} - Coefficent identified but cannot be used due to missing other data fields.`);
+                    }
+                }
+            }
+        });
+
+        console.log('\n')
     }
 }
 
