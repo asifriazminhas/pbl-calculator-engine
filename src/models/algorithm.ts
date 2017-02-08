@@ -177,7 +177,9 @@ class Algorithm {
                         return null;
                     }
                     else {
-                        console.warn(`Setting data for ${explanatoryPredictor.name} to reference point due to missing data`);
+                        if(env.shouldLogWarnings()) {
+                            console.warn(`Setting data for ${explanatoryPredictor.name} to reference point due to missing data`);
+                        }
                         return new Datum().constructorForNewDatum(explanatoryPredictor.name, explanatoryPredictor.referencePoint);
                     }
                 }
