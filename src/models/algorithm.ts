@@ -394,21 +394,34 @@ class Algorithm {
             return false;
         }
     }
-
+    
+    /**
+     * Returns the explanatory predictors which depend on this intermediatePredictors for it's complete calculation
+     * 
+     * @private
+     * @param {IntermediatePredictor} intermediatePredictor
+     * @returns {Array<ExplanatoryPredictor>}
+     * 
+     * @memberOf Algorithm
+     */
     private getExplanatoryPredictorsForIntermediatePredictor(intermediatePredictor: IntermediatePredictor): Array<ExplanatoryPredictor> {
+        //Find an explanatpry predictor with the same name as the intermediate predictor
         const explanatoryPredictorForIntermediatePredictor = this.explanatoryPredictors
             .find((explanatoryPredictor) => {
                 return explanatoryPredictor.name === intermediatePredictor.name;
             });
-
+        
+        //if we did not find one continue
         if(!explanatoryPredictorForIntermediatePredictor) {
-            return _.flatten(this.intermediatePredictors
-                .filter((currentIntermediatePredictor) => {
-                    return currentIntermediatePredictor.explanatoryPredictors.indexOf(intermediatePredictor.name) > -1;
-                })
-                .map((currentIntermediatePredictor)=> {
-                    return this.getExplanatoryPredictorsForIntermediatePredictor(currentIntermediatePredictor);
-                }))
+            return _.flatten(
+                //Go through all the algorithm's intermediate predictors
+                this.getExplanatoryIntermediatePredictorsForIntermediatePredictor       (intermediatePredictor)
+                //map each one to it's explanatory predictor
+                    .map((currentIntermediatePredictor)=> {
+                        return this.getExplanatoryPredictorsForIntermediatePredictor(currentIntermediatePredictor);
+                    })
+                )
+                //Remove duplicates
                 .reduce((currentExplanatoryPredictors: Array<ExplanatoryPredictor>, explanatoryPredictor) => {
                     const isExplanatoryPredictorAlreadyAdded = currentExplanatoryPredictors
                         .find((currentExplanatoryPredictor) => {
@@ -422,36 +435,54 @@ class Algorithm {
                     return currentExplanatoryPredictors;
                 }, []);
         }
+        //Otherwise thereis only one explanatory predictor this intermediate predictor is used for
         else {
             return [
                 explanatoryPredictorForIntermediatePredictor
             ];
         }
     }
-
+    
+    /**
+     * Goes through the data arg and logs any datums which are not going to be used in the algorithm either because we could not find anything associated with it or because it does not have the other datum that goes along with it for a certain calculation
+     * 
+     * @private
+     * @param {Array<Datum>} data
+     * 
+     * @memberOf Algorithm
+     */
     private logWarningsForUnusedDatumInData(data: Array<Datum>): void {
         console.warn(`Logging unused coefficents\n`);
 
         data.forEach((datum) => {
+            //get explanatory predictor for this dtum
             const explanatoryPredictorForCurrentDatum = this.explanatoryPredictors
                 .find((explanatoryPredictor) => {
                     return explanatoryPredictor.name === datum.name;
                 });
-
+            
+            //if we did not find one then there may be a problem so continue
             if(!explanatoryPredictorForCurrentDatum) {
+                //get all the intermediate predictor which has the same name as this datum or depends on this datum
                 let intermediatePredictorsForCurrentDatum = this.intermediatePredictors
                     .filter((intermediatePredictor) => {
                         return intermediatePredictor.name === datum.name || intermediatePredictor.explanatoryPredictors.indexOf(datum.name) > -1;
                     });
-
+                
+                //If we could not find one then nothing is associated with this datum so log the warning
                 if(intermediatePredictorsForCurrentDatum.length === 0) {
                     console.warn(`${datum.name} - No coefficient identified. Not used for risk calculation.`);
                 }
                 else {
-                    const usedToCalculateAtLeastOneExplanatoryPredictor = _.flatten(intermediatePredictorsForCurrentDatum
-                        .map((intermediatePredictor) => {
-                            return this.getExplanatoryPredictorsForIntermediatePredictor(intermediatePredictor);
-                        }))
+                    //Whether we could find at least one explanatory predcitor from all the found intermediate predictors associated with this datum wih the full set of data required to calculate it fully
+                    const usedToCalculateAtLeastOneExplanatoryPredictor = _.flatten(
+                        //get all the explanatory predictors which depend on all the intermediate predictor associated with this datum
+                        intermediatePredictorsForCurrentDatum
+                            .map((intermediatePredictor) => {
+                                return this.getExplanatoryPredictorsForIntermediatePredictor(intermediatePredictor);
+                            })
+                        )
+                        //Remove duplicates
                         .reduce((currentExplanatoryPredictors: Array<ExplanatoryPredictor>, explanatoryPredictor) => {
                             const isExplanatoryPredictorAlreadyAdded = currentExplanatoryPredictors
                                 .find((currentExplanatoryPredictor) => {
@@ -464,10 +495,12 @@ class Algorithm {
 
                             return currentExplanatoryPredictors;
                         }, [])
+                        //Find at least one which has the full set of data
                         .find((explanatoryPredictor) => {
                             return !this.isDataMissingForExplanatoryPredictor(data, explanatoryPredictor);
                         }) !== undefined;
-
+                    
+                    //If we did not find at least one the log the warning
                     if(!usedToCalculateAtLeastOneExplanatoryPredictor) {
                         console.warn(`${datum.name} - Coefficent identified but cannot be used due to missing other data fields.`);
                     }
@@ -476,6 +509,94 @@ class Algorithm {
         });
 
         console.log('\n')
+    }
+    
+    /**
+     * gets the top level intermediate predictors for the entire algorithm
+     * 
+     * @returns {Array<IntermediatePredictor>}
+     * 
+     * @memberOf Algorithm
+     */
+    getTopLevelIntermediatePredictors(): Array<IntermediatePredictor> {
+        return _.flatten(this.intermediatePredictors
+            .map((intermediatePredictor) => {
+                return this.getTopLevelIntermediatePredictorsForIntermediatePredictor(intermediatePredictor);
+            }))
+            //Remove duplicates
+            .reduce((currentIntermediatePredictors: Array<IntermediatePredictor>, intermediatePredictor) => {
+                const hasAddedCurrentIntermediatePredictor = currentIntermediatePredictors
+                    .find((currentIntermediatePredictor) => {
+                        return currentIntermediatePredictor.name === intermediatePredictor.name;
+                    }) !== undefined;
+
+                if(!hasAddedCurrentIntermediatePredictor) {
+                    currentIntermediatePredictors.push(intermediatePredictor);
+                }
+
+                return currentIntermediatePredictors;
+            }, []);
+    }
+    
+    /**
+     * Returns intermediate predictors that are at the top of the chain for the passed intermediatePredictor arg
+     * 
+     * @private
+     * @param {IntermediatePredictor} intermediatePredictor
+     * @returns {Array<IntermediatePredictor>}
+     * 
+     * @memberOf Algorithm
+     */
+    private getTopLevelIntermediatePredictorsForIntermediatePredictor(intermediatePredictor: IntermediatePredictor): Array<IntermediatePredictor> {
+        //What will be returned from this function
+        let topLevelIntermediatePredictors: Array<IntermediatePredictor> = [];
+        //Keeps track of the intermediate predictors in the current iteration
+        let currentTopLevelIntermediatePredictors = this.getExplanatoryIntermediatePredictorsForIntermediatePredictor(intermediatePredictor);
+
+        //Do this loop until we no longer have any intermediate predictors to iterate over
+        while(currentTopLevelIntermediatePredictors.length !== 0) {
+            currentTopLevelIntermediatePredictors = _.flatten(
+                //Go through each intermediate predictor
+                currentTopLevelIntermediatePredictors
+                    .map((intermediatePredictor) => {
+                        //get all the intermediate predictors one step above this one
+                        let currentTopLevelIntermediatePredictors = this.getExplanatoryIntermediatePredictorsForIntermediatePredictor(intermediatePredictor);
+
+                        //If there are none then this is the top most intermediate predictor so add it to the topLevelIntermediatePredictors
+                        if(currentTopLevelIntermediatePredictors.length === 0) {
+                            topLevelIntermediatePredictors.push(intermediatePredictor)
+                        }
+
+                        return currentTopLevelIntermediatePredictors;
+                    })
+            );
+        }
+
+        //If this is empty then the inermediate predictor arg is itself a top level intermediate predictor
+        if(topLevelIntermediatePredictors.length === 0) {
+            return [
+                intermediatePredictor
+            ];
+        }
+        else {
+            return topLevelIntermediatePredictors;
+        }
+    }
+    
+    /**
+     * Returns all the intermediate predcitors which are derived from the passed intermediatePredictor arg
+     * 
+     * @private
+     * @param {IntermediatePredictor} intermediatePredictor
+     * @returns {Array<IntermediatePredictor>}
+     * 
+     * @memberOf Algorithm
+     */
+    private getExplanatoryIntermediatePredictorsForIntermediatePredictor(intermediatePredictor: IntermediatePredictor): Array<IntermediatePredictor> {
+        return this.intermediatePredictors
+            .filter((currentIntermediatePredictor) => {
+                return currentIntermediatePredictor.explanatoryPredictors.indexOf(intermediatePredictor.name) > -1;
+            });
     }
 }
 
