@@ -1,8 +1,10 @@
 //interfaces
 import {
-    Parameter,
-    RestrictedCubicSpline
+    Parameter
 } from '../interfaces/pmml/pmml';
+import {
+    RestrictedCubicSpline
+} from '../interfaces/pmml/custom/restricted_cubic_spline';
 import CustomFunction from '../custom_functions/custom_function';
 import RCSSpline from '../custom_functions/rcs_spline';
 
@@ -38,9 +40,7 @@ function parseKnotLocations(knotLocations: string): Array<number> {
  * @param {RestrictedCubicSpline} restrictedCubicSpline
  * @returns {(CustomFunction<any> | null)}
  */
-export function parseCustomFunction(parameter: {
-    $: Parameter
-}, restrictedCubicSpline: RestrictedCubicSpline): CustomFunction<any> | null {
+export function parseCustomFunction(parameter: Parameter, restrictedCubicSpline: RestrictedCubicSpline): CustomFunction<any> | null {
     //Need to find out if there is a custom function associated with this predictor. Custom functions are preent in the parameters label after the after an underscore. example age_rcs1 where age is the name of the predictor and rcs1 is the custom function associated with it
     const parameterLabelSplitByUnderscore = parameter.$.label.split('_');
     const customFunctionName = parameterLabelSplitByUnderscore[1];
