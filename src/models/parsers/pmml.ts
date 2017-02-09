@@ -23,12 +23,14 @@ import {
 
 //interfaces
 import {
-    Pmml,
     Apply,
     FieldRef,
     DerivedField,
     ApplyChildNode
 } from '../interfaces/pmml/pmml'
+import {
+    CustomPmml
+} from '../interfaces/pmml/custom/pmml'
 
 //Returns the js code strings which needs to be evaluated to compute this derived field
 //The DerivedField pmml xml node to get the equation from
@@ -111,7 +113,7 @@ export default async function (Algorithm: {
     new (): IntermediatePredictor
 }, pmml: string) {
     //parse the pmml string
-    var parsedPmml: Pmml = await promisifiedParseXmlString(pmml, {
+    var parsedPmml: CustomPmml = await promisifiedParseXmlString(pmml, {
         explicitArray: false,
         explicitChildren: true,
         preserveChildrenOrder: true
@@ -156,7 +158,7 @@ export default async function (Algorithm: {
                 throw new Error(`No DataField found for ppCell ${ppCellForCurrentPCell.$.predictorName}`)
             }
 
-            return new ExplanatoryPredictor().constructFromPmml(dataFieldForCurrentPCell.$.name, dataFieldForCurrentPCell.$.optype, pCell.$.beta, parameterForCurrentPCell.$.referencePoint, parseCustomFunction(parameterForCurrentPCell, parsedPmml.PMML.GeneralRegressionModel.RestrictedCubicSpline))
+            return new ExplanatoryPredictor().constructFromPmml(dataFieldForCurrentPCell.$.name, dataFieldForCurrentPCell.$.optype, pCell.$.beta, parameterForCurrentPCell.$.referencePoint, parseCustomFunction(parameterForCurrentPCell, parsedPmml.CustomPMML.RestrictedCubicSpline))
         })
 
     var intermediatePredictors: Array<IntermediatePredictor> = []
