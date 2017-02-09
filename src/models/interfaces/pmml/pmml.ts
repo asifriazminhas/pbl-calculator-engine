@@ -2,10 +2,18 @@ export interface Node {
     '#name': string
 }
 
+/**
+ * PCell node inside of a ParamMatri which has the beta for a certain data field. The paramaterName matches with the name field in a Parameter node.
+ * 
+ * @export
+ * @interface PCell
+ */
 export interface PCell {
-    parameterName: string
-    df: string
-    beta: string
+    $: {
+        parameterName: string
+        df: string
+        beta: string
+    }
 }
 
 /**
@@ -23,10 +31,18 @@ export interface Parameter {
     }
 }
 
+/**
+ * The DataField node which has information about the optype and datatype of a certain field
+ * 
+ * @export
+ * @interface DataField
+ */
 export interface DataField {
-    name: string
-    optype: string
-    dataType: string
+    $: {
+        name: string
+        optype: string
+        dataType: string
+    }
 }
 
 export interface PPCell {
@@ -89,9 +105,7 @@ export interface Pmml {
                 Parameter: Array<Parameter>
             }
             ParamMatrix: {
-                PCell: Array<{
-                    $: PCell
-                }>
+                PCell: Array<PCell>
             }
             PPMatrix: {
                 PPCell: Array<{
@@ -103,9 +117,7 @@ export interface Pmml {
             }
         },
         DataDictionary: {
-            DataField: Array<{
-                $: DataField
-            }>
+            DataField: Array<DataField>
         }
     }
 }
