@@ -15,11 +15,10 @@ import {
     getASTForApply
 } from './node_parser'
 import Algorithm from '../algorithm'
-import ExplanatoryPredictor from '../predictors/explanatory_predictor'
 import IntermediatePredictor from '../predictors/intermediate_predictor'
 import {
-    parseCustomFunction
-} from './custom_function';
+    parseDataFields
+} from './pmml/data_field';
 
 //interfaces
 import {
@@ -107,8 +106,6 @@ function getDerivedFrom(derivedField: DerivedField): Array<string> {
 
 export default async function (Algorithm: {
     new (): Algorithm
-}, ExplanatoryPredictor: {
-    new (): ExplanatoryPredictor
 }, IntermediatePredictor: {
     new (): IntermediatePredictor
 }, pmml: string) {
@@ -119,47 +116,7 @@ export default async function (Algorithm: {
         preserveChildrenOrder: true
     });
 
-    var explanatoryPredictors = parsedPmml.PMML.GeneralRegressionModel.ParamMatrix.PCell
-        .map((pCell) => {
-            var ppCellForCurrentPCell = parsedPmml.PMML.GeneralRegressionModel.PPMatrix.PPCell
-                .find((ppCell) => {
-                    return ppCell.$.parameterName === pCell.$.parameterName
-                })
-
-            if (ppCellForCurrentPCell === undefined) {
-                throw new Error(`No ppCell found for pCell ${pCell.$.parameterName}`)
-            }
-
-            var dataFieldForCurrentPCell = parsedPmml.PMML.DataDictionary.DataField
-                .find((dataField) => {
-                    if (ppCellForCurrentPCell === undefined) {
-                        throw new Error(`No ppCell found for pCell ${pCell.$.parameterName}`)
-                    }
-                    else {
-                        return dataField.$.name === ppCellForCurrentPCell.$.predictorName
-                    }
-                })
-
-            var parameterForCurrentPCell = parsedPmml.PMML.GeneralRegressionModel.ParameterList.Parameter
-                .find((parameterList) => {
-                    if (ppCellForCurrentPCell === undefined) {
-                        throw new Error(`No ppCell found for pCell ${pCell.$.parameterName}`)
-                    }
-                    else {
-                        return parameterList.$.name === ppCellForCurrentPCell.$.parameterName
-                    }
-                })
-
-            if (parameterForCurrentPCell === undefined) {
-                throw new Error(`No ParamaterList found for ppCell ${ppCellForCurrentPCell.$.predictorName}`)
-            }
-
-            if (dataFieldForCurrentPCell === undefined) {
-                throw new Error(`No DataField found for ppCell ${ppCellForCurrentPCell.$.predictorName}`)
-            }
-
-            return new ExplanatoryPredictor().constructFromPmml(dataFieldForCurrentPCell.$.name, dataFieldForCurrentPCell.$.optype, pCell.$.beta, parameterForCurrentPCell.$.referencePoint, parseCustomFunction(parameterForCurrentPCell, parsedPmml.CustomPMML.RestrictedCubicSpline))
-        })
+    const explanatoryPredictors = parseDataFields(parsedPmml);
 
     var intermediatePredictors: Array<IntermediatePredictor> = []
     if (parsedPmml.PMML.LocalTransformations) {
