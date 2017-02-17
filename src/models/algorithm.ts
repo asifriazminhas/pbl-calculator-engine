@@ -18,23 +18,26 @@ export interface AlgorithmObj {
     name: string
     explanatoryPredictors: Array<ExplanatoryPredictorObj>
     intermediatePredictors: Array<IntermediatePredictorObj>,
-    baselineHazard: number
+    baselineHazard: number;
+    version: string;
 }
 
 class Algorithm {
     name: string
     explanatoryPredictors: Array<ExplanatoryPredictor>
     intermediatePredictors: Array<IntermediatePredictor>
-    baselineHazard: number
+    baselineHazard: number;
+    version: string;
 
     static readonly PmmlData = [
         new Datum().constructorForNewDatum('StartDate', moment())
     ];
 
-    constructFromPmml(explanatoryPredictors: Array<ExplanatoryPredictor>, intermediatePredictors: Array<IntermediatePredictor>, baselineHazard: number): Algorithm {
+    constructFromPmml(explanatoryPredictors: Array<ExplanatoryPredictor>, intermediatePredictors: Array<IntermediatePredictor>, baselineHazard: number, version: string): Algorithm {
         this.explanatoryPredictors = explanatoryPredictors
         this.intermediatePredictors = intermediatePredictors
         this.baselineHazard = baselineHazard
+        this.version = version
 
         return this
     }
@@ -50,7 +53,8 @@ class Algorithm {
             return new IntermediatePredictor().constructFromIntermediatePredictorObject(intermediatePredictor)
         })
         this.baselineHazard = algorithmObj.baselineHazard
-
+        this.version = algorithmObj.version
+        
         return this
     }
 
@@ -424,7 +428,7 @@ class Algorithm {
                     })
                 )
                 //Remove duplicates
-                .reduce((currentExplanatoryPredictors: Array<ExplanatoryPredictor>, explanatoryPredictor) => {
+                .reduce((currentExplanatoryPredictors: Array<ExplanatoryPredictor>, explanatoryPredictor: ExplanatoryPredictor) => {
                     const isExplanatoryPredictorAlreadyAdded = currentExplanatoryPredictors
                         .find((currentExplanatoryPredictor) => {
                             return currentExplanatoryPredictor.name === explanatoryPredictor.name
@@ -485,7 +489,7 @@ class Algorithm {
                             })
                         )
                         //Remove duplicates
-                        .reduce((currentExplanatoryPredictors: Array<ExplanatoryPredictor>, explanatoryPredictor) => {
+                        .reduce((currentExplanatoryPredictors: Array<ExplanatoryPredictor>, explanatoryPredictor: ExplanatoryPredictor) => {
                             const isExplanatoryPredictorAlreadyAdded = currentExplanatoryPredictors
                                 .find((currentExplanatoryPredictor) => {
                                     return currentExplanatoryPredictor.name === explanatoryPredictor.name
@@ -498,7 +502,7 @@ class Algorithm {
                             return currentExplanatoryPredictors;
                         }, [])
                         //Find at least one which has the full set of data
-                        .find((explanatoryPredictor) => {
+                        .find((explanatoryPredictor: ExplanatoryPredictor) => {
                             return !this.isDataMissingForExplanatoryPredictor(data, explanatoryPredictor);
                         }) !== undefined;
                     
@@ -526,7 +530,7 @@ class Algorithm {
                 return this.getTopLevelIntermediatePredictorsForIntermediatePredictor(intermediatePredictor);
             }))
             //Remove duplicates
-            .reduce((currentIntermediatePredictors: Array<IntermediatePredictor>, intermediatePredictor) => {
+            .reduce((currentIntermediatePredictors: Array<IntermediatePredictor>, intermediatePredictor: IntermediatePredictor) => {
                 const hasAddedCurrentIntermediatePredictor = currentIntermediatePredictors
                     .find((currentIntermediatePredictor) => {
                         return currentIntermediatePredictor.name === intermediatePredictor.name;
