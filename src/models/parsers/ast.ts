@@ -14,8 +14,11 @@ import {
     MemberExpressionAST,
     CallExpressionAST,
     ConditionalExpressionAST,
-    AST
-} from '../interfaces/ast'
+    CallExpressionArgumentAST,
+    ConditionalExpressionTestAST,
+    ConditionalExpressionAlternateAST,
+    ConditionalExpressionConsequentAST
+} from '../interfaces/pmml/ast'
 
 export function getLiteralAST(value: number | string): LiteralAST {
     return {
@@ -87,7 +90,7 @@ export function getMemberExpressionAST(property: LiteralAST, objName: string): M
 }
 
 
-export function getCallExpressionAST(callee: MemberExpressionAST, args: Array<AST>): CallExpressionAST {
+export function getCallExpressionAST(callee: MemberExpressionAST, args: Array<CallExpressionArgumentAST>): CallExpressionAST {
     return {
         type: 'CallExpression',
         callee,
@@ -95,7 +98,7 @@ export function getCallExpressionAST(callee: MemberExpressionAST, args: Array<AS
     }
 }
 
-export function getConditionalExpressionAST(test: AST, consequent: AST, alternate: AST): ConditionalExpressionAST {
+export function getConditionalExpressionAST(test: ConditionalExpressionTestAST, consequent: ConditionalExpressionConsequentAST, alternate: ConditionalExpressionAlternateAST): ConditionalExpressionAST {
     return {
         type: 'ConditionalExpression',
         test,
