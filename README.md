@@ -2,8 +2,8 @@
 
 ## Debugging tools
 
-`PBLCalculatorEngine.env.setEnvironmentToDebugging();` Output: everything including predictors, intermediate predictors, explanatory redictors, input values, betacoefficients, calculated hazards.
+`PBLCalculatorEngine.env.setEnvironmentToDebugging();` Console.log() = everything including predictors, intermediate predictors, explanatory redictors, input values, betacoefficients, calculated hazards.
     
-`PBLCalculatorEngine.env.setEnvironmentToDevelopment();` Output: warnings and errors
+`PBLCalculatorEngine.env.setEnvironmentToDevelopment();` Console.log() = warnings and errors
 
-`PBLCalculatorEngine.env.setEnvironmentToProduction();` Output: only fatal errors
+`PBLCalculatorEngine.env.setEnvironmentToProduction();` Console.log() = only fatal errors
