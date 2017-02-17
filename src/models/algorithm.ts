@@ -54,7 +54,7 @@ class Algorithm {
         })
         this.baselineHazard = algorithmObj.baselineHazard
         this.version = algorithmObj.version
-        
+
         return this
     }
 
@@ -83,7 +83,7 @@ class Algorithm {
             console.groupEnd();
         }
 
-        return 1 - (this.baselineHazard*Math.pow(Math.E, score));
+        return this.baselineHazard*Math.pow(Math.E, score);
     }
 
     /**
