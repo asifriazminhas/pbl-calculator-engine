@@ -75,8 +75,14 @@ export interface RestrictedCubicSpline {
     }>
 }
 
+export interface Header {
+    $: {
+        description: string
+    }
+}
 export interface Pmml {
     PMML: {
+        Header: Header
         LocalTransformations: {
             DerivedField: Array<DerivedField>
         }
