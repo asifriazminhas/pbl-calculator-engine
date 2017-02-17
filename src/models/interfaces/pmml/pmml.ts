@@ -45,11 +45,12 @@ export interface DataField {
     }
 }
 
-export interface PPCell {
-    predictorName: string
-    parameterName: string
-}
-
+/**
+ * Usually inside of a DerivedField node. Refers to another predictor
+ * 
+ * @export
+ * @interface FieldRef
+ */
 export interface FieldRef {
     '#name': 'FieldRef'
     $: {
@@ -57,6 +58,12 @@ export interface FieldRef {
     }
 }
 
+/**
+ * Usually inside of a DerivedField. A Constant value like a number or a string
+ * 
+ * @export
+ * @interface Constant
+ */
 export interface Constant {
     '#name': 'Constant'
     $: {
@@ -66,7 +73,12 @@ export interface Constant {
 }
 
 export type ApplyChildNode = Apply | Constant | FieldRef
-
+/**
+ * Usually inside of a DerivedField. Represents a function apply on the nodes underneath it
+ * 
+ * @export
+ * @interface Apply
+ */
 export interface Apply {
     '#name': 'Apply'
     $: {
@@ -75,17 +87,16 @@ export interface Apply {
     $$: Array<ApplyChildNode>
 }
 
-export interface DerivedField {
-    $: {
-        name: string
-        optype: string,
-        Apply: Array<Apply>
-    }
-}
-
+/**
+ * Inside of a LocalTransformation. Represents a predictor that can be derived from other predictors
+ * 
+ * @export
+ * @interface DerivedField
+ */
 export interface DerivedField {
     Apply?: Apply;
-    Constant?: Constant
+    Constant?: Constant;
+    FieldRef?: FieldRef;
 }
 
 /**
@@ -107,11 +118,6 @@ export interface Pmml {
             ParamMatrix: {
                 PCell: Array<PCell>
             }
-            PPMatrix: {
-                PPCell: Array<{
-                    $: PPCell
-                }>
-            },
             $: {
                 baselineHazard: string
             }
