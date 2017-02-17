@@ -111,6 +111,17 @@ function getDerivedFrom(derivedField: DerivedField): Array<string> {
     }
 }
 
+function parseVersionFromDescription(description: string): string {
+    const parsedDescription = description.split('_')[1];
+
+    if(parsedDescription.trim().length === 0) {
+        return 'No version provided';
+    }
+    else {
+        return parsedDescription;
+    }
+}
+
 export default async function (Algorithm: {
     new (): Algorithm
 }, ExplanatoryPredictor: {
@@ -179,7 +190,7 @@ export default async function (Algorithm: {
 
     const baselineHazard = Number(parsedPmml.PMML.GeneralRegressionModel.$.baselineHazard);
 
-    const parsedAlgorithm = new Algorithm().constructFromPmml(explanatoryPredictors, intermediatePredictors, baselineHazard);
+    const parsedAlgorithm = new Algorithm().constructFromPmml(explanatoryPredictors, intermediatePredictors, baselineHazard, parseVersionFromDescription(parsedPmml.PMML.Header.$.description));
 
     //Find dangling intermediate predictors and throw an error if we find one
     parsedAlgorithm.getTopLevelIntermediatePredictors()
