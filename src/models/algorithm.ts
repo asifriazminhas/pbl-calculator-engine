@@ -174,10 +174,16 @@ class Algorithm {
             console.warn(`Logging predictors being set to reference\n`);
         }
 
+        let interactionPredictors: Array<ExplanatoryPredictor> = [];
+
         const missingData =  this.explanatoryPredictors
             .map((explanatoryPredictor) => {
                 if(this.isDataMissingForExplanatoryPredictor(userData, explanatoryPredictor) === true) {
                     if(explanatoryPredictor.customFunction !== null) {
+                        return null;
+                    }
+                    else if(explanatoryPredictor.isInteractionPredictor()) {
+                        interactionPredictors.push(explanatoryPredictor);
                         return null;
                     }
                     else {
@@ -276,7 +282,7 @@ class Algorithm {
             if(!foundDatumForCurrentPredictor) {
                 if(predictor.customFunction) {
                     return this.getCoefficientForCustomFunction(predictor.customFunction, data);
-                }
+                } 
 
                 //Get the intermediate predictor for this explanatory predictor
                 let foundIntermediatePredictor = this.intermediatePredictors
