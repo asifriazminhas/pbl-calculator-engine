@@ -1,7 +1,3 @@
-export interface Node {
-    '#name': string
-}
-
 /**
  * PCell node inside of a ParamMatri which has the beta for a certain data field. The paramaterName matches with the name field in a Parameter node.
  * 
@@ -71,8 +67,9 @@ export interface Constant {
     }
     _: string
 }
-
+//The tyoe of nodes that can be children of an Apply node
 export type ApplyChildNode = Apply | Constant | FieldRef
+
 /**
  * Usually inside of a DerivedField. Represents a function apply on the nodes underneath it
  * 
@@ -103,12 +100,24 @@ export interface DerivedField {
     FieldRef?: FieldRef;
 }
 
+/**
+ * The Header node inside the PMML node. We get the version of the PMML file from this
+ * 
+ * @export
+ * @interface Header
+ */
 export interface Header {
     $: {
         description: string
     }
 }
 
+/**
+ * The interface for a PMML XML file
+ * 
+ * @export
+ * @interface Pmml
+ */
 export interface Pmml {
     PMML: {
         Header: Header

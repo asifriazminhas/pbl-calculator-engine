@@ -1,6 +1,6 @@
 import RCSSpline from '../../../custom_functions/rcs_spline';
-import { RestrictedCubicSpline } from '../../../interfaces/pmml/custom/restricted_cubic_spline';
-import { Parameter } from '../../../interfaces/pmml/pmml';
+import { RestrictedCubicSpline } from '../interfaces/custom/restricted_cubic_spline';
+import { Parameter } from '../interfaces/pmml';
 
 /**
  * Given a the label field for a Parameter XML node it checks if this predictor has an RCS custom function or not. Eg. age_rcs2 has an rcs function 

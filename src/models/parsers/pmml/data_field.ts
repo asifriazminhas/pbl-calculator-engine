@@ -1,5 +1,5 @@
-import { parseCustomFunction } from '../custom_function';
-import { CustomPmml } from '../../interfaces/pmml/custom/pmml';
+import { parseCustomFunction } from './custom_function/custom_function';
+import { CustomPmml } from './interfaces/custom/pmml';
 import ExplanatoryPredictor from '../../predictors/explanatory_predictor';
 
 /**

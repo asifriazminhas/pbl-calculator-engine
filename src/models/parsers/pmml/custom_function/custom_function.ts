@@ -1,7 +1,7 @@
 import { isRestrictedCubicSplineCustomFunction, parseRcsSpline } from './rcs_spline';
 import CustomFunction from '../../../custom_functions/custom_function';
-import { RestrictedCubicSpline } from '../../../interfaces/pmml/custom/restricted_cubic_spline';
-import { Parameter } from '../../../interfaces/pmml/pmml';
+import { RestrictedCubicSpline } from '../interfaces/custom/restricted_cubic_spline';
+import { Parameter } from '../interfaces/pmml';
 
 /**
  * Returns a CustomFunction object if one exists for a predictor or null

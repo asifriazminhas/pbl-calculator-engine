@@ -3,7 +3,7 @@ import {
     Apply,
     FieldRef,
     Constant
-} from '../interfaces/pmml/pmml'
+} from './interfaces/pmml'
 import {
     LiteralAST,
     BinaryExpressionASTLeftAndRight,
@@ -15,7 +15,7 @@ import {
     ConditionalExpressionAST,
     CallExpressionAST,
     AST
-} from '../interfaces/pmml/ast'
+} from './interfaces/ast'
 
 //models
 import {
