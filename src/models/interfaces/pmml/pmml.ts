@@ -103,14 +103,15 @@ export interface DerivedField {
     FieldRef?: FieldRef;
 }
 
-/**
- * The root XML node for a PMML file
- * 
- * @export
- * @interface Pmml
- */
+export interface Header {
+    $: {
+        description: string
+    }
+}
+
 export interface Pmml {
     PMML: {
+        Header: Header
         LocalTransformations: {
             DerivedField: Array<DerivedField>
         }

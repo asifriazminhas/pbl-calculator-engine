@@ -4,7 +4,7 @@ import Predictor, {
 } from './predictor'
 import HelperFunctions from './helper_functions'
 import Datum from '../data/datum'
-import env from '../env/env';
+import { env } from '../env/env';
 
 import * as moment from 'moment';
 
@@ -47,7 +47,7 @@ class IntermediatePredictor extends Predictor {
         //Do this line to remove the error for unused locals
         func
         
-        if(env.isEnvironmentTesting() === true) {
+        if(env.shouldLogDebugInfo() === true) {
             console.groupCollapsed(`Intermediate Predictor: ${this.name}`)
             console.log(`Name: ${this.name}`)
             console.log(`Intermediate Predictor Equation: ${this.equation}`)

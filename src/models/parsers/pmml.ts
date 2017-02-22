@@ -1,4 +1,4 @@
-import { getASTForConstant } from './node_parser';
+import { getASTForConstant, getASTForFieldRef } from './node_parser';
 
 //bluebird
 import * as bluebird from 'bluebird'
@@ -40,6 +40,9 @@ function getDerivedFieldEquation(derivedField: DerivedField): string {
     }
     else if (derivedField.Constant) {
         right = getASTForConstant(derivedField.Constant);
+    }
+    else if (derivedField.FieldRef) {
+        right = getASTForFieldRef(derivedField.FieldRef);
     }
     else {
         throw new Error(`Unknown root node in derived field`);
@@ -99,8 +102,24 @@ function getDerivedFrom(derivedField: DerivedField): Array<string> {
     else if(derivedField.Apply) {
         return getDerivedFromForApplyTag(derivedField.Apply);
     }
+    else if (derivedField.FieldRef) {
+        return [
+            derivedField.FieldRef.$.field
+        ];
+    }
     else {
         throw new Error(`Unknown root tag in derivedField`);
+    }
+}
+
+function parseVersionFromDescription(description: string): string {
+    const parsedDescription = description.split('_')[1];
+
+    if(parsedDescription.trim().length === 0) {
+        return 'No version provided';
+    }
+    else {
+        return parsedDescription;
     }
 }
 
@@ -130,5 +149,20 @@ export default async function (Algorithm: {
 
     const baselineHazard = Number(parsedPmml.PMML.GeneralRegressionModel.$.baselineHazard);
 
-    return new Algorithm().constructFromPmml(explanatoryPredictors, intermediatePredictors, baselineHazard);
+    const parsedAlgorithm = new Algorithm().constructFromPmml(explanatoryPredictors, intermediatePredictors, baselineHazard, parseVersionFromDescription(parsedPmml.PMML.Header.$.description));
+
+    //Find dangling intermediate predictors and throw an error if we find one
+    parsedAlgorithm.getTopLevelIntermediatePredictors()
+        .forEach((intermediatePredictor) => {
+            const explanatoryPredictorForIntermediatePredictor = parsedAlgorithm.explanatoryPredictors
+                .find((explanatoryPredictor) => {
+                    return explanatoryPredictor.name === intermediatePredictor.name
+                });
+
+            if(!explanatoryPredictorForIntermediatePredictor) {
+                throw new Error(`No explanatory predictor found for top most intermediate predictor with name ${intermediatePredictor.name}`)
+            }
+        });
+    
+    return parsedAlgorithm;
 }

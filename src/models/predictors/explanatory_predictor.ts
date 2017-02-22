@@ -36,6 +36,10 @@ class ExplanatoryPredictor extends Predictor {
 
         return this
     }
+
+    isInteractionPredictor(): boolean {
+        return this.name.split('_')[1].trim().toLowerCase() === 'int';
+    }
 }
 
 export default ExplanatoryPredictor
