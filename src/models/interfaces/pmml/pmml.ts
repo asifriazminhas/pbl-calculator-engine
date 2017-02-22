@@ -94,6 +94,10 @@ export interface Apply {
  * @interface DerivedField
  */
 export interface DerivedField {
+    $: {
+        name: string;
+        optype: string;
+    }
     Apply?: Apply;
     Constant?: Constant;
     FieldRef?: FieldRef;
