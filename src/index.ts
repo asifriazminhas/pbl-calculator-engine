@@ -1,4 +1,4 @@
-import env, { Env } from './models/env/env';
+import { Env, env } from './models/env/env';
 import Algorithm from './models/algorithm';
 
 export {
