@@ -83,7 +83,7 @@ class Algorithm {
             console.groupEnd();
         }
 
-        return this.baselineHazard*Math.pow(Math.E, score);
+        return 1 - Math.pow(Math.E, -1*this.baselineHazard*Math.pow(Math.E, score));
     }
 
     /**
