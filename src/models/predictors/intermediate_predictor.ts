@@ -35,7 +35,7 @@ class IntermediatePredictor extends Predictor {
         return this
     }
 
-    evaluate(explanatoryPredictorsData: Array<Datum>): number | string {
+    evaluate(explanatoryPredictorsData: Array<Datum>, shouldLog: boolean): number | string {
         var obj: {
             [index: string]: string | number | moment.Moment
         } = {
@@ -47,7 +47,7 @@ class IntermediatePredictor extends Predictor {
         //Do this line to remove the error for unused locals
         func
         
-        if(env.shouldLogDebugInfo() === true) {
+        if(env.shouldLogDebugInfo() === true && shouldLog) {
             console.groupCollapsed(`Intermediate Predictor: ${this.name}`)
             console.log(`Name: ${this.name}`)
             console.log(`Intermediate Predictor Equation: ${this.equation}`)
