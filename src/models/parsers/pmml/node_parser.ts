@@ -303,7 +303,8 @@ const SpecialFunctions: Array<string> = [
     'is.na',
     'not',
     'notEqual',
-    'formatDatetime'
+    'formatDatetime',
+    'max'
 ]
 /**
  * Maps a PMML apply node whose function string is set to one in the above SpecialFunctions object to a CallExpressionAST
