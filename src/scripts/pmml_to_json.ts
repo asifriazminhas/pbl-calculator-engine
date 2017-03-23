@@ -1,3 +1,6 @@
+import * as sourceMapSupport from 'source-map-support';
+sourceMapSupport.install();
+
 import * as fs from 'fs';
 import * as yargs from 'yargs';
 import * as path from 'path';
