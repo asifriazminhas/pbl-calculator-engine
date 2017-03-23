@@ -58,7 +58,6 @@ class Algorithm {
         return this
     }
 
-
     evaluate(userData: Array<Datum>): number {
         if(env.shouldLogWarnings()) {
             this.logWarningsForUnusedDatumInData(userData);
@@ -92,11 +91,12 @@ class Algorithm {
      * @private
      * @param {IntermediatePredictor} intermediatePredictor
      * @param {Array<Datum>} data
+     * @param {boolean} shouldLogIntermediatePredictors Whether we should log the intermediate predictor evaluation
      * @returns {Array<Datum>}
      * 
      * @memberOf Algorithm
      */
-    private getDataForIntermediatePredictor(intermediatePredictor: IntermediatePredictor, data: Array<Datum>): Array<Datum> {
+    private getDataForIntermediatePredictor(intermediatePredictor: IntermediatePredictor, data: Array<Datum>, shouldLogIntermediatePredictors: boolean): Array<Datum> {
         //Go through all the explanatory predictors for the intermediate predictor and return the Datum object for each
         return intermediatePredictor.explanatoryPredictors.map((explanatoryPredictor) => {
             //Check if there is already a datum object for this explanatory predictor in the data param
@@ -118,7 +118,7 @@ class Algorithm {
                 }
                 //Otherwise create a new Datum object using the name field as the identifier and evaluating this value for this intermediate predictor
                 else {
-                    return new Datum().constructorForNewDatum(intermediatePredictorForExplanatoryPredictor.name, intermediatePredictorForExplanatoryPredictor.evaluate(this.getDataForIntermediatePredictor(intermediatePredictorForExplanatoryPredictor, data)))
+                    return new Datum().constructorForNewDatum(intermediatePredictorForExplanatoryPredictor.name, intermediatePredictorForExplanatoryPredictor.evaluate(this.getDataForIntermediatePredictor(intermediatePredictorForExplanatoryPredictor, data, shouldLogIntermediatePredictors), shouldLogIntermediatePredictors))
                 }
             }
             //If there is return it
@@ -129,24 +129,7 @@ class Algorithm {
     }
 
     private calculateComponent(explanatoryPredictor: ExplanatoryPredictor, coefficent: number | string | moment.Moment, pmmlBeta: number): number {
-        let formattedCoefficient: number = 0
-        if(typeof coefficent === 'string') {
-            if(coefficent === 'NA') {
-                formattedCoefficient = explanatoryPredictor.referencePoint
-            }
-            else {
-                throw new Error(`coefficient is not a number`)
-            }
-        }
-        else if(coefficent instanceof moment) {
-            throw new Error(`coefficent is a moment object`)
-        }
-        else if(isNaN(coefficent as number)) {
-            formattedCoefficient = explanatoryPredictor.referencePoint
-        }
-        else {
-            formattedCoefficient = coefficent as number
-        }
+        let formattedCoefficient = this.formatCoefficent(coefficent, explanatoryPredictor);
 
         var beta = formattedCoefficient*pmmlBeta
 
@@ -231,29 +214,18 @@ class Algorithm {
             }
             else {
                 let firstVariableValue = this.getCoefficentForPredictor(firstVariablePredictor, data);
-
-                if(firstVariableValue === 'NA') {
+                if(isNaN(firstVariableValue as any)) {
                     if(firstVariablePredictor instanceof ExplanatoryPredictor) {
-                        return customFunction.evaluate({
-                            firstVariableValue: firstVariablePredictor.referencePoint
-                        });
+                        firstVariableValue = this.formatCoefficent(firstVariableValue, firstVariablePredictor);
                     }
                     else {
-                        throw new Error(`firstVariableValue is NA but predictor does not have a reference point`);
+                        throw new Error(`firstVariableValue is not but firstVariablePredictor is not explanatory`);
                     }
                 }
 
-                if(firstVariableValue instanceof moment) {
-                    throw new Error(`firstVariableValue is not a number when evluating spline function`); 
-                }
-                else if(isNaN(firstVariableValue as number)) {
-                    throw new Error(`firstVariableValue is not a number when evluating spline function`);
-                }
-                else {
-                    return customFunction.evaluate({
-                        firstVariableValue: Number(firstVariableValue)
-                    });
-                }
+                return customFunction.evaluate({
+                    firstVariableValue: Number(firstVariableValue)
+                });
             }
         }
         else {
@@ -261,6 +233,29 @@ class Algorithm {
         }
     }
     
+    private formatCoefficent(coefficent: any, explanatoryPredictor: ExplanatoryPredictor): number {
+        let formattedCoefficient: number = 0
+        if(typeof coefficent === 'string') {
+            if(coefficent === 'NA') {
+                formattedCoefficient = explanatoryPredictor.referencePoint
+            }
+            else {
+                throw new Error(`coefficient is not a number`)
+            }
+        }
+        else if(coefficent instanceof moment) {
+            throw new Error(`coefficent is a moment object`)
+        }
+        else if(isNaN(coefficent as number)) {
+            formattedCoefficient = explanatoryPredictor.referencePoint
+        }
+        else {
+            formattedCoefficient = coefficent as number
+        }
+
+        return formattedCoefficient;
+    }
+
     /**
      * 
      * 
@@ -296,7 +291,27 @@ class Algorithm {
                 }
                 //Otherwise all is good.Continue with getting the coefficent for this intermediate predictor
                 else {
-                    return this.getCoefficentForPredictor(foundIntermediatePredictor, data);
+                    //if it is an interaction we need to do additional logic. 
+                    if(predictor.isInteractionPredictor()) {
+                        //get all the data we will feed into the evaluation of this intraction intermediate predictor evaluation method
+                        let explanatoryPredictorData = 
+                        //Go through the top level explanatory predictors for this intermediate predcitors
+                        foundIntermediatePredictor.explanatoryPredictors
+                            .map((explanatoryPredictorForIntermediatePredictor) => {
+                                //get the coefficent for the current one 
+                                const coefficent = this.getCoefficentForPredictor
+                                    (this.getPredictorWithName(explanatoryPredictorForIntermediatePredictor), data);
+                                
+                                //Format it and return a Datum object with it
+                                return new Datum().constructorForNewDatum(explanatoryPredictorForIntermediatePredictor, this.formatCoefficent(coefficent, this.getExplanatoryPredictorWithName(explanatoryPredictorForIntermediatePredictor)));
+                            });
+                        
+                        //Return the evaluation of the interaction intermediate predictor
+                        return foundIntermediatePredictor.evaluate(explanatoryPredictorData, true);
+                    }
+                    else {
+                        return this.getCoefficentForPredictor(foundIntermediatePredictor, data);
+                    }
                 }
             }
             //Otherwise return the coefficent in this data
@@ -305,11 +320,37 @@ class Algorithm {
             }
         }
         else if (predictor instanceof IntermediatePredictor) {
-            return predictor.evaluate(this.getDataForIntermediatePredictor(predictor, data));
+            return predictor.evaluate(this.getDataForIntermediatePredictor(predictor, data, true), true);
         }
         else {
             throw new Error(`Unknown predictor type`);
         }
+    }
+
+    getPredictorWithName(name: string): Predictor {
+        const predictorFound = (this.explanatoryPredictors as Array<Predictor>).concat(this.intermediatePredictors)
+            .find((predictor) => {
+                return predictor.name === name;
+            });
+
+        if(!predictorFound) {
+            throw new Error(`No predictor found with name ${name}`);
+        }
+
+        return predictorFound;
+    }
+
+    getExplanatoryPredictorWithName(name: string): ExplanatoryPredictor {
+        const explanatoryPredictorFound = this.explanatoryPredictors
+            .find((explanatoryPredictor) => {
+                return explanatoryPredictor.name === name;
+            })
+
+        if(!explanatoryPredictorFound) {
+            throw new Error(`No explanatory predictor found with name ${name}`);
+        }
+
+        return explanatoryPredictorFound;
     }
 
     /**
@@ -345,7 +386,7 @@ class Algorithm {
     private isDataMissingForIntermediatePredictor(data: Array<Datum>, intermediatePredictor: IntermediatePredictor): boolean {
         try {
             //Try to get all the data needed to do the transformation for this intermediate predictor
-            this.getDataForIntermediatePredictor(intermediatePredictor, data);
+            this.getDataForIntermediatePredictor(intermediatePredictor, data, false);
         }
         catch(err) {
             //If we got an NoDataFoundError then data is missing so return true
