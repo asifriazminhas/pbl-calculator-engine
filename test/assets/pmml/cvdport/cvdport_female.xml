@@ -1,0 +1,328 @@
+<PMML version="4.2" xmlns="http://www.dmg.org/PMML-4_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dmg.org/PMML-4_2 http://www.dmg.org/v4-2/pmml-4-2.xsd">
+    <Header copyright="Copyright (c) 2017 user" description="CVDPoRT female PMML FULL Model_v0.1">
+        <Extension name="projectbiglife" value="PBL" extender="COXPH" />
+        <Application name="COXPH" version="1.4" />
+        <Timestamp>2017-02-16 10:36:44</Timestamp>
+    </Header>
+    <DataDictionary numberOfFields="51">
+        <DataField name="survival" optype="continuous" dataType="double" />
+        <DataField name="Age_rcs1" optype="continuous" dataType="double" />
+        <DataField name="Age_rcs2" optype="continuous" dataType="double" />
+        <DataField name="Age_rcs3" optype="continuous" dataType="double" />
+        <DataField name="Age_rcs4" optype="continuous" dataType="double" />
+        <DataField name="Packyears_rcs1" optype="continuous" dataType="double" />
+        <DataField name="Packyears_rcs2" optype="continuous" dataType="double" />
+        <DataField name="SmokeFormer5plus_cat" optype="continuous" dataType="double" />
+        <DataField name="SmokeFormer0to5_cat" optype="continuous" dataType="double" />
+        <DataField name="SmokeCurrent_cat" optype="continuous" dataType="double" />
+        <DataField name="AgeXPackyears_int" optype="continuous" dataType="double" />
+        <DataField name="AgeXSmokerFormer5plus" optype="continuous" dataType="double" />
+        <DataField name="AgeXSmokerFormer0to5" optype="continuous" dataType="double" />
+        <DataField name="AgeXSmokerCurrent" optype="continuous" dataType="double" />
+        <DataField name="DrinksLastWeek_cont" optype="continuous" dataType="double" />
+        <DataField name="FormerDrinker_cat" optype="continuous" dataType="double" />
+        <DataField name="AgeXDrinksLastWeek_int" optype="continuous" dataType="double" />
+        <DataField name="AgeXFormerDrinker_int" optype="continuous" dataType="double" />
+        <DataField name="FruitVeg_rcs1" optype="continuous" dataType="double" />
+        <DataField name="FruitVeg_rcs2" optype="continuous" dataType="double" />
+        <DataField name="Potato_cont" optype="continuous" dataType="double" />
+        <DataField name="Juice_cont" optype="continuous" dataType="double" />
+        <DataField name="AgeXFruitVeg_int" optype="continuous" dataType="double" />
+        <DataField name="AgeXPotato_int" optype="continuous" dataType="double" />
+        <DataField name="AgeXJuice_int" optype="continuous" dataType="double" />
+        <DataField name="PhysicalActivity_rcs1" optype="continuous" dataType="double" />
+        <DataField name="PhysicalActivity_rcs2" optype="continuous" dataType="double" />
+        <DataField name="AgeXPhysicalActivity" optype="continuous" dataType="double" />
+        <DataField name="Stress_cat" optype="continuous" dataType="double" />
+        <DataField name="BelongSStrong_cat" optype="continuous" dataType="double" />
+        <DataField name="BelongSWeak_cat" optype="continuous" dataType="double" />
+        <DataField name="BelongVWeak_cat" optype="continuous" dataType="double" />
+        <DataField name="BMI_rcs1" optype="continuous" dataType="double" />
+        <DataField name="BMI_rcs2" optype="continuous" dataType="double" />
+        <DataField name="AgeXBMI_int" optype="continuous" dataType="double" />
+        <DataField name="PercentTimeCanada_cont" optype="continuous" dataType="double" />
+        <DataField name="Immigration_cat" optype="continuous" dataType="double" />
+        <DataField name="Ethnicity_cat" optype="continuous" dataType="double" />
+        <DataField name="EduHSGrad_cat" optype="continuous" dataType="double" />
+        <DataField name="EduSomePS_cat" optype="continuous" dataType="double" />
+        <DataField name="EduPSGrad_cat" optype="continuous" dataType="double" />
+        <DataField name="Deprivation_cat" optype="continuous" dataType="double" />
+        <DataField name="Diabetes_cat" optype="continuous" dataType="double" />
+        <DataField name="AgeXDiabetes_int" optype="continuous" dataType="double" />
+        <DataField name="Hypertension_cat" optype="continuous" dataType="double" />
+        <DataField name="AgeXHypertension_int" optype="continuous" dataType="double" />
+        <DataField name="SurveyCycle2_cat" optype="continuous" dataType="double" />
+        <DataField name="SurveyCycle3_cat" optype="continuous" dataType="double" />
+        <DataField name="SurveyCycle4_cat" optype="continuous" dataType="double" />
+        <DataField name="ttcvd_dec12_year" optype="continuous" dataType="double" />
+        <DataField name="censor_cvd_dec12" optype="continuous" dataType="double" />
+    </DataDictionary>
+    <GeneralRegressionModel modelType="CoxRegression" modelName="CVDPoRT_female_full_model" functionName="regression" algorithmName="coxph" endTimeVariable="ttcvd_dec12_year" statusVariable="censor_cvd_dec12">
+        <MiningSchema>
+            <MiningField name="survival" usageType="predicted" />
+            <MiningField name="Age_rcs1" usageType="active" />
+            <MiningField name="Age_rcs2" usageType="active" />
+            <MiningField name="Age_rcs3" usageType="active" />
+            <MiningField name="Age_rcs4" usageType="active" />
+            <MiningField name="Packyears_rcs1" usageType="active" />
+            <MiningField name="Packyears_rcs2" usageType="active" />
+            <MiningField name="SmokeFormer5plus_cat" usageType="active" />
+            <MiningField name="SmokeFormer0to5_cat" usageType="active" />
+            <MiningField name="SmokeCurrent_cat" usageType="active" />
+            <MiningField name="AgeXPackyears_int" usageType="active" />
+            <MiningField name="AgeXSmokerFormer5plus" usageType="active" />
+            <MiningField name="AgeXSmokerFormer0to5" usageType="active" />
+            <MiningField name="AgeXSmokerCurrent" usageType="active" />
+            <MiningField name="DrinksLastWeek_cont" usageType="active" />
+            <MiningField name="FormerDrinker_cat" usageType="active" />
+            <MiningField name="AgeXDrinksLastWeek_int" usageType="active" />
+            <MiningField name="AgeXFormerDrinker_int" usageType="active" />
+            <MiningField name="FruitVeg_rcs1" usageType="active" />
+            <MiningField name="FruitVeg_rcs2" usageType="active" />
+            <MiningField name="Potato_cont" usageType="active" />
+            <MiningField name="Juice_cont" usageType="active" />
+            <MiningField name="AgeXFruitVeg_int" usageType="active" />
+            <MiningField name="AgeXPotato_int" usageType="active" />
+            <MiningField name="AgeXJuice_int" usageType="active" />
+            <MiningField name="PhysicalActivity_rcs1" usageType="active" />
+            <MiningField name="PhysicalActivity_rcs2" usageType="active" />
+            <MiningField name="AgeXPhysicalActivity" usageType="active" />
+            <MiningField name="Stress_cat" usageType="active" />
+            <MiningField name="BelongSStrong_cat" usageType="active" />
+            <MiningField name="BelongSWeak_cat" usageType="active" />
+            <MiningField name="BelongVWeak_cat" usageType="active" />
+            <MiningField name="BMI_rcs1" usageType="active" />
+            <MiningField name="BMI_rcs2" usageType="active" />
+            <MiningField name="AgeXBMI_int" usageType="active" />
+            <MiningField name="PercentTimeCanada_cont" usageType="active" />
+            <MiningField name="Immigration_cat" usageType="active" />
+            <MiningField name="Ethnicity_cat" usageType="active" />
+            <MiningField name="EduHSGrad_cat" usageType="active" />
+            <MiningField name="EduSomePS_cat" usageType="active" />
+            <MiningField name="EduPSGrad_cat" usageType="active" />
+            <MiningField name="Deprivation_cat" usageType="active" />
+            <MiningField name="Diabetes_cat" usageType="active" />
+            <MiningField name="AgeXDiabetes_int" usageType="active" />
+            <MiningField name="Hypertension_cat" usageType="active" />
+            <MiningField name="AgeXHypertension_int" usageType="active" />
+            <MiningField name="SurveyCycle2_cat" usageType="active" />
+            <MiningField name="SurveyCycle3_cat" usageType="active" />
+            <MiningField name="SurveyCycle4_cat" usageType="active" />
+            <MiningField name="ttcvd_dec12_year" usageType="active" />
+            <MiningField name="censor_cvd_dec12" usageType="active" />
+        </MiningSchema>
+        <Output>
+            <OutputField name="Predicted_survival" feature="predictedValue" />
+            <OutputField name="cumulativeHazard" feature="transformedValue">
+                <Apply function="*">
+                    <Constant>-1.0</Constant>
+                    <Apply function="ln">
+                        <FieldRef field="Predicted_survival" />
+                    </Apply>
+                </Apply>
+            </OutputField>
+        </Output>
+        <ParameterList>
+            <Parameter name="p0" label="Age_rcs1" referencePoint="1.71963561403978e-12" />
+            <Parameter name="p1" label="Age_rcs2" referencePoint="13.2972177048351" />
+            <Parameter name="p2" label="Age_rcs3" referencePoint="4.2153030856009" />
+            <Parameter name="p3" label="Age_rcs4" referencePoint="1.04054222617804" />
+            <Parameter name="p4" label="Packyears_rcs1" referencePoint="-5.86564960939333e-14" />
+            <Parameter name="p5" label="Packyears_rcs2" referencePoint="0.00379615801788254" />
+            <Parameter name="p6" label="SmokeFormer5plus_cat" referencePoint="1.35637902559968e-15" />
+            <Parameter name="p7" label="SmokeFormer0to5_cat" referencePoint="1.49139534275971e-15" />
+            <Parameter name="p8" label="SmokeCurrent_cat" referencePoint="-9.53287761281852e-15" />
+            <Parameter name="p9" label="AgeXPackyears_int" referencePoint="46.5894173249377" />
+            <Parameter name="p10" label="AgeXSmokerFormer5plus" referencePoint="1.13728103959131" />
+            <Parameter name="p11" label="AgeXSmokerFormer0to5" referencePoint="-0.392463087154288" />
+            <Parameter name="p12" label="AgeXSmokerCurrent" referencePoint="-1.24777733643107" />
+            <Parameter name="p13" label="DrinksLastWeek_cont" referencePoint="2.05751410870595e-14" />
+            <Parameter name="p14" label="FormerDrinker_cat" referencePoint="8.0225760794388e-15" />
+            <Parameter name="p15" label="AgeXDrinksLastWeek_int" referencePoint="-5.28675741119826" />
+            <Parameter name="p16" label="AgeXFormerDrinker_int" referencePoint="1.04038603514813" />
+            <Parameter name="p17" label="FruitVeg_rcs1" referencePoint="2.43885757956698e-14" />
+            <Parameter name="p18" label="FruitVeg_rcs2" referencePoint="1.06387301050483" />
+            <Parameter name="p19" label="Potato_cont" referencePoint="-3.38713486182814e-15" />
+            <Parameter name="p20" label="Juice_cont" referencePoint="1.5647294641679e-14" />
+            <Parameter name="p21" label="AgeXFruitVeg_int" referencePoint="2.38054504059647" />
+            <Parameter name="p22" label="AgeXPotato_int" referencePoint="1.48541664765396" />
+            <Parameter name="p23" label="AgeXJuice_int" referencePoint="-0.111704965968461" />
+            <Parameter name="p24" label="PhysicalActivity_rcs1" referencePoint="-8.70895208918434e-15" />
+            <Parameter name="p25" label="PhysicalActivity_rcs2" referencePoint="0.747239508064208" />
+            <Parameter name="p26" label="AgeXPhysicalActivity" referencePoint="-5.00241657389303" />
+            <Parameter name="p27" label="Stress_cat" referencePoint="-2.4126452034351e-14" />
+            <Parameter name="p28" label="BelongSStrong_cat" referencePoint="-3.57809922263735e-15" />
+            <Parameter name="p29" label="BelongSWeak_cat" referencePoint="-2.66514992825468e-15" />
+            <Parameter name="p30" label="BelongVWeak_cat" referencePoint="-3.37974032371358e-16" />
+            <Parameter name="p31" label="BMI_rcs1" referencePoint="7.19813232444157e-15" />
+            <Parameter name="p32" label="BMI_rcs2" referencePoint="2.51030901388423" />
+            <Parameter name="p33" label="AgeXBMI_int" referencePoint="8.14882592681368" />
+            <Parameter name="p34" label="PercentTimeCanada_cont" referencePoint="7.46441440538939e-14" />
+            <Parameter name="p35" label="Immigration_cat" referencePoint="7.43110946806502e-15" />
+            <Parameter name="p36" label="Ethnicity_cat" referencePoint="-2.85981155812116e-15" />
+            <Parameter name="p37" label="EduHSGrad_cat" referencePoint="-3.47142441373369e-15" />
+            <Parameter name="p38" label="EduSomePS_cat" referencePoint="3.59041988105824e-15" />
+            <Parameter name="p39" label="EduPSGrad_cat" referencePoint="4.51864238886447e-15" />
+            <Parameter name="p40" label="Deprivation_cat" referencePoint="1.25810131819189e-14" />
+            <Parameter name="p41" label="Diabetes_cat" referencePoint="-1.18772686285582e-14" />
+            <Parameter name="p42" label="AgeXDiabetes_int" referencePoint="0.643808189499578" />
+            <Parameter name="p43" label="Hypertension_cat" referencePoint="-2.48063891168225e-14" />
+            <Parameter name="p44" label="AgeXHypertension_int" referencePoint="2.86420265067633" />
+            <Parameter name="p45" label="SurveyCycle2_cat" referencePoint="-7.12815453040444e-15" />
+            <Parameter name="p46" label="SurveyCycle3_cat" referencePoint="-4.61887174389609e-14" />
+            <Parameter name="p47" label="SurveyCycle4_cat" referencePoint="-8.31750661357251e-14" />
+        </ParameterList>
+        <FactorList/>
+        <CovariateList>
+            <Predictor name="Age_rcs1" />
+            <Predictor name="Age_rcs2" />
+            <Predictor name="Age_rcs3" />
+            <Predictor name="Age_rcs4" />
+            <Predictor name="Packyears_rcs1" />
+            <Predictor name="Packyears_rcs2" />
+            <Predictor name="SmokeFormer5plus_cat" />
+            <Predictor name="SmokeFormer0to5_cat" />
+            <Predictor name="SmokeCurrent_cat" />
+            <Predictor name="AgeXPackyears_int" />
+            <Predictor name="AgeXSmokerFormer5plus" />
+            <Predictor name="AgeXSmokerFormer0to5" />
+            <Predictor name="AgeXSmokerCurrent" />
+            <Predictor name="DrinksLastWeek_cont" />
+            <Predictor name="FormerDrinker_cat" />
+            <Predictor name="AgeXDrinksLastWeek_int" />
+            <Predictor name="AgeXFormerDrinker_int" />
+            <Predictor name="FruitVeg_rcs1" />
+            <Predictor name="FruitVeg_rcs2" />
+            <Predictor name="Potato_cont" />
+            <Predictor name="Juice_cont" />
+            <Predictor name="AgeXFruitVeg_int" />
+            <Predictor name="AgeXPotato_int" />
+            <Predictor name="AgeXJuice_int" />
+            <Predictor name="PhysicalActivity_rcs1" />
+            <Predictor name="PhysicalActivity_rcs2" />
+            <Predictor name="AgeXPhysicalActivity" />
+            <Predictor name="Stress_cat" />
+            <Predictor name="BelongSStrong_cat" />
+            <Predictor name="BelongSWeak_cat" />
+            <Predictor name="BelongVWeak_cat" />
+            <Predictor name="BMI_rcs1" />
+            <Predictor name="BMI_rcs2" />
+            <Predictor name="AgeXBMI_int" />
+            <Predictor name="PercentTimeCanada_cont" />
+            <Predictor name="Immigration_cat" />
+            <Predictor name="Ethnicity_cat" />
+            <Predictor name="EduHSGrad_cat" />
+            <Predictor name="EduSomePS_cat" />
+            <Predictor name="EduPSGrad_cat" />
+            <Predictor name="Deprivation_cat" />
+            <Predictor name="Diabetes_cat" />
+            <Predictor name="AgeXDiabetes_int" />
+            <Predictor name="Hypertension_cat" />
+            <Predictor name="AgeXHypertension_int" />
+            <Predictor name="SurveyCycle2_cat" />
+            <Predictor name="SurveyCycle3_cat" />
+            <Predictor name="SurveyCycle4_cat" />
+        </CovariateList>
+        <PPMatrix>
+            <PPCell value="1" predictorName="Age_rcs1" parameterName="p0" />
+            <PPCell value="1" predictorName="Age_rcs2" parameterName="p1" />
+            <PPCell value="1" predictorName="Age_rcs3" parameterName="p2" />
+            <PPCell value="1" predictorName="Age_rcs4" parameterName="p3" />
+            <PPCell value="1" predictorName="Packyears_rcs1" parameterName="p4" />
+            <PPCell value="1" predictorName="Packyears_rcs2" parameterName="p5" />
+            <PPCell value="1" predictorName="SmokeFormer5plus_cat" parameterName="p6" />
+            <PPCell value="1" predictorName="SmokeFormer0to5_cat" parameterName="p7" />
+            <PPCell value="1" predictorName="SmokeCurrent_cat" parameterName="p8" />
+            <PPCell value="1" predictorName="AgeXPackyears_int" parameterName="p9" />
+            <PPCell value="1" predictorName="AgeXSmokerFormer5plus" parameterName="p10" />
+            <PPCell value="1" predictorName="AgeXSmokerFormer0to5" parameterName="p11" />
+            <PPCell value="1" predictorName="AgeXSmokerCurrent" parameterName="p12" />
+            <PPCell value="1" predictorName="DrinksLastWeek_cont" parameterName="p13" />
+            <PPCell value="1" predictorName="FormerDrinker_cat" parameterName="p14" />
+            <PPCell value="1" predictorName="AgeXDrinksLastWeek_int" parameterName="p15" />
+            <PPCell value="1" predictorName="AgeXFormerDrinker_int" parameterName="p16" />
+            <PPCell value="1" predictorName="FruitVeg_rcs1" parameterName="p17" />
+            <PPCell value="1" predictorName="FruitVeg_rcs2" parameterName="p18" />
+            <PPCell value="1" predictorName="Potato_cont" parameterName="p19" />
+            <PPCell value="1" predictorName="Juice_cont" parameterName="p20" />
+            <PPCell value="1" predictorName="AgeXFruitVeg_int" parameterName="p21" />
+            <PPCell value="1" predictorName="AgeXPotato_int" parameterName="p22" />
+            <PPCell value="1" predictorName="AgeXJuice_int" parameterName="p23" />
+            <PPCell value="1" predictorName="PhysicalActivity_rcs1" parameterName="p24" />
+            <PPCell value="1" predictorName="PhysicalActivity_rcs2" parameterName="p25" />
+            <PPCell value="1" predictorName="AgeXPhysicalActivity" parameterName="p26" />
+            <PPCell value="1" predictorName="Stress_cat" parameterName="p27" />
+            <PPCell value="1" predictorName="BelongSStrong_cat" parameterName="p28" />
+            <PPCell value="1" predictorName="BelongSWeak_cat" parameterName="p29" />
+            <PPCell value="1" predictorName="BelongVWeak_cat" parameterName="p30" />
+            <PPCell value="1" predictorName="BMI_rcs1" parameterName="p31" />
+            <PPCell value="1" predictorName="BMI_rcs2" parameterName="p32" />
+            <PPCell value="1" predictorName="AgeXBMI_int" parameterName="p33" />
+            <PPCell value="1" predictorName="PercentTimeCanada_cont" parameterName="p34" />
+            <PPCell value="1" predictorName="Immigration_cat" parameterName="p35" />
+            <PPCell value="1" predictorName="Ethnicity_cat" parameterName="p36" />
+            <PPCell value="1" predictorName="EduHSGrad_cat" parameterName="p37" />
+            <PPCell value="1" predictorName="EduSomePS_cat" parameterName="p38" />
+            <PPCell value="1" predictorName="EduPSGrad_cat" parameterName="p39" />
+            <PPCell value="1" predictorName="Deprivation_cat" parameterName="p40" />
+            <PPCell value="1" predictorName="Diabetes_cat" parameterName="p41" />
+            <PPCell value="1" predictorName="AgeXDiabetes_int" parameterName="p42" />
+            <PPCell value="1" predictorName="Hypertension_cat" parameterName="p43" />
+            <PPCell value="1" predictorName="AgeXHypertension_int" parameterName="p44" />
+            <PPCell value="1" predictorName="SurveyCycle2_cat" parameterName="p45" />
+            <PPCell value="1" predictorName="SurveyCycle3_cat" parameterName="p46" />
+            <PPCell value="1" predictorName="SurveyCycle4_cat" parameterName="p47" />
+        </PPMatrix>
+        <ParamMatrix>
+            <PCell parameterName="p0" df="1" beta="0.1240346219" />
+            <PCell parameterName="p1" df="1" beta="-0.1122240175" />
+            <PCell parameterName="p2" df="1" beta="0.2778413138" />
+            <PCell parameterName="p3" df="1" beta="-0.2402767387" />
+            <PCell parameterName="p4" df="1" beta="0.02023874184" />
+            <PCell parameterName="p5" df="1" beta="-15.38321641" />
+            <PCell parameterName="p6" df="1" beta="-0.09500378417" />
+            <PCell parameterName="p7" df="1" beta="0.1319414447" />
+            <PCell parameterName="p8" df="1" beta="1.026540451" />
+            <PCell parameterName="p9" df="1" beta="-0.0003171540797" />
+            <PCell parameterName="p10" df="1" beta="0.005217655862" />
+            <PCell parameterName="p11" df="1" beta="0.001354781538" />
+            <PCell parameterName="p12" df="1" beta="-0.02210039857" />
+            <PCell parameterName="p13" df="1" beta="-0.01606348966" />
+            <PCell parameterName="p14" df="1" beta="0.2633604847" />
+            <PCell parameterName="p15" df="1" beta="-0.00002217076837" />
+            <PCell parameterName="p16" df="1" beta="-0.006165600499" />
+            <PCell parameterName="p17" df="1" beta="-0.01212237283" />
+            <PCell parameterName="p18" df="1" beta="0.04429068383" />
+            <PCell parameterName="p19" df="1" beta="0.02121982089" />
+            <PCell parameterName="p20" df="1" beta="-0.01718623565" />
+            <PCell parameterName="p21" df="1" beta="-0.000999520074" />
+            <PCell parameterName="p22" df="1" beta="-0.002991904426" />
+            <PCell parameterName="p23" df="1" beta="0.0006673060112" />
+            <PCell parameterName="p24" df="1" beta="-0.1560339258" />
+            <PCell parameterName="p25" df="1" beta="0.1509369752" />
+            <PCell parameterName="p26" df="1" beta="0.001507708721" />
+            <PCell parameterName="p27" df="1" beta="0.07136003674" />
+            <PCell parameterName="p28" df="1" beta="-0.01808429459" />
+            <PCell parameterName="p29" df="1" beta="0.008885222141" />
+            <PCell parameterName="p30" df="1" beta="0.1727241558" />
+            <PCell parameterName="p31" df="1" beta="0.02070366531" />
+            <PCell parameterName="p32" df="1" beta="-0.004309720793" />
+            <PCell parameterName="p33" df="1" beta="-0.0005033315684" />
+            <PCell parameterName="p34" df="1" beta="0.002431376878" />
+            <PCell parameterName="p35" df="1" beta="0.04085086569" />
+            <PCell parameterName="p36" df="1" beta="-0.1188826939" />
+            <PCell parameterName="p37" df="1" beta="-0.06187114608" />
+            <PCell parameterName="p38" df="1" beta="-0.04950567251" />
+            <PCell parameterName="p39" df="1" beta="-0.1822327903" />
+            <PCell parameterName="p40" df="1" beta="0.04564419059" />
+            <PCell parameterName="p41" df="1" beta="0.949169689" />
+            <PCell parameterName="p42" df="1" beta="-0.0218694415" />
+            <PCell parameterName="p43" df="1" beta="0.3729610304" />
+            <PCell parameterName="p44" df="1" beta="-0.004892689829" />
+            <PCell parameterName="p45" df="1" beta="-0.1129060113" />
+            <PCell parameterName="p46" df="1" beta="-0.289908384" />
+            <PCell parameterName="p47" df="1" beta="-0.4387991771" />
+
+        </ParamMatrix>
+    </GeneralRegressionModel>
+</PMML>
