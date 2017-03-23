@@ -10,7 +10,8 @@
     "build-umd": "webpack --config ./webpack/umd.config.js",
     "prepublish": "webpack --config ./webpack/umd.config.js && tsc",
     "pmml-to-json": "node lib/scripts/pmml_to_json.js",
-    "build": "tsc"
+    "build": "tsc",
+    "build:watch": "tsc -w"
   },
   "repository": {
     "type": "git",
