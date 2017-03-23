@@ -1,6 +1,6 @@
 import { parseDataFields } from './data_field';
 import { parseDerivedFields } from './derived_field';
-import { CustomPmml } from './interfaces/custom/pmml';
+import { CustomPmmlXml } from './interfaces/custom/pmml';
 import { parseVersionFromDescription } from './header';
 import Algorithm from '../../algorithm';
 
@@ -13,7 +13,7 @@ var promisifiedParseXmlString: any = bluebird.promisify(parseXmlString.parseStri
 
 export default async function(pmml: string) {
     //parse the pmml string
-    var parsedPmml: CustomPmml = await promisifiedParseXmlString(pmml, {
+    var parsedPmml: CustomPmmlXml = await promisifiedParseXmlString(pmml, {
         explicitArray: false,
         explicitChildren: true,
         preserveChildrenOrder: true
