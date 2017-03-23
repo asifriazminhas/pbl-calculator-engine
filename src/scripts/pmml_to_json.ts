@@ -60,8 +60,8 @@ if(fs.existsSync(absolutePmmlPath)) {
     })
     .catch((err) => {
         console.log('An error occured, please contact Yulric Sequeira (In the running for Director for Data Science) for more information')
-        console.log('');
-        throw err;
+        console.error(err);
+        process.exit(1);
     });
 }
 else {
