@@ -1,10 +1,7 @@
 import * as fs from 'fs';
 import * as yargs from 'yargs';
 import * as path from 'path';
-import IntermediatePredictor from '../models/predictors/intermediate_predictor';
-import ExplanatoryPredictor from '../models/predictors/explanatory_predictor';
-import Algorithm from '../models/algorithm';
-import parseAlgorithm from '../models/parsers/pmml';
+import parseAlgorithm from '../models/parsers/pmml/pmml';
 var packageJson = require('../../package.json');
 
 yargs
@@ -12,7 +9,7 @@ yargs
     .demandOption(['pmml'])
     .describe('pmml', 'The path to the pmml file')
     .describe('o', 'The path where to put the output json file')
-    .example(`npm run pmml-to-json -- -pmml "~/pmml/cvdport.xml" -o "~/pmml-json/cvdport.json"`, 'Takes the pmml file at ~/pmml/cvdport.xl, converts it to json and stores it at ~/pmml-json/cvdport.json');
+    .example(`npm run pmml-to-json -- --pmml "~/pmml/cvdport.xml" -o "~/pmml-json/cvdport.json"`, 'Takes the pmml file at ~/pmml/cvdport.xl, converts it to json and stores it at ~/pmml-json/cvdport.json');
 
 console.log(`Using pbl-calculator-engine version ${packageJson.version}`);
 console.log('');
@@ -36,7 +33,7 @@ const absolutePmmlPath = path.resolve(pmmlPath);
 if(fs.existsSync(absolutePmmlPath)) {
     const pmmlFile = fs.readFileSync(absolutePmmlPath, 'utf8');
 
-    parseAlgorithm(Algorithm, ExplanatoryPredictor, IntermediatePredictor, pmmlFile)
+    parseAlgorithm(pmmlFile)
     .then((algorithm) => {
         const algorithmJson = JSON.stringify(algorithm);
 
