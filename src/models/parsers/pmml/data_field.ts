@@ -1,15 +1,15 @@
 import { parseCustomFunction } from './custom_function/custom_function';
-import { CustomPmml } from './interfaces/custom/pmml';
+import { CustomPmmlXml } from './interfaces/custom/pmml';
 import ExplanatoryPredictor from '../../predictors/explanatory_predictor';
 
 /**
  * Parses all the Explanatory predictors from the provided PMML file
  * 
  * @export
- * @param {CustomPmml} pmml
+ * @param {CustomPmmlXml} pmml
  * @returns {Array<ExplanatoryPredictor>}
  */
-export function parseDataFields(pmml: CustomPmml): Array<ExplanatoryPredictor> {
+export function parseDataFields(pmml: CustomPmmlXml): Array<ExplanatoryPredictor> {
     //Go through all the paramaters since they are the predictors which are actually used in the algorithm
     return pmml.PMML.GeneralRegressionModel.ParameterList.Parameter
         .map((parameter) => {
@@ -36,6 +36,6 @@ export function parseDataFields(pmml: CustomPmml): Array<ExplanatoryPredictor> {
             }
 
             //Construct and return the explanatory predictor
-            return new ExplanatoryPredictor().constructFromPmml(parameter.$.label, dataFieldForCurrentParamater.$.optype, pCellForCurrentParamater.$.beta, parameter.$.referencePoint, parseCustomFunction(parameter, pmml.CustomPMML.RestrictedCubicSpline))
+            return new ExplanatoryPredictor().constructFromPmml(parameter.$.label, dataFieldForCurrentParamater.$.optype, pCellForCurrentParamater.$.beta, parameter.$.referencePoint, parseCustomFunction(parameter, pmml.PMML.CustomPMML.RestrictedCubicSpline))
         })
 }
