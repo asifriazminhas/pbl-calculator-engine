@@ -112,32 +112,41 @@ export interface Header {
     }
 }
 
+
 /**
- * The interface for a PMML XML file
+ * The interface for a the PMML node in the xml file
  * 
  * @export
  * @interface Pmml
  */
 export interface Pmml {
-    PMML: {
-        Header: Header
-        LocalTransformations: {
-            DerivedField: Array<DerivedField>
-        }
-        GeneralRegressionModel: {
-            //The nodes inside this nodes is what should be used to as the list of pedictors a certain algorithm needs
-            ParameterList: {
-                Parameter: Array<Parameter>
-            }
-            ParamMatrix: {
-                PCell: Array<PCell>
-            }
-            $: {
-                baselineHazard: string
-            }
-        },
-        DataDictionary: {
-            DataField: Array<DataField>
-        }
+    Header: Header
+    LocalTransformations: {
+        DerivedField: Array<DerivedField>
     }
+    GeneralRegressionModel: {
+        //The nodes inside this nodes is what should be used to as the list of pedictors a certain algorithm needs
+        ParameterList: {
+            Parameter: Array<Parameter>
+        }
+        ParamMatrix: {
+            PCell: Array<PCell>
+        }
+        $: {
+            baselineHazard: string
+        }
+    },
+    DataDictionary: {
+        DataField: Array<DataField>
+    }
+}
+
+/**
+ * The structure of a regular pmml file
+ * 
+ * @export
+ * @interface PmmlXml
+ */
+export interface PmmlXml {
+    PMML: Pmml
 }

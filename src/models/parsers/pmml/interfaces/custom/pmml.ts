@@ -13,3 +13,14 @@ export interface CustomPmml extends Pmml {
         RestrictedCubicSpline: RestrictedCubicSpline;
     }
 }
+
+
+/**
+ * The Custom Pmml xml file
+ * 
+ * @export
+ * @interface CustomPmmlXml
+ */
+export interface CustomPmmlXml {
+    PMML: CustomPmml
+}
