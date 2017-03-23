@@ -28,6 +28,38 @@ import {
     getCallExpressionAST
 } from './ast'
 
+//Object for oeprators that don't meet the normal parsing conditions
+const ApplyOperatorExceptions: {
+    [index: string]: (apply: Apply) => AST;
+} = {
+    //The - operator can be a subtraction (a - b) or a negation (-a)
+    '-': function(apply) {
+        if(!apply.$$[1]) {
+            const leftNode = apply.$$[0];
+            let leftNodeAst;
+
+            if(leftNode['#name'] === 'Constant') {
+                leftNodeAst = getASTForConstant(leftNode as Constant);
+            }
+            else if(leftNode['#name'] === 'FieldRef') {
+                leftNodeAst = getASTForFieldRef(leftNode as FieldRef);
+            }
+            else if(leftNode['#name'] === 'Apply') {
+                leftNodeAst = getASTForApply(leftNode as Apply);
+            }
+
+            if(!leftNodeAst) {
+                throw new Error(`Unhandle node type`);
+            }
+
+            return getUnaryExpressionAST('-', leftNodeAst as any);
+        }
+        else {
+            return getASTForBinaryExpressionApply(apply);
+        }
+    }
+};
+
 /**
  * Converts a Constant node either into a UnaryExpressionAST (since some of the constants can be negative numbers) or LiteralAST
  * 
@@ -70,6 +102,7 @@ export function getASTForFieldRef(fieldRef: FieldRef): MemberExpressionAST {
     return getMemberExpressionAST(getLiteralAST(fieldRef.$.field), 'obj')
 }
 
+export type GetAstForApplyReturn = BinaryExpressionAST | LogicalExpressionAST | ConditionalExpressionAST | CallExpressionAST;
 /**
  * Returns AST for an Apply node
  * 
@@ -77,7 +110,10 @@ export function getASTForFieldRef(fieldRef: FieldRef): MemberExpressionAST {
  * @param {Apply} apply
  * @returns {AST}
  */
-export function getASTForApply(apply: Apply): BinaryExpressionAST | LogicalExpressionAST | ConditionalExpressionAST | CallExpressionAST {
+export function getASTForApply(apply: Apply): GetAstForApplyReturn {
+    if(ApplyOperatorExceptions[apply.$.function]) {
+        return ApplyOperatorExceptions[apply.$.function](apply) as any;
+    }
     //if the function is a binary expression operator
     if(BinaryExpressionOperators[apply.$.function] !== undefined) {
         return getASTForBinaryExpressionApply(apply)
