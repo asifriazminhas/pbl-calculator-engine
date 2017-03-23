@@ -12,6 +12,7 @@
     "sourceMap": true,
     "declaration": true,
     "outDir": "./lib",
+    "skipLibCheck": true,
     "strictNullChecks": true,
     "noUnusedLocals": true
   },
