@@ -1,7 +1,7 @@
 <PMML version="4.2" 
   xmlns="http://www.dmg.org/PMML-4_2" 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dmg.org/PMML-4_2 http://www.dmg.org/v4-2/pmml-4-2.xsd">
-  <Header copyright="Copyright (c) 2016 mtuna" description="CVDPoRTFemale_v0.4">
+  <Header copyright="Copyright (c) 2016 mtuna" description="CVDPoRTFemale_v0.5">
     <Extension name="user" value="mtuna" extender="COXPH"/>
     <Application name="COXPH" version="1.4"/>
     <Timestamp>2016-09-02 09:33:00</Timestamp>
@@ -4831,7 +4831,7 @@
         <Constant dataType="double">0</Constant>
       </Apply>
     </DerivedField>
-    <DerivedField name="PhysicalActivity_cont" dataType="double" optype="continuous">
+    <DerivedField name="PhysicalActivity_xc" dataType="double" optype="continuous">
       <Apply function="if">
         <Apply function="equal">
           <FieldRef field="missingactivity"/>
@@ -4923,7 +4923,7 @@
     </DerivedField>
     <DerivedField name="PhysicalActivity_rcs1" dataType="double" optype="continuous">
       <Apply function="-">
-        <FieldRef field="PhysicalActivity_cont"/>
+        <FieldRef field="PhysicalActivity_xc"/>
         <Constant dataType="double">1.867511319</Constant>
       </Apply>
     </DerivedField>
@@ -5083,7 +5083,7 @@
       </Apply>
     </DerivedField>
   </LocalTransformations>
-  <GeneralRegressionModel modelType="CoxRegression" modelName="CVDPoRT_femalemodel" functionName="regression" algorithmName="coxph" endTimeVariable="ttcvd_dec12_year" statusVariable="censor_cvd_dec12" baselineHazard="0.057">
+  <GeneralRegressionModel modelType="CoxRegression" modelName="CVDPoRT_femalemodel" functionName="regression" algorithmName="coxph" endTimeVariable="ttcvd_dec12_year" statusVariable="censor_cvd_dec12" baselineHazard="0.007">
     <MiningSchema>
       <MiningField name="survival" usageType="predicted"/>
       <MiningField name="Age_rcs1" usageType="active"/>
