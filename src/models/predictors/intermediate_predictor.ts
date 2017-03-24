@@ -35,6 +35,10 @@ class IntermediatePredictor extends Predictor {
         return this
     }
 
+    hasExplanatoryPredictorWithName(name: string): boolean {
+        return this.explanatoryPredictors.indexOf(name) > -1;
+    }
+
     evaluate(explanatoryPredictorsData: Array<Datum>, shouldLog: boolean): number | string {
         var obj: {
             [index: string]: string | number | moment.Moment
