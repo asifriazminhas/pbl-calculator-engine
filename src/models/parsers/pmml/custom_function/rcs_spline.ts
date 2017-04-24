@@ -1,4 +1,4 @@
-import RCSSpline from '../../../custom_functions/rcs_spline';
+import { RcsCustomFunctionJson } from '../../json/custom_function';
 import { RestrictedCubicSpline } from '../interfaces/custom/restricted_cubic_spline';
 import { Parameter } from '../interfaces/pmml';
 
@@ -54,7 +54,7 @@ function parseFirstVariableName(parameterLabel: string): string {
  * @param {RestrictedCubicSpline} restrictedCubicSpline
  * @returns
  */
-export function parseRcsSpline(parameter: Parameter, restrictedCubicSpline: RestrictedCubicSpline) {
+export function parseRcsSpline(parameter: Parameter, restrictedCubicSpline: RestrictedCubicSpline): RcsCustomFunctionJson | null {
     const splineVariableNumber = getSplineVariableNumber(parameter.$.label);
 
     //If it's 1 then we don't have to apply the spline function on it since the component can be calculated normally
@@ -74,7 +74,11 @@ export function parseRcsSpline(parameter: Parameter, restrictedCubicSpline: Rest
         }
         //Otherwise Return the Spline object
         else {
-            return new RCSSpline().constructFromPmml(parseKnotLocations(restrictedCubicSplinePCell.$.knotLocations), parseFirstVariableName(parameter.$.label), splineVariableNumber);
+            return {
+                type: 'RcsCustomFunction',
+                knots: parseKnotLocations(restrictedCubicSplinePCell.$.knotLocations),
+                firstVariablePredictor: parseFirstVariableName(parameter.$.label), variableNumber: splineVariableNumber
+            }
         }
     }
 }

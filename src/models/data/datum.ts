@@ -1,4 +1,5 @@
 import * as moment from 'moment';
+import ExplanatoryPredictor from '../predictors/explanatory_predictor';
 
 class Datum {
     name: string
@@ -9,6 +10,19 @@ class Datum {
         this.coefficent = coefficent
 
         return this
+    }
+
+    /**
+     * Constructor where the name is set to predictor.name and value is set to the reference point
+     * 
+     * @static
+     * @param {ExplanatoryPredictor} predictor 
+     * @returns {Datum} 
+     * 
+     * @memberOf Datum
+     */
+    static constructFromPredictorReferencePoint(predictor: ExplanatoryPredictor): Datum {
+        return new Datum().constructorForNewDatum(predictor.name, predictor.referencePoint);
     }
 }
 

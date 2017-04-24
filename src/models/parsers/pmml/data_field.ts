@@ -1,6 +1,7 @@
 import { parseCustomFunction } from './custom_function/custom_function';
 import { CustomPmmlXml } from './interfaces/custom/pmml';
-import ExplanatoryPredictor from '../../predictors/explanatory_predictor';
+import { IExplanatoryPredictor } from '../../predictors/explanatory_predictor';
+import { getOpTypeFromPmmlOpType } from './op_type';
 
 /**
  * Parses all the Explanatory predictors from the provided PMML file
@@ -9,7 +10,7 @@ import ExplanatoryPredictor from '../../predictors/explanatory_predictor';
  * @param {CustomPmmlXml} pmml
  * @returns {Array<ExplanatoryPredictor>}
  */
-export function parseDataFields(pmml: CustomPmmlXml): Array<ExplanatoryPredictor> {
+export function parseDataFields(pmml: CustomPmmlXml): Array<IExplanatoryPredictor> {
     //Go through all the paramaters since they are the predictors which are actually used in the algorithm
     return pmml.PMML.GeneralRegressionModel.ParameterList.Parameter
         .map((parameter) => {
@@ -35,7 +36,12 @@ export function parseDataFields(pmml: CustomPmmlXml): Array<ExplanatoryPredictor
                 throw new Error(`No PCell node found for parameter with name ${parameter.$.name}`);
             }
 
-            //Construct and return the explanatory predictor
-            return new ExplanatoryPredictor().constructFromPmml(parameter.$.label, dataFieldForCurrentParamater.$.optype, pCellForCurrentParamater.$.beta, parameter.$.referencePoint, parseCustomFunction(parameter, pmml.PMML.CustomPMML.RestrictedCubicSpline))
+            return {
+                name: parameter.$.label,
+                opType: getOpTypeFromPmmlOpType(dataFieldForCurrentParamater.$.optype),
+                beta: Number(pCellForCurrentParamater.$.beta),
+                referencePoint: Number(parameter.$.referencePoint),
+                customFunction: parseCustomFunction(parameter, pmml.PMML.CustomPMML.RestrictedCubicSpline)
+            };
         })
 }

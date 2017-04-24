@@ -1,29 +1,46 @@
 //models
-import OpType, {
-    getOpTypeFromPmmlOpType
-} from '../op_type'
+import OpType from '../op_type'
+import Datum from '../data/datum';
 
-export interface PredictorObj {
+export interface IPredictor {
     name: string
     opType: number
 }
 
-class Predictor {
+class Predictor implements IPredictor {
     name: string
     opType: OpType
 
-    protected constructFromNameAndOpType(name: string, opType: string): Predictor {
-        this.name = name
-        this.opType = getOpTypeFromPmmlOpType(opType)
-
-        return this
+    isInteractionPredictor(): boolean {
+        return this.name.split('_')[1].trim().toLowerCase() === 'int';
     }
 
-    protected constructFromPredictorObject(predictor: PredictorObj) {
-        this.name = predictor.name
-        this.opType = predictor.opType
+    isPredictorWithName(name: string): boolean {
+        return this.name === name;
+    }
 
-        return this
+    getDatumForPredictor(data: Array<Datum>): Datum | undefined {
+        return data
+            .find(datum => datum.name === this.name);
+    }
+
+    getErrorLabel(): string {
+        return 'Predictor';
+    }
+
+    static findPredictorWithName<T extends Predictor>(name: string): (predictor: T) => boolean {
+        return (predictor: T) => {
+            return predictor.name === name;
+        }
+    }
+
+    static filterDuplicatePredictors<T extends Predictor>(predictor: T, index: number, predictors: Array<T>): boolean {
+        index;
+
+        return predictors
+            .slice(0, index)
+            .find(currentPredictor => predictor
+                .isPredictorWithName(currentPredictor.name)) === undefined
     }
 }
 

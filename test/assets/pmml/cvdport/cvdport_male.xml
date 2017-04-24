@@ -1906,30 +1906,30 @@
       </Apply>
     </DerivedField>
     <DerivedField name="SurveyCycle2_xc" dataType="double" optype="continuous">
-      <Constant dataType="double">0.247306355947075</Constant>
+      <Constant dataType="double">-0.0000842</Constant>
     </DerivedField>
     <DerivedField name="SurveyCycle2_cat" dataType="double" optype="continuous">
       <Apply function="-">
         <FieldRef field="SurveyCycle2_xc"/>
-        <Constant dataType="double">0.24739059555819</Constant>
+        <Constant dataType="double">0</Constant>
       </Apply>
     </DerivedField>
     <DerivedField name="SurveyCycle3_xc" dataType="double" optype="continuous">
-      <Constant dataType="double">0.24848208331871</Constant>
+      <Constant dataType="double">-0.0000094</Constant>
     </DerivedField>
     <DerivedField name="SurveyCycle3_cat" dataType="double" optype="continuous">
       <Apply function="-">
         <FieldRef field="SurveyCycle3_xc"/>
-        <Constant dataType="double">0.248491520758792</Constant>
+        <Constant dataType="double">0</Constant>
       </Apply>
     </DerivedField>
     <DerivedField name="SurveyCycle4_xc" dataType="double" optype="continuous">
-      <Constant dataType="double">0.25973046011301</Constant>
+      <Constant dataType="double">0.0021351</Constant>
     </DerivedField>
     <DerivedField name="SurveyCycle4_cat" dataType="double" optype="continuous">
       <Apply function="-">
         <FieldRef field="SurveyCycle4_xc"/>
-        <Constant dataType="double">0.257595325302225</Constant>
+        <Constant dataType="double">0</Constant>
       </Apply>
     </DerivedField>
   </LocalTransformations>
@@ -1988,7 +1988,7 @@
       </OutputField>
     </Output>
     <ParameterList>
-      <Parameter name="p0" label="Age_rcs1" referencePoint="-1.17532490631324e-12"/>
+      <Parameter name="p0" label="Age_rcs1" referencePoint="-1.18e-12"/>
       <Parameter name="p1" label="Age_rcs2" referencePoint="11.8606801709774"/>
       <Parameter name="p2" label="Age_rcs3" referencePoint="3.79490766463087"/>
       <Parameter name="p3" label="Age_rcs4" referencePoint="1.13336772506441"/>
@@ -2022,9 +2022,9 @@
       <Parameter name="p31" label="AgeXDiabetes_int" referencePoint="0.843053300180565"/>
       <Parameter name="p32" label="Hypertension_cat" referencePoint="-4.62586071232002e-15"/>
       <Parameter name="p33" label="AgeXHypertension_int" referencePoint="2.00503270281763"/>
-      <Parameter name="p34" label="SurveyCycle2_cat" referencePoint="-1.40908310808893e-14"/>
-      <Parameter name="p35" label="SurveyCycle3_cat" referencePoint="2.23807333425989e-14"/>
-      <Parameter name="p36" label="SurveyCycle4_cat" referencePoint="-1.80723181898812e-13"/>
+      <Parameter name="p34" label="SurveyCycle2_cat" referencePoint="-0.07967878795"/>
+      <Parameter name="p35" label="SurveyCycle3_cat" referencePoint="-0.1257389391"/>
+      <Parameter name="p36" label="SurveyCycle4_cat" referencePoint="-0.1257389391"/>
     </ParameterList>
     <FactorList/>
     <CovariateList>

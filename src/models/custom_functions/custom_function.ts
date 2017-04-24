@@ -1,21 +1,45 @@
+import Datum from '../data/datum';
+
+export interface ICustomFunction {
+    type: string;
+}
+
 /**
- * A CustomFunction represents a non-PMML way (meaning that PMML currently does not support it) to do certain things like evaluating a Spline function
+ * Base CustomFunction class
  * 
+ * @export
  * @abstract
  * @class CustomFunction
- * @template T The arguments object for the evaluate function
+ * @implements {ICustomFunction}
  */
-abstract class CustomFunction<T> { 
+export abstract class CustomFunction implements ICustomFunction {
     /**
-     * Returns the result of this CustomFunction
+     * The type of this custom function. Used in the deserialization process to set the right prototype
+     * 
+     * @type {string}
+     * @memberOf CustomFunction
+     */
+    type: string;
+
+    /**
+     * Returns the data to be used in the calculate coefficent method
      * 
      * @abstract
-     * @param {T} args The object which holds all the arguments required for the evaluation of this CustomFunction
-     * @returns {number}
+     * @param {Array<Datum>} data Data to filter from to get only the ones needed to calculate the coefficent from
+     * @returns {Array<Datum>} 
      * 
      * @memberOf CustomFunction
      */
-    abstract evaluate(args: T): number; 
-}
+    abstract calculateDataToCalculateCoefficent(data: Array<Datum>): Array<Datum>;
 
-export default CustomFunction;
+    /**
+     * Calculates the coefficent to be used for the predictor which this custom function belongs to
+     * 
+     * @abstract
+     * @param {Array<Datum>} data 
+     * @returns {number} 
+     * 
+     * @memberOf CustomFunction
+     */
+    abstract calculateCoefficent(data: Array<Datum>): number;
+}

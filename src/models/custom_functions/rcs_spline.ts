@@ -1,19 +1,12 @@
-import CustomFunction from './custom_function';
+import { ICustomFunction, CustomFunction } from './custom_function';
+import ExplanatoryPredictor from '../predictors/explanatory_predictor';
+import Datum from '../data/datum';
+import { NoDataFoundForPredictorError } from '../errors';
 
-/**
- * The args object for the evaluate function in the Spline CustomFunction
- * 
- * @export
- * @interface EvaluateArgs
- */
-export interface EvaluateArgs { 
-    /**
-     * The value of the first rcs variable. When evaluating rcs2, rcs3 etc. for a certain variable we need rcs1 which is this field.
-     * 
-     * @type {number}
-     * @memberOf EvaluateArgs
-     */
-    firstVariableValue: number;
+export interface GenericRcsCustomFunction<T> extends ICustomFunction {
+    knots: Array<number>;
+    firstVariablePredictor: T;
+    variableNumber: number;
 }
 
 /**
@@ -22,7 +15,8 @@ export interface EvaluateArgs {
  * @class Spline
  * @extends {CustomFunction<EvaluateArgs>}
  */
-class RCSSpline extends CustomFunction<EvaluateArgs> { 
+class RCSSpline extends CustomFunction implements GenericRcsCustomFunction<ExplanatoryPredictor> { 
+    type: string;
     /**
      * 
      * 
@@ -36,7 +30,7 @@ class RCSSpline extends CustomFunction<EvaluateArgs> {
      * @type {string}
      * @memberOf Spline
      */
-    firstVariableName: string;
+    firstVariablePredictor: ExplanatoryPredictor;
     /**
      * The variable number of the spline. eg. age_rcs2 it would be 2
      * 
@@ -47,27 +41,8 @@ class RCSSpline extends CustomFunction<EvaluateArgs> {
 
     constructor() {
         super();
-
-        this.knots = [];
-        this.firstVariableName = ''; 
-        this.variableNumber = 1;
-    }
-    
-    /**
-     * 
-     * 
-     * @param {Array<number>} knots
-     * @param {string} firstVariableName
-     * @returns
-     * 
-     * @memberOf Spline
-     */
-    constructFromPmml(knots: Array<number>, firstVariableName: string, variableNumber: number) {
-        this.knots = knots;
-        this.firstVariableName = firstVariableName;
-        this.variableNumber = variableNumber;
-
-        return this;
+        
+        this.type = 'RcsCustomFunction';
     }
 
     get numberOfKnots(): number {
@@ -114,8 +89,53 @@ class RCSSpline extends CustomFunction<EvaluateArgs> {
      * 
      * @memberOf Spline
      */
-    evaluate(args: EvaluateArgs): number {
-        return this.getFirstTerm(args.firstVariableValue) - this.getSecondTerm(args.firstVariableValue) + this.getThirdTerm(args.firstVariableValue);
+    calculateCoefficent(data: Array<Datum>): number {
+        const datumValue = this.getDataToCalculateCoefficent(data).coefficent as number;
+
+        return this.getFirstTerm(datumValue) - this.getSecondTerm(datumValue) + 
+        this.getThirdTerm(datumValue);
+    }
+
+    /**
+     * Returns the Datum object which is used in coefficent calculation
+     * 
+     * @param {Array<Datum>} data 
+     * @returns {Datum} 
+     * 
+     * @memberOf RCSSpline
+     */
+    private getDataToCalculateCoefficent(data: Array<Datum>): Datum {
+        //get the datum object for the first variable predictor
+        const datumFound = data
+            .find(datum => this.firstVariablePredictor.isPredictorWithName(datum.name));
+        
+        //if we found one then we are good otherwise throw an error
+        if(datumFound) {
+            return datumFound;
+        }
+        else {
+            throw NoDataFoundForPredictorError(this.firstVariablePredictor.name, this.firstVariablePredictor.getErrorLabel());
+        }
+    }
+
+    /**
+     * Calculates the data array which is passed into the calculateCoefficent for this instance of the RcsCustomFunction
+     * 
+     * @param {Array<Datum>} data 
+     * @returns {Array<Datum>} 
+     * 
+     * @memberOf RCSSpline
+     */
+    calculateDataToCalculateCoefficent(data: Array<Datum>): Array<Datum> {
+        const datum = new Datum().constructorForNewDatum(this.firstVariablePredictor.name, this.firstVariablePredictor.calculateCoefficent(data));
+
+        return [datum];
+    }
+
+    toJSON() {
+        return Object.assign({}, this, {
+            type: 'RCSSpline'
+        });
     }
 }
 

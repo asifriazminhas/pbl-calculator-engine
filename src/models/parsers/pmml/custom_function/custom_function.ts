@@ -1,5 +1,5 @@
 import { isRestrictedCubicSplineCustomFunction, parseRcsSpline } from './rcs_spline';
-import CustomFunction from '../../../custom_functions/custom_function';
+import { ICustomFunction } from '../../../custom_functions/custom_function';
 import { RestrictedCubicSpline } from '../interfaces/custom/restricted_cubic_spline';
 import { Parameter } from '../interfaces/pmml';
 
@@ -11,7 +11,7 @@ import { Parameter } from '../interfaces/pmml';
  * @param {RestrictedCubicSpline} restrictedCubicSpline
  * @returns {(CustomFunction<any> | null)}
  */
-export function parseCustomFunction(parameter: Parameter, restrictedCubicSpline: RestrictedCubicSpline): CustomFunction<any> | null {
+export function parseCustomFunction(parameter: Parameter, restrictedCubicSpline: RestrictedCubicSpline): ICustomFunction | null {
     //Is it a Spline custom function? If it is
     if(isRestrictedCubicSplineCustomFunction(parameter.$.label)) {
         return parseRcsSpline(parameter, restrictedCubicSpline);

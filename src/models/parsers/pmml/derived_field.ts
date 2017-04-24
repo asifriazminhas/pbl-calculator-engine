@@ -1,4 +1,5 @@
-import IntermediatePredictor from '../../predictors/intermediate_predictor';
+import { DerivedFieldJson } from '../json/derived_field';
+import { getOpTypeFromPmmlOpType } from './op_type';
 import { DerivedField, Apply, FieldRef, ApplyChildNode } from './interfaces/pmml';
 import * as escodegen from 'escodegen';
 import { getASTForApply, getASTForConstant, getASTForFieldRef } from './node_parser';
@@ -94,11 +95,30 @@ function getDerivedFrom(derivedField: DerivedField): Array<string> {
     }
 }
 
-export function parseDerivedFields(derivedField: Array<DerivedField>): Array<IntermediatePredictor> {
+export function filterOutDerivedFromWhichAreADerivedField(derivedFields: Array<DerivedFieldJson>) {
+    return (derivedFrom: string): boolean => {
+        return derivedFields
+            .find(derivedField => derivedFrom === derivedField.name) ? false : true
+    }
+}
+export function filterOutDuplicateStrings(stringVal: string, index: number, strings: Array<string>): boolean {
+    return strings
+        .slice(0, index)
+        .find(string => string === stringVal) ? false : true;
+}
+
+export function parseDerivedFields(derivedField: Array<DerivedField>): Array<DerivedFieldJson> {
     //All the derived predictors for this algorithm
-    return derivedField
+    const derivedFields =  derivedField
         .map((derivedField) => {
             //Construct the DerivedPredictor object
-            return new IntermediatePredictor().constructFromPmml(derivedField.$.name, derivedField.$.optype, getDerivedFieldEquation(derivedField), getDerivedFrom(derivedField));
+            return {
+                name: derivedField.$.name,
+                opType: getOpTypeFromPmmlOpType(derivedField.$.optype),
+                equation: getDerivedFieldEquation(derivedField),
+                explanatoryPredictors: getDerivedFrom(derivedField)
+            }
         });
+
+    return derivedFields;
 }
