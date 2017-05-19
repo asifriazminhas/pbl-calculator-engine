@@ -1,25 +1,22 @@
 //models
-import Predictor, {
-    IPredictor
-} from './predictor'
-import IntermediatePredictor from './intermediate_predictor';
-import { ICustomFunction, CustomFunction } from '../custom_functions/custom_function';
+import { GenericCovariate } from '../common';
+import { DataField } from './data_field';
+import { DerivedField } from './derived_field';
+import { CustomFunction } from '../custom_functions/custom_function';
 import * as moment from 'moment';
 import { CoefficentIsNotANumber } from '../errors';
-import Datum from '../data/datum';
+import { Datum, datumFromCovariateReferencePointFactory, datumFactory } from '../data/datum';
 import { env } from '../env/env';
 
-export interface IExplanatoryPredictor extends IPredictor {
-    beta: number
-    referencePoint: number
-    customFunction: ICustomFunction | null
+export interface ICovariate extends GenericCovariate {
+    derivedField: DerivedField | null;
 }
 
-class ExplanatoryPredictor extends Predictor implements IExplanatoryPredictor {
+export class Covariate extends DataField implements ICovariate {
     beta: number
     referencePoint: number
     customFunction: CustomFunction | null;
-    intermediatePredictor: IntermediatePredictor | null;
+    derivedField: DerivedField | null;
 
     /**
      * Returns the component for the Predictor
@@ -30,7 +27,7 @@ class ExplanatoryPredictor extends Predictor implements IExplanatoryPredictor {
      * 
      * @memberOf Algorithm
      */
-    getComponentForPredictor(data: Array<Datum>): number {
+    getComponent(data: Array<Datum>): number {
         if(env.shouldLogWarnings()) {
             console.groupCollapsed(`${this.name}`);
         }
@@ -56,7 +53,7 @@ class ExplanatoryPredictor extends Predictor implements IExplanatoryPredictor {
         var component = coefficent*this.beta;
 
         if(env.shouldLogDebugInfo()) {
-            console.log(`Explanatory Predictor ${this.name}`)
+            console.log(`Covariate ${this.name}`)
             console.log(`Input ${coefficent} ${coefficent === this.referencePoint ? 'Set to Reference Point' : ''}`)
             console.log(`PMML Beta ${this.beta}`)
             console.log(`Component ${component}`)
@@ -104,7 +101,7 @@ class ExplanatoryPredictor extends Predictor implements IExplanatoryPredictor {
      */
     calculateDataToCalculateCoefficent(data: Array<Datum>): Array<Datum> {
         //Try to find a datum with the same name field in the data arg
-        const datumFound = this.getDatumForPredictor(data);
+        const datumFound = this.getDatumForDataField(data);
 
         //If we did not find anything then we need to calculate the coefficent using either a custom function or the coresponding derived field
         if(!datumFound) {
@@ -113,9 +110,9 @@ class ExplanatoryPredictor extends Predictor implements IExplanatoryPredictor {
                 return this.customFunction.calculateDataToCalculateCoefficent(data);
             }
             //Fall back tod erived field
-            else if(this.intermediatePredictor) {
+            else if(this.derivedField) {
                 try {
-                    return this.intermediatePredictor.calculateDataToCalculateCoefficent(data);
+                    return this.derivedField.calculateDataToCalculateCoefficent(data);
                 }
                 catch(err) {
                     if(env.shouldLogWarnings()) {
@@ -123,7 +120,7 @@ class ExplanatoryPredictor extends Predictor implements IExplanatoryPredictor {
                     }
 
                     return [
-                        new Datum().constructorForNewDatum(this.name, this.referencePoint)
+                        datumFactory(this.name, this.referencePoint)
                     ];
                 }
             }
@@ -134,7 +131,7 @@ class ExplanatoryPredictor extends Predictor implements IExplanatoryPredictor {
                 }
 
                 return [
-                    Datum.constructFromPredictorReferencePoint(this)
+                    datumFromCovariateReferencePointFactory(this)
                 ];
             }
         }
@@ -163,14 +160,10 @@ class ExplanatoryPredictor extends Predictor implements IExplanatoryPredictor {
         else if(this.customFunction) {
             coefficent = this.customFunction.calculateCoefficent(coefficentData);
         }
-        else if(this.intermediatePredictor) {
-            coefficent = this.intermediatePredictor.calculateCoefficent(coefficentData);
+        else if(this.derivedField) {
+            coefficent = this.derivedField.calculateCoefficent(coefficentData);
         }
 
         return this.formatCoefficent(coefficent);
     }
 }
-
-
-
-export default ExplanatoryPredictor

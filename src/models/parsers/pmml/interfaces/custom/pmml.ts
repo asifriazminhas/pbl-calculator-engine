@@ -1,5 +1,13 @@
 import { Pmml } from '../pmml';
 import { RestrictedCubicSpline } from './restricted_cubic_spline';
+import { Header } from '../pmml';
+
+export interface CustomHeader extends Header {
+    Extension: {
+        Version: string;
+        ModelName: string;
+    }
+}
 
 /**
  * Has extra fields which are not part of regular PMML
@@ -9,6 +17,7 @@ import { RestrictedCubicSpline } from './restricted_cubic_spline';
  * @extends {Pmml}
  */
 export interface CustomPmml extends Pmml {
+    Header: CustomHeader
     CustomPMML: {
         RestrictedCubicSpline: RestrictedCubicSpline;
     }

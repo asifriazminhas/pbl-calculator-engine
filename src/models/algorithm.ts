@@ -1,33 +1,27 @@
 //models
-import IntermediatePredictor, {
-    GenericIntermediatePredictor
-} from './predictors/intermediate_predictor'
-import ExplanatoryPredictor, {
-    IExplanatoryPredictor
-} from './predictors/explanatory_predictor'
-import Datum from './data/datum'
+import { Datum, datumFactory } from './data/datum'
+import { Covariate } from './fields/covariate';
+import { DerivedField } from './fields/derived_field';
+import { DataField } from './fields/data_field';
 import * as moment from 'moment';
-import Predictor from './predictors/predictor';
 import { env } from './env/env';
 import * as _ from 'lodash';
+import { GenericAlgorithm } from './common';
 
-export interface GenericAlgorithm<R, U extends IExplanatoryPredictor, V extends GenericIntermediatePredictor<R>> {
+export interface IAlgorithm extends GenericAlgorithm<DataField> {
+
+} 
+
+export class Algorithm implements IAlgorithm {
     name: string;
-    baselineHazard: number;
     version: string;
-    explanatoryPredictors: Array<U>;
-    intermediatePredictors: Array<V>;
-}
-
-export class Algorithm implements GenericAlgorithm<Predictor, ExplanatoryPredictor, IntermediatePredictor> {
-    name: string
-    explanatoryPredictors: Array<ExplanatoryPredictor>
-    intermediatePredictors: Array<IntermediatePredictor>
+    description: string;
+    covariates: Array<Covariate>;
+    localTransformations: Array<DerivedField>;
     baselineHazard: number;
-    version: string;
 
     static readonly PmmlData = [
-        new Datum().constructorForNewDatum('StartDate', moment())
+        datumFactory('StartDate', moment())
     ];
 
     evaluate(data: Array<Datum>): number {
@@ -35,9 +29,13 @@ export class Algorithm implements GenericAlgorithm<Predictor, ExplanatoryPredict
             console.groupCollapsed(`Predictors`)
         }
 
-        var score = this.explanatoryPredictors
-            .map(explanatoryPredictor => explanatoryPredictor.getComponentForPredictor(data))
+        var score = this.covariates
+            .map(covariate => covariate.getComponent(data))
             .reduce(_.add)
+
+        if(env.shouldLogDebugInfo()) {
+            console.log(`Baseline Hazard: ${this.baselineHazard}`);
+        }
 
         if(env.shouldLogDebugInfo() === true) {
             console.groupEnd();

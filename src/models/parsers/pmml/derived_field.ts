@@ -1,4 +1,4 @@
-import { DerivedFieldJson } from '../json/derived_field';
+import { DerivedFieldJson } from '../json/fields/derived_field';
 import { getOpTypeFromPmmlOpType } from './op_type';
 import { DerivedField, Apply, FieldRef, ApplyChildNode } from './interfaces/pmml';
 import * as escodegen from 'escodegen';
@@ -116,7 +116,7 @@ export function parseDerivedFields(derivedField: Array<DerivedField>): Array<Der
                 name: derivedField.$.name,
                 opType: getOpTypeFromPmmlOpType(derivedField.$.optype),
                 equation: getDerivedFieldEquation(derivedField),
-                explanatoryPredictors: getDerivedFrom(derivedField)
+                derivedFrom: getDerivedFrom(derivedField)
             }
         });
 

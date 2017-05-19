@@ -9,7 +9,7 @@ export function getOpTypeFromPmmlOpType(opType: string): OpType {
             return OpType.Categorical
         }
         default: {
-            throw new Error('Unknown Pmml OpType')
+            throw new Error(`Unknown Pmml OpType ${opType}`)
         }
     }
 }

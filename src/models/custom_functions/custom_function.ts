@@ -1,8 +1,5 @@
-import Datum from '../data/datum';
-
-export interface ICustomFunction {
-    type: string;
-}
+import { Datum } from '../data/datum';
+import { GenericCustomFunction } from '../common';
 
 /**
  * Base CustomFunction class
@@ -12,15 +9,7 @@ export interface ICustomFunction {
  * @class CustomFunction
  * @implements {ICustomFunction}
  */
-export abstract class CustomFunction implements ICustomFunction {
-    /**
-     * The type of this custom function. Used in the deserialization process to set the right prototype
-     * 
-     * @type {string}
-     * @memberOf CustomFunction
-     */
-    type: string;
-
+export abstract class CustomFunction implements GenericCustomFunction {
     /**
      * Returns the data to be used in the calculate coefficent method
      * 

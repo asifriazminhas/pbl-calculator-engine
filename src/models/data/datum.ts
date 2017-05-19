@@ -1,29 +1,36 @@
 import * as moment from 'moment';
-import ExplanatoryPredictor from '../predictors/explanatory_predictor';
+import { Covariate } from '../fields/covariate';
 
-class Datum {
-    name: string
-    coefficent: string | number | moment.Moment
+export type DatumCoefficent = string | number | moment.Moment;
 
-    constructorForNewDatum(name: string, coefficent: string | number | moment.Moment): Datum {
-        this.name = name
-        this.coefficent = coefficent
-
-        return this
-    }
-
-    /**
-     * Constructor where the name is set to predictor.name and value is set to the reference point
-     * 
-     * @static
-     * @param {ExplanatoryPredictor} predictor 
-     * @returns {Datum} 
-     * 
-     * @memberOf Datum
-     */
-    static constructFromPredictorReferencePoint(predictor: ExplanatoryPredictor): Datum {
-        return new Datum().constructorForNewDatum(predictor.name, predictor.referencePoint);
-    }
+/**
+ * The Datum object that has all the coefficents the engine needs to calculate it's value
+ * 
+ * @export
+ * @interface Datum
+ */
+export interface Datum {
+    name: string;
+    coefficent: DatumCoefficent;
 }
 
-export default Datum
+export function datumFactory(name: string, coefficent: DatumCoefficent): Datum {
+    return {
+        name,
+        coefficent
+    };
+}
+
+/**
+ * Creates a Datum where the name field is set to the covariate's name field and it's coeffcient field is set to it's referencePoint field
+ * 
+ * @export
+ * @param {Covariate} covariate 
+ * @returns {Datum} 
+ */
+export function datumFromCovariateReferencePointFactory(covariate: Covariate): Datum {
+    return {
+        name: covariate.name,
+        coefficent: covariate.referencePoint
+    }
+}

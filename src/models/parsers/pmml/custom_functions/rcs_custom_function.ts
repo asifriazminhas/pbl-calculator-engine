@@ -1,4 +1,4 @@
-import { RcsCustomFunctionJson } from '../../json/custom_function';
+import { RcsCustomFunctionJson } from '../../json/custom_functions/rcs_custom_function';
 import { RestrictedCubicSpline } from '../interfaces/custom/restricted_cubic_spline';
 import { Parameter } from '../interfaces/pmml';
 
@@ -75,9 +75,9 @@ export function parseRcsSpline(parameter: Parameter, restrictedCubicSpline: Rest
         //Otherwise Return the Spline object
         else {
             return {
-                type: 'RcsCustomFunction',
+                type: 'rcs',
                 knots: parseKnotLocations(restrictedCubicSplinePCell.$.knotLocations),
-                firstVariablePredictor: parseFirstVariableName(parameter.$.label), variableNumber: splineVariableNumber
+                firstVariableCovariate: parseFirstVariableName(parameter.$.label), variableNumber: splineVariableNumber
             }
         }
     }

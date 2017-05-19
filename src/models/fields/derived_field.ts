@@ -1,23 +1,19 @@
-//models
-import Predictor, {
-    IPredictor
-} from './predictor'
+ //models
+import { DataField } from './data_field'
+import { GenericDerivedField } from '../common';
+import { Covariate } from './covariate';
 import HelperFunctions from './helper_functions'
-import Datum from '../data/datum'
+import { Datum, datumFactory } from '../data/datum'
 import { env } from '../env/env';
-import ExplanatoryPredictor from './explanatory_predictor';
 import { NoDataFoundForPredictorError } from '../errors';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 
-export interface GenericIntermediatePredictor<T> extends IPredictor {
-    equation: string
-    explanatoryPredictors: Array<T>
-}
+export interface IDerivedField extends GenericDerivedField<DataField> {}
 
-class IntermediatePredictor extends Predictor implements GenericIntermediatePredictor<string | Predictor> {
+export class DerivedField extends DataField implements IDerivedField {
     equation: string
-    explanatoryPredictors: Array<Predictor>
+    derivedFrom: Array<DataField>
 
     evaluateEquation(obj: {
         [index: string]: any
@@ -43,28 +39,28 @@ class IntermediatePredictor extends Predictor implements GenericIntermediatePred
      */
     calculateCoefficent(data: Array<Datum>): number | string | moment.Moment {
         //Check if there is a datum for this intermediate predictor. If there is then we don't need to go further
-        const datumForCurrentIntermediatePredictor = this
-            .getDatumForPredictor(data);
+        const datumForCurrentDerivedField = this
+            .getDatumForDataField(data);
 
-        if(datumForCurrentIntermediatePredictor) {
-            return datumForCurrentIntermediatePredictor.coefficent;
+        if(datumForCurrentDerivedField) {
+            return datumForCurrentDerivedField.coefficent;
         }
         else {
             //Filter out all the datum which are not needed for the equation evaluation
             let dataForEvaluation = data
-                .filter(datum => this.explanatoryPredictors
-                    .find(explanatoryPredictor => explanatoryPredictor.name === datum.name) ? true : false);
+                .filter(datum => this.derivedFrom
+                    .find(derivedFromItem => derivedFromItem.name === datum.name) ? true : false);
             
             //If we don't have all the data for evaluation when calculate it
-            if(dataForEvaluation.length !== this.explanatoryPredictors.length) {
+            if(dataForEvaluation.length !== this.derivedFrom.length) {
                 dataForEvaluation = this.calculateDataToCalculateCoefficent(data);
             }
 
             if (env.shouldLogDebugInfo() === true) {
-                console.groupCollapsed(`Intermediate Predictor: ${this.name}`)
+                console.groupCollapsed(`Derived Field: ${this.name}`)
                 console.log(`Name: ${this.name}`)
-                console.log(`Intermediate Predictor Equation: ${this.equation}`)
-                console.log(`Intermediate Predictor Data`)
+                console.log(`Derived Field: ${this.equation}`)
+                console.log(`Derived Field Data`)
                 console.table(dataForEvaluation)
             }
 
@@ -93,20 +89,20 @@ class IntermediatePredictor extends Predictor implements GenericIntermediatePred
      */
     calculateDataToCalculateCoefficent(data: Array<Datum>): Array<Datum> {
         //Go through each explanatory predictor and calculate the coefficent for each which will be used for the evaluation
-        return _.flatten(this.explanatoryPredictors
-            .map((explanatoryPredictor) => {
-                const predictorName = explanatoryPredictor.name;
+        return _.flatten(this.derivedFrom
+            .map((derivedFromItem) => {
+                const dataFieldName = derivedFromItem.name;
                 
-                if(explanatoryPredictor instanceof ExplanatoryPredictor) {
-                    return new Datum().constructorForNewDatum(predictorName, explanatoryPredictor.calculateCoefficent(data));
+                if(derivedFromItem instanceof Covariate) {
+                    return datumFactory(dataFieldName, derivedFromItem.calculateCoefficent(data));
                 }
-                else if(explanatoryPredictor instanceof IntermediatePredictor) {
-                    return new Datum().constructorForNewDatum(predictorName, explanatoryPredictor.calculateCoefficent(data));
+                else if(derivedFromItem instanceof DerivedField) {
+                    return datumFactory(dataFieldName, derivedFromItem.calculateCoefficent(data));
                 }
-                else if(explanatoryPredictor instanceof Predictor) {
-                    const datumFound = explanatoryPredictor.getDatumForPredictor(data);
+                else if(derivedFromItem instanceof DataField) {
+                    const datumFound = derivedFromItem.getDatumForDataField(data);
                     if(!datumFound) {
-                        throw NoDataFoundForPredictorError(explanatoryPredictor.name, explanatoryPredictor.getErrorLabel());
+                        throw NoDataFoundForPredictorError(dataFieldName, derivedFromItem.getErrorLabel());
                     }
                     else {
                         return datumFound;
@@ -118,5 +114,3 @@ class IntermediatePredictor extends Predictor implements GenericIntermediatePred
             }));
     }
 }
-
-export default IntermediatePredictor

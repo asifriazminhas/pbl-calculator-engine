@@ -1,13 +1,10 @@
-import { ICustomFunction, CustomFunction } from './custom_function';
-import ExplanatoryPredictor from '../predictors/explanatory_predictor';
-import Datum from '../data/datum';
+import { GenericRcsCustomFunction } from '../common';
+import { CustomFunction } from './custom_function';
+import { Covariate } from '../fields/covariate';
+import { Datum } from '../data/datum';
 import { NoDataFoundForPredictorError } from '../errors';
 
-export interface GenericRcsCustomFunction<T> extends ICustomFunction {
-    knots: Array<number>;
-    firstVariablePredictor: T;
-    variableNumber: number;
-}
+export interface IRcsCustomFunction extends GenericRcsCustomFunction<Covariate> {}
 
 /**
  * A CustomFunction which handles splines
@@ -15,8 +12,7 @@ export interface GenericRcsCustomFunction<T> extends ICustomFunction {
  * @class Spline
  * @extends {CustomFunction<EvaluateArgs>}
  */
-class RCSSpline extends CustomFunction implements GenericRcsCustomFunction<ExplanatoryPredictor> { 
-    type: string;
+export class RcsCustomFunction extends CustomFunction implements IRcsCustomFunction { 
     /**
      * 
      * 
@@ -30,7 +26,7 @@ class RCSSpline extends CustomFunction implements GenericRcsCustomFunction<Expla
      * @type {string}
      * @memberOf Spline
      */
-    firstVariablePredictor: ExplanatoryPredictor;
+    firstVariableCovariate: Covariate;
     /**
      * The variable number of the spline. eg. age_rcs2 it would be 2
      * 
@@ -41,8 +37,6 @@ class RCSSpline extends CustomFunction implements GenericRcsCustomFunction<Expla
 
     constructor() {
         super();
-        
-        this.type = 'RcsCustomFunction';
     }
 
     get numberOfKnots(): number {
@@ -107,14 +101,14 @@ class RCSSpline extends CustomFunction implements GenericRcsCustomFunction<Expla
     private getDataToCalculateCoefficent(data: Array<Datum>): Datum {
         //get the datum object for the first variable predictor
         const datumFound = data
-            .find(datum => this.firstVariablePredictor.isPredictorWithName(datum.name));
+            .find(datum => this.firstVariableCovariate.isDataFieldWithName(datum.name));
         
         //if we found one then we are good otherwise throw an error
         if(datumFound) {
             return datumFound;
         }
         else {
-            throw NoDataFoundForPredictorError(this.firstVariablePredictor.name, this.firstVariablePredictor.getErrorLabel());
+            throw NoDataFoundForPredictorError(this.firstVariableCovariate.name, this.firstVariableCovariate.getErrorLabel());
         }
     }
 
@@ -127,17 +121,12 @@ class RCSSpline extends CustomFunction implements GenericRcsCustomFunction<Expla
      * @memberOf RCSSpline
      */
     calculateDataToCalculateCoefficent(data: Array<Datum>): Array<Datum> {
-        const datum = new Datum().constructorForNewDatum(this.firstVariablePredictor.name, this.firstVariablePredictor.calculateCoefficent(data));
+        const datum = {
+            name: this.firstVariableCovariate.name, 
+            coefficent: this.firstVariableCovariate.calculateCoefficent(data)
+        };
 
         return [datum];
     }
-
-    toJSON() {
-        return Object.assign({}, this, {
-            type: 'RCSSpline'
-        });
-    }
 }
-
-export default RCSSpline;
 

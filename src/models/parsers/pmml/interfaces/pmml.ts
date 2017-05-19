@@ -131,13 +131,23 @@ export interface Pmml {
         }
         ParamMatrix: {
             PCell: Array<PCell>
-        }
+        };
+        CovariateList: {
+            Predictor: Array<{
+                $: {
+                    name: string
+                }
+            }>
+        };
         $: {
             baselineHazard: string
         }
     },
     DataDictionary: {
-        DataField: Array<DataField>
+        DataField: Array<DataField>;
+        $: {
+            numberOfFields: string;
+        }
     }
 }
 
