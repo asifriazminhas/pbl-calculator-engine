@@ -1,4 +1,3 @@
-
 {
   "compilerOptions": {
     "target": "es2015",
@@ -10,14 +9,14 @@
     "noUnusedParameters": true,
     "experimentalDecorators": true,
     "sourceMap": true,
-    "declaration": true,
     "outDir": "./lib",
     "skipLibCheck": true,
     "strictNullChecks": true,
     "noUnusedLocals": true
   },
   "include": [
-    "./src/**/*.ts"
+    "./src/**/*.ts",
+    "./typings/**/*.d.ts"
   ],
   "exclude": [
     "node_modules",
