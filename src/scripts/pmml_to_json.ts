@@ -4,7 +4,7 @@ sourceMapSupport.install();
 import * as fs from 'fs';
 import * as yargs from 'yargs';
 import * as path from 'path';
-import parseAlgorithm from '../models/parsers/pmml/pmml';
+import { PmmlParser } from '../models/pmml/parser';
 var packageJson = require('../../package.json');
 
 yargs
@@ -36,7 +36,9 @@ const absolutePmmlPath = path.resolve(pmmlPath);
 if(fs.existsSync(absolutePmmlPath)) {
     const pmmlFile = fs.readFileSync(absolutePmmlPath, 'utf8');
 
-    parseAlgorithm(pmmlFile)
+    PmmlParser.parsePmmlFromPmmlXmlStrings([
+        pmmlFile
+    ])
     .then((algorithm) => {
         const algorithmJson = JSON.stringify(algorithm);
 
