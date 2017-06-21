@@ -1,8 +1,8 @@
-import { GenericRcsCustomFunction } from '../common';
+import { GenericRcsCustomFunction } from '../../../common';
 import { CustomFunction } from './custom_function';
-import { Covariate } from '../fields/covariate';
-import { Datum } from '../data/datum';
-import { NoDataFoundForPredictorError } from '../errors';
+import { Covariate } from '../covariate';
+import { Datum } from '../../../data/datum';
+import { NoDataFoundForPredictorError } from '../../errors';
 
 export interface IRcsCustomFunction extends GenericRcsCustomFunction<Covariate> {}
 

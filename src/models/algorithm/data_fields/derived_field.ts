@@ -1,19 +1,22 @@
  //models
 import { DataField } from './data_field'
-import { GenericDerivedField } from '../common';
+import { GenericDerivedField } from '../../common';
 import { Covariate } from './covariate';
 import HelperFunctions from './helper_functions'
-import { Datum, datumFactory } from '../data/datum'
-import { env } from '../env/env';
+import { Datum, datumFactory } from '../../data/datum'
+import { env } from '../../env/env';
 import { NoDataFoundForPredictorError } from '../errors';
 import * as moment from 'moment';
 import * as _ from 'lodash';
+import { CategoricalMixin } from '../op_types/categorical';
+import { ContinuousMixin  } from '../op_types/continuous';
 
-export interface IDerivedField extends GenericDerivedField<DataField> {}
+export interface IDerivedField extends GenericDerivedField<DataField> {
+}
 
 export class DerivedField extends DataField implements IDerivedField {
     equation: string
-    derivedFrom: Array<DataField>
+    derivedFrom: Array<DataField>;
 
     evaluateEquation(obj: {
         [index: string]: any
@@ -113,4 +116,33 @@ export class DerivedField extends DataField implements IDerivedField {
                 }
             }));
     }
+
+    getAllDerivedFields(): Array<DataField> {
+        return _.flatten(this.derivedFrom
+            .map((derivedFromItem) => {
+                if(derivedFromItem instanceof DerivedField) {
+                    return derivedFromItem.getAllDerivedFields()
+                            .concat(derivedFromItem);
+                }
+                else if(derivedFromItem instanceof Covariate) {
+                    return derivedFromItem.getAllDerivedFields()
+                        .concat(derivedFromItem);
+                }
+                else {
+                    return [
+                        derivedFromItem
+                    ];
+                }
+            }))
+            .filter((derivedFromItem, index, allDerivedFrom) => {
+                return allDerivedFrom.indexOf(derivedFromItem) === index;
+            });
+    }
+
+    canBeDerivedFromDataField(dataField: DataField): boolean {
+        return this.derivedFrom.indexOf(dataField) > -1;
+    }
 }
+
+export class CategoricalDerivedField extends CategoricalMixin(DerivedField) {}
+export class ContinuousDerivedField extends ContinuousMixin(DerivedField) {}

@@ -20,14 +20,3 @@ export function CoefficentIsNotANumber(predictorName: string): Error {
 export function NoDataFoundForPredictorError(predictorName: string, predictorLabel: string): Error {
     return new Error(`No datum found for ${predictorLabel} with name ${predictorName}`);
 }
-
-/**
- * Returns an error when there was a problem in the JSON parser module
- * 
- * @export
- * @param {string} message 
- * @returns {Error} 
- */
-export function JsonParseError(message: string): Error {
-    return new Error(message);
-}

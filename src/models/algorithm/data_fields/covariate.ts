@@ -1,12 +1,14 @@
 //models
-import { GenericCovariate } from '../common';
+import { GenericCovariate } from '../../common';
 import { DataField } from './data_field';
 import { DerivedField } from './derived_field';
-import { CustomFunction } from '../custom_functions/custom_function';
+import { CustomFunction } from './custom_functions/custom_function';
 import * as moment from 'moment';
 import { CoefficentIsNotANumber } from '../errors';
-import { Datum, datumFromCovariateReferencePointFactory, datumFactory } from '../data/datum';
-import { env } from '../env/env';
+import { Datum, datumFromCovariateReferencePointFactory, datumFactory } from '../../data/datum';
+import { env } from '../../env/env';
+import { CategoricalMixin } from '../op_types/categorical';
+import { ContinuousMixin } from '../op_types/continuous';
 
 export interface ICovariate extends GenericCovariate {
     derivedField: DerivedField | null;
@@ -166,4 +168,25 @@ export class Covariate extends DataField implements ICovariate {
 
         return this.formatCoefficent(coefficent);
     }
+
+    getAllDerivedFields(): Array<DataField> {
+        if(!this.derivedField) {
+            return [];
+        }
+        else {
+            return this.derivedField.getAllDerivedFields();
+        }
+    }
+
+    canBeDerivedFromDataField(dataField: DataField): boolean {
+        if (this.derivedField) {
+            return this.derivedField.canBeDerivedFromDataField(dataField);
+        }
+        else {
+            return false;
+        }
+    }
 }
+
+export class CategoricalCovariate extends CategoricalMixin(Covariate) {}
+export class ContinuousCovariate extends ContinuousMixin(Covariate) {}

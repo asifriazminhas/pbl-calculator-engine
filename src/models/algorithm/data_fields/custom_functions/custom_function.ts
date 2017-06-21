@@ -1,5 +1,5 @@
-import { Datum } from '../data/datum';
-import { GenericCustomFunction } from '../common';
+import { Datum } from '../../../data/datum';
+import { GenericCustomFunction } from '../../../common';
 
 /**
  * Base CustomFunction class
