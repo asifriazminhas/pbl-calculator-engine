@@ -1,6 +1,5 @@
-import { RcsCustomFunctionJson } from '../../json/custom_functions/rcs_custom_function';
-import { RestrictedCubicSpline } from '../interfaces/custom/restricted_cubic_spline';
-import { Parameter } from '../interfaces/pmml';
+import { RcsCustomFunctionJson } from '../../../json/data_fields/custom_functions/rcs_custom_function';
+import { IRestrictedCubicSpline, IParameter } from '../../../../pmml';
 
 /**
  * Given a the label field for a Parameter XML node it checks if this predictor has an RCS custom function or not. Eg. age_rcs2 has an rcs function 
@@ -54,7 +53,7 @@ function parseFirstVariableName(parameterLabel: string): string {
  * @param {RestrictedCubicSpline} restrictedCubicSpline
  * @returns
  */
-export function parseRcsSpline(parameter: Parameter, restrictedCubicSpline: RestrictedCubicSpline): RcsCustomFunctionJson | null {
+export function parseRcsSpline(parameter: IParameter, restrictedCubicSpline: IRestrictedCubicSpline): RcsCustomFunctionJson | null {
     const splineVariableNumber = getSplineVariableNumber(parameter.$.label);
 
     //If it's 1 then we don't have to apply the spline function on it since the component can be calculated normally
@@ -64,9 +63,10 @@ export function parseRcsSpline(parameter: Parameter, restrictedCubicSpline: Rest
     //Otherwise
     else {
         //Get the RestrictredCubicSpline PCell for this predictor  using the parameter name field
-        const restrictedCubicSplinePCell = restrictedCubicSpline.PCell.find((pCell) => {
-            return pCell.$.parameterName.indexOf(parameter.$.name) > -1;
-        });
+        const restrictedCubicSplinePCell = restrictedCubicSpline.PCell
+            .find((pCell) => {
+                return pCell.$.parameterName.indexOf(parameter.$.name) > -1;
+            });
 
         //If there isn't one then we have a problem
         if (!restrictedCubicSplinePCell) {
@@ -76,8 +76,13 @@ export function parseRcsSpline(parameter: Parameter, restrictedCubicSpline: Rest
         else {
             return {
                 type: 'rcs',
-                knots: parseKnotLocations(restrictedCubicSplinePCell.$.knotLocations),
-                firstVariableCovariate: parseFirstVariableName(parameter.$.label), variableNumber: splineVariableNumber
+                knots: parseKnotLocations(
+                    restrictedCubicSplinePCell.$.knotLocations
+                ),
+                firstVariableCovariate: parseFirstVariableName(
+                    parameter.$.label
+                ),
+                variableNumber: splineVariableNumber
             }
         }
     }

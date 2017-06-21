@@ -18,7 +18,7 @@ import {
     ConditionalExpressionTestAST,
     ConditionalExpressionAlternateAST,
     ConditionalExpressionConsequentAST
-} from './interfaces/ast'
+} from '../../interfaces/ast'
 
 /**
  * 

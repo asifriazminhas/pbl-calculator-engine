@@ -160,4 +160,9 @@ export interface ConditionalExpressionAST {
     alternate: ConditionalExpressionAlternateAST
 }
 
-export type AST = LiteralAST | IdentifierAST | BinaryExpressionAST | LogicalExpressionAST | UnaryExpressionAST | AssignmentExpressionAST | ExpressionStatementAST | IfStatementAST | MemberExpressionAST | CallExpressionAST | ConditionalExpressionAST
+export interface ExpressionStatementAst {
+    type: 'ExpressionStatement',
+    expression: AST
+}
+
+export type AST = LiteralAST | IdentifierAST | BinaryExpressionAST | LogicalExpressionAST | UnaryExpressionAST | AssignmentExpressionAST | ExpressionStatementAST | IfStatementAST | MemberExpressionAST | CallExpressionAST | ConditionalExpressionAST | ExpressionStatementAst

@@ -1,9 +1,5 @@
 //interfaces
-import {
-    Apply,
-    FieldRef,
-    Constant
-} from './interfaces/pmml'
+import { IApply, IFieldRef, IConstant } from '../../../../pmml';
 import {
     LiteralAST,
     BinaryExpressionASTLeftAndRight,
@@ -15,7 +11,7 @@ import {
     ConditionalExpressionAST,
     CallExpressionAST,
     AST
-} from './interfaces/ast'
+} from '../../interfaces/ast'
 
 //models
 import {
@@ -30,7 +26,7 @@ import {
 
 //Object for oeprators that don't meet the normal parsing conditions
 const ApplyOperatorExceptions: {
-    [index: string]: (apply: Apply) => AST;
+    [index: string]: (apply: IApply) => AST;
 } = {
     //The - operator can be a subtraction (a - b) or a negation (-a)
     '-': function(apply) {
@@ -39,13 +35,13 @@ const ApplyOperatorExceptions: {
             let leftNodeAst;
 
             if(leftNode['#name'] === 'Constant') {
-                leftNodeAst = getASTForConstant(leftNode as Constant);
+                leftNodeAst = getASTForConstant(leftNode as IConstant);
             }
             else if(leftNode['#name'] === 'FieldRef') {
-                leftNodeAst = getASTForFieldRef(leftNode as FieldRef);
+                leftNodeAst = getASTForFieldRef(leftNode as IFieldRef);
             }
             else if(leftNode['#name'] === 'Apply') {
-                leftNodeAst = getASTForApply(leftNode as Apply);
+                leftNodeAst = getASTForApply(leftNode as IApply);
             }
 
             if(!leftNodeAst) {
@@ -67,7 +63,7 @@ const ApplyOperatorExceptions: {
  * @param {Constant} constant
  * @returns {(UnaryExpressionAST | LiteralAST)}
  */
-export function getASTForConstant(constant: Constant): UnaryExpressionAST | LiteralAST {
+export function getASTForConstant(constant: IConstant): UnaryExpressionAST | LiteralAST {
     //If the constant's dataType is a string or the dataType is not given
     if(!constant.$ || constant.$.dataType === 'string') {
         return getLiteralAST(constant._)
@@ -97,7 +93,7 @@ export function getASTForConstant(constant: Constant): UnaryExpressionAST | Lite
  * @param {FieldRef} fieldRef
  * @returns {MemberExpressionAST}
  */
-export function getASTForFieldRef(fieldRef: FieldRef): MemberExpressionAST {
+export function getASTForFieldRef(fieldRef: IFieldRef): MemberExpressionAST {
     //Since field ref's refer to other predictor values we need to inject them at runtime when evaluating an algorithm. This if the fieldRef is for example test we return the AST so that it generates obj['test']
     return getMemberExpressionAST(getLiteralAST(fieldRef.$.field), 'obj')
 }
@@ -110,7 +106,7 @@ export type GetAstForApplyReturn = BinaryExpressionAST | LogicalExpressionAST | 
  * @param {Apply} apply
  * @returns {AST}
  */
-export function getASTForApply(apply: Apply): GetAstForApplyReturn {
+export function getASTForApply(apply: IApply): GetAstForApplyReturn {
     if(ApplyOperatorExceptions[apply.$.function]) {
         return ApplyOperatorExceptions[apply.$.function](apply) as any;
     }
@@ -156,20 +152,20 @@ const BinaryExpressionOperators: {
  * @param {Apply} apply
  * @returns {BinaryExpressionAST}
  */
-export function getASTForBinaryExpressionApply(apply: Apply): BinaryExpressionAST {
+export function getASTForBinaryExpressionApply(apply: IApply): BinaryExpressionAST {
     var left: BinaryExpressionASTLeftAndRight
     var leftNode = apply.$$[0]
     switch(leftNode['#name']) {
         case 'Constant': {
-            left = getASTForConstant(leftNode as Constant)
+            left = getASTForConstant(leftNode as IConstant)
             break
         }
         case 'FieldRef': {
-            left = getASTForFieldRef(leftNode as FieldRef)
+            left = getASTForFieldRef(leftNode as IFieldRef)
             break
         }
         case 'Apply': {
-            left = getASTForApply(leftNode as Apply) as BinaryExpressionASTLeftAndRight
+            left = getASTForApply(leftNode as IApply) as BinaryExpressionASTLeftAndRight
             break
         }
         default: {
@@ -181,15 +177,15 @@ export function getASTForBinaryExpressionApply(apply: Apply): BinaryExpressionAS
     var rightNode = apply.$$[1];
     switch(rightNode['#name']) {
         case 'Constant': {
-            right = getASTForConstant(rightNode as Constant)
+            right = getASTForConstant(rightNode as IConstant)
             break
         }
         case 'FieldRef': {
-            right = getASTForFieldRef(rightNode as FieldRef)
+            right = getASTForFieldRef(rightNode as IFieldRef)
             break
         }
         case 'Apply': {
-            right = getASTForApply(rightNode as Apply) as BinaryExpressionASTLeftAndRight
+            right = getASTForApply(rightNode as IApply) as BinaryExpressionASTLeftAndRight
             break
         }
         default: {
@@ -218,19 +214,19 @@ const LogicalExpressionOperators: {
  * @param {Apply} apply
  * @returns {LogicalExpressionAST}
  */
-export function getASTForLogicalExpressionApply(apply: Apply): LogicalExpressionAST {
+export function getASTForLogicalExpressionApply(apply: IApply): LogicalExpressionAST {
     var left: LogicalExpressionASTLeftAndRight
     switch(apply.$$[1]['#name']) {
         case 'Constant': {
-            left = getASTForConstant(apply.$$[0] as Constant)
+            left = getASTForConstant(apply.$$[0] as IConstant)
             break
         }
         case 'FieldRef': {
-            left = getASTForFieldRef(apply.$$[0] as FieldRef)
+            left = getASTForFieldRef(apply.$$[0] as IFieldRef)
             break
         }
         case 'Apply': {
-            left = getASTForApply(apply.$$[0] as Apply) as LogicalExpressionASTLeftAndRight
+            left = getASTForApply(apply.$$[0] as IApply) as LogicalExpressionASTLeftAndRight
             break
         }
         default: {
@@ -241,15 +237,15 @@ export function getASTForLogicalExpressionApply(apply: Apply): LogicalExpression
     var right: LogicalExpressionASTLeftAndRight
     switch(apply.$$[1]['#name']) {
         case 'Constant': {
-            right = getASTForConstant(apply.$$[1] as Constant)
+            right = getASTForConstant(apply.$$[1] as IConstant)
             break
         }
         case 'FieldRef': {
-            right = getASTForFieldRef(apply.$$[1] as FieldRef)
+            right = getASTForFieldRef(apply.$$[1] as IFieldRef)
             break
         }
         case 'Apply': {
-            right = getASTForApply(apply.$$[1] as Apply) as LogicalExpressionASTLeftAndRight
+            right = getASTForApply(apply.$$[1] as IApply) as LogicalExpressionASTLeftAndRight
             break
         }
         default: {
@@ -271,19 +267,19 @@ export function getASTForLogicalExpressionApply(apply: Apply): LogicalExpression
  * @param {Apply} apply
  * @returns {ConditionalExpressionAST}
  */
-export function getASTForIfApply(apply: Apply): ConditionalExpressionAST {
+export function getASTForIfApply(apply: IApply): ConditionalExpressionAST {
     var test: AST
     switch(apply.$$[0]['#name']) {
         case 'Constant': {
-            test = getASTForConstant(apply.$$[0] as Constant) as LiteralAST
+            test = getASTForConstant(apply.$$[0] as IConstant) as LiteralAST
             break
         }
         case 'FieldRef': {
-            test = getASTForFieldRef(apply.$$[0] as FieldRef)
+            test = getASTForFieldRef(apply.$$[0] as IFieldRef)
             break
         }
         case 'Apply': {
-            test = getASTForApply(apply.$$[0] as Apply)
+            test = getASTForApply(apply.$$[0] as IApply)
             break
         }
         default: {
@@ -294,15 +290,15 @@ export function getASTForIfApply(apply: Apply): ConditionalExpressionAST {
     var consequent: AST
     switch(apply.$$[1]['#name']) {
         case 'Constant': {
-            consequent = getASTForConstant(apply.$$[1] as Constant) as LiteralAST
+            consequent = getASTForConstant(apply.$$[1] as IConstant) as LiteralAST
             break
         }
         case 'FieldRef': {
-            consequent = getASTForFieldRef(apply.$$[1] as FieldRef)
+            consequent = getASTForFieldRef(apply.$$[1] as IFieldRef)
             break
         }
         case 'Apply': {
-            consequent = getASTForApply(apply.$$[1] as Apply)
+            consequent = getASTForApply(apply.$$[1] as IApply)
             break
         }
         default: {
@@ -313,15 +309,15 @@ export function getASTForIfApply(apply: Apply): ConditionalExpressionAST {
     var alternate: AST
     switch(apply.$$[2]['#name']) {
         case 'Constant': {
-            alternate = getASTForConstant(apply.$$[2] as Constant) as LiteralAST
+            alternate = getASTForConstant(apply.$$[2] as IConstant) as LiteralAST
             break
         }
         case 'FieldRef': {
-            alternate = getASTForFieldRef(apply.$$[2] as FieldRef)
+            alternate = getASTForFieldRef(apply.$$[2] as IFieldRef)
             break
         }
         case 'Apply': {
-            alternate = getASTForApply(apply.$$[2] as Apply)
+            alternate = getASTForApply(apply.$$[2] as IApply)
             break
         }
         default: {
@@ -349,20 +345,20 @@ const SpecialFunctions: Array<string> = [
  * @param {Apply} apply
  * @returns {CallExpressionAST}
  */
-export function getASTForCallExpressionApply(apply: Apply): CallExpressionAST {
+export function getASTForCallExpressionApply(apply: IApply): CallExpressionAST {
     //We make the function call look like func[apply.$.function] so that we can dynamically make the functions available at runtime
     return getCallExpressionAST(getMemberExpressionAST(getLiteralAST(apply.$.function), 'func'), 
     //Go through all the function arguments
     apply.$$.map((apply) => {
         switch(apply['#name']) {
             case 'Constant': {
-                return getASTForConstant(apply as Constant)
+                return getASTForConstant(apply as IConstant)
             }
             case 'FieldRef': {
-                return getASTForFieldRef(apply as FieldRef)
+                return getASTForFieldRef(apply as IFieldRef)
             }
             case 'Apply': {
-                return getASTForApply(apply as Apply)
+                return getASTForApply(apply as IApply)
             }
             default: {
                 throw new Error(`Unhandled node type ${apply['#name']}`)
