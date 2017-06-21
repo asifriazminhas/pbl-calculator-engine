@@ -8,6 +8,8 @@ export interface InteractionCovariateJson extends CovariateJson {
     derivedField: DerivedFieldJson;
 }
 
-export function isInteractionCovariate(covariateJson: CovariateJson): covariateJson is InteractionCovariateJson {
+export function isInteractionCovariate(
+    covariateJson: CovariateJson
+): covariateJson is InteractionCovariateJson {
     return covariateJson.type === InteractionCovariateType;
 }
