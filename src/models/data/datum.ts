@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import { Covariate } from '../fields/covariate';
+import { Covariate } from '../algorithm/data_fields/covariate';
 
 export type DatumCoefficent = string | number | moment.Moment;
 
