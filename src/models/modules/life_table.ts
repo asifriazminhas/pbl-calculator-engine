@@ -1,3 +1,6 @@
+import { Algorithm } from '../algorithm/algorithm';
+import { Datum } from '../data/datum';
+
 export interface BaseLifeTableRow {
     age: number;
     ax: number;
@@ -177,9 +180,42 @@ function getLifeExpectancyForAge(age: number, lifeTable: Array<LifeTableRow>): n
  * @param {Array<BaseLifeTableRow>} baseLifeTable
  * @returns {number}
  */
-export function getLifeExpectancy(age: number, getPredictedRiskForAge: GetPredictedRiskForAge, baseLifeTable: Array<BaseLifeTableRow>): number {
+export function getLifeExpectancy(
+    age: number,
+    getPredictedRiskForAge: GetPredictedRiskForAge,
+    baseLifeTable: Array<BaseLifeTableRow>
+): number {
     const baseLifeTableWithQx = getBaseLifeTableWithQx(baseLifeTable, getPredictedRiskForAge);
     const lifeTable = getCompleteLifeTable(baseLifeTableWithQx);
 
     return getLifeExpectancyForAge(age, lifeTable);
+}
+
+export function constructLifeExpectancyFunctionForAlgorithm(
+    algorithm: Algorithm,
+    baseLifeTable: Array<BaseLifeTableRow>
+) {
+    return (data: Array<Datum>) => {
+        const ageInputIndex = data
+            .findIndex((datum) => {
+                return datum.name === 'age'
+            });
+        const dataWithoutAgeInput = [
+            ...data.slice(0, ageInputIndex),
+            ...data.slice(ageInputIndex + 1)
+        ];
+        
+        return getLifeExpectancy(
+            data[ageInputIndex].coefficent as number,
+            (age) => {
+                return algorithm.evaluate(
+                    dataWithoutAgeInput.concat({
+                        name: 'age',
+                        coefficent: age
+                    })
+                )
+            },
+            baseLifeTable
+        )
+    }
 }
