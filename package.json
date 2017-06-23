@@ -13,7 +13,6 @@
     "build-ts": "tsc",
     "build-ts:watch": "tsc -w",
     "build-gitbook": "gitbook serve ./out/gitbook ./docs",
-
     "start-sample-server": "npm run build-ts && node ./lib/samples/life-expectancy-server/server.js",
     "start-sample-client": "npm run build-ts && node ./lib/samples/life-expectancy-browser/index.js"
   },
@@ -28,7 +27,6 @@
   },
   "homepage": "https://github.com/Ottawa-mHealth/pbl-calculator-engine#readme",
   "devDependencies": {
-    "@ottawamhealth/pbl-limesurvey-engine": "0.1.2",
     "@types/bluebird": "3.0.33",
     "@types/body-parser": "1.16.3",
     "@types/chai": "3.4.34",
@@ -57,7 +55,7 @@
     "http-server": "0.9.0",
     "mocha": "3.1.2",
     "source-map-support": "0.4.3",
-    "typescript": "2.3.2",
+    "typescript": "2.3.4",
     "webpack": "1.13.3"
   },
   "dependencies": {
@@ -71,6 +69,7 @@
     "moment": "2.17.1",
     "source-map-support": "0.4.3",
     "stream-transform": "0.1.2",
+    "typescript": "2.3.4",
     "xml2js": "0.4.17",
     "xmlbuilder": "8.2.2",
     "yargs": "6.6.0"
