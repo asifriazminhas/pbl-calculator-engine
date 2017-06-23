@@ -21,6 +21,10 @@ A compiled version of the entire engine is available at dist/pbl_calculator_engi
 
 Samples are available in the src/samples folder
 
+The engine has two steps in it:
+1. Load all the data that the engine needs
+2. Start using the functions the engine provides to calculate life expectancy etc.
+
 # Directory Structure
 * /assets - Has all the non source code files which the engine uses
 * /browser - Sample browser code
