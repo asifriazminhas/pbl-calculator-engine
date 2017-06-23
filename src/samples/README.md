@@ -14,5 +14,6 @@ Once you are sure NodeJS and NPM have been successfully installed cd into the di
 npm install
 ```
 This command installs all the dependencies which the engine needs
+Currently there is a problem where you will see a lot of errors after running the above command. Don't worry, it will not affect your usage of your library
 
 Once this done you are ready to start going through samples. Each sample has their own README which explains each sample

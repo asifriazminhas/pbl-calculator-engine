@@ -11,6 +11,7 @@ Install all the dependencies the library needs by first going into the engine di
 ```
 npm install
 ```
+Currently there is a problem where you will see a lot of errors after running the above command. Don't worry, it will not affect your usage of your library
 
 # Library Info
 This library is written using Typescript (https://www.typescriptlang.org/) which is a superset of Javascript. 
