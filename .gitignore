@@ -3,3 +3,5 @@ lib
 npm-debug.log
 .vscode
 dist
+out
+docs
