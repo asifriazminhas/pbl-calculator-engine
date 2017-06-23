@@ -1,10 +1,4 @@
-import { Env, env } from './models/env/env';
-import { Algorithm } from './models/algorithm/algorithm';
-import { parseFromAlgorithmJson } from './models/parsers/json/algorithm';
-
-export {
-    env,
-    Env,
-    Algorithm,
-    parseFromAlgorithmJson
-};
+export { Env, env } from './models/env/env';
+export { Algorithm } from './models/algorithm/algorithm';
+export { parseFromAlgorithmJson } from './models/parsers/json/algorithm';
+export { constructLifeExpectancyFunctionForAlgorithm } from './models/modules/life_table';
