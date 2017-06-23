@@ -14,7 +14,7 @@
     "build-ts:watch": "tsc -w",
     "build-gitbook": "gitbook serve ./out/gitbook ./docs",
     "start-sample-server": "npm run build-ts && node ./lib/samples/life-expectancy-server/server.js",
-    "start-sample-client": "npm run build-ts && node ./lib/samples/life-expectancy-browser/index.js"
+    "start-sample-client": "npm run build-ts && node ./lib/samples/life-expectancy-browser/server.js"
   },
   "repository": {
     "type": "git",
