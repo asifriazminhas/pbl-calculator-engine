@@ -1,0 +1,3 @@
+This sample file exports a function which loads all the data that the engine needs to evaluate life expectancy and other values that may be added in the future.
+
+You most probably will never need to worry about how this function works and can safely treat it like a black box. To see how this function is used please see the sample code in the life-expectancy-server and life-expectancy-browser folder.

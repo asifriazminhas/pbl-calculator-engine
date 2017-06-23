@@ -1,0 +1,40 @@
+<html>
+    <head>
+        <!--The engine javascript file. Available inside the dist folder-->
+        <script type="text/javascript" src="/pbl_calculator_engine_umd.js">
+        </script>
+        <!--Load jquery. Makes life easier-->
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <!--The javascript which uses the engine-->
+        <script type="text/javascript">
+            //Load all the data which the engine needs
+            $.getJSON('/api/algorithm-data', (algorithmData) => {
+                //Use the algorithm JSON to get a class instance of Algorithm
+                var algorithm = PBLCalculatorEngine
+                    .parseFromAlgorithmJson(algorithmData.algorithm);
+                //The life table returned by the /api/algorithm-data url
+                var lifeTable = algorithmData.lifeTable;
+
+                //Construct a function to calculate life expectancy using the data returned by the /api/algorithm-data
+                var getLifeExpectancy = PBLCalculatorEngine
+                .constructLifeExpectancyFunctionForAlgorithm(
+                    algorithm,
+                    lifeTable
+                );
+
+                //Calculate life expectancy
+                var lifeExpectancy = getLifeExpectancy([
+                    {
+                        name: 'age',
+                        coefficent: 21
+                    }
+                ]);
+
+                console.log(lifeExpectancy);
+            });
+        </script>
+    </head>
+    <body>
+        Open the dev tools for this browser window and look inside the console tab. You should see this '21.500255897830726' which is the outputted calculated life expectancy.
+    </body>
+</html>
