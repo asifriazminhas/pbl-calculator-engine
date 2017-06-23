@@ -34,7 +34,9 @@ export class Covariate extends DataField implements ICovariate {
             console.groupCollapsed(`${this.name}`);
         }
 
-        const component = this.calculateComponent(this.calculateCoefficent(data))
+        const component = this.calculateComponent(
+            this.calculateCoefficent(data)
+        );
 
         if(env.shouldLogDebugInfo() === true) {
             console.groupEnd()
