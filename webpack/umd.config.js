@@ -3,6 +3,7 @@ var commonOptions = require('./common_options');
 
 module.exports = {
     entry: commonOptions.entry,
+    devtool: 'source-map',
     output: Object.assign({}, commonOptions.output, {
         filename: 'pbl_calculator_engine_umd.js',
         library: 'PBLCalculatorEngine',
