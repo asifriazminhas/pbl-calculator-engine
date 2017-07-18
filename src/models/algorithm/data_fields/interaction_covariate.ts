@@ -3,6 +3,7 @@ import { DerivedField } from './derived_field';
 import { Datum, datumFromCovariateReferencePointFactory } from '../../data/datum';
 import { CategoricalMixin } from '../op_types/categorical';
 import { ContinuousMixin } from '../op_types/continuous';
+import { GenericCategory } from '../../common';
 
 export class InteractionCovariate extends Covariate {
     derivedField: DerivedField;

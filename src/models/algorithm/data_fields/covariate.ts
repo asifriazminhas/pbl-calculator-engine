@@ -1,5 +1,5 @@
 //models
-import { GenericCovariate } from '../../common';
+import { GenericCovariate, GenericCategory } from '../../common';
 import { DataField } from './data_field';
 import { DerivedField } from './derived_field';
 import { CustomFunction } from './custom_functions/custom_function';

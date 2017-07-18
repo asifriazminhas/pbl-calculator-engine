@@ -10,7 +10,7 @@ import { ICustomHeader } from './custom/header';
 import { IRestrictedCubicSpline } from './custom/restricted_cubic_spline';
 import { buildXmlFromXml2JsObject } from '../xmlbuilder';
 
-interface IPmml {
+export interface IPmml {
     Header: IHeader;
     DataDictionary: IDataDictionary;
     LocalTransformations: ILocalTransformations;

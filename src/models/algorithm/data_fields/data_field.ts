@@ -1,5 +1,5 @@
 //models
-import { GenericDataField } from '../../common';
+import { GenericDataField, GenericCategory } from '../../common';
 import { Datum } from '../../data/datum';
 import { CategoricalMixin } from '../op_types/categorical';
 import { ContinuousMixin } from '../op_types/continuous';

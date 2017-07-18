@@ -12,7 +12,7 @@
     "outDir": "./lib",
     "skipLibCheck": true,
     "strictNullChecks": true,
-    "noUnusedLocals": true
+    "declaration": true
   },
   "include": [
     "./src/**/*.ts",

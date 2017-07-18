@@ -53,7 +53,7 @@ export function limesurveyTxtStringToPmmlString(limesurveyTxtString: string): st
             if(question instanceof RadioQuestion) {
                 dataFields = [
                     Object.assign({}, baseDataField, {
-                        optype: CategoricalOptype,
+                        optype: CategoricalOptype as typeof CategoricalOptype,
                         values: question.answerOptions
                             .map((answerOption) => {
                                 return {
@@ -67,7 +67,7 @@ export function limesurveyTxtStringToPmmlString(limesurveyTxtString: string): st
             else if(question instanceof NumberQuestion) {
                 dataFields = [
                 Object.assign({}, baseDataField, {
-                        optype: ContinuousOptype,
+                        optype: ContinuousOptype as typeof ContinuousOptype,
                         interval: {
                             closure: 'closedClosed',
                             leftMargin: question.min,
@@ -84,7 +84,7 @@ export function limesurveyTxtStringToPmmlString(limesurveyTxtString: string): st
                             baseDataField,
                             {
                                 name: `${question.name}_${subQuestion.name}`,
-                                optype: ContinuousOptype,
+                                optype: ContinuousOptype as typeof ContinuousOptype,
                                 interval: {
                                     closure:
                                         'closedClosed',
@@ -101,7 +101,7 @@ export function limesurveyTxtStringToPmmlString(limesurveyTxtString: string): st
                     .map((subQuestion) => {
                         return Object.assign({}, baseDataField, {
                             name: `${question.name}_${subQuestion.name}`,
-                            optype: CategoricalOptype,
+                            optype: CategoricalOptype as typeof CategoricalOptype,
                             values: [
                                 {
                                     value: 'Yes',
@@ -121,7 +121,7 @@ export function limesurveyTxtStringToPmmlString(limesurveyTxtString: string): st
                     .map((subQuestion) => {
                         return Object.assign({}, baseDataField, {
                             name: `${question.name}_${subQuestion.name}`,
-                            optype: CategoricalOptype,
+                            optype: CategoricalOptype as typeof CategoricalOptype,
                             values: question
                                 .answerOptions
                                 .map((answerOption) => {

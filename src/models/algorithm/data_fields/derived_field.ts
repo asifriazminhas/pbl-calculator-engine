@@ -1,6 +1,6 @@
  //models
 import { DataField } from './data_field'
-import { GenericDerivedField } from '../../common';
+import { GenericDerivedField, GenericCategory } from '../../common';
 import { Covariate } from './covariate';
 import HelperFunctions from './helper_functions'
 import { Datum, datumFactory } from '../../data/datum'

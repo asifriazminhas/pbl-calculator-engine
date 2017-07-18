@@ -1,8 +1,5 @@
-type CategoricalOptypeType = 'categorical';
-type ContinuousOptypeType = 'continuous';
-
-export const CategoricalOptype: CategoricalOptypeType = 'categorical';
-export const ContinuousOptype: ContinuousOptypeType = 'continuous';
+export const CategoricalOptype = 'categorical';
+export const ContinuousOptype = 'continuous';
 
 export interface BaseDataField {
     name: string;
@@ -12,7 +9,7 @@ export interface BaseDataField {
 }
 
 export interface ContinuousDataField extends BaseDataField {
-    optype: ContinuousOptypeType;
+    optype: typeof ContinuousOptype;
     interval: {
         closure: string;
         leftMargin: number;
@@ -21,7 +18,7 @@ export interface ContinuousDataField extends BaseDataField {
 }
 
 export interface CategoricalDataField extends BaseDataField {
-    optype: CategoricalOptypeType;
+    optype: typeof CategoricalOptype;
     values: Array<{
         value: string;
         displayName: string;
