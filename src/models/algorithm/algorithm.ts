@@ -9,7 +9,7 @@ import { GenericAlgorithm } from '../common';
 
 export interface IAlgorithm extends GenericAlgorithm<DataField> {} 
 
-export class Algorithm implements IAlgorithm {
+export abstract class Algorithm implements IAlgorithm {
     name: string;
     version: string;
     description: string;
@@ -20,29 +20,6 @@ export class Algorithm implements IAlgorithm {
     static readonly PmmlData = [
         datumFactory('StartDate', moment())
     ];
-
-    evaluate(data: Array<Datum>): number {
-        if(env.shouldLogDebugInfo() === true) {
-            console.groupCollapsed(`Predictors`)
-        }
-
-        var score = this.covariates
-            .map(covariate => covariate.getComponent(data))
-            .reduce(add)
-
-        if(env.shouldLogDebugInfo()) {
-            console.log(`Baseline Hazard: ${this.baselineHazard}`);
-        }
-
-        if(env.shouldLogDebugInfo() === true) {
-            console.groupEnd();
-        }
-
-        return 1 - Math.pow(
-            Math.E,
-            -1 * this.baselineHazard * Math.pow(Math.E, score)
-        );
-    }
 
     getAllDerivedFields(): Array<DataField> {
         return flatten(
