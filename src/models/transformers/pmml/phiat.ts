@@ -99,7 +99,9 @@ function parseCategoriesFromWebSpecificationsCsv(
 
 export function transformPhiatDictionaryToPmml(
     phiatCsvString: string,
-    webSpecificationsCategories: string, gender: 'Male' | 'Female' | 'both', addMeans: boolean
+    webSpecificationsCategories: string,
+    gender: 'Male' | 'Female' | 'both',
+    addMeans: boolean
 ): string {
     //Parse the csv string into array of objects
     const phiatCsv: Array<PhiatCsvRow> = csvParse(phiatCsvString, {
