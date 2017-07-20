@@ -112,28 +112,33 @@ function getDerivedFromForAst(
 }
 
 export function parseDerivedFields(pmml: Pmml): Array<DerivedFieldJson> {
-    //All the derived predictors for this algorithm
-    return pmml.pmmlXml.PMML.LocalTransformations.DerivedField
-        .map((derivedField) => {
-            const dataFieldForCurrentDerivedField = pmml
-                .findDataFieldWithName(
+    if (pmml.pmmlXml.PMML.LocalTransformations.DerivedField) {
+        //All the derived predictors for this algorithm
+        return pmml.pmmlXml.PMML.LocalTransformations.DerivedField
+            .map((derivedField) => {
+                const dataFieldForCurrentDerivedField = pmml
+                    .findDataFieldWithName(
                     derivedField.$.name
-            );
-            const ast = getAstForDerivedField(derivedField);
+                    );
+                const ast = getAstForDerivedField(derivedField);
 
-            return Object.assign(
-                {
-                    name: derivedField.$.name,
-                    opType: getOpTypeFromPmmlOpType(derivedField.$.optype),
-                    equation: escodegen.generate(ast),
-                    derivedFrom: getDerivedFromForAst(ast, pmml),
-                    displayName: '',
-                    extensions: {}
-                },
-                dataFieldForCurrentDerivedField ?
-                    parseDataFieldFromDataFieldPmmlNode(
-                        dataFieldForCurrentDerivedField
-                    ) : {}
-            );
-        });
+                return Object.assign(
+                    {
+                        name: derivedField.$.name,
+                        opType: getOpTypeFromPmmlOpType(derivedField.$.optype),
+                        equation: escodegen.generate(ast),
+                        derivedFrom: getDerivedFromForAst(ast, pmml),
+                        displayName: '',
+                        extensions: {}
+                    },
+                    dataFieldForCurrentDerivedField ?
+                        parseDataFieldFromDataFieldPmmlNode(
+                            dataFieldForCurrentDerivedField
+                        ) : {}
+                );
+            });
+    }
+    else {
+        return [];
+    }
 }
