@@ -2,13 +2,17 @@ const csvParse = require('csv-parse/lib/sync');
 import * as xmlBuilder from 'xmlbuilder';
 
 //The type fpr the VariableType column in the PHIAT csv
-type VariableType = 'continuous' | 'categorical' | 'Reference';
+export type VariableType = 'continuous' | 'categorical' | 'Reference';
 
-type Sex = 'Female' | 'Male';
+export type Sex = 'Female' | 'Male';
 
-interface BaseDataField {
+export const SupplementaryUsageType = 'supplementary';
+export const ActiveUsageType = 'active';
+
+export interface BaseDataField {
     Name: string;
     variableType: VariableType;
+    usageType: typeof SupplementaryUsageType | typeof ActiveUsageType;
     variableUse: 'Input' | 'Reference';
     UserMin: string;
     UserMax: string;
@@ -18,6 +22,7 @@ interface BaseDataField {
     Sex: Sex
     Units: string;
     Recommended: string;
+    betacoefficent: string;
 }
 
 interface PhiatCsvRow extends BaseDataField {
@@ -97,12 +102,87 @@ function parseCategoriesFromWebSpecificationsCsv(
     return categories;
 }
 
+function addHeaderNode(pmmlNode: any) {
+    pmmlNode
+        .ele('Header', {
+            description: ''
+        })
+        .ele('Extension', {
+            ModelName: 'Unknown',
+            Version: 'Unknown'
+        });
+}
+
+function addGeneralRegressionModelNode(
+    pmmlNode: any,
+    webSpecificationsCsv: Array<BaseDataField>,
+    baselineHazard: number,
+    outputName: string
+) {
+    const generalRegressionModelNode = pmmlNode
+        .ele('GeneralRegressionModel', {
+            baselineHazard
+        });
+    
+    const parameterListNode = generalRegressionModelNode
+        .ele('ParameterList');
+    const covariateListNode = generalRegressionModelNode
+        .ele('CovariateList');
+    const paramMatrixNode = generalRegressionModelNode
+        .ele('ParamMatrix');
+    
+    const MiningFieldNodeName = 'MiningField';
+    const miningSchemaNode = generalRegressionModelNode
+        .ele('MiningSchema');
+    miningSchemaNode
+        .ele(MiningFieldNodeName, {
+            name: outputName,
+            usageType: 'predicted'
+        });
+    
+    const covariateCsvRows = webSpecificationsCsv
+        .filter((webSpecificationsCsvRow) => {
+            return webSpecificationsCsvRow.usageType === ActiveUsageType;
+        });
+    
+    covariateCsvRows.forEach((covariateCsvRow, index) => {
+        const parameterName = `p${index}`;
+
+        parameterListNode
+            .ele('Parameter', {
+                name: parameterName,
+                label: covariateCsvRow.Name,
+                referencePoint: ''
+            });
+        
+        miningSchemaNode
+            .ele('MiningField', {
+                name: covariateCsvRow.Name,
+                usageType: 'active'
+            });
+        
+        covariateListNode
+            .ele('Predictor', {
+                name: covariateCsvRow.Name
+            })
+        
+        paramMatrixNode
+            .ele('PCell', {
+                parameterName,
+                beta: covariateCsvRow.betacoefficent
+            });
+    });
+}
+
 export function transformPhiatDictionaryToPmml(
     phiatCsvString: string,
     webSpecificationsCategories: string,
     gender: 'Male' | 'Female' | 'both',
-    addMeans: boolean
+    addMeans: boolean,
+    addBetas: boolean,
+    baselineHazard: number
 ): string {
+    addBetas;
     //Parse the csv string into array of objects
     const phiatCsv: Array<PhiatCsvRow> = csvParse(phiatCsvString, {
         columns: true
@@ -137,7 +217,7 @@ export function transformPhiatDictionaryToPmml(
         }));
     
     const dataFields: {
-        //Index is the name of the data field
+        //Index is the name of the data field set to the Name column in the web specifications file
         [index: string]: ParsedDataField
     } = phiatCsvRowsWithoutReference.reduce((currentDataFields: {
         [index: string]: ParsedDataField
@@ -176,12 +256,25 @@ export function transformPhiatDictionaryToPmml(
     //Create root PMML node
     const pmmlXml = xmlBuilder
         .create('PMML');
+    addHeaderNode(pmmlXml);
+
+    if (addBetas) {
+        addGeneralRegressionModelNode(
+            pmmlXml,
+            phiatCsvRowsWithoutReference,
+            baselineHazard,
+            'unknown',
+        );
+        pmmlXml
+            .ele('CustomPMML')
+            .ele('RestrictedCubicSpline');
+    }
+    
+    const localTransformationsNode = pmmlXml
+        .ele('LocalTransformations');
     
     //If we should add the transformations for the means to the output PMML file
     if (addMeans) {
-        const localTransformationsNode = pmmlXml
-            .ele('LocalTransformations');
-        
         //Add the DerivedFields for the means
         Object.keys(dataFields)
             .forEach((dataField) => {
@@ -302,7 +395,9 @@ export function transformPhiatDictionaryToPmml(
                         });
                 }
                 else {
-                    throw new Error();
+                    throw new Error(
+                        `No categories found for DataField ${dataField}`
+                    );
                 }
             }
         });
