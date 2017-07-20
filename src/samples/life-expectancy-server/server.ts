@@ -1,7 +1,7 @@
 import 'source-map-support/register';
 
 import { loadEngineData } from '../load-engine-data';
-import { Algorithm } from '../../models/algorithm/algorithm';
+import { CoxAlgorithm } from '../../models/algorithm/regression_algorithms/cox_algorithm';
 import { parseFromAlgorithmJson } from '../../models/parsers/json/algorithm';
 import * as express from 'express';
 import * as http from 'http';
@@ -15,7 +15,7 @@ import * as bodyParser from 'body-parser';
 
 //This creates an express application which implements a server route to calculate life expectancy
 function getExpressApp(
-    algorithm: Algorithm,
+    algorithm: CoxAlgorithm,
     lifeTable: Array<BaseLifeTableRow>
 ): express.Application {
     //Create the express application
@@ -92,7 +92,7 @@ loadEngineData()
                 //Convert the algorithm JSON into an Algorithm class instance
                 parseFromAlgorithmJson(
                     data.algorithmJson
-                ),
+                ) as CoxAlgorithm,
                 //The life table
                 data.lifeTable
             )

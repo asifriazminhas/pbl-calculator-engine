@@ -2,7 +2,7 @@ import { pmmlXmlStringsToJson } from '../../models/parsers/pmml/pmml';
 import * as fs from 'fs';
 import * as path from 'path';
 import { limesurveyTxtStringToPmmlString } from '../../models/transformers/pmml/limesurvey';
-import { transformPhiatDictionaryToPmml } from '../../models/transformers/pmml/phiat';
+import { transformPhiatDictionaryToPmml } from '../../models/transformers/pmml/web_specifications';
 const csvParse = require('csv-parse/lib/sync');
 import { AlgorithmJson } from '../../models/parsers/json/algorithm';
 import { BaseLifeTableRow } from '../../models/modules/life_table';
@@ -39,7 +39,9 @@ export async function loadEngineData(): Promise<{
         webSpecificationCsv,
         webSpecificationCategoriesCsv,
         "Male",
-        false
+        false,
+        false,
+        0
     );
 
     const limesurveyFile = fs.readFileSync(

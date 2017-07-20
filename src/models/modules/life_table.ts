@@ -1,4 +1,4 @@
-import { Algorithm } from '../algorithm/algorithm';
+import { CoxAlgorithm } from '../algorithm/regression_algorithms/cox_algorithm';
 import { Datum } from '../data/datum';
 
 export interface BaseLifeTableRow {
@@ -192,7 +192,7 @@ export function getLifeExpectancy(
 }
 
 export function constructLifeExpectancyFunctionForAlgorithm(
-    algorithm: Algorithm,
+    algorithm: CoxAlgorithm,
     baseLifeTable: Array<BaseLifeTableRow>
 ) {
     return (data: Array<Datum>) => {
