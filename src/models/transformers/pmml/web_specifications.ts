@@ -1,10 +1,16 @@
 const csvParse = require('csv-parse/lib/sync');
 import * as xmlBuilder from 'xmlbuilder';
+import { GeneralRegressionModelType } from '../../pmml/general_regression_model/general_regression_model';
 
 //The type fpr the VariableType column in the PHIAT csv
 export type VariableType = 'continuous' | 'categorical' | 'Reference';
 
 export type Sex = 'Female' | 'Male';
+
+export interface WebSpecificationsAlgorithmInfoCsvRow {
+    AlgorithmName: string;
+    modelType: GeneralRegressionModelType
+}
 
 export const SupplementaryUsageType = 'supplementary';
 export const ActiveUsageType = 'active';
@@ -117,11 +123,13 @@ function addGeneralRegressionModelNode(
     pmmlNode: any,
     webSpecificationsCsv: Array<BaseDataField>,
     baselineHazard: number,
-    outputName: string
+    outputName: string,
+    modelType: GeneralRegressionModelType
 ) {
     const generalRegressionModelNode = pmmlNode
         .ele('GeneralRegressionModel', {
-            baselineHazard
+            baselineHazard,
+            modelType
         });
     
     const parameterListNode = generalRegressionModelNode
@@ -180,7 +188,8 @@ export function transformPhiatDictionaryToPmml(
     gender: 'Male' | 'Female' | 'both',
     addMeans: boolean,
     addBetas: boolean,
-    baselineHazard: number
+    baselineHazard: number,
+    webSpecificationsAlgorithmInfoCsvString: string
 ): string {
     addBetas;
     //Parse the csv string into array of objects
@@ -259,11 +268,18 @@ export function transformPhiatDictionaryToPmml(
     addHeaderNode(pmmlXml);
 
     if (addBetas) {
+        const webSpecificationsAlgorithmInfoCsv: WebSpecificationsAlgorithmInfoCsvRow = csvParse(
+            webSpecificationsAlgorithmInfoCsvString, {
+                columns: true
+            }
+        )[0];
+
         addGeneralRegressionModelNode(
             pmmlXml,
             phiatCsvRowsWithoutReference,
             baselineHazard,
             'unknown',
+            webSpecificationsAlgorithmInfoCsv.modelType
         );
         pmmlXml
             .ele('CustomPMML')

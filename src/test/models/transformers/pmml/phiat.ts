@@ -7,14 +7,16 @@ import * as xmlDom from 'xmldom';
 const xmlDomParser = xmlDom.DOMParser;
 var csvParse = require('csv-parse/lib/sync');
 
-import { transformPhiatDictionaryToPmml, BaseDataField, ActiveUsageType } from '../../../../models/transformers/pmml/web_specifications';
+import { transformPhiatDictionaryToPmml, BaseDataField, ActiveUsageType, WebSpecificationsAlgorithmInfoCsvRow } from '../../../../models/transformers/pmml/web_specifications';
 import { pmmlXmlStringsToJson } from '../../../../models/parsers/pmml/pmml';
 import { CovariateJson } from '../../../../models/parsers/json/data_fields/covariate';
 import { AlgorithmJson } from '../../../../models/parsers/json/algorithm';
+import { AlgorithmType } from '../../../../models/parsers/json/algorithm_type';
 
 describe(`Web specifications transformer`, function () {
     describe(`Converting to a GeneralRegressionModel`, async function () {
         let webSpecificationsCsv: Array<BaseDataField>;
+        let webSpecificationsAlgorithmInfoCsv: Array<WebSpecificationsAlgorithmInfoCsvRow>;
         let webSpecificationsPmmlJson: AlgorithmJson;
         const baselineHazard = Math.random();
 
@@ -27,8 +29,21 @@ describe(`Web specifications transformer`, function () {
                 'utf8'
             );
             webSpecificationsCsv = csvParse(webSpecificationsCsvString, {
-                headers: true
+                columns: true
             });
+
+            const webSpecificiationsAlgorithmInfoCsvString = fs.readFileSync(
+                path.join(
+                    __dirname,
+                    '../../../../../assets/testing_regression_algorithm_info.csv'
+                ),
+                'utf8'
+            );
+            webSpecificationsAlgorithmInfoCsv = csvParse(
+                webSpecificiationsAlgorithmInfoCsvString, {
+                    columns: true
+                }
+            );
 
             const pmmlXmlString = transformPhiatDictionaryToPmml(
                 webSpecificationsCsvString,
@@ -36,7 +51,8 @@ describe(`Web specifications transformer`, function () {
                 'both',
                 false,
                 true,
-                baselineHazard
+                baselineHazard,
+                webSpecificiationsAlgorithmInfoCsvString
             );
             webSpecificationsPmmlJson = await pmmlXmlStringsToJson(
                 [pmmlXmlString]
@@ -65,6 +81,11 @@ describe(`Web specifications transformer`, function () {
         it(`should correctly set the baselineHazard`, function () {
             expect(webSpecificationsPmmlJson.baselineHazard).to
                 .equal(baselineHazard);
+        });
+        
+        it(`should correctly set the type field`, function () {
+            expect(webSpecificationsPmmlJson.type).to
+                .equal(AlgorithmType.LogisticRegression);
         });
     });
 });
