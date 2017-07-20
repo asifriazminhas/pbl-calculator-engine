@@ -2,6 +2,10 @@ import { IParameter } from './parameter';
 import { IPCell } from './p_cell';
 import { IPredictor } from './predictor';
 
+export const CoxRegressionModelType = 'CoxRegression';
+export const LogisticRegressionModelType = 'logisticRegression';
+export type GeneralRegressionModelType = typeof CoxRegressionModelType | typeof LogisticRegressionModelType;
+
 export interface IGeneralRegressionModel {
     //The nodes inside this nodes is what should be used to as the list of pedictors a certain algorithm needs
     ParameterList: {
@@ -14,7 +18,8 @@ export interface IGeneralRegressionModel {
         Predictor: Array<IPredictor>
     };
     $: {
-        baselineHazard: string
+        baselineHazard: string,
+        modelType: GeneralRegressionModelType
     }
 }
 
