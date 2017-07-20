@@ -5,10 +5,14 @@ import { Algorithm, IAlgorithm } from '../../algorithm/algorithm';
 import { DataField } from '../../algorithm/data_fields/data_field';
 import { DerivedField } from '../../algorithm/data_fields/derived_field';
 import { Covariate } from '../../algorithm/data_fields/covariate';
+import { AlgorithmType } from './algorithm_type';
+import { CoxAlgorithm } from '../../algorithm/regression_algorithms/cox_algorithm';
+import { LogisticRegressionAlgorithm } from '../../algorithm/regression_algorithms/logistic_regression_algorithm';
 
 export interface AlgorithmJson extends GenericAlgorithm<
     string | GenericDataFields
 > {
+    type: AlgorithmType;
     localTransformations: Array<DerivedFieldJson>;
     covariates: Array<CovariateJson>;
 }
@@ -79,7 +83,7 @@ export function parseFromAlgorithmJson(algorithm: AlgorithmJson): Algorithm {
             return parseCovariate(covariate, algorithm, parsedCovariates, parsedDerivedFields, parsedDataFields)
         });
     
-    const parsedAlgorithm : IAlgorithm = Object.assign({}, algorithm, {
+    const parsedAlgorithm: IAlgorithm = Object.assign({}, algorithm, {
         localTransformations: covariates
             .filter(covariate => covariate.derivedField)
             .map(covariateWithDerivedField => covariateWithDerivedField.derivedField as DerivedField),
@@ -88,5 +92,16 @@ export function parseFromAlgorithmJson(algorithm: AlgorithmJson): Algorithm {
 
     checkForUnusedLocalTransformations(algorithm, parsedDerivedFields);
 
-    return Object.setPrototypeOf(parsedAlgorithm, Algorithm.prototype);
+    if (algorithm.type === AlgorithmType.CoxProportionalHazard) { 
+        return Object.setPrototypeOf(
+            parsedAlgorithm,
+            CoxAlgorithm.prototype
+        );
+    }
+    else {
+        return Object.setPrototypeOf(
+            parsedAlgorithm,
+            LogisticRegressionAlgorithm.prototype
+        );
+    }
 }
