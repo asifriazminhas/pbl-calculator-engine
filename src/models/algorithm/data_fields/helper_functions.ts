@@ -23,5 +23,10 @@ export default {
     },
     max: function(num1: number, num2: number): number {
         return Math.max(num1, num2)
+    },
+    sum: function (...args: Array<number>): number {
+        return args.reduce((currentSum, currentArg) => {
+            return currentSum + currentArg;
+        }, 0)
     }
 }

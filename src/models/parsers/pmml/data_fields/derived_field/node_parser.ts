@@ -336,7 +336,8 @@ const SpecialFunctions: Array<string> = [
     'not',
     'notEqual',
     'formatDatetime',
-    'max'
+    'max',
+    'sum'
 ]
 /**
  * Maps a PMML apply node whose function string is set to one in the above SpecialFunctions object to a CallExpressionAST
@@ -347,23 +348,25 @@ const SpecialFunctions: Array<string> = [
  */
 export function getASTForCallExpressionApply(apply: IApply): CallExpressionAST {
     //We make the function call look like func[apply.$.function] so that we can dynamically make the functions available at runtime
-    return getCallExpressionAST(getMemberExpressionAST(getLiteralAST(apply.$.function), 'func'), 
-    //Go through all the function arguments
-    apply.$$.map((apply) => {
-        switch(apply['#name']) {
-            case 'Constant': {
-                return getASTForConstant(apply as IConstant)
+    return getCallExpressionAST(
+        getMemberExpressionAST(getLiteralAST(apply.$.function), 'func'),
+        //Go through all the function arguments
+        apply.$$.map((apply) => {
+            switch (apply['#name']) {
+                case 'Constant': {
+                    return getASTForConstant(apply as IConstant)
+                }
+                case 'FieldRef': {
+                    return getASTForFieldRef(apply as IFieldRef)
+                }
+                case 'Apply': {
+                    return getASTForApply(apply as IApply)
+                }
+                default: {
+                    throw new Error(`Unhandled node type ${apply['#name']}`)
+                }
             }
-            case 'FieldRef': {
-                return getASTForFieldRef(apply as IFieldRef)
-            }
-            case 'Apply': {
-                return getASTForApply(apply as IApply)
-            }
-            default: {
-                throw new Error(`Unhandled node type ${apply['#name']}`)
-            }
-        }
-    }))
+        })
+    );
 }
 
