@@ -3,8 +3,6 @@ const { expect } = chai;
 import * as fs from 'fs';
 import * as path from 'path';
 const xPath = require('xpath.js');
-import * as xmlDom from 'xmldom';
-const xmlDomParser = xmlDom.DOMParser;
 var csvParse = require('csv-parse/lib/sync');
 
 import { transformPhiatDictionaryToPmml, BaseDataField, ActiveUsageType, WebSpecificationsAlgorithmInfoCsvRow } from '../../../../models/transformers/pmml/web_specifications';

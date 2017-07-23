@@ -9,6 +9,4 @@ export abstract class RegressionAlgorithm extends Algorithm {
             .map(covariate => covariate.getComponent(data))
             .reduce(add)
     }
-
-    abstract evaluate(data: Array<Datum>): number
 }

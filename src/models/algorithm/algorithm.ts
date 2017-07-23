@@ -33,6 +33,8 @@ export abstract class Algorithm implements IAlgorithm {
                     }) === index;
             });
     }
+
+    abstract evaluate(datum: Array<Datum>): number;
 }
 
 export default Algorithm
