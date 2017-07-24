@@ -4,3 +4,4 @@ export { parseFromAlgorithmJson, AlgorithmJson } from './models/parsers/json/alg
 export { pmmlXmlStringsToJson } from './models/parsers/pmml/pmml';
 export { constructLifeExpectancyFunctionForAlgorithm } from './models/modules/life_table';
 export { transformPhiatDictionaryToPmml } from './models/transformers/pmml/web_specifications';
+export { Datum } from './models/data/datum';
