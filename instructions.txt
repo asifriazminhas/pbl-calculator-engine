@@ -1,0 +1,19 @@
+1. Install NodeJS and NPM on your machine
+   These can be downloaded from here https://nodejs.org/en/. You can download either the LTS or the current version but the LTS version is 	  
+   recommended
+   To check if these are installed open a terminal and run the following commands
+   	node -v
+	npm -v
+   Each of them should output a string that looks like x.x.x
+
+2. Send me the public ssh key file on your machine (yulrics@gmail.com)
+   The package depends on a library which is private to our organization. In order to do the next step I will need to authorize your machine to   
+   download the library
+   To check for existing ssh keys, you can follow the instructions here https://help.github.com/articles/checking-for-existing-ssh-keys/
+   If your machine does not have an existing ssh key pair you can generate one using the instructions here 
+   https://confluence.atlassian.com/bitbucketserver/creating-ssh-keys-776639788.html
+   
+   Once you have located/generated your ssh key pair you should send me your id_rsa.pub file which has your public ssh key
+
+3. Once you have done step 2 and I have given confirmation that your ssh key has been added you should follow the instructions in the README.md 
+   file inside the .zip file sent in the earlier email. 
