@@ -208,7 +208,7 @@ export function constructLifeExpectancyFunctionForAlgorithm(
         return getLifeExpectancy(
             data[ageInputIndex].coefficent as number,
             (age) => {
-                return algorithm.evaluate(
+                return 1 - algorithm.evaluate(
                     dataWithoutAgeInput.concat({
                         name: 'age',
                         coefficent: age
