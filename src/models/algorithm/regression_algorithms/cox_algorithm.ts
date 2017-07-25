@@ -3,6 +3,7 @@ import { Datum } from '../../data/datum';
 import { env } from '../../env/env';
 
 export class CoxAlgorithm extends RegressionAlgorithm {
+    //Returns survival
     evaluate(data: Array<Datum>): number {
         if (env.shouldLogDebugInfo() === true) {
             console.groupCollapsed(`Predictors`)
