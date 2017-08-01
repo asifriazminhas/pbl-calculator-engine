@@ -4,6 +4,7 @@ import { Datum } from '../data/datum';
 export interface BaseLifeTableRow {
     age: number;
     ax: number;
+    ex: number;
 }
 
 interface BaseLifeTableWithQxRow extends BaseLifeTableRow {
@@ -17,7 +18,6 @@ interface LifeTableRow extends BaseLifeTableWithQxRow {
     dx: number;
     Lx: number;
     Tx: number;
-    ex: number;
 }
 
 export type GetPredictedRiskForAge = (age: number) => number;
@@ -123,7 +123,10 @@ function getex(lifeTableRow: LifeTableRow, nextLifeTableRow: LifeTableRow | unde
  * @param {Array<BaseLifeTableWithQxRow>} baseLifeTableWithQx
  * @returns {Array<LifeTableRow>}
  */
-function getCompleteLifeTable(baseLifeTableWithQx: Array<BaseLifeTableWithQxRow>): Array<LifeTableRow> {
+function getCompleteLifeTable(
+    baseLifeTableWithQx: Array<BaseLifeTableWithQxRow>,
+    useLifeTableForExFromAge: number
+): Array<LifeTableRow> {
     let lifeTable: Array<LifeTableRow> = [];
 
     baseLifeTableWithQx.forEach((baseLifeTableRow, index) => {
@@ -142,8 +145,12 @@ function getCompleteLifeTable(baseLifeTableWithQx: Array<BaseLifeTableWithQxRow>
 
     //Reverse the lifetable since for Tx and ex we need the current row and next row
     lifeTable.reverse().forEach((lifeTableRow, index) => {
-        lifeTableRow.Tx = getTx(lifeTableRow, lifeTable[index-1]);;
-        lifeTableRow.ex = getex(lifeTableRow, lifeTable[index-1]);;
+        lifeTableRow.Tx = getTx(lifeTableRow, lifeTable[index-1]);
+        lifeTableRow.ex = lifeTableRow.age < useLifeTableForExFromAge ? (
+            getex(lifeTableRow, lifeTable[index - 1])
+        ) : (
+            lifeTableRow.ex
+        );
     });
     //Reverse the life table again since reverse is a mutable operation
     lifeTable.reverse();
@@ -183,17 +190,22 @@ function getLifeExpectancyForAge(age: number, lifeTable: Array<LifeTableRow>): n
 export function getLifeExpectancy(
     age: number,
     getPredictedRiskForAge: GetPredictedRiskForAge,
-    baseLifeTable: Array<BaseLifeTableRow>
+    baseLifeTable: Array<BaseLifeTableRow>,
+    useExFromLifeTableFromAge: number
 ): number {
     const baseLifeTableWithQx = getBaseLifeTableWithQx(baseLifeTable, getPredictedRiskForAge);
-    const lifeTable = getCompleteLifeTable(baseLifeTableWithQx);
+    const lifeTable = getCompleteLifeTable(
+        baseLifeTableWithQx,
+        useExFromLifeTableFromAge
+    );
 
     return getLifeExpectancyForAge(age, lifeTable);
 }
 
 export function constructLifeExpectancyFunctionForAlgorithm(
     algorithm: CoxAlgorithm,
-    baseLifeTable: Array<BaseLifeTableRow>
+    baseLifeTable: Array<BaseLifeTableRow>,
+    useExFromLifeTableFromAge: number=99
 ) {
     return (data: Array<Datum>) => {
         const ageInputIndex = data
@@ -215,7 +227,8 @@ export function constructLifeExpectancyFunctionForAlgorithm(
                     })
                 )
             },
-            baseLifeTable
+            baseLifeTable,
+            useExFromLifeTableFromAge
         )
     }
 }
