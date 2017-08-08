@@ -13,7 +13,8 @@
     "skipLibCheck": true,
     "strictNullChecks": true,
     "declaration": true,
-    "importHelpers": true
+    "importHelpers": true,
+    "noUnusedLocals": true
   },
   "include": [
     "./src/**/*.ts",
