@@ -2,10 +2,16 @@ import { GenericNonInteractionCovariateWithoutOpType, GenericCategoricalNonInter
 import { Covariate } from './covariate';
 import { DerivedField } from './derived-field';
 
-export interface NonInteractionCovariateWithoutOpType extends GenericNonInteractionCovariateWithoutOpType<Covariate, DerivedField> {}
+export interface NonInteractionCovariateWithoutOpType extends GenericNonInteractionCovariateWithoutOpType<Covariate> {
+    derivedField: DerivedField | undefined
+}
 
-export interface CategoricalNonInteractionCovariate extends GenericCategoricalNonInteractionCovariate<Covariate, DerivedField> {}
+export interface CategoricalNonInteractionCovariate extends GenericCategoricalNonInteractionCovariate<Covariate> {
+    derivedField: DerivedField | undefined
+}
 
-export interface ContinuousNonInteractionCovariate extends GenericContinuousNonInteractionCovariate<Covariate, DerivedField> {}
+export interface ContinuousNonInteractionCovariate extends GenericContinuousNonInteractionCovariate<Covariate> {
+    derivedField: DerivedField | undefined
+}
 
 export type NonInteractionCovariate = NonInteractionCovariateWithoutOpType | CategoricalNonInteractionCovariate | ContinuousNonInteractionCovariate;

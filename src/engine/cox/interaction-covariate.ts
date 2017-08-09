@@ -5,9 +5,11 @@ import { Data, Datum, datumFromCovariateReferencePointFactory } from '../common/
 import { NonInteractionCovariate } from './non-interaction-covariate';
 import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForCovariate } from './covariate';
 
-export interface InteractionCovariateWithoutOpType extends GenericInteractionCovariateWithoutOpType<Covariate, DerivedField> {}
-export interface CategoricalInteractionCovariate extends GenericCategoricalInteractionCovariate<Covariate, DerivedField> {}
-export interface ContinuousInteractionCovariate extends GenericContinuousInteractionCovariate<Covariate, DerivedField> {}
+export interface InteractionCovariateWithoutOpType extends GenericInteractionCovariateWithoutOpType<Covariate> {
+    derivedField: DerivedField;
+}
+export interface CategoricalInteractionCovariate extends GenericCategoricalInteractionCovariate<Covariate>, InteractionCovariateWithoutOpType {}
+export interface ContinuousInteractionCovariate extends GenericContinuousInteractionCovariate<Covariate>, InteractionCovariateWithoutOpType {}
 
 export type InteractionCovariate = InteractionCovariateWithoutOpType | CategoricalInteractionCovariate | ContinuousInteractionCovariate;
 

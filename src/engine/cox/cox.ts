@@ -3,15 +3,9 @@ import { DerivedField } from './derived-field';
 import { Data } from '../common/datum';
 import { add } from 'lodash';
 import { shouldLogDebugInfo} from '../common/env';
+import { GenericCox } from '../common/generic-types';
 
-export interface Cox {
-    name: string;
-    version: string;
-    description: string;
-    covariates: Array<Covariate>;
-    derivedFields: Array<DerivedField>;
-    baselineHazard: number;
-}
+export type Cox = GenericCox<Covariate, DerivedField>;
 
 function calculateScore(
     cox: Cox,
