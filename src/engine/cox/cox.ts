@@ -38,3 +38,10 @@ export function getSurvival(
         -1 * cox.baselineHazard * Math.pow(Math.E, score)
     );
 }
+
+export function getRisk(
+    cox: Cox,
+    data: Data
+): number {
+    return 1 - getSurvival(cox, data);
+}
