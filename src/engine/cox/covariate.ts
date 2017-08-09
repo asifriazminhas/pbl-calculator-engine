@@ -7,8 +7,33 @@ import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficen
 import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForInteractionCovariate } from './interaction-covariate';
 import { shouldLogDebugInfo, shouldLogWarnings } from '../common/env';
 import { getDatumForField } from './field';
+import * as moment from 'moment';
 
 export type Covariate = InteractionCovariate | NonInteractionCovariate;
+
+function formatCoefficent(
+    covariate: Covariate,
+    coefficent: any
+): number {
+    if (!coefficent === null || coefficent === undefined) {
+        return covariate.referencePoint;
+    }
+    if (coefficent instanceof moment) {
+        throw new Error(`Coefficent is not a number ${covariate.name}`);
+    }
+    else if (coefficent === 'NA') {
+        return covariate.referencePoint;
+    }
+    else if (!isNaN(coefficent as number)) {
+        return Number(coefficent);
+    }
+    else if (isNaN(coefficent)) {
+        return covariate.referencePoint;
+    }
+    else {
+        throw new Error(`Coefficent is not a number ${covariate.name}`);
+    }
+}
 
 function calculateComponent(
     covariate: Covariate,
@@ -17,9 +42,9 @@ function calculateComponent(
     var component = coefficent*covariate.beta;
 
     if(shouldLogDebugInfo()) {
-        console.log(`Covariate ${this.name}`)
-        console.log(`Input ${coefficent} ${coefficent === this.referencePoint ? 'Set to Reference Point' : ''}`)
-        console.log(`PMML Beta ${this.beta}`)
+        console.log(`Covariate ${covariate.name}`)
+        console.log(`Input ${coefficent} ${coefficent === covariate.referencePoint ? 'Set to Reference Point' : ''}`)
+        console.log(`PMML Beta ${covariate.beta}`)
         console.log(`Component ${component}`)
     }
 
@@ -31,7 +56,7 @@ export function getComponent(
     data: Data
 ): number {
     if(shouldLogWarnings()) {
-        console.groupCollapsed(`${this.name}`);
+        console.groupCollapsed(`${covariate.name}`);
     }
 
     const component = calculateComponent(
@@ -73,7 +98,7 @@ export function calculateCoefficent(
         );
     }
 
-    return this.formatCoefficent(coefficent);
+    return formatCoefficent(covariate, coefficent);
 }
 
 export function calculateDataToCalculateCoefficent(
@@ -113,7 +138,7 @@ export function calculateDataToCalculateCoefficent(
         //Fall back to setting it to reference point
         else {
             if (shouldLogWarnings()) {
-                console.warn(`Incomplete data to calculate coefficent for data field ${this.name}. Setting it to reference point`);
+                console.warn(`Incomplete data to calculate coefficent for data field ${covariate.name}. Setting it to reference point`);
             }
 
             return [

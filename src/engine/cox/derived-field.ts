@@ -15,16 +15,19 @@ export interface ContinuousDerivedField extends GenericContinuousDerivedField<De
 
 export type DerivedField = DerivedFieldWithoutOpType | CategoricalDerivedField | ContinuousDerivedField;
 
-function evaluateEquation(obj: {
-    [index: string]: any
-}): any {
+function evaluateEquation(
+    derivedField: DerivedField,
+    obj: {
+        [index: string]: any
+    }
+): any {
     obj;
 
     let derived: any = undefined;
     let func = PmmlFunctions;
     func;
 
-    eval(this.equation);
+    eval(derivedField.equation);
 
     return derived;
 }
@@ -49,7 +52,7 @@ export function calculateCoefficent(
                 .find(derivedFromItem => derivedFromItem.name === datum.name) ? true : false);
 
         //If we don't have all the data for evaluation when calculate it
-        if (dataForEvaluation.length !== this.derivedFrom.length) {
+        if (dataForEvaluation.length !== derivedField.derivedFrom.length) {
             dataForEvaluation = calculateDataToCalculateCoefficent(
                 derivedField,
                 data
@@ -57,9 +60,9 @@ export function calculateCoefficent(
         }
 
         if (shouldLogDebugInfo() === true) {
-            console.groupCollapsed(`Derived Field: ${this.name}`)
-            console.log(`Name: ${this.name}`)
-            console.log(`Derived Field: ${this.equation}`)
+            console.groupCollapsed(`Derived Field: ${derivedField.name}`)
+            console.log(`Name: ${derivedField.name}`)
+            console.log(`Derived Field: ${derivedField.equation}`)
             console.log(`Derived Field Data`)
             console.table(dataForEvaluation)
         }
@@ -70,7 +73,7 @@ export function calculateCoefficent(
         } = {};
         dataForEvaluation.forEach(datum => obj[datum.name] = datum.coefficent);
 
-        const evaluatedValue = evaluateEquation(obj);
+        const evaluatedValue = evaluateEquation(derivedField, obj);
         if (shouldLogDebugInfo()) {
             console.log(`Evaluated value: ${evaluatedValue}`);
             console.groupEnd();
