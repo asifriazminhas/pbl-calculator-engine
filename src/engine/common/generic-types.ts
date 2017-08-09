@@ -71,12 +71,11 @@ export type GenericInteractionCovariate<T> = GenericInteractionCovariateWithoutO
 
 export type GenericCovariate<T> = GenericInteractionCovariate<T> | GenericNonInteractionCovariate<T>;
 
-export interface GenericCox<T, U> {
+export interface GenericCox<T> {
     name: string;
     version: string;
     description: string;
     covariates: Array<T>;
-    derivedFields: Array<U>;
     baselineHazard: number;
 }
 

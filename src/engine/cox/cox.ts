@@ -1,11 +1,10 @@
 import { Covariate, getComponent } from './covariate';
-import { DerivedField } from './derived-field';
 import { Data } from '../common/datum';
 import { add } from 'lodash';
 import { shouldLogDebugInfo} from '../common/env';
 import { GenericCox } from '../common/generic-types';
 
-export type Cox = GenericCox<Covariate, DerivedField>;
+export type Cox = GenericCox<Covariate>;
 
 function calculateScore(
     cox: Cox,
