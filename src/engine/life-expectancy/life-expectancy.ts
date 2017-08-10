@@ -1,6 +1,3 @@
-import { Cox, getSurvival } from '../cox/cox';
-import { Datum } from '../common/datum';
-
 export interface BaseLifeTableRow {
     age: number;
     ax: number;
@@ -200,36 +197,4 @@ export function getLifeExpectancy(
     );
 
     return getLifeExpectancyForAge(age, lifeTable);
-}
-
-export function constructLifeExpectancyFunctionForAlgorithm(
-    coxAlgorithm: Cox,
-    baseLifeTable: Array<BaseLifeTableRow>,
-    useExFromLifeTableFromAge: number=99
-) {
-    return (data: Array<Datum>) => {
-        const ageInputIndex = data
-            .findIndex((datum) => {
-                return datum.name === 'age'
-            });
-        const dataWithoutAgeInput = [
-            ...data.slice(0, ageInputIndex),
-            ...data.slice(ageInputIndex + 1)
-        ];
-        
-        return getLifeExpectancy(
-            data[ageInputIndex].coefficent as number,
-            (age) => {
-                return 1 - getSurvival(
-                    coxAlgorithm,
-                    dataWithoutAgeInput.concat({
-                        name: 'age',
-                        coefficent: age
-                    })
-                )
-            },
-            baseLifeTable,
-            useExFromLifeTableFromAge
-        )
-    }
 }
