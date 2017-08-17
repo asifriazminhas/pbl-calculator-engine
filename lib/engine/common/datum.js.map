@@ -1,0 +1,1 @@
+{"version":3,"file":"datum.js","sourceRoot":"","sources":["../../../src/engine/common/datum.ts"],"names":[],"mappings":";;AAYA,sBACI,IAAY,EACZ,UAAsB;IAEtB,MAAM,CAAC;QACH,IAAI;QACJ,UAAU;KACb,CAAC;AACN,CAAC;AARD,oCAQC;AAED,iDACI,SAAoB;IAEpB,MAAM,CAAC;QACH,IAAI,EAAE,SAAS,CAAC,IAAI;QACpB,UAAU,EAAE,SAAS,CAAC,cAAc;KACvC,CAAA;AACL,CAAC;AAPD,0FAOC"}
