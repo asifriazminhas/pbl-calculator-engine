@@ -12,6 +12,8 @@
     "outDir": "./lib",
     "skipLibCheck": true,
     "strictNullChecks": true,
+    "declaration": true,
+    "importHelpers": true,
     "noUnusedLocals": true
   },
   "include": [

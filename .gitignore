@@ -5,3 +5,4 @@ npm-debug.log
 dist
 out
 docs
+.DS_Store

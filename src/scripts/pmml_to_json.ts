@@ -1,4 +1,5 @@
-import * as sourceMapSupport from 'source-map-support';
+//Fix this later
+/*import * as sourceMapSupport from 'source-map-support';
 sourceMapSupport.install();
 
 import * as fs from 'fs';
@@ -71,5 +72,5 @@ if(fs.existsSync(absolutePmmlPath)) {
 }
 else {
     throw new Error(`No PMML file at path ${absolutePmmlPath} found`);
-}
+}*/
 
