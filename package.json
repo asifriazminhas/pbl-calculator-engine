@@ -51,7 +51,7 @@
     "webpack": "1.13.3"
   },
   "dependencies": {
-    "@ottawamhealth/pbl-limesurvey-engine": "git+ssh://github.com/Ottawa-mHealth/PBL-Limesurvey-Engine.git#dist",
+    "@ottawamhealth/pbl-limesurvey-engine": "git+ssh://git@bitbucket.org:ottawamhealth/pbl-limesurvey-engine.git#dist",
     "ast-types": "0.9.12",
     "bluebird": "3.4.6",
     "escodegen": "1.8.1",
