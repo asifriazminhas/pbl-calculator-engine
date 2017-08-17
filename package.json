@@ -9,9 +9,11 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "build-umd": "webpack --config ./webpack/umd.config.js",
-    "prepublish": "webpack --config ./webpack/umd.config.js && tsc",
     "build-ts": "tsc",
-    "build-ts:watch": "tsc -w"
+    "build-ts:watch": "tsc -w",
+    "prepublish": "webpack --config ./webpack/umd.config.js && tsc",
+
+    "lifetable-csv-to-json": "node ./lib/scripts/lifetable-csv-to-json.js"
   },
   "repository": {
     "type": "git",
