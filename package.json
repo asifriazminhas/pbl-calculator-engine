@@ -10,12 +10,8 @@
   "scripts": {
     "build-umd": "webpack --config ./webpack/umd.config.js",
     "prepublish": "webpack --config ./webpack/umd.config.js && tsc",
-    "pmml-to-json": "node lib/scripts/pmml_to_json.js",
     "build-ts": "tsc",
-    "build-ts:watch": "tsc -w",
-    "build-gitbook": "gitbook serve ./out/gitbook ./docs",
-    "start-sample-server": "npm run build-ts && node ./lib/samples/life-expectancy-server/server.js",
-    "start-sample-client": "npm run build-ts && node ./lib/samples/life-expectancy-browser/server.js"
+    "build-ts:watch": "tsc -w"
   },
   "repository": {
     "type": "git",
