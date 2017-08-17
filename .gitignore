@@ -1,8 +1,6 @@
 node_modules
-lib
 npm-debug.log
 .vscode
-dist
 out
 docs
 .DS_Store
