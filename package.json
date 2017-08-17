@@ -1,6 +1,6 @@
 {
   "name": "@ottawamhealth/pbl-calculator-engine",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "engines": {
     "node": "~7.x.x"
   },
@@ -12,7 +12,6 @@
     "build-ts": "tsc",
     "build-ts:watch": "tsc -w",
     "prepublish": "webpack --config ./webpack/umd.config.js && tsc",
-
     "lifetable-csv-to-json": "node ./lib/scripts/lifetable-csv-to-json.js"
   },
   "repository": {
