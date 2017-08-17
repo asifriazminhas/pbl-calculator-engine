@@ -1,1 +1,1 @@
-export { AlgorithmBuilder } from './engine/algorithm-builder/algorithm-builder';
+export { AlgorithmBuilder } from './engine/algorithm-builder/browser/browser-algorithm-builder';
