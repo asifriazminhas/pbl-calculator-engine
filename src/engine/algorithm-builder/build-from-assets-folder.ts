@@ -1,5 +1,5 @@
 import { GetRisk, curryGetRiskFunction } from './get-risk';
-import { GetSurvival, curryGetSurvivalFunction } from './get-survival';
+import { GetSurvivalToTime, curryGetSurvivalToTimeFunction } from './get-survival-to-time';
 import { AddLifeTable, curryAddLifeTable } from './add-life-table';
 import * as fs from 'fs';
 import { transformPhiatDictionaryToPmml } from '../pmml-transformers/web-specifications';
@@ -9,12 +9,12 @@ import { pmmlXmlStringsToJson } from '../pmml-to-json-parser/pmml';
 import { ToJson, curryToJsonFunction } from './to-json';
 
 export interface BuildFromAssetsFolder {
-    buildFromAssetsFolder: (assetsFolderPath: string) => Promise<GetSurvival & GetRisk & AddLifeTable & ToJson>;
+    buildFromAssetsFolder: (assetsFolderPath: string) => Promise<GetSurvivalToTime & GetRisk & AddLifeTable & ToJson>;
 }
 
 export async function buildFromAssetsFolder(
     assetsFolderPath: string
-): Promise<GetSurvival & GetRisk & AddLifeTable & ToJson> {
+): Promise<GetSurvivalToTime & GetRisk & AddLifeTable & ToJson> {
     //Get the names of all the files in the assets directory
     const assetFileNames = fs.readdirSync(assetsFolderPath);
 
@@ -66,7 +66,7 @@ export async function buildFromAssetsFolder(
     const cox = parseCoxJsonToCox(coxJson);
 
     return {
-        getSurvival: curryGetSurvivalFunction(cox),
+        getSurvivalToTime: curryGetSurvivalToTimeFunction(cox),
         getRisk: curryGetRiskFunction(cox),
         addLifeTable: curryAddLifeTable(cox, coxJson),
         toJson: curryToJsonFunction(coxJson)
