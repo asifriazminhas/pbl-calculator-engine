@@ -8218,9 +8218,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const browser_cox_1 = __webpack_require__(300);
+	const browser_build_survival_algorithm_1 = __webpack_require__(300);
 	exports.AlgorithmBuilder = {
-	    cox: browser_cox_1.cox
+	    buildSurvivalAlgorithm: browser_build_survival_algorithm_1.buildSurvivalAlgorithm
 	};
 	//# sourceMappingURL=browser-algorithm-builder.js.map
 
@@ -8231,13 +8231,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
 	const build_from_algorithm_json_1 = __webpack_require__(301);
-	function cox() {
+	function buildSurvivalAlgorithm() {
 	    return {
 	        buildFromAlgorithmJson: build_from_algorithm_json_1.buildFromAlgorithmJson
 	    };
 	}
-	exports.cox = cox;
-	//# sourceMappingURL=browser-cox.js.map
+	exports.buildSurvivalAlgorithm = buildSurvivalAlgorithm;
+	//# sourceMappingURL=browser-build-survival-algorithm.js.map
 
 /***/ },
 /* 301 */
@@ -8246,14 +8246,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
 	const get_risk_1 = __webpack_require__(302);
-	const get_survival_1 = __webpack_require__(425);
+	const get_survival_to_time_1 = __webpack_require__(425);
 	const add_life_table_1 = __webpack_require__(426);
 	const cox_1 = __webpack_require__(431);
 	const to_json_1 = __webpack_require__(430);
 	function buildFromAlgorithmJson(algorithmJson) {
 	    const cox = cox_1.parseCoxJsonToCox(algorithmJson);
 	    return {
-	        getSurvival: get_survival_1.curryGetSurvivalFunction(cox),
+	        getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
 	        getRisk: get_risk_1.curryGetRiskFunction(cox),
 	        addLifeTable: add_life_table_1.curryAddLifeTable(cox, algorithmJson),
 	        toJson: to_json_1.curryToJsonFunction(algorithmJson)
@@ -8286,12 +8286,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	const covariate_1 = __webpack_require__(304);
 	const lodash_1 = __webpack_require__(310);
 	const env_1 = __webpack_require__(423);
+	const moment = __webpack_require__(313);
 	function calculateScore(cox, data) {
 	    return cox.covariates
 	        .map(covariate => covariate_1.getComponent(covariate, data))
 	        .reduce(lodash_1.add);
 	}
-	function getSurvival(cox, data) {
+	//By default it's time argument is set to 1 year from now
+	function getSurvivalToTime(cox, data, time) {
+	    let formattedTime;
+	    if (!time) {
+	        formattedTime = moment();
+	        formattedTime.add(1, 'year');
+	    }
+	    else if (time instanceof Date) {
+	        formattedTime = moment(time);
+	    }
+	    else {
+	        formattedTime = time;
+	    }
 	    if (env_1.shouldLogDebugInfo() === true) {
 	        console.groupCollapsed(`Predictors`);
 	    }
@@ -8302,11 +8315,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        console.groupEnd();
 	    }
 	    const score = calculateScore(cox, data);
-	    return 1 - Math.pow(Math.E, -1 * cox.baselineHazard * Math.pow(Math.E, score));
+	    const oneYearSurvivalProbability = 1 - Math.pow(Math.E, -1 * cox.baselineHazard * Math.pow(Math.E, score));
+	    return oneYearSurvivalProbability * Math.abs((moment().diff(formattedTime, 'years', true)));
 	}
-	exports.getSurvival = getSurvival;
+	exports.getSurvivalToTime = getSurvivalToTime;
 	function getRisk(cox, data) {
-	    return 1 - getSurvival(cox, data);
+	    return 1 - getSurvivalToTime(cox, data);
 	}
 	exports.getRisk = getRisk;
 	//# sourceMappingURL=cox.js.map
@@ -40746,13 +40760,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
 	const cox_1 = __webpack_require__(303);
-	function curryGetSurvivalFunction(cox) {
-	    return (data) => {
-	        return cox_1.getSurvival(cox, data);
+	function curryGetSurvivalToTimeFunction(cox) {
+	    return (data, time) => {
+	        return cox_1.getSurvivalToTime(cox, data, time);
 	    };
 	}
-	exports.curryGetSurvivalFunction = curryGetSurvivalFunction;
-	//# sourceMappingURL=get-survival.js.map
+	exports.curryGetSurvivalToTimeFunction = curryGetSurvivalToTimeFunction;
+	//# sourceMappingURL=get-survival-to-time.js.map
 
 /***/ },
 /* 426 */
@@ -40761,13 +40775,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
 	const get_risk_1 = __webpack_require__(302);
-	const get_survival_1 = __webpack_require__(425);
+	const get_survival_to_time_1 = __webpack_require__(425);
 	const replace_life_table_1 = __webpack_require__(427);
 	const get_life_expectancy_1 = __webpack_require__(428);
 	const to_json_1 = __webpack_require__(430);
 	function addLifeTable(cox, lifeTable, coxJson) {
 	    return {
-	        getSurvival: get_survival_1.curryGetSurvivalFunction(cox),
+	        getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
 	        getRisk: get_risk_1.curryGetRiskFunction(cox),
 	        getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyFunction(cox, lifeTable),
 	        replaceLifeTable: replace_life_table_1.curryReplaceLifeTable(cox, coxJson),
@@ -40788,7 +40802,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const get_survival_1 = __webpack_require__(425);
+	const get_survival_to_time_1 = __webpack_require__(425);
 	const get_risk_1 = __webpack_require__(302);
 	const get_life_expectancy_1 = __webpack_require__(428);
 	const to_json_1 = __webpack_require__(430);
@@ -40800,7 +40814,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.curryReplaceLifeTable = curryReplaceLifeTable;
 	function replaceLifeTable(cox, lifeTable, coxJson) {
 	    return {
-	        getSurvival: get_survival_1.curryGetSurvivalFunction(cox),
+	        getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
 	        getRisk: get_risk_1.curryGetRiskFunction(cox),
 	        getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyFunction(cox, lifeTable),
 	        replaceLifeTable: curryReplaceLifeTable(cox, coxJson),
@@ -40818,7 +40832,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	const cox_1 = __webpack_require__(303);
 	const life_expectancy_1 = __webpack_require__(429);
 	function curryGetLifeExpectancyFunction(coxAlgorithm, baseLifeTable, useExFromLifeTableFromAge = 99) {
-	    return (data) => {
+	    return (data, time) => {
 	        const ageInputIndex = data
 	            .findIndex((datum) => {
 	            return datum.name === 'age';
@@ -40828,10 +40842,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	            ...data.slice(ageInputIndex + 1)
 	        ];
 	        return life_expectancy_1.getLifeExpectancy(data[ageInputIndex].coefficent, (age) => {
-	            return 1 - cox_1.getSurvival(coxAlgorithm, dataWithoutAgeInput.concat({
+	            return 1 - cox_1.getSurvivalToTime(coxAlgorithm, dataWithoutAgeInput.concat({
 	                name: 'age',
 	                coefficent: age
-	            }));
+	            }), time);
 	        }, baseLifeTable, useExFromLifeTableFromAge);
 	    };
 	}

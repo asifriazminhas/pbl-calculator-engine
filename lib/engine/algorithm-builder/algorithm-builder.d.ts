@@ -1,4 +1,4 @@
-import { CoxBuilder } from './cox';
-export interface IAlgorithmBuilder extends CoxBuilder {
+import { SurvivalAlgorithmBuilder } from './build-survival-algorithm';
+export interface IAlgorithmBuilder extends SurvivalAlgorithmBuilder {
 }
 export declare const AlgorithmBuilder: IAlgorithmBuilder;

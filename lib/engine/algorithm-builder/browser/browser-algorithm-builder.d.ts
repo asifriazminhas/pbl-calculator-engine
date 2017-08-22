@@ -1,4 +1,4 @@
-import { BrowserCoxBuilder } from './browser-cox';
-export interface IBrowserAlgorithmBuilder extends BrowserCoxBuilder {
+import { BrowserSurvivalAlgorithmBuilder } from './browser-build-survival-algorithm';
+export interface IBrowserAlgorithmBuilder extends BrowserSurvivalAlgorithmBuilder {
 }
 export declare const AlgorithmBuilder: IBrowserAlgorithmBuilder;
