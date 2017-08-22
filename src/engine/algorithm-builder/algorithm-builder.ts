@@ -1,8 +1,8 @@
-import { cox, CoxBuilder } from './cox';
+import { buildSurvivalAlgorithm, SurvivalAlgorithmBuilder } from './build-survival-algorithm';
 
-export interface IAlgorithmBuilder extends CoxBuilder {
+export interface IAlgorithmBuilder extends SurvivalAlgorithmBuilder {
 }
 
 export const AlgorithmBuilder: IAlgorithmBuilder = {
-    cox
+    buildSurvivalAlgorithm
 }
