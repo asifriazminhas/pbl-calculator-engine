@@ -6,10 +6,10 @@ const assetsFolderPath = path.join(__dirname, '../../assets/test');
 
 async function test() {
     const algorithm = await AlgorithmBuilder
-        .cox()
+        .buildSurvivalAlgorithm()
         .buildFromAssetsFolder(assetsFolderPath);
     
-    console.log(algorithm.getSurvival(
+    console.log(algorithm.getSurvivalToTime(
         [
             {
                 name: 'age',
