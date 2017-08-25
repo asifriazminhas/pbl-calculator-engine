@@ -26,4 +26,6 @@ export type CovariateJson = GenericCovariate<string>;
 
 export interface CoxJson extends GenericCox<CovariateJson> {
     derivedFields: Array<DerivedFieldJson>;
+    //TODO Implement this
+    causeDeletedRef: any;
 }

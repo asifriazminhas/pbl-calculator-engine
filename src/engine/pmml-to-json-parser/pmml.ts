@@ -18,7 +18,9 @@ export async function pmmlXmlStringsToJson(pmmlXmlStrings: Array<string>): Promi
         description: pmml.pmmlXml.PMML.Header.$.description,
         baselineHazard: parseBaselineHazardFromPmmlXml(pmml),
         covariates: parseCovariates(pmml),
-        derivedFields: parseDerivedFields(pmml)
+        derivedFields: parseDerivedFields(pmml),
+        //TODO Fix this
+        causeDeletedRef: null
     };
 
     //parseFromAlgorithmJson(parsedAlgorithm);
