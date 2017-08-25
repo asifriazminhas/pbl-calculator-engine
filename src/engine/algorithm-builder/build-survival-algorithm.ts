@@ -1,5 +1,5 @@
-import { buildFromAssetsFolder, BuildFromAssetsFolder } from './build-from-assets-folder';
-import { buildFromAlgorithmJson, BuildFromAlgorithmJson } from './build-from-algorithm-json';
+import { curryBuildFromAssetsFolder, BuildFromAssetsFolder } from './build-from-assets-folder';
+import { curryBuildFromAlgorithmJsonFunction, BuildFromAlgorithmJson } from './build-from-algorithm-json';
 
 export interface SurvivalAlgorithmBuilder {
     buildSurvivalAlgorithm: () => BuildFromAssetsFolder & BuildFromAlgorithmJson;
@@ -7,7 +7,7 @@ export interface SurvivalAlgorithmBuilder {
 
 export function buildSurvivalAlgorithm(): BuildFromAssetsFolder & BuildFromAlgorithmJson {
     return {
-        buildFromAssetsFolder,
-        buildFromAlgorithmJson
+        buildFromAssetsFolder: curryBuildFromAssetsFolder(),
+        buildFromAlgorithmJson: curryBuildFromAlgorithmJsonFunction()
     };
 }

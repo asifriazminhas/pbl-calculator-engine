@@ -4,6 +4,8 @@ export interface BaseLifeTableRow {
     ex: number;
 }
 
+export type RefLifeTable = Array<BaseLifeTableRow>;
+
 interface BaseLifeTableWithQxRow extends BaseLifeTableRow {
     age: number;
     ax: number;

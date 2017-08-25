@@ -1,4 +1,4 @@
-import { buildFromAlgorithmJson, BuildFromAlgorithmJson } from '../build-from-algorithm-json';
+import { curryBuildFromAlgorithmJsonFunction, BuildFromAlgorithmJson } from '../build-from-algorithm-json';
 
 export interface BrowserSurvivalAlgorithmBuilder {
     buildSurvivalAlgorithm: () => BuildFromAlgorithmJson;
@@ -6,6 +6,6 @@ export interface BrowserSurvivalAlgorithmBuilder {
 
 export function buildSurvivalAlgorithm(): BuildFromAlgorithmJson {
     return {
-        buildFromAlgorithmJson
+        buildFromAlgorithmJson: curryBuildFromAlgorithmJsonFunction()
     };
 }
