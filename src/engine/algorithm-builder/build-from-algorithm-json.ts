@@ -5,10 +5,11 @@ import { AddRefPopWithAddLifeTable, curryAddRefPopWithAddLifeTable} from './add-
 import { CoxJson } from '../common/json-types';
 import { parseCoxJsonToCox } from '../json-parser/cox';
 import { ToJson, curryToJsonFunction } from './to-json';
+import { BaseWithData, curryBaseWithDataFunction } from '../algorithm-evaluator';
 
 export type BuildFromAlgorithJsonFunction = (
     algorithmJson: CoxJson
-) => GetSurvivalToTime & GetRisk & AddLifeTableWithAddRefPop & ToJson & AddRefPopWithAddLifeTable;
+) => GetSurvivalToTime & GetRisk & AddLifeTableWithAddRefPop & ToJson & AddRefPopWithAddLifeTable & BaseWithData<{}>;
 
 export interface BuildFromAlgorithmJson {
     buildFromAlgorithmJson: BuildFromAlgorithJsonFunction
@@ -31,6 +32,7 @@ export function curryBuildFromAlgorithmJsonFunction(
                 cox,
                 algorithmJson
             ),
+            withData: curryBaseWithDataFunction({}),
             toJson: curryToJsonFunction(algorithmJson)
         }
     }

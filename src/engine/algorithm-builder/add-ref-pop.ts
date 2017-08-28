@@ -9,12 +9,13 @@ import { GetHealthAge, curryGetHeathAgeFunction } from './get-health-age';
 import { CoxJson } from '../common/json-types';
 import { Cox } from '../cox/cox';
 import { RefLifeTable } from '../life-expectancy/life-expectancy';
+import { WithDataAndGetHealthAge, curryWithDataAndGetHealthAgeFunction, FullWithData, curryFullWithDataFunction } from '../algorithm-evaluator';
 
-export type AddRefPopFunction<T extends AddLifeTableWithGetHealthAge | AddLifeTableEvaluatorFunctions> = (
+export type AddRefPopFunction<T extends AddLifeTableWithGetHealthAge | AddLifeTableEvaluatorFunctions, U extends WithDataAndGetHealthAge<{}> | FullWithData<{}>> = (
     refPop: ReferencePopulation
-) => GetSurvivalToTime & GetRisk & ToJson & GetHealthAge & T;
-export type AddRefPopFunctionWithAddLifeTable = AddRefPopFunction<AddLifeTableWithGetHealthAge>;
-export type AddRefPopFunctionWithAddLifeTableFunctions = AddRefPopFunction<AddLifeTableEvaluatorFunctions>;
+) => GetSurvivalToTime & GetRisk & ToJson & GetHealthAge & T & U;
+export type AddRefPopFunctionWithAddLifeTable = AddRefPopFunction<AddLifeTableWithGetHealthAge, WithDataAndGetHealthAge<{}>>;
+export type AddRefPopFunctionWithAddLifeTableFunctions = AddRefPopFunction<AddLifeTableEvaluatorFunctions, FullWithData<{}>>;
 
 export interface AddRefPopWithAddLifeTable {
     addRefPop: AddRefPopFunctionWithAddLifeTable;
@@ -34,6 +35,7 @@ export function curryAddRefPopWithAddLifeTable(
             getRisk: curryGetRiskFunction(cox),
             toJson: curryToJsonFunction(coxJson),
             getHealthAge: curryGetHeathAgeFunction(refPop),
+            withData: curryWithDataAndGetHealthAgeFunction({}),
             addLifeTable: curryAddLifeTableFunctionWithGetHealthAge(
                 cox,
                 coxJson,
@@ -58,6 +60,7 @@ export function curryAddRefPopWithGetLifeExpectancy(
                 cox,
                 refLifeTable
             ),
+            withData: curryFullWithDataFunction({}),
             getLifeYearsLost: curryGetLifeYearsLostFunction(
                 coxJson.causeDeletedRef,
                 refLifeTable

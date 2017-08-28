@@ -6,18 +6,20 @@ export interface BaseLifeTableRow {
 
 export type RefLifeTable = Array<BaseLifeTableRow>;
 
-interface BaseLifeTableWithQxRow extends BaseLifeTableRow {
+export interface BaseLifeTableWithQxRow extends BaseLifeTableRow {
     age: number;
     ax: number;
     qx: number
 }
 
-interface LifeTableRow extends BaseLifeTableWithQxRow {
+export interface LifeTableRow extends BaseLifeTableWithQxRow {
     lx: number;
     dx: number;
     Lx: number;
     Tx: number;
 }
+
+export type CompleteLifeTable = Array<LifeTableRow>;
 
 export type GetPredictedRiskForAge = (age: number) => number;
 

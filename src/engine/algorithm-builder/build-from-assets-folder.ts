@@ -8,10 +8,11 @@ import { limesurveyTxtStringToPmmlString } from '../pmml-transformers/limesurvey
 import { parseCoxJsonToCox } from '../json-parser/cox';
 import { pmmlXmlStringsToJson } from '../pmml-to-json-parser/pmml';
 import { ToJson, curryToJsonFunction } from './to-json';
+import { BaseWithData, curryBaseWithDataFunction } from '../algorithm-evaluator';
 
 export type BuildFromAssetsFolderFunction = (
     assetsFolderPath: string
-) => Promise<GetSurvivalToTime & GetRisk & AddLifeTableWithAddRefPop & AddRefPopWithAddLifeTable & ToJson>;
+) => Promise<GetSurvivalToTime & GetRisk & AddLifeTableWithAddRefPop & AddRefPopWithAddLifeTable & ToJson & BaseWithData<{}>>;
 
 export interface BuildFromAssetsFolder {
     buildFromAssetsFolder: BuildFromAssetsFolderFunction
@@ -76,7 +77,8 @@ export function curryBuildFromAssetsFolder(
             getRisk: curryGetRiskFunction(cox),
             addLifeTable: curryAddLifeTableFunctionWithAddRefPop(cox, coxJson),
             addRefPop: curryAddRefPopWithAddLifeTable(cox, coxJson),
-            toJson: curryToJsonFunction(coxJson)
+            toJson: curryToJsonFunction(coxJson),
+            withData: curryBaseWithDataFunction({})
         }
     }
 }
