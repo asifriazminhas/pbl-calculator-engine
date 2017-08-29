@@ -10,7 +10,8 @@ async function test() {
         .buildFromAssetsFolder(assetsFolderPath)
     
     const result = algorithm
-        .withData()
+        .addAlgorithm({} as any)
+        .withData([])
         .getRiskToTime()
         .getSurvivalToTime()
         .end();
@@ -18,9 +19,10 @@ async function test() {
     result.survivalToTime
 
     const algorithmWithLifeTable = algorithm
-        .addLifeTable([]);
+        .addLifeTable([])
+        .addAlgorithm({} as any);
     const resultTwo = algorithmWithLifeTable
-        .withData()
+        .withData([])
         .getRiskToTime()
         .getSurvivalToTime()
         .getLifeExpectancy()
@@ -29,9 +31,10 @@ async function test() {
     resultTwo
 
     const algorithmWithLifeTableAndRefPop = algorithmWithLifeTable
-        .addRefPop([]);
+        .addRefPop([])
+        .addAlgorithm({} as any);
     const resultThree = algorithmWithLifeTableAndRefPop
-        .withData()
+        .withData([])
         .getHealthAge();
     resultThree;
     

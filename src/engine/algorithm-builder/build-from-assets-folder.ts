@@ -9,10 +9,11 @@ import { parseCoxJsonToCox } from '../json-parser/cox';
 import { pmmlXmlStringsToJson } from '../pmml-to-json-parser/pmml';
 import { ToJson, curryToJsonFunction } from './to-json';
 import { BaseWithData, curryBaseWithDataFunction } from '../algorithm-evaluator';
+import { BaseAddAlgorithm, curryBaseAddAlgorithmFunction } from './add-algorithm';
 
 export type BuildFromAssetsFolderFunction = (
     assetsFolderPath: string
-) => Promise<GetSurvivalToTime & GetRisk & AddLifeTableWithAddRefPop & AddRefPopWithAddLifeTable & ToJson & BaseWithData<{}>>;
+) => Promise<GetSurvivalToTime & GetRisk & AddLifeTableWithAddRefPop & AddRefPopWithAddLifeTable & ToJson & BaseWithData<{}> & BaseAddAlgorithm>;
 
 export interface BuildFromAssetsFolder {
     buildFromAssetsFolder: BuildFromAssetsFolderFunction
@@ -78,7 +79,8 @@ export function curryBuildFromAssetsFolder(
             addLifeTable: curryAddLifeTableFunctionWithAddRefPop(cox, coxJson),
             addRefPop: curryAddRefPopWithAddLifeTable(cox, coxJson),
             toJson: curryToJsonFunction(coxJson),
-            withData: curryBaseWithDataFunction({})
+            withData: curryBaseWithDataFunction({}),
+            addAlgorithm: curryBaseAddAlgorithmFunction(cox, coxJson)
         }
     }
 }
