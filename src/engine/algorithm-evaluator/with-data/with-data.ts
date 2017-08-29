@@ -3,15 +3,12 @@ import { GetRiskToTimeReturnsBaseWithDataFunction, curryGetRiskToTimeReturnsBase
 import { GetLifeExpectancyReturnsFullWithDataFunction, curryGetLifeExpectancyReturnsFullWithDataFunction, GetLifeExpectancyReturnsWithDataAndLifeTableFunctions, curryGetLifeExpectancyReturnsWithDataAndLifeTablFunctions } from './get-life-expectancy';
 import { GetHealthAgeReturnsWithDataAndGetHealthAgeFunction, curryGetHealthAgeReturnsWithDataAndGetHealthAgeFunction, GetHealthAgeReturnsFullWithDataFunction, curryGetHealthAgeReturnsFullWithDataFunction } from './get-health-age';
 import { GetLifeYearsLostReturnsWithDataAndLifeTableFunctionsFunction, curryGetLifeYearsLostReturnsWithDataAndLifeTableFunction, GetLifeYearsLostReturnsFullWithData, curryGetLifeYearsLostReturnsFullWithDataFunction } from './get-life-years-lost';
+import { Data } from '../../common/datum';
 
 export interface BaseWithDataFunctionReturn<T extends object> {
     end: () => T;
     getSurvivalToTime: GetSurvivalToTimeReturnsBaseWithDataFunction<T>;
     getRiskToTime: GetRiskToTimeReturnsBaseWithDataFunction<T>
-}
-export type BaseWithDataFunction<T extends object> = () => BaseWithDataFunctionReturn<T>
-export interface BaseWithData<T extends object> {
-    withData: BaseWithDataFunction<T>;
 }
 export function getBaseWithDataFunctionReturn<T extends object>(
     currentResult: T
@@ -27,6 +24,12 @@ export function getBaseWithDataFunctionReturn<T extends object>(
             return currentResult;
         }
     }
+}
+export type BaseWithDataFunction<T extends object> = (
+    data: Data
+) => BaseWithDataFunctionReturn<T>
+export interface BaseWithData<T extends object> {
+    withData: BaseWithDataFunction<T>;
 }
 export function curryBaseWithDataFunction<T extends object>(
     currentResult: T
@@ -65,7 +68,9 @@ export function getWithDataAndLifeTableFunctionsFunctionReturn<T extends object>
     }
 }
 
-export type WithDataAndLifeTableFunctionsFunction<T extends object> = () => WithDataAndLifeTableFunctionsFunctionReturn<T>;
+export type WithDataAndLifeTableFunctionsFunction<T extends object> = (
+    data: Data
+) => WithDataAndLifeTableFunctionsFunctionReturn<T>;
 export interface WithDataAndLifeTableFunctions<T extends object> { 
     withData: WithDataAndLifeTableFunctionsFunction<T>
 }
@@ -101,7 +106,9 @@ export function getWithDataAndGetHealthAgeFunctionReturn<T extends object>(
         }
     }
 }
-export type WithDataAndGetHealthAgeFunction<T extends object> = () => WithDataAndGetHealthAgeFunctionReturn<T>;   
+export type WithDataAndGetHealthAgeFunction<T extends object> = (
+    data: Data
+) => WithDataAndGetHealthAgeFunctionReturn<T>;   
 export interface WithDataAndGetHealthAge<T extends object> { 
     withData: WithDataAndGetHealthAgeFunction<T>
 }
@@ -145,7 +152,9 @@ export function getFullWithDataFunctionReturn<T extends object>(
         }
     }
 }
-export type FullWithDataFunction<T extends object> = () => FullWithDataFunctionReturn<T>;
+export type FullWithDataFunction<T extends object> = (
+    data: Data
+) => FullWithDataFunctionReturn<T>;
 export interface FullWithData<T extends object>{ 
     withData: FullWithDataFunction<T>
 }
