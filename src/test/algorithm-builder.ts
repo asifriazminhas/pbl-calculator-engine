@@ -7,7 +7,36 @@ const assetsFolderPath = path.join(__dirname, '../../assets/test');
 async function test() {
     const algorithm = await AlgorithmBuilder
         .buildSurvivalAlgorithm()
-        .buildFromAssetsFolder(assetsFolderPath);
+        .buildFromAssetsFolder(assetsFolderPath)
+    
+    const result = algorithm
+        .addAlgorithm({} as any)
+        .withData([])
+        .getRiskToTime()
+        .getSurvivalToTime()
+        .end();
+    result.riskToTime
+    result.survivalToTime
+
+    const algorithmWithLifeTable = algorithm
+        .addLifeTable([])
+        .addAlgorithm({} as any);
+    const resultTwo = algorithmWithLifeTable
+        .withData([])
+        .getRiskToTime()
+        .getSurvivalToTime()
+        .getLifeExpectancy()
+        .getLifeYearsLost('Smoking')
+        .end();
+    resultTwo
+
+    const algorithmWithLifeTableAndRefPop = algorithmWithLifeTable
+        .addRefPop([])
+        .addAlgorithm({} as any);
+    const resultThree = algorithmWithLifeTableAndRefPop
+        .withData([])
+        .getHealthAge();
+    resultThree;
     
     console.log(algorithm.getSurvivalToTime(
         [
