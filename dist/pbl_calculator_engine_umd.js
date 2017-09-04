@@ -8233,7 +8233,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	const build_from_algorithm_json_1 = __webpack_require__(301);
 	function buildSurvivalAlgorithm() {
 	    return {
-	        buildFromAlgorithmJson: build_from_algorithm_json_1.buildFromAlgorithmJson
+	        buildFromAlgorithmJson: build_from_algorithm_json_1.curryBuildFromAlgorithmJsonFunction()
 	    };
 	}
 	exports.buildSurvivalAlgorithm = buildSurvivalAlgorithm;
@@ -8248,18 +8248,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	const get_risk_1 = __webpack_require__(302);
 	const get_survival_to_time_1 = __webpack_require__(425);
 	const add_life_table_1 = __webpack_require__(426);
-	const cox_1 = __webpack_require__(431);
-	const to_json_1 = __webpack_require__(430);
-	function buildFromAlgorithmJson(algorithmJson) {
-	    const cox = cox_1.parseCoxJsonToCox(algorithmJson);
-	    return {
-	        getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
-	        getRisk: get_risk_1.curryGetRiskFunction(cox),
-	        addLifeTable: add_life_table_1.curryAddLifeTable(cox, algorithmJson),
-	        toJson: to_json_1.curryToJsonFunction(algorithmJson)
+	const add_ref_pop_1 = __webpack_require__(432);
+	const cox_1 = __webpack_require__(443);
+	const to_json_1 = __webpack_require__(431);
+	const algorithm_evaluator_1 = __webpack_require__(435);
+	const add_algorithm_1 = __webpack_require__(442);
+	function curryBuildFromAlgorithmJsonFunction() {
+	    return (algorithmJson) => {
+	        const cox = cox_1.parseCoxJsonToCox(algorithmJson);
+	        return {
+	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
+	            getRisk: get_risk_1.curryGetRiskFunction(cox),
+	            addLifeTable: add_life_table_1.curryAddLifeTableFunctionWithAddRefPop(cox, algorithmJson),
+	            addRefPop: add_ref_pop_1.curryAddRefPopWithAddLifeTable(cox, algorithmJson),
+	            withData: algorithm_evaluator_1.curryBaseWithDataFunction({}),
+	            toJson: to_json_1.curryToJsonFunction(algorithmJson),
+	            addAlgorithm: add_algorithm_1.curryBaseAddAlgorithmFunction(cox, algorithmJson)
+	        };
 	    };
 	}
-	exports.buildFromAlgorithmJson = buildFromAlgorithmJson;
+	exports.curryBuildFromAlgorithmJsonFunction = curryBuildFromAlgorithmJsonFunction;
 	//# sourceMappingURL=build-from-algorithm-json.js.map
 
 /***/ },
@@ -40776,24 +40784,43 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", { value: true });
 	const get_risk_1 = __webpack_require__(302);
 	const get_survival_to_time_1 = __webpack_require__(425);
-	const replace_life_table_1 = __webpack_require__(427);
-	const get_life_expectancy_1 = __webpack_require__(428);
-	const to_json_1 = __webpack_require__(430);
-	function addLifeTable(cox, lifeTable, coxJson) {
-	    return {
-	        getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
-	        getRisk: get_risk_1.curryGetRiskFunction(cox),
-	        getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyFunction(cox, lifeTable),
-	        replaceLifeTable: replace_life_table_1.curryReplaceLifeTable(cox, coxJson),
-	        toJson: to_json_1.curryToJsonFunction(coxJson)
-	    };
-	}
-	function curryAddLifeTable(cox, coxJson) {
+	const get_life_expectancy_1 = __webpack_require__(427);
+	const get_life_years_lost_1 = __webpack_require__(429);
+	const to_json_1 = __webpack_require__(431);
+	const add_ref_pop_1 = __webpack_require__(432);
+	const get_health_age_1 = __webpack_require__(433);
+	const algorithm_evaluator_1 = __webpack_require__(435);
+	const add_algorithm_1 = __webpack_require__(442);
+	function curryAddLifeTableFunctionWithAddRefPop(cox, coxJson) {
 	    return (lifeTable) => {
-	        return addLifeTable(cox, lifeTable, coxJson);
+	        return {
+	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
+	            getRisk: get_risk_1.curryGetRiskFunction(cox),
+	            getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyFunction(cox, lifeTable),
+	            getLifeYearsLost: get_life_years_lost_1.curryGetLifeYearsLostFunction(coxJson.causeDeletedRef, lifeTable),
+	            toJson: to_json_1.curryToJsonFunction(coxJson),
+	            withData: algorithm_evaluator_1.curryWithDataAndLifeTableFunctionsFunction({}),
+	            addRefPop: add_ref_pop_1.curryAddRefPopWithGetLifeExpectancy(cox, coxJson, lifeTable),
+	            addAlgorithm: add_algorithm_1.curryAddAlgorithmWithLifeTableFunctionsFunction(cox, lifeTable, coxJson)
+	        };
 	    };
 	}
-	exports.curryAddLifeTable = curryAddLifeTable;
+	exports.curryAddLifeTableFunctionWithAddRefPop = curryAddLifeTableFunctionWithAddRefPop;
+	function curryAddLifeTableFunctionWithGetHealthAge(cox, coxJson, refPop) {
+	    return (lifeTable) => {
+	        return {
+	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
+	            getRisk: get_risk_1.curryGetRiskFunction(cox),
+	            getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyFunction(cox, lifeTable),
+	            getHealthAge: get_health_age_1.curryGetHeathAgeFunction(refPop),
+	            getLifeYearsLost: get_life_years_lost_1.curryGetLifeYearsLostFunction(coxJson.causeDeletedRef, lifeTable),
+	            withData: algorithm_evaluator_1.curryFullWithDataFunction({}),
+	            toJson: to_json_1.curryToJsonFunction(coxJson),
+	            addAlgorithm: add_algorithm_1.curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(cox, coxJson, refPop, lifeTable)
+	        };
+	    };
+	}
+	exports.curryAddLifeTableFunctionWithGetHealthAge = curryAddLifeTableFunctionWithGetHealthAge;
 	//# sourceMappingURL=add-life-table.js.map
 
 /***/ },
@@ -40802,35 +40829,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const get_survival_to_time_1 = __webpack_require__(425);
-	const get_risk_1 = __webpack_require__(302);
-	const get_life_expectancy_1 = __webpack_require__(428);
-	const to_json_1 = __webpack_require__(430);
-	function curryReplaceLifeTable(cox, coxJson) {
-	    return (lifeTable) => {
-	        return replaceLifeTable(cox, lifeTable, coxJson);
-	    };
-	}
-	exports.curryReplaceLifeTable = curryReplaceLifeTable;
-	function replaceLifeTable(cox, lifeTable, coxJson) {
-	    return {
-	        getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
-	        getRisk: get_risk_1.curryGetRiskFunction(cox),
-	        getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyFunction(cox, lifeTable),
-	        replaceLifeTable: curryReplaceLifeTable(cox, coxJson),
-	        toJson: to_json_1.curryToJsonFunction(coxJson)
-	    };
-	}
-	//# sourceMappingURL=replace-life-table.js.map
-
-/***/ },
-/* 428 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	Object.defineProperty(exports, "__esModule", { value: true });
 	const cox_1 = __webpack_require__(303);
-	const life_expectancy_1 = __webpack_require__(429);
+	const life_expectancy_1 = __webpack_require__(428);
 	function curryGetLifeExpectancyFunction(coxAlgorithm, baseLifeTable, useExFromLifeTableFromAge = 99) {
 	    return (data, time) => {
 	        const ageInputIndex = data
@@ -40853,7 +40853,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//# sourceMappingURL=get-life-expectancy.js.map
 
 /***/ },
-/* 429 */
+/* 428 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -41010,7 +41010,40 @@ return /******/ (function(modules) { // webpackBootstrap
 	//# sourceMappingURL=life-expectancy.js.map
 
 /***/ },
+/* 429 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const life_years_lost_1 = __webpack_require__(430);
+	//TODO Fix this
+	function curryGetLifeYearsLostFunction(causeDeletedRef, refLifeTable) {
+	    return (data, riskFactor) => {
+	        return life_years_lost_1.getLifeYearsLost(causeDeletedRef, refLifeTable, data, riskFactor);
+	    };
+	}
+	exports.curryGetLifeYearsLostFunction = curryGetLifeYearsLostFunction;
+	//# sourceMappingURL=get-life-years-lost.js.map
+
+/***/ },
 /* 430 */
+/***/ function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	//TODO Implement this
+	function getLifeYearsLost(causeDeletedRef, refLifeTable, data, riskFactor) {
+	    riskFactor;
+	    data;
+	    causeDeletedRef;
+	    refLifeTable;
+	    return Math.random();
+	}
+	exports.getLifeYearsLost = getLifeYearsLost;
+	//# sourceMappingURL=life-years-lost.js.map
+
+/***/ },
+/* 431 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -41024,12 +41057,411 @@ return /******/ (function(modules) { // webpackBootstrap
 	//# sourceMappingURL=to-json.js.map
 
 /***/ },
-/* 431 */
+/* 432 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const covariate_1 = __webpack_require__(432);
+	const get_survival_to_time_1 = __webpack_require__(425);
+	const get_risk_1 = __webpack_require__(302);
+	const add_life_table_1 = __webpack_require__(426);
+	const get_life_years_lost_1 = __webpack_require__(429);
+	const get_life_expectancy_1 = __webpack_require__(427);
+	const to_json_1 = __webpack_require__(431);
+	const get_health_age_1 = __webpack_require__(433);
+	const algorithm_evaluator_1 = __webpack_require__(435);
+	const add_algorithm_1 = __webpack_require__(442);
+	function curryAddRefPopWithAddLifeTable(cox, coxJson) {
+	    return (refPop) => {
+	        return {
+	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
+	            getRisk: get_risk_1.curryGetRiskFunction(cox),
+	            toJson: to_json_1.curryToJsonFunction(coxJson),
+	            getHealthAge: get_health_age_1.curryGetHeathAgeFunction(refPop),
+	            withData: algorithm_evaluator_1.curryWithDataAndGetHealthAgeFunction({}),
+	            addLifeTable: add_life_table_1.curryAddLifeTableFunctionWithGetHealthAge(cox, coxJson, refPop),
+	            addAlgorithm: add_algorithm_1.curryAddAlgorithmReturnsGetHealthAgeFunction(cox, coxJson, refPop)
+	        };
+	    };
+	}
+	exports.curryAddRefPopWithAddLifeTable = curryAddRefPopWithAddLifeTable;
+	function curryAddRefPopWithGetLifeExpectancy(cox, coxJson, refLifeTable) {
+	    return (refPop) => {
+	        return {
+	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
+	            getRisk: get_risk_1.curryGetRiskFunction(cox),
+	            toJson: to_json_1.curryToJsonFunction(coxJson),
+	            getHealthAge: get_health_age_1.curryGetHeathAgeFunction(refPop),
+	            getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyFunction(cox, refLifeTable),
+	            withData: algorithm_evaluator_1.curryFullWithDataFunction({}),
+	            getLifeYearsLost: get_life_years_lost_1.curryGetLifeYearsLostFunction(coxJson.causeDeletedRef, refLifeTable),
+	            addAlgorithm: add_algorithm_1.curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(cox, coxJson, refPop, refLifeTable)
+	        };
+	    };
+	}
+	exports.curryAddRefPopWithGetLifeExpectancy = curryAddRefPopWithGetLifeExpectancy;
+	//# sourceMappingURL=add-ref-pop.js.map
+
+/***/ },
+/* 433 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const health_age_1 = __webpack_require__(434);
+	function curryGetHeathAgeFunction(refPop) {
+	    return (data) => {
+	        return health_age_1.getHealthAge(refPop, data);
+	    };
+	}
+	exports.curryGetHeathAgeFunction = curryGetHeathAgeFunction;
+	//# sourceMappingURL=get-health-age.js.map
+
+/***/ },
+/* 434 */
+/***/ function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	//TODO Implement this
+	function getHealthAge(refPop, data) {
+	    data;
+	    refPop;
+	    return Math.random();
+	}
+	exports.getHealthAge = getHealthAge;
+	//# sourceMappingURL=health-age.js.map
+
+/***/ },
+/* 435 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var with_data_1 = __webpack_require__(436);
+	exports.curryBaseWithDataFunction = with_data_1.curryBaseWithDataFunction;
+	exports.curryWithDataAndLifeTableFunctionsFunction = with_data_1.curryWithDataAndLifeTableFunctionsFunction;
+	exports.curryFullWithDataFunction = with_data_1.curryFullWithDataFunction;
+	exports.curryWithDataAndGetHealthAgeFunction = with_data_1.curryWithDataAndGetHealthAgeFunction;
+	//# sourceMappingURL=index.js.map
+
+/***/ },
+/* 436 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const get_survival_to_time_1 = __webpack_require__(437);
+	const get_risk_to_time_1 = __webpack_require__(438);
+	const get_life_expectancy_1 = __webpack_require__(439);
+	const get_health_age_1 = __webpack_require__(440);
+	const get_life_years_lost_1 = __webpack_require__(441);
+	function getBaseWithDataFunctionReturn(currentResult) {
+	    return {
+	        getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeReturnsBaseWithDataFunction(currentResult),
+	        getRiskToTime: get_risk_to_time_1.curryGetRiskToTimeReturnsBaseWithDataFunction(currentResult),
+	        end: () => {
+	            return currentResult;
+	        }
+	    };
+	}
+	exports.getBaseWithDataFunctionReturn = getBaseWithDataFunctionReturn;
+	function curryBaseWithDataFunction(currentResult) {
+	    return () => {
+	        return getBaseWithDataFunctionReturn(currentResult);
+	    };
+	}
+	exports.curryBaseWithDataFunction = curryBaseWithDataFunction;
+	function getWithDataAndLifeTableFunctionsFunctionReturn(currentResult) {
+	    return {
+	        getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeReturnsWithDataAndGetLifeExpectancy(currentResult),
+	        getRiskToTime: get_risk_to_time_1.curryGetRiskToTimeReturnsWithDataAndGetLifeExpectancy(currentResult),
+	        getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyReturnsWithDataAndLifeTablFunctions(currentResult),
+	        getLifeYearsLost: get_life_years_lost_1.curryGetLifeYearsLostReturnsWithDataAndLifeTableFunction(currentResult),
+	        end: () => {
+	            return currentResult;
+	        }
+	    };
+	}
+	exports.getWithDataAndLifeTableFunctionsFunctionReturn = getWithDataAndLifeTableFunctionsFunctionReturn;
+	function curryWithDataAndLifeTableFunctionsFunction(currentResult) {
+	    return () => {
+	        return getWithDataAndLifeTableFunctionsFunctionReturn(currentResult);
+	    };
+	}
+	exports.curryWithDataAndLifeTableFunctionsFunction = curryWithDataAndLifeTableFunctionsFunction;
+	function getWithDataAndGetHealthAgeFunctionReturn(currentResult) {
+	    return {
+	        getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeReturnsWithDataAndGetHealthAge(currentResult),
+	        getRiskToTime: get_risk_to_time_1.curryGetRiskToTimeReturnsWithDataAndGetHealthAge(currentResult),
+	        getHealthAge: get_health_age_1.curryGetHealthAgeReturnsWithDataAndGetHealthAgeFunction(currentResult),
+	        end: () => {
+	            return currentResult;
+	        }
+	    };
+	}
+	exports.getWithDataAndGetHealthAgeFunctionReturn = getWithDataAndGetHealthAgeFunctionReturn;
+	function curryWithDataAndGetHealthAgeFunction(currentResult) {
+	    return () => {
+	        return getWithDataAndGetHealthAgeFunctionReturn(currentResult);
+	    };
+	}
+	exports.curryWithDataAndGetHealthAgeFunction = curryWithDataAndGetHealthAgeFunction;
+	function getFullWithDataFunctionReturn(currentResult) {
+	    return {
+	        getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeReturnsFullWithData(currentResult),
+	        getRiskToTime: get_risk_to_time_1.curryGetRiskToTimeReturnsFullWithData(currentResult),
+	        getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyReturnsFullWithDataFunction(currentResult),
+	        getLifeYearsLost: get_life_years_lost_1.curryGetLifeYearsLostReturnsFullWithDataFunction(currentResult),
+	        getHealthAge: get_health_age_1.curryGetHealthAgeReturnsFullWithDataFunction(currentResult),
+	        end: () => {
+	            return currentResult;
+	        }
+	    };
+	}
+	exports.getFullWithDataFunctionReturn = getFullWithDataFunctionReturn;
+	function curryFullWithDataFunction(currentResult) {
+	    return () => {
+	        return getFullWithDataFunctionReturn(currentResult);
+	    };
+	}
+	exports.curryFullWithDataFunction = curryFullWithDataFunction;
+	//# sourceMappingURL=with-data.js.map
+
+/***/ },
+/* 437 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const with_data_1 = __webpack_require__(436);
+	function curryGetSurvivalToTimeReturnsBaseWithDataFunction(currentResult) {
+	    return (time) => {
+	        time;
+	        const survivalToTime = Math.random();
+	        return with_data_1.getBaseWithDataFunctionReturn(Object.assign({}, currentResult, { survivalToTime }));
+	    };
+	}
+	exports.curryGetSurvivalToTimeReturnsBaseWithDataFunction = curryGetSurvivalToTimeReturnsBaseWithDataFunction;
+	function curryGetSurvivalToTimeReturnsWithDataAndGetHealthAge(currentResult) {
+	    return (time) => {
+	        time;
+	        const survivalToTime = Math.random();
+	        return with_data_1.getWithDataAndGetHealthAgeFunctionReturn(Object.assign({}, currentResult, { survivalToTime }));
+	    };
+	}
+	exports.curryGetSurvivalToTimeReturnsWithDataAndGetHealthAge = curryGetSurvivalToTimeReturnsWithDataAndGetHealthAge;
+	function curryGetSurvivalToTimeReturnsWithDataAndGetLifeExpectancy(currentResult) {
+	    return (time) => {
+	        time;
+	        const survivalToTime = Math.random();
+	        return with_data_1.getWithDataAndLifeTableFunctionsFunctionReturn(Object.assign({}, currentResult, { survivalToTime }));
+	    };
+	}
+	exports.curryGetSurvivalToTimeReturnsWithDataAndGetLifeExpectancy = curryGetSurvivalToTimeReturnsWithDataAndGetLifeExpectancy;
+	function curryGetSurvivalToTimeReturnsFullWithData(currentResult) {
+	    return (time) => {
+	        time;
+	        const survivalToTime = Math.random();
+	        return with_data_1.getFullWithDataFunctionReturn(Object.assign({}, currentResult, { survivalToTime }));
+	    };
+	}
+	exports.curryGetSurvivalToTimeReturnsFullWithData = curryGetSurvivalToTimeReturnsFullWithData;
+	//# sourceMappingURL=get-survival-to-time.js.map
+
+/***/ },
+/* 438 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const with_data_1 = __webpack_require__(436);
+	function curryGetRiskToTimeReturnsBaseWithDataFunction(currentResult) {
+	    return (time) => {
+	        time;
+	        const riskToTime = Math.random();
+	        return with_data_1.getBaseWithDataFunctionReturn(Object.assign({}, currentResult, { riskToTime }));
+	    };
+	}
+	exports.curryGetRiskToTimeReturnsBaseWithDataFunction = curryGetRiskToTimeReturnsBaseWithDataFunction;
+	function curryGetRiskToTimeReturnsWithDataAndGetHealthAge(currentResult) {
+	    return (time) => {
+	        time;
+	        const riskToTime = Math.random();
+	        return with_data_1.getWithDataAndGetHealthAgeFunctionReturn(Object.assign({}, currentResult, { riskToTime }));
+	    };
+	}
+	exports.curryGetRiskToTimeReturnsWithDataAndGetHealthAge = curryGetRiskToTimeReturnsWithDataAndGetHealthAge;
+	function curryGetRiskToTimeReturnsWithDataAndGetLifeExpectancy(currentResult) {
+	    return (time) => {
+	        time;
+	        const riskToTime = Math.random();
+	        return with_data_1.getWithDataAndLifeTableFunctionsFunctionReturn(Object.assign({}, currentResult, { riskToTime }));
+	    };
+	}
+	exports.curryGetRiskToTimeReturnsWithDataAndGetLifeExpectancy = curryGetRiskToTimeReturnsWithDataAndGetLifeExpectancy;
+	function curryGetRiskToTimeReturnsFullWithData(currentResult) {
+	    return (time) => {
+	        time;
+	        const riskToTime = Math.random();
+	        return with_data_1.getFullWithDataFunctionReturn(Object.assign({}, currentResult, { riskToTime }));
+	    };
+	}
+	exports.curryGetRiskToTimeReturnsFullWithData = curryGetRiskToTimeReturnsFullWithData;
+	//# sourceMappingURL=get-risk-to-time.js.map
+
+/***/ },
+/* 439 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const with_data_1 = __webpack_require__(436);
+	function curryGetLifeExpectancyReturnsWithDataAndLifeTablFunctions(currentResult) {
+	    return () => {
+	        const lifeExpectancy = Math.random();
+	        return with_data_1.getWithDataAndLifeTableFunctionsFunctionReturn(Object.assign({}, currentResult, { lifeExpectancy }));
+	    };
+	}
+	exports.curryGetLifeExpectancyReturnsWithDataAndLifeTablFunctions = curryGetLifeExpectancyReturnsWithDataAndLifeTablFunctions;
+	function curryGetLifeExpectancyReturnsFullWithDataFunction(currentResult) {
+	    return () => {
+	        const lifeExpectancy = Math.random();
+	        return with_data_1.getFullWithDataFunctionReturn(Object.assign({}, currentResult, { lifeExpectancy }));
+	    };
+	}
+	exports.curryGetLifeExpectancyReturnsFullWithDataFunction = curryGetLifeExpectancyReturnsFullWithDataFunction;
+	//# sourceMappingURL=get-life-expectancy.js.map
+
+/***/ },
+/* 440 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const with_data_1 = __webpack_require__(436);
+	function curryGetHealthAgeReturnsWithDataAndGetHealthAgeFunction(currentResult) {
+	    return () => {
+	        const healthAge = Math.random();
+	        return with_data_1.getWithDataAndGetHealthAgeFunctionReturn(Object.assign({}, currentResult, { healthAge }));
+	    };
+	}
+	exports.curryGetHealthAgeReturnsWithDataAndGetHealthAgeFunction = curryGetHealthAgeReturnsWithDataAndGetHealthAgeFunction;
+	function curryGetHealthAgeReturnsFullWithDataFunction(currentResult) {
+	    return () => {
+	        const healthAge = Math.random();
+	        return with_data_1.getFullWithDataFunctionReturn(Object.assign({}, currentResult, { healthAge }));
+	    };
+	}
+	exports.curryGetHealthAgeReturnsFullWithDataFunction = curryGetHealthAgeReturnsFullWithDataFunction;
+	//# sourceMappingURL=get-health-age.js.map
+
+/***/ },
+/* 441 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const with_data_1 = __webpack_require__(436);
+	function curryGetLifeYearsLostReturnsWithDataAndLifeTableFunction(currentResult) {
+	    return (riskFactor) => {
+	        //TODO Figure out the any
+	        const lifeYearsLost = Object.assign({}, currentResult.lifeYearsLost, { [riskFactor]: Math.random() });
+	        return with_data_1.getWithDataAndLifeTableFunctionsFunctionReturn(Object.assign({}, currentResult, { lifeYearsLost }));
+	    };
+	}
+	exports.curryGetLifeYearsLostReturnsWithDataAndLifeTableFunction = curryGetLifeYearsLostReturnsWithDataAndLifeTableFunction;
+	function curryGetLifeYearsLostReturnsFullWithDataFunction(currentResult) {
+	    return (riskFactor) => {
+	        //TODO Figure out the any
+	        const lifeYearsLost = Object.assign({}, currentResult.lifeYearsLost, { [riskFactor]: Math.random() });
+	        return with_data_1.getFullWithDataFunctionReturn(Object.assign({}, currentResult, { lifeYearsLost }));
+	    };
+	}
+	exports.curryGetLifeYearsLostReturnsFullWithDataFunction = curryGetLifeYearsLostReturnsFullWithDataFunction;
+	//# sourceMappingURL=get-life-years-lost.js.map
+
+/***/ },
+/* 442 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const get_survival_to_time_1 = __webpack_require__(425);
+	const get_risk_1 = __webpack_require__(302);
+	const add_life_table_1 = __webpack_require__(426);
+	const get_life_expectancy_1 = __webpack_require__(427);
+	const get_life_years_lost_1 = __webpack_require__(429);
+	const add_ref_pop_1 = __webpack_require__(432);
+	const to_json_1 = __webpack_require__(431);
+	const algorithm_evaluator_1 = __webpack_require__(435);
+	const get_health_age_1 = __webpack_require__(433);
+	function curryBaseAddAlgorithmFunction(cox, coxJson) {
+	    return (addedCox) => {
+	        addedCox;
+	        return {
+	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
+	            getRisk: get_risk_1.curryGetRiskFunction(cox),
+	            addLifeTable: add_life_table_1.curryAddLifeTableFunctionWithAddRefPop(cox, coxJson),
+	            addRefPop: add_ref_pop_1.curryAddRefPopWithAddLifeTable(cox, coxJson),
+	            toJson: to_json_1.curryToJsonFunction(coxJson),
+	            withData: algorithm_evaluator_1.curryBaseWithDataFunction({})
+	        };
+	    };
+	}
+	exports.curryBaseAddAlgorithmFunction = curryBaseAddAlgorithmFunction;
+	function curryAddAlgorithmWithLifeTableFunctionsFunction(cox, refLifeTable, coxJson) {
+	    return (addedCox) => {
+	        addedCox;
+	        return {
+	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
+	            getRisk: get_risk_1.curryGetRiskFunction(cox),
+	            getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyFunction(cox, refLifeTable),
+	            getLifeYearsLost: get_life_years_lost_1.curryGetLifeYearsLostFunction(coxJson.causeDeletedRef, refLifeTable),
+	            addRefPop: add_ref_pop_1.curryAddRefPopWithGetLifeExpectancy(cox, coxJson, refLifeTable),
+	            toJson: to_json_1.curryToJsonFunction(coxJson),
+	            withData: algorithm_evaluator_1.curryWithDataAndLifeTableFunctionsFunction({})
+	        };
+	    };
+	}
+	exports.curryAddAlgorithmWithLifeTableFunctionsFunction = curryAddAlgorithmWithLifeTableFunctionsFunction;
+	function curryAddAlgorithmReturnsGetHealthAgeFunction(cox, coxJson, refPop) {
+	    return (addedCox) => {
+	        addedCox;
+	        return {
+	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
+	            getRisk: get_risk_1.curryGetRiskFunction(cox),
+	            addLifeTable: add_life_table_1.curryAddLifeTableFunctionWithGetHealthAge(cox, coxJson, refPop),
+	            getHealthAge: get_health_age_1.curryGetHeathAgeFunction(refPop),
+	            toJson: to_json_1.curryToJsonFunction(coxJson),
+	            withData: algorithm_evaluator_1.curryWithDataAndGetHealthAgeFunction({})
+	        };
+	    };
+	}
+	exports.curryAddAlgorithmReturnsGetHealthAgeFunction = curryAddAlgorithmReturnsGetHealthAgeFunction;
+	function curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(cox, coxJson, refPop, refLifeTable) {
+	    return () => {
+	        return {
+	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
+	            getRisk: get_risk_1.curryGetRiskFunction(cox),
+	            getHealthAge: get_health_age_1.curryGetHeathAgeFunction(refPop),
+	            getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyFunction(cox, refLifeTable),
+	            getLifeYearsLost: get_life_years_lost_1.curryGetLifeYearsLostFunction(coxJson.causeDeletedRef, refLifeTable),
+	            toJson: to_json_1.curryToJsonFunction(coxJson),
+	            withData: algorithm_evaluator_1.curryFullWithDataFunction({})
+	        };
+	    };
+	}
+	exports.curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions = curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions;
+	//# sourceMappingURL=add-algorithm.js.map
+
+/***/ },
+/* 443 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const covariate_1 = __webpack_require__(444);
 	function parseCoxJsonToCox(coxJson) {
 	    return Object.assign({}, coxJson, {
 	        covariates: coxJson.covariates.map((covariateJson) => {
@@ -41041,14 +41473,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	//# sourceMappingURL=cox.js.map
 
 /***/ },
-/* 432 */
+/* 444 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const derived_field_1 = __webpack_require__(433);
+	const derived_field_1 = __webpack_require__(445);
 	const field_types_1 = __webpack_require__(305);
-	const custom_function_1 = __webpack_require__(434);
+	const custom_function_1 = __webpack_require__(446);
 	function findCovariateJsonWithName(covariateJsons, name) {
 	    return covariateJsons
 	        .find(covariateJson => covariateJson.name === name);
@@ -41080,12 +41512,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	//# sourceMappingURL=covariate.js.map
 
 /***/ },
-/* 433 */
+/* 445 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const covariate_1 = __webpack_require__(432);
+	const covariate_1 = __webpack_require__(444);
 	function findDerivedFieldJsonWithName(derivedFieldJsons, name) {
 	    return derivedFieldJsons
 	        .find(derivedFieldJson => derivedFieldJson.name === name);
@@ -41122,13 +41554,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	//# sourceMappingURL=derived-field.js.map
 
 /***/ },
-/* 434 */
+/* 446 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const rcs_custom_function_1 = __webpack_require__(435);
-	const custom_function_types_1 = __webpack_require__(436);
+	const rcs_custom_function_1 = __webpack_require__(447);
+	const custom_function_types_1 = __webpack_require__(448);
 	function parseCustomFunctionJsonToCustomFunction(customFunctionJson, covariateJsons, derivedFieldJsons) {
 	    if (customFunctionJson.customFunctionType === custom_function_types_1.CustomFunctionTypes.RcsCustomFunction) {
 	        return rcs_custom_function_1.parseRcsCustomFunctionJsonToRcsCustomFunction(customFunctionJson, covariateJsons, derivedFieldJsons);
@@ -41141,12 +41573,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	//# sourceMappingURL=custom-function.js.map
 
 /***/ },
-/* 435 */
+/* 447 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const covariate_1 = __webpack_require__(432);
+	const covariate_1 = __webpack_require__(444);
 	function parseRcsCustomFunctionJsonToRcsCustomFunction(rcsCustomFunctionJson, covariateJsons, derivedFieldJsons) {
 	    const firstVariableCovariate = covariate_1.findCovariateJsonWithName(covariateJsons, rcsCustomFunctionJson.firstVariableCovariate);
 	    if (!firstVariableCovariate) {
@@ -41160,7 +41592,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//# sourceMappingURL=rcs-custom-function.js.map
 
 /***/ },
-/* 436 */
+/* 448 */
 /***/ function(module, exports) {
 
 	"use strict";

@@ -1,8 +1,12 @@
 import { GetRisk } from './get-risk';
 import { GetSurvivalToTime } from './get-survival-to-time';
-import { AddLifeTable } from './add-life-table';
+import { AddLifeTableWithAddRefPop } from './add-life-table';
+import { AddRefPopWithAddLifeTable } from './add-ref-pop';
 import { ToJson } from './to-json';
+import { BaseWithData } from '../algorithm-evaluator';
+import { BaseAddAlgorithm } from './add-algorithm';
+export declare type BuildFromAssetsFolderFunction = (assetsFolderPath: string) => Promise<GetSurvivalToTime & GetRisk & AddLifeTableWithAddRefPop & AddRefPopWithAddLifeTable & ToJson & BaseWithData<{}> & BaseAddAlgorithm>;
 export interface BuildFromAssetsFolder {
-    buildFromAssetsFolder: (assetsFolderPath: string) => Promise<GetSurvivalToTime & GetRisk & AddLifeTable & ToJson>;
+    buildFromAssetsFolder: BuildFromAssetsFolderFunction;
 }
-export declare function buildFromAssetsFolder(assetsFolderPath: string): Promise<GetSurvivalToTime & GetRisk & AddLifeTable & ToJson>;
+export declare function curryBuildFromAssetsFolder(): BuildFromAssetsFolderFunction;

@@ -1,0 +1,1 @@
+{"version":3,"file":"get-life-years-lost.js","sourceRoot":"","sources":["../../../src/engine/algorithm-builder/get-life-years-lost.ts"],"names":[],"mappings":";;AACA,wEAAsE;AAYtE,eAAe;AACf,uCACI,eAAoB,EACpB,YAA0B;IAE1B,MAAM,CAAC,CAAC,IAAI,EAAE,UAAU;QACpB,MAAM,CAAC,kCAAgB,CACnB,eAAe,EACf,YAAY,EACZ,IAAI,EACJ,UAAU,CACb,CAAC;IACN,CAAC,CAAC;AACN,CAAC;AAZD,sEAYC"}

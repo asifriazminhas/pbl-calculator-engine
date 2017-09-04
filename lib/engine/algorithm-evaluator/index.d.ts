@@ -1,0 +1,1 @@
+export { BaseWithData, curryBaseWithDataFunction, WithDataAndLifeTableFunctions, curryWithDataAndLifeTableFunctionsFunction, FullWithData, curryFullWithDataFunction, WithDataAndGetHealthAge, curryWithDataAndGetHealthAgeFunction } from './with-data/with-data';

@@ -3,6 +3,19 @@ export interface BaseLifeTableRow {
     ax: number;
     ex: number;
 }
+export declare type RefLifeTable = Array<BaseLifeTableRow>;
+export interface BaseLifeTableWithQxRow extends BaseLifeTableRow {
+    age: number;
+    ax: number;
+    qx: number;
+}
+export interface LifeTableRow extends BaseLifeTableWithQxRow {
+    lx: number;
+    dx: number;
+    Lx: number;
+    Tx: number;
+}
+export declare type CompleteLifeTable = Array<LifeTableRow>;
 export declare type GetPredictedRiskForAge = (age: number) => number;
 /**
  * Returns the life expectancy at the age argument using the getPredictedRiskForAge argument to generate the lifetable from the baseLifeTable

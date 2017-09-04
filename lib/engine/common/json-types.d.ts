@@ -18,4 +18,5 @@ export declare type InteractionCovariateWithoutOpTypeJson = GenericInteractionCo
 export declare type CovariateJson = GenericCovariate<string>;
 export interface CoxJson extends GenericCox<CovariateJson> {
     derivedFields: Array<DerivedFieldJson>;
+    causeDeletedRef: any;
 }
