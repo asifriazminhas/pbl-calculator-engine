@@ -1,8 +1,7 @@
 import { Cox, getSurvivalToTime } from '../cox/cox';
-import { getLifeExpectancy } from '../life-expectancy/life-expectancy';
-import { RefLifeTable } from '../common/life-table';
+import { getLifeExpectancyForAge } from '../life-expectancy/life-expectancy';
+import { RefLifeTable, getCompleteLifeTableWithStartAge } from '../common/life-table';
 import { Data } from '../common/datum';
-import * as moment from 'moment';
 
 export interface GetLifeExpectancy {
     getLifeExpectancy: (data: Data) => number;
@@ -10,33 +9,38 @@ export interface GetLifeExpectancy {
 
 export function curryGetLifeExpectancyFunction(
     coxAlgorithm: Cox,
-    baseLifeTable: RefLifeTable,
+    refLifeTable: RefLifeTable,
     useExFromLifeTableFromAge: number = 99
-): (data: Data, time?: Date | moment.Moment) => number {
-    return (data, time) => {
-        const ageInputIndex = data
-            .findIndex((datum) => {
-                return datum.name === 'age'
-            });
-        const dataWithoutAgeInput = [
-            ...data.slice(0, ageInputIndex),
-            ...data.slice(ageInputIndex + 1)
-        ];
+): GetLifeExpectancy['getLifeExpectancy'] {
+    return (data) => {
+        //TODO Change this to have an optional parameter called age
+        const ageDatum = data
+            .find(datum => datum.coefficent === 'age');
+        if(!ageDatum) {
+            throw new Error(`No datum object found for coefficent age`);
+        }
 
-        return getLifeExpectancy(
-            data[ageInputIndex].coefficent as number,
+        const dataWithoutAgeDatum = data
+            .filter(datum => datum.coefficent === 'age');
+
+        const completeLifeTable = getCompleteLifeTableWithStartAge(
+            refLifeTable,
             (age) => {
                 return 1 - getSurvivalToTime(
                     coxAlgorithm,
-                    dataWithoutAgeInput.concat({
+                    dataWithoutAgeDatum.concat({
                         name: 'age',
                         coefficent: age
-                    }),
-                    time
-                )
+                    })
+                );
             },
-            baseLifeTable,
+            ageDatum.coefficent as number,
             useExFromLifeTableFromAge
-        )
+        );
+
+        return getLifeExpectancyForAge(
+            ageDatum.coefficent as number,
+            completeLifeTable
+        );
     }
 }
