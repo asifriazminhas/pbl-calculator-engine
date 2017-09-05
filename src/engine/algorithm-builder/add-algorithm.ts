@@ -1,6 +1,6 @@
 import { Cox } from '../cox';
 import { GetRiskToTime, getGetRiskToTime, getGetLifeExpectancy, getGetLifeYearsLost, GetHealthAge, getGetHealthAge, getGetSurvivalToAge, GetSurvivalToTime, getGetSurvivalToTime } from '../algorithm-evaluator';
-import { AddLifeTableWithAddRefPop, curryAddLifeTableFunctionWithAddRefPop, AddLifeTableEvaluatorFunctions, AddLifeTableWithGetHealthAge, curryAddLifeTableFunctionWithGetHealthAge } from './add-life-table';
+import { AddLifeTableWithAddRefPop, getAddLifeTableWithAddRefPop, AddLifeTableEvaluatorFunctions, AddLifeTableWithGetHealthAge, getAddLifeTableWithGetHealthAge } from './add-life-table';
 import { AddRefPopWithAddLifeTable, curryAddRefPopWithAddLifeTable, AddRefPopWithAddLifeTableFunctions, curryAddRefPopWithGetLifeExpectancy } from './add-ref-pop';
 import { ToJson, getToJson } from './to-json';
 import { CoxJson } from '../common/json-types';
@@ -25,11 +25,8 @@ export function curryBaseAddAlgorithmFunction(
             getGetRiskToTime(cox),
             getGetSurvivalToTime(cox),
             getToJson(coxJson),
+            getAddLifeTableWithAddRefPop(cox, coxJson),
             {
-                addLifeTable: curryAddLifeTableFunctionWithAddRefPop(
-                    cox,
-                    coxJson
-                ),
                 addRefPop: curryAddRefPopWithAddLifeTable(
                     cox,
                     coxJson
@@ -97,12 +94,8 @@ export function curryAddAlgorithmReturnsGetHealthAgeFunction(
             getGetSurvivalToTime(cox), 
             getGetHealthAge(refPop),
             getToJson(coxJson),
+            getAddLifeTableWithGetHealthAge(cox, coxJson, refPop),
             {
-                addLifeTable: curryAddLifeTableFunctionWithGetHealthAge(
-                    cox,
-                    coxJson,
-                    refPop
-                ),
                 withData: curryWithDataAndGetHealthAgeFunction({})
             }
         );

@@ -1,5 +1,5 @@
 import { GetRiskToTime, getGetRiskToTime, GetSurvivalToTime, getGetSurvivalToTime } from '../algorithm-evaluator';
-import { AddLifeTableWithAddRefPop, curryAddLifeTableFunctionWithAddRefPop } from './add-life-table';
+import { AddLifeTableWithAddRefPop, getAddLifeTableWithAddRefPop } from './add-life-table';
 import { AddRefPopWithAddLifeTable, curryAddRefPopWithAddLifeTable } from './add-ref-pop'
 import * as fs from 'fs';
 import { transformPhiatDictionaryToPmml } from '../pmml-transformers/web-specifications';
@@ -77,8 +77,8 @@ export function curryBuildFromAssetsFolder(
             getGetRiskToTime(cox),
             getGetSurvivalToTime(cox),
             getToJson(coxJson),
+            getAddLifeTableWithAddRefPop(cox, coxJson),
             {
-                addLifeTable: curryAddLifeTableFunctionWithAddRefPop(cox, coxJson),
                 addRefPop: curryAddRefPopWithAddLifeTable(cox, coxJson),
                 withData: curryBaseWithDataFunction({}),
                 addAlgorithm: curryBaseAddAlgorithmFunction(cox, coxJson)
