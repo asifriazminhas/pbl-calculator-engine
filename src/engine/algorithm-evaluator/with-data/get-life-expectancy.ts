@@ -5,7 +5,7 @@ export interface GetLifeExpectancyResult {
 }
 
 export type GetLifeExpectancyReturnsWithDataAndLifeTableFunctions<T> = () => WithDataAndLifeTableFunctionsFunctionReturn<T & GetLifeExpectancyResult>;
-export function curryGetLifeExpectancyReturnsWithDataAndLifeTablFunctions<T extends object>(
+export function curryGetLifeExpectancyReturnsWithDataAndLifeTableFunctions<T extends object>(
     currentResult: T
 ): GetLifeExpectancyReturnsWithDataAndLifeTableFunctions<T> {
     return () => {

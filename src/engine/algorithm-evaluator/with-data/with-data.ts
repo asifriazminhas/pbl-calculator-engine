@@ -1,6 +1,6 @@
 import { GetSurvivalToTimeReturnsBaseWithDataFunction, curryGetSurvivalToTimeReturnsBaseWithDataFunction,  GetSurvivalToTimeReturnsWithDataAndGetHealthAge, curryGetSurvivalToTimeReturnsWithDataAndGetHealthAge, GetSurvivalToTimeReturnsWithDataAndLifeTableFunctionsFunction, curryGetSurvivalToTimeReturnsWithDataAndGetLifeExpectancy, GetSurvivalToTimeReturnsFullWithData, curryGetSurvivalToTimeReturnsFullWithData } from './get-survival-to-time';
 import { GetRiskToTimeReturnsBaseWithDataFunction, curryGetRiskToTimeReturnsBaseWithDataFunction, GetRiskToTimeReturnsWithDataAndGetHealthAge, curryGetRiskToTimeReturnsWithDataAndGetHealthAge, GeRiskToTimeReturnsWithDataAndGetLifeExpectancy, curryGetRiskToTimeReturnsWithDataAndGetLifeExpectancy, GetRiskToTimeReturnsFullWithData, curryGetRiskToTimeReturnsFullWithData } from './get-risk-to-time';
-import { GetLifeExpectancyReturnsFullWithDataFunction, curryGetLifeExpectancyReturnsFullWithDataFunction, GetLifeExpectancyReturnsWithDataAndLifeTableFunctions, curryGetLifeExpectancyReturnsWithDataAndLifeTablFunctions } from './get-life-expectancy';
+import { GetLifeExpectancyReturnsFullWithDataFunction, curryGetLifeExpectancyReturnsFullWithDataFunction, GetLifeExpectancyReturnsWithDataAndLifeTableFunctions, curryGetLifeExpectancyReturnsWithDataAndLifeTableFunctions } from './get-life-expectancy';
 import { GetHealthAgeReturnsWithDataAndGetHealthAgeFunction, curryGetHealthAgeReturnsWithDataAndGetHealthAgeFunction, GetHealthAgeReturnsFullWithDataFunction, curryGetHealthAgeReturnsFullWithDataFunction } from './get-health-age';
 import { GetLifeYearsLostReturnsWithDataAndLifeTableFunctionsFunction, curryGetLifeYearsLostReturnsWithDataAndLifeTableFunction, GetLifeYearsLostReturnsFullWithData, curryGetLifeYearsLostReturnsFullWithDataFunction } from './get-life-years-lost';
 import { Data } from '../../common/datum';
@@ -56,7 +56,7 @@ export function getWithDataAndLifeTableFunctionsFunctionReturn<T extends object>
         getRiskToTime: curryGetRiskToTimeReturnsWithDataAndGetLifeExpectancy(
             currentResult
         ),
-        getLifeExpectancy: curryGetLifeExpectancyReturnsWithDataAndLifeTablFunctions(
+        getLifeExpectancy: curryGetLifeExpectancyReturnsWithDataAndLifeTableFunctions(
             currentResult
         ),
         getLifeYearsLost: curryGetLifeYearsLostReturnsWithDataAndLifeTableFunction(
