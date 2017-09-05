@@ -29,6 +29,3 @@ export function curryGetLifeExpectancyReturnsFullWithDataFunction<T extends obje
         );
     }
 }
-
-
-

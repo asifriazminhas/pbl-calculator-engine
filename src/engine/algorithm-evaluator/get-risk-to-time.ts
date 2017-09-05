@@ -2,16 +2,17 @@ import { getRiskToTime, Cox } from '../cox/cox';
 import { Data } from '../common/datum';
 import * as moment from 'moment';
 
-export type GetRiskToTimeFunction = (data: Data, time?: Date | moment.Moment) => number;
-
 export interface GetRiskToTime {
-    getRiskToTime: GetRiskToTimeFunction;
+    getRiskToTime: (data: Data, time?: Date | moment.Moment) => number;
 }
 
-export function curryGetRiskToTimeFunction(
+export function addGetRiskToTime<T extends object>(
+    algorithmObj: T,
     cox: Cox
-): GetRiskToTimeFunction {
-    return (data, time) => {
-        return getRiskToTime(cox, data, time);
-    }
+): T & GetRiskToTime {
+    return Object.assign({}, algorithmObj, {
+        getRiskToTime: (data: Data, time?: Date | moment.Moment) => {
+            return getRiskToTime(cox, data, time);
+        }
+    })
 }

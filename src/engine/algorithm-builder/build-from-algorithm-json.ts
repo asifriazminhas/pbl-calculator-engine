@@ -1,4 +1,4 @@
-import { GetRiskToTime, curryGetRiskToTimeFunction, GetSurvivalToTime, curryGetSurvivalToTimeFunction } from '../algorithm-evaluator';
+import { GetRiskToTime, addGetRiskToTime, GetSurvivalToTime, curryGetSurvivalToTimeFunction } from '../algorithm-evaluator';
 import { AddLifeTableWithAddRefPop, curryAddLifeTableFunctionWithAddRefPop } from './add-life-table';
 import { AddRefPopWithAddLifeTable, curryAddRefPopWithAddLifeTable} from './add-ref-pop';
 import { CoxJson } from '../common/json-types';
@@ -21,9 +21,8 @@ export function curryBuildFromAlgorithmJsonFunction(
     return (algorithmJson) => {
         const cox = parseCoxJsonToCox(algorithmJson);
 
-        return {
+        return addGetRiskToTime({
             getSurvivalToTime: curryGetSurvivalToTimeFunction(cox),
-            getRiskToTime: curryGetRiskToTimeFunction(cox),
             addLifeTable: curryAddLifeTableFunctionWithAddRefPop(
                 cox,
                 algorithmJson
@@ -38,6 +37,6 @@ export function curryBuildFromAlgorithmJsonFunction(
                 cox,
                 algorithmJson
             )
-        }
+        }, cox)
     }
 }
