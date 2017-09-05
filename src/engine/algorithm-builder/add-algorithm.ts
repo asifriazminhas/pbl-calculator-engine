@@ -1,6 +1,5 @@
 import { Cox } from '../cox';
-import { GetSurvivalToTime, curryGetSurvivalToTimeFunction } from '../algorithm-evaluator/get-survival-to-time';
-import { GetRiskToTime, addGetRiskToTime, curryGetLifeExpectancyFunction, curryGetLifeYearsLostFunction, GetHealthAge, curryGetHeathAgeFunction, addGetSurvivalToAge } from '../algorithm-evaluator';
+import { GetRiskToTime, getGetRiskToTime, curryGetLifeExpectancyFunction, curryGetLifeYearsLostFunction, GetHealthAge, curryGetHeathAgeFunction, getGetSurvivalToAge, GetSurvivalToTime, getGetSurvivalToTime } from '../algorithm-evaluator';
 import { AddLifeTableWithAddRefPop, curryAddLifeTableFunctionWithAddRefPop, AddLifeTableEvaluatorFunctions, AddLifeTableWithGetHealthAge, curryAddLifeTableFunctionWithGetHealthAge } from './add-life-table';
 import { AddRefPopWithAddLifeTable, curryAddRefPopWithAddLifeTable, AddRefPopWithAddLifeTableFunctions, curryAddRefPopWithGetLifeExpectancy } from './add-ref-pop';
 import { ToJson, curryToJsonFunction } from './to-json';
@@ -22,25 +21,26 @@ export function curryBaseAddAlgorithmFunction(
     return (addedCox) => {
         addedCox;
 
-        return addGetRiskToTime({
-            getSurvivalToTime: curryGetSurvivalToTimeFunction(
-                cox
-            ),
-            addLifeTable: curryAddLifeTableFunctionWithAddRefPop(
-                cox,
-                coxJson
-            ),
-            addRefPop: curryAddRefPopWithAddLifeTable(
-                cox,
-                coxJson
-            ),
-            toJson: curryToJsonFunction(
-                coxJson
-            ),
-            withData: curryBaseWithDataFunction(
-                {}
-            )
-        }, cox)
+        return Object.assign(
+            getGetRiskToTime(cox),
+            getGetSurvivalToTime(cox),
+            {
+                addLifeTable: curryAddLifeTableFunctionWithAddRefPop(
+                    cox,
+                    coxJson
+                ),
+                addRefPop: curryAddRefPopWithAddLifeTable(
+                    cox,
+                    coxJson
+                ),
+                toJson: curryToJsonFunction(
+                    coxJson
+                ),
+                withData: curryBaseWithDataFunction(
+                    {}
+                )
+            }
+        );
     }
 }
 
@@ -58,11 +58,11 @@ export function curryAddAlgorithmWithLifeTableFunctionsFunction(
     return (addedCox) => {
         addedCox;
 
-        return addGetRiskToTime(
-            addGetSurvivalToAge({
-                getSurvivalToTime: curryGetSurvivalToTimeFunction(
-                    cox
-                ),
+        return Object.assign(
+            getGetRiskToTime(cox),
+            getGetSurvivalToTime(cox),
+            getGetSurvivalToAge(cox, refLifeTable),
+            {
                 getLifeExpectancy: curryGetLifeExpectancyFunction(
                     cox,
                     refLifeTable
@@ -82,8 +82,7 @@ export function curryAddAlgorithmWithLifeTableFunctionsFunction(
                 withData: curryWithDataAndLifeTableFunctionsFunction(
                     {}
                 )
-            }, cox, refLifeTable),
-            cox
+            }
         )
     }
 }
@@ -102,19 +101,23 @@ export function curryAddAlgorithmReturnsGetHealthAgeFunction(
     return (addedCox) => {
         addedCox;
 
-        return addGetRiskToTime({
-            getSurvivalToTime: curryGetSurvivalToTimeFunction(cox),
-            addLifeTable: curryAddLifeTableFunctionWithGetHealthAge(
-                cox,
-                coxJson,
-                refPop
-            ),
-            getHealthAge: curryGetHeathAgeFunction(
-                refPop
-            ),
-            toJson: curryToJsonFunction(coxJson),
-            withData: curryWithDataAndGetHealthAgeFunction({})
-        }, cox)
+        return Object.assign(
+            {},
+            getGetRiskToTime(cox),
+            getGetSurvivalToTime(cox), 
+            {
+                addLifeTable: curryAddLifeTableFunctionWithGetHealthAge(
+                    cox,
+                    coxJson,
+                    refPop
+                ),
+                getHealthAge: curryGetHeathAgeFunction(
+                    refPop
+                ),
+                toJson: curryToJsonFunction(coxJson),
+                withData: curryWithDataAndGetHealthAgeFunction({})
+            }
+        );
     }
 }
 
@@ -131,9 +134,12 @@ export function curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(
     refLifeTable: RefLifeTable
 ): AddAlgorithmWithGetHealthAgeAndLifeTableFunctionsFunction {
     return () => {
-        return addGetRiskToTime(
-            addGetSurvivalToAge({
-                getSurvivalToTime: curryGetSurvivalToTimeFunction(cox),
+        return Object.assign(
+            {},
+            getGetRiskToTime(cox),
+            getGetSurvivalToAge(cox, refLifeTable),
+            getGetSurvivalToTime(cox),
+            {
                 getHealthAge: curryGetHeathAgeFunction(refPop),
                 getLifeExpectancy: curryGetLifeExpectancyFunction(
                     cox,
@@ -145,8 +151,7 @@ export function curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(
                 ),
                 toJson: curryToJsonFunction(coxJson),
                 withData: curryFullWithDataFunction({})
-            }, cox, refLifeTable),
-            cox
+            }
         )
     }
 }

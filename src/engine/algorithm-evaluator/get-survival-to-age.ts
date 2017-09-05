@@ -7,13 +7,12 @@ export interface GetSurvivalToAge {
     getSurvivalToAge: (data: Data, age: number) => number;
 }
 
-export function addGetSurvivalToAge<T extends object>(
-    algorithmObj: T,
+export function getGetSurvivalToAge(
     cox: Cox,
     refLifeTable: RefLifeTable,
     useExFromLifeTableFromAge: number = 99
-): T & GetSurvivalToAge {
-    return Object.assign({}, algorithmObj, {
+): GetSurvivalToAge {
+    return {
         getSurvivalToAge: (data: Data, age: number) => {
             const ageDatum = data
             .find(datum => datum.coefficent === 'age');
@@ -41,5 +40,5 @@ export function addGetSurvivalToAge<T extends object>(
 
             return getSurvivalToAge(completeLifeTable, age)
         }
-    })
+    };
 }

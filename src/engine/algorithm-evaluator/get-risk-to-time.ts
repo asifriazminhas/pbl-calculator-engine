@@ -6,13 +6,12 @@ export interface GetRiskToTime {
     getRiskToTime: (data: Data, time?: Date | moment.Moment) => number;
 }
 
-export function addGetRiskToTime<T extends object>(
-    algorithmObj: T,
+export function getGetRiskToTime(
     cox: Cox
-): T & GetRiskToTime {
-    return Object.assign({}, algorithmObj, {
-        getRiskToTime: (data: Data, time?: Date | moment.Moment) => {
+): GetRiskToTime {
+    return {
+        getRiskToTime: (data, time) => {
             return getRiskToTime(cox, data, time);
         }
-    })
+    };
 }
