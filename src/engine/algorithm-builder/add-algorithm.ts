@@ -1,5 +1,5 @@
 import { Cox } from '../cox';
-import { GetRiskToTime, getGetRiskToTime, getGetLifeExpectancy, curryGetLifeYearsLostFunction, GetHealthAge, getGetHealthAge, getGetSurvivalToAge, GetSurvivalToTime, getGetSurvivalToTime } from '../algorithm-evaluator';
+import { GetRiskToTime, getGetRiskToTime, getGetLifeExpectancy, getGetLifeYearsLost, GetHealthAge, getGetHealthAge, getGetSurvivalToAge, GetSurvivalToTime, getGetSurvivalToTime } from '../algorithm-evaluator';
 import { AddLifeTableWithAddRefPop, curryAddLifeTableFunctionWithAddRefPop, AddLifeTableEvaluatorFunctions, AddLifeTableWithGetHealthAge, curryAddLifeTableFunctionWithGetHealthAge } from './add-life-table';
 import { AddRefPopWithAddLifeTable, curryAddRefPopWithAddLifeTable, AddRefPopWithAddLifeTableFunctions, curryAddRefPopWithGetLifeExpectancy } from './add-ref-pop';
 import { ToJson, curryToJsonFunction } from './to-json';
@@ -63,11 +63,8 @@ export function curryAddAlgorithmWithLifeTableFunctionsFunction(
             getGetSurvivalToTime(cox),
             getGetSurvivalToAge(cox, refLifeTable),
             getGetLifeExpectancy(cox, refLifeTable),
+            getGetLifeYearsLost(coxJson.causeDeletedRef, refLifeTable),
             {
-                getLifeYearsLost: curryGetLifeYearsLostFunction(
-                    coxJson.causeDeletedRef,
-                    refLifeTable
-                ),
                 addRefPop: curryAddRefPopWithGetLifeExpectancy(
                     cox,
                     coxJson,
@@ -136,11 +133,8 @@ export function curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(
             getGetSurvivalToTime(cox),
             getGetHealthAge(refPop),
             getGetLifeExpectancy(cox, refLifeTable),
+            getGetLifeYearsLost(coxJson.causeDeletedRef, refLifeTable),
             {
-                getLifeYearsLost: curryGetLifeYearsLostFunction(
-                    coxJson.causeDeletedRef,
-                    refLifeTable
-                ),
                 toJson: curryToJsonFunction(coxJson),
                 withData: curryFullWithDataFunction({})
             }

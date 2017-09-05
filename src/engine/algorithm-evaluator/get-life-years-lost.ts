@@ -2,26 +2,26 @@ import { Data } from '../common/datum';
 import { getLifeYearsLost } from '../life-years-lost/life-years-lost';
 import { RefLifeTable } from '../common/life-table';
 
-export type GetLifeYearsLostFunction = (
-    data: Data,
-    riskFactor: string
-) => number;
-
 export interface GetLifeYearsLost {
-    getLifeYearsLost: GetLifeYearsLostFunction;
+    getLifeYearsLost: (
+        data: Data,
+        riskFactor: string
+    ) => number;
 }
 
 //TODO Fix this
-export function curryGetLifeYearsLostFunction(
+export function getGetLifeYearsLost(
     causeDeletedRef: any,
     refLifeTable: RefLifeTable
-): GetLifeYearsLostFunction {
-    return (data, riskFactor) => {
-        return getLifeYearsLost(
-            causeDeletedRef,
-            refLifeTable,
-            data,
-            riskFactor
-        );
+): GetLifeYearsLost {
+    return {
+        getLifeYearsLost: (data, riskFactor) => {
+            return getLifeYearsLost(
+                causeDeletedRef,
+                refLifeTable,
+                data,
+                riskFactor
+            );
+        }
     };
 }
