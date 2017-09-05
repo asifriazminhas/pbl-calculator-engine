@@ -1,4 +1,4 @@
-import { GetRisk, curryGetRiskFunction } from './get-risk';
+import { GetRiskToTime, curryGetRiskToTimeFunction } from './get-risk-to-time';
 import { GetSurvivalToTime, curryGetSurvivalToTimeFunction } from './get-survival-to-time';
 import { GetLifeExpectancy, curryGetLifeExpectancyFunction } from './get-life-expectancy';
 import { GetLifeYearsLost, curryGetLifeYearsLostFunction } from './get-life-years-lost';
@@ -14,7 +14,7 @@ import { AddAlgorithmWithLifeTableFunctions, curryAddAlgorithmWithLifeTableFunct
 
 export type AddLifeTableEvaluatorFunctions = GetLifeExpectancy & GetLifeYearsLost;
 
-export type AddLifeTableFunction<T extends AddRefPopWithAddLifeTableFunctions | GetHealthAge, U extends WithDataAndLifeTableFunctions<{}> | FullWithData<{}>, V extends AddAlgorithmWithLifeTableFunctions | AddAlgorithmWithGetHealthAgeAndLifeTableFunctions> = (lifeTable: RefLifeTable) => GetSurvivalToTime & GetRisk & AddLifeTableEvaluatorFunctions & ToJson & T & U & V;
+export type AddLifeTableFunction<T extends AddRefPopWithAddLifeTableFunctions | GetHealthAge, U extends WithDataAndLifeTableFunctions<{}> | FullWithData<{}>, V extends AddAlgorithmWithLifeTableFunctions | AddAlgorithmWithGetHealthAgeAndLifeTableFunctions> = (lifeTable: RefLifeTable) => GetSurvivalToTime & GetRiskToTime & AddLifeTableEvaluatorFunctions & ToJson & T & U & V;
 
 export type AddLifeTableFunctionWithAddRefPop = AddLifeTableFunction<AddRefPopWithAddLifeTableFunctions, WithDataAndLifeTableFunctions<{}>, AddAlgorithmWithLifeTableFunctions>;
 export type AddLifeTableFunctionWithGetHealthAge = AddLifeTableFunction<GetHealthAge, FullWithData<{}>, AddAlgorithmWithGetHealthAgeAndLifeTableFunctions>;
@@ -33,7 +33,7 @@ export function curryAddLifeTableFunctionWithAddRefPop(
     return (lifeTable) => {
         return {
             getSurvivalToTime: curryGetSurvivalToTimeFunction(cox),
-            getRisk: curryGetRiskFunction(cox),
+            getRiskToTime: curryGetRiskToTimeFunction(cox),
             getLifeExpectancy: curryGetLifeExpectancyFunction(
                 cox,
                 lifeTable
@@ -66,7 +66,7 @@ export function curryAddLifeTableFunctionWithGetHealthAge(
     return (lifeTable) => {
         return {
             getSurvivalToTime: curryGetSurvivalToTimeFunction(cox),
-            getRisk: curryGetRiskFunction(cox),
+            getRiskToTime: curryGetRiskToTimeFunction(cox),
             getLifeExpectancy: curryGetLifeExpectancyFunction(cox, lifeTable),
             getHealthAge: curryGetHeathAgeFunction(refPop),
             getLifeYearsLost: curryGetLifeYearsLostFunction(

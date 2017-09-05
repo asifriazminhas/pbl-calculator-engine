@@ -1,4 +1,4 @@
-import { GetRisk, curryGetRiskFunction } from './get-risk';
+import { GetRiskToTime, curryGetRiskToTimeFunction } from './get-risk-to-time';
 import { GetSurvivalToTime, curryGetSurvivalToTimeFunction } from './get-survival-to-time';
 import { AddLifeTableWithAddRefPop, curryAddLifeTableFunctionWithAddRefPop } from './add-life-table';
 import { AddRefPopWithAddLifeTable, curryAddRefPopWithAddLifeTable } from './add-ref-pop'
@@ -13,7 +13,7 @@ import { BaseAddAlgorithm, curryBaseAddAlgorithmFunction } from './add-algorithm
 
 export type BuildFromAssetsFolderFunction = (
     assetsFolderPath: string
-) => Promise<GetSurvivalToTime & GetRisk & AddLifeTableWithAddRefPop & AddRefPopWithAddLifeTable & ToJson & BaseWithData<{}> & BaseAddAlgorithm>;
+) => Promise<GetSurvivalToTime & GetRiskToTime & AddLifeTableWithAddRefPop & AddRefPopWithAddLifeTable & ToJson & BaseWithData<{}> & BaseAddAlgorithm>;
 
 export interface BuildFromAssetsFolder {
     buildFromAssetsFolder: BuildFromAssetsFolderFunction
@@ -75,7 +75,7 @@ export function curryBuildFromAssetsFolder(
 
         return {
             getSurvivalToTime: curryGetSurvivalToTimeFunction(cox),
-            getRisk: curryGetRiskFunction(cox),
+            getRiskToTime: curryGetRiskToTimeFunction(cox),
             addLifeTable: curryAddLifeTableFunctionWithAddRefPop(cox, coxJson),
             addRefPop: curryAddRefPopWithAddLifeTable(cox, coxJson),
             toJson: curryToJsonFunction(coxJson),

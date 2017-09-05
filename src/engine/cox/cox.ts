@@ -56,9 +56,10 @@ export function getSurvivalToTime(
     return oneYearSurvivalProbability * Math.abs((moment().diff(formattedTime, 'years', true)));
 }
 
-export function getRisk(
+export function getRiskToTime(
     cox: Cox,
-    data: Data
+    data: Data,
+    time?: Date | moment.Moment
 ): number {
-    return 1 - getSurvivalToTime(cox, data);
+    return 1 - getSurvivalToTime(cox, data, time);
 }
