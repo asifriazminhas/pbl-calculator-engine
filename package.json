@@ -11,7 +11,8 @@
     "build-umd": "webpack --config ./webpack/umd.config.js",
     "build-ts": "tsc",
     "build-ts:watch": "tsc -w",
-    "prepublish": "webpack --config ./webpack/umd.config.js && tsc",
+    "build": "rm -rf ./lib && rm -rf ./dist && npm run build-ts && npm run build-umd",
+    "prepublish": "npm run build",
     "lifetable-csv-to-json": "node ./lib/scripts/lifetable-csv-to-json.js"
   },
   "repository": {
