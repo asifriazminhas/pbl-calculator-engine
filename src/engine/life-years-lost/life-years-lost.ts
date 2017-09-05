@@ -1,5 +1,5 @@
 import { Data } from '../common/datum';
-import { RefLifeTable } from '../life-expectancy/life-expectancy';
+import { RefLifeTable } from '../common/life-table';
 
 //TODO Implement this
 export function getLifeYearsLost(

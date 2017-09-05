@@ -1,6 +1,6 @@
 import { Data } from '../common/datum';
 import { getLifeYearsLost } from '../life-years-lost/life-years-lost';
-import { RefLifeTable } from '../life-expectancy/life-expectancy';
+import { RefLifeTable } from '../common/life-table';
 
 export type GetLifeYearsLostFunction = (
     data: Data,

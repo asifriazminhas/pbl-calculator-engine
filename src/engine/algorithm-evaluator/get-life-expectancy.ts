@@ -1,5 +1,6 @@
 import { Cox, getSurvivalToTime } from '../cox/cox';
-import { BaseLifeTableRow, getLifeExpectancy } from '../life-expectancy/life-expectancy';
+import { getLifeExpectancy } from '../life-expectancy/life-expectancy';
+import { RefLifeTable } from '../common/life-table';
 import { Data } from '../common/datum';
 import * as moment from 'moment';
 
@@ -9,7 +10,7 @@ export interface GetLifeExpectancy {
 
 export function curryGetLifeExpectancyFunction(
     coxAlgorithm: Cox,
-    baseLifeTable: Array<BaseLifeTableRow>,
+    baseLifeTable: RefLifeTable,
     useExFromLifeTableFromAge: number = 99
 ): (data: Data, time?: Date | moment.Moment) => number {
     return (data, time) => {

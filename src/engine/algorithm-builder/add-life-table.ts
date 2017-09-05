@@ -1,5 +1,5 @@
 import { GetRiskToTime, curryGetRiskToTimeFunction, GetSurvivalToTime, curryGetSurvivalToTimeFunction, GetLifeExpectancy, curryGetLifeExpectancyFunction, GetLifeYearsLost, curryGetLifeYearsLostFunction, GetHealthAge, curryGetHeathAgeFunction } from '../algorithm-evaluator';
-import { RefLifeTable } from '../life-expectancy/life-expectancy';
+import { RefLifeTable } from '../common/life-table';
 import { Cox } from '../cox/cox';
 import { ToJson, curryToJsonFunction } from './to-json';
 import { CoxJson } from '../common/json-types';

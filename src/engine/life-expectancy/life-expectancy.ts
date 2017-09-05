@@ -1,25 +1,4 @@
-export interface BaseLifeTableRow {
-    age: number;
-    ax: number;
-    ex: number;
-}
-
-export type RefLifeTable = Array<BaseLifeTableRow>;
-
-export interface BaseLifeTableWithQxRow extends BaseLifeTableRow {
-    age: number;
-    ax: number;
-    qx: number
-}
-
-export interface LifeTableRow extends BaseLifeTableWithQxRow {
-    lx: number;
-    dx: number;
-    Lx: number;
-    Tx: number;
-}
-
-export type CompleteLifeTable = Array<LifeTableRow>;
+import { RefLifeTable, RefLifeTableRowWithQx, CompleteLifeTable, CompleteLifeTableRow } from '../common/life-table';
 
 export type GetPredictedRiskForAge = (age: number) => number;
 
@@ -30,12 +9,15 @@ export type GetPredictedRiskForAge = (age: number) => number;
  * @param {GetPredictedRiskForAge} getPredictedRiskForAge 
  * @returns {Array<BaseLifeTableWithQxRow>}
  */
-function getBaseLifeTableWithQx(baseLifeTable: Array<BaseLifeTableRow>, getPredictedRiskForAge: GetPredictedRiskForAge): Array<BaseLifeTableWithQxRow> {
-    let baseLifeTableWithQx: Array<BaseLifeTableWithQxRow> = [];
+function getBaseLifeTableWithQx(
+    refLifeTable: RefLifeTable, 
+    getPredictedRiskForAge: GetPredictedRiskForAge
+): Array<RefLifeTableRowWithQx> {
+    let baseLifeTableWithQx: Array<RefLifeTableRowWithQx> = [];
 
-    baseLifeTable.forEach((baseLifeTableRow) => {
-        baseLifeTableWithQx.push(Object.assign({}, baseLifeTableRow, {
-            qx: 1 - getPredictedRiskForAge(baseLifeTableRow.age)
+    refLifeTable.forEach((refLifeTableRow) => {
+        baseLifeTableWithQx.push(Object.assign({}, refLifeTableRow, {
+            qx: 1 - getPredictedRiskForAge(refLifeTableRow.age)
         }))
     });
 
@@ -48,7 +30,9 @@ function getBaseLifeTableWithQx(baseLifeTable: Array<BaseLifeTableRow>, getPredi
  * @param {(LifeTableRow | undefined)} lifeTableRow If undefined then it means the function should return the lx for the first life table row which is by default 100000
  * @returns {number}
  */
-function getlxForLifeTableRow(lifeTableRow: LifeTableRow | undefined): number {
+function getlxForLifeTableRow(
+    lifeTableRow: CompleteLifeTableRow | undefined
+): number {
     if(lifeTableRow === undefined) {
         return 100000;
     }
@@ -87,7 +71,10 @@ function getLx(lx: number, dx: number, ax: number) {
  * @param {(LifeTableRow | undefined)} nextLifeTableRow The next row after the lifeTableRow argument.
  * @returns {number}
  */
-function getTx(lifeTableRow: LifeTableRow, nextLifeTableRow: LifeTableRow | undefined): number {
+function getTx(
+    lifeTableRow: CompleteLifeTableRow, 
+    nextLifeTableRow: CompleteLifeTableRow | undefined
+): number {
     if(nextLifeTableRow === undefined) {
         return lifeTableRow.Lx;
     }
@@ -103,7 +90,10 @@ function getTx(lifeTableRow: LifeTableRow, nextLifeTableRow: LifeTableRow | unde
  * @param {(LifeTableRow | undefined)} nextLifeTableRow The next row after the lifeTableRow argument
  * @returns {number}
  */
-function getex(lifeTableRow: LifeTableRow, nextLifeTableRow: LifeTableRow | undefined): number {
+function getex(
+    lifeTableRow: CompleteLifeTableRow, 
+    nextLifeTableRow: CompleteLifeTableRow | undefined
+): number {
     if(nextLifeTableRow === undefined) {
         return lifeTableRow.ax;
     }
@@ -125,10 +115,10 @@ function getex(lifeTableRow: LifeTableRow, nextLifeTableRow: LifeTableRow | unde
  * @returns {Array<LifeTableRow>}
  */
 function getCompleteLifeTable(
-    baseLifeTableWithQx: Array<BaseLifeTableWithQxRow>,
+    baseLifeTableWithQx: Array<RefLifeTableRowWithQx>,
     useLifeTableForExFromAge: number
-): Array<LifeTableRow> {
-    let lifeTable: Array<LifeTableRow> = [];
+): CompleteLifeTable {
+    let lifeTable: CompleteLifeTable = [];
 
     baseLifeTableWithQx.forEach((baseLifeTableRow, index) => {
         const lx = getlxForLifeTableRow(lifeTable[index - 1]);
@@ -166,7 +156,10 @@ function getCompleteLifeTable(
  * @param {Array<LifeTableRow>} lifeTable
  * @returns {number}
  */
-function getLifeExpectancyForAge(age: number, lifeTable: Array<LifeTableRow>): number {
+function getLifeExpectancyForAge(
+    age: number, 
+    lifeTable: CompleteLifeTable
+): number {
     const lifeTableRowForPassedAge = lifeTable.find((lifeTableRow) => {
         return lifeTableRow.age === age;
     });
@@ -191,7 +184,7 @@ function getLifeExpectancyForAge(age: number, lifeTable: Array<LifeTableRow>): n
 export function getLifeExpectancy(
     age: number,
     getPredictedRiskForAge: GetPredictedRiskForAge,
-    baseLifeTable: Array<BaseLifeTableRow>,
+    baseLifeTable: RefLifeTable,
     useExFromLifeTableFromAge: number
 ): number {
     const baseLifeTableWithQx = getBaseLifeTableWithQx(baseLifeTable, getPredictedRiskForAge);

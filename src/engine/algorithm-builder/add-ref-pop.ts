@@ -4,7 +4,7 @@ import { ToJson, curryToJsonFunction } from './to-json';
 import { ReferencePopulation } from '../health-age/reference-population';
 import { CoxJson } from '../common/json-types';
 import { Cox } from '../cox/cox';
-import { RefLifeTable } from '../life-expectancy/life-expectancy';
+import { RefLifeTable } from '../common/life-table';
 import { WithDataAndGetHealthAge, curryWithDataAndGetHealthAgeFunction, FullWithData, curryFullWithDataFunction } from '../algorithm-evaluator';
 import { AddAlgorithmReturnsGetHealthAge, curryAddAlgorithmReturnsGetHealthAgeFunction, AddAlgorithmWithGetHealthAgeAndLifeTableFunctions,curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions } from './add-algorithm';
 

@@ -6,7 +6,7 @@ import { AddRefPopWithAddLifeTable, curryAddRefPopWithAddLifeTable, AddRefPopWit
 import { ToJson, curryToJsonFunction } from './to-json';
 import { CoxJson } from '../common/json-types';
 import { BaseWithData, curryBaseWithDataFunction, WithDataAndLifeTableFunctions, curryWithDataAndLifeTableFunctionsFunction, WithDataAndGetHealthAge, curryWithDataAndGetHealthAgeFunction, FullWithData, curryFullWithDataFunction } from '../algorithm-evaluator';
-import { RefLifeTable } from '../life-expectancy';
+import { RefLifeTable } from '../common/life-table';
 import { ReferencePopulation } from '../health-age';
 
 export type BaseAddAlgorithmFunction = (
