@@ -1,5 +1,5 @@
 import { Cox } from '../cox';
-import { GetRiskToTime, getGetRiskToTime, curryGetLifeExpectancyFunction, curryGetLifeYearsLostFunction, GetHealthAge, getGetHealthAge, getGetSurvivalToAge, GetSurvivalToTime, getGetSurvivalToTime } from '../algorithm-evaluator';
+import { GetRiskToTime, getGetRiskToTime, getGetLifeExpectancy, curryGetLifeYearsLostFunction, GetHealthAge, getGetHealthAge, getGetSurvivalToAge, GetSurvivalToTime, getGetSurvivalToTime } from '../algorithm-evaluator';
 import { AddLifeTableWithAddRefPop, curryAddLifeTableFunctionWithAddRefPop, AddLifeTableEvaluatorFunctions, AddLifeTableWithGetHealthAge, curryAddLifeTableFunctionWithGetHealthAge } from './add-life-table';
 import { AddRefPopWithAddLifeTable, curryAddRefPopWithAddLifeTable, AddRefPopWithAddLifeTableFunctions, curryAddRefPopWithGetLifeExpectancy } from './add-ref-pop';
 import { ToJson, curryToJsonFunction } from './to-json';
@@ -62,11 +62,8 @@ export function curryAddAlgorithmWithLifeTableFunctionsFunction(
             getGetRiskToTime(cox),
             getGetSurvivalToTime(cox),
             getGetSurvivalToAge(cox, refLifeTable),
+            getGetLifeExpectancy(cox, refLifeTable),
             {
-                getLifeExpectancy: curryGetLifeExpectancyFunction(
-                    cox,
-                    refLifeTable
-                ),
                 getLifeYearsLost: curryGetLifeYearsLostFunction(
                     coxJson.causeDeletedRef,
                     refLifeTable
@@ -138,11 +135,8 @@ export function curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(
             getGetSurvivalToAge(cox, refLifeTable),
             getGetSurvivalToTime(cox),
             getGetHealthAge(refPop),
+            getGetLifeExpectancy(cox, refLifeTable),
             {
-                getLifeExpectancy: curryGetLifeExpectancyFunction(
-                    cox,
-                    refLifeTable
-                ),
                 getLifeYearsLost: curryGetLifeYearsLostFunction(
                     coxJson.causeDeletedRef,
                     refLifeTable

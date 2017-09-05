@@ -2,6 +2,6 @@ export { BaseWithData, curryBaseWithDataFunction, WithDataAndLifeTableFunctions,
 export { GetSurvivalToTime, getGetSurvivalToTime } from './get-survival-to-time';
 export { GetRiskToTime, getGetRiskToTime } from './get-risk-to-time';
 export { GetLifeYearsLost, curryGetLifeYearsLostFunction } from './get-life-years-lost';
-export { GetLifeExpectancy, curryGetLifeExpectancyFunction } from './get-life-expectancy';
+export { GetLifeExpectancy, getGetLifeExpectancy } from './get-life-expectancy';
 export { GetHealthAge, getGetHealthAge } from './get-health-age';
 export { GetSurvivalToAge, getGetSurvivalToAge } from './get-survival-to-age';
