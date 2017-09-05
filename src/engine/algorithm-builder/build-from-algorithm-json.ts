@@ -1,5 +1,4 @@
-import { GetRiskToTime, curryGetRiskToTimeFunction } from './get-risk-to-time';
-import { GetSurvivalToTime, curryGetSurvivalToTimeFunction } from './get-survival-to-time';
+import { GetRiskToTime, curryGetRiskToTimeFunction, GetSurvivalToTime, curryGetSurvivalToTimeFunction } from '../algorithm-evaluator';
 import { AddLifeTableWithAddRefPop, curryAddLifeTableFunctionWithAddRefPop } from './add-life-table';
 import { AddRefPopWithAddLifeTable, curryAddRefPopWithAddLifeTable} from './add-ref-pop';
 import { CoxJson } from '../common/json-types';

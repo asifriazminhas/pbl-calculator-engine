@@ -1,13 +1,9 @@
-import { GetRiskToTime, curryGetRiskToTimeFunction } from './get-risk-to-time';
-import { GetSurvivalToTime, curryGetSurvivalToTimeFunction } from './get-survival-to-time';
-import { GetLifeExpectancy, curryGetLifeExpectancyFunction } from './get-life-expectancy';
-import { GetLifeYearsLost, curryGetLifeYearsLostFunction } from './get-life-years-lost';
+import { GetRiskToTime, curryGetRiskToTimeFunction, GetSurvivalToTime, curryGetSurvivalToTimeFunction, GetLifeExpectancy, curryGetLifeExpectancyFunction, GetLifeYearsLost, curryGetLifeYearsLostFunction, GetHealthAge, curryGetHeathAgeFunction } from '../algorithm-evaluator';
 import { RefLifeTable } from '../life-expectancy/life-expectancy';
 import { Cox } from '../cox/cox';
 import { ToJson, curryToJsonFunction } from './to-json';
 import { CoxJson } from '../common/json-types';
 import { AddRefPopWithAddLifeTableFunctions, curryAddRefPopWithGetLifeExpectancy } from './add-ref-pop';
-import { GetHealthAge, curryGetHeathAgeFunction } from './get-health-age';
 import { ReferencePopulation } from '../health-age/reference-population';
 import { WithDataAndLifeTableFunctions, curryWithDataAndLifeTableFunctionsFunction, FullWithData, curryFullWithDataFunction } from '../algorithm-evaluator';
 import { AddAlgorithmWithLifeTableFunctions, curryAddAlgorithmWithLifeTableFunctionsFunction, AddAlgorithmWithGetHealthAgeAndLifeTableFunctions, curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions } from './add-algorithm';

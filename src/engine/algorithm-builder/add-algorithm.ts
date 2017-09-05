@@ -1,15 +1,12 @@
 import { Cox } from '../cox';
-import { GetSurvivalToTime, curryGetSurvivalToTimeFunction } from './get-survival-to-time';
-import { GetRiskToTime, curryGetRiskToTimeFunction } from './get-risk-to-time';
+import { GetSurvivalToTime, curryGetSurvivalToTimeFunction } from '../algorithm-evaluator/get-survival-to-time';
+import { GetRiskToTime, curryGetRiskToTimeFunction, curryGetLifeExpectancyFunction, curryGetLifeYearsLostFunction, GetHealthAge, curryGetHeathAgeFunction } from '../algorithm-evaluator';
 import { AddLifeTableWithAddRefPop, curryAddLifeTableFunctionWithAddRefPop, AddLifeTableEvaluatorFunctions, AddLifeTableWithGetHealthAge, curryAddLifeTableFunctionWithGetHealthAge } from './add-life-table';
-import { curryGetLifeExpectancyFunction } from './get-life-expectancy';
-import { curryGetLifeYearsLostFunction } from './get-life-years-lost';
 import { AddRefPopWithAddLifeTable, curryAddRefPopWithAddLifeTable, AddRefPopWithAddLifeTableFunctions, curryAddRefPopWithGetLifeExpectancy } from './add-ref-pop';
 import { ToJson, curryToJsonFunction } from './to-json';
 import { CoxJson } from '../common/json-types';
 import { BaseWithData, curryBaseWithDataFunction, WithDataAndLifeTableFunctions, curryWithDataAndLifeTableFunctionsFunction, WithDataAndGetHealthAge, curryWithDataAndGetHealthAgeFunction, FullWithData, curryFullWithDataFunction } from '../algorithm-evaluator';
 import { RefLifeTable } from '../life-expectancy';
-import { GetHealthAge, curryGetHeathAgeFunction } from './get-health-age';
 import { ReferencePopulation } from '../health-age';
 
 export type BaseAddAlgorithmFunction = (
