@@ -4,3 +4,4 @@ export { GetRiskToTime, curryGetRiskToTimeFunction } from './get-risk-to-time';
 export { GetLifeYearsLost, curryGetLifeYearsLostFunction } from './get-life-years-lost';
 export { GetLifeExpectancy, curryGetLifeExpectancyFunction } from './get-life-expectancy';
 export { GetHealthAge, curryGetHeathAgeFunction } from './get-health-age';
+export { GetSurvivalToAge, addGetSurvivalToAge } from './get-survival-to-age';
