@@ -6,7 +6,7 @@ import { transformPhiatDictionaryToPmml } from '../pmml-transformers/web-specifi
 import { limesurveyTxtStringToPmmlString } from '../pmml-transformers/limesurvey';
 import { parseCoxJsonToCox } from '../json-parser/cox';
 import { pmmlXmlStringsToJson } from '../pmml-to-json-parser/pmml';
-import { ToJson, curryToJsonFunction } from './to-json';
+import { ToJson, getToJson } from './to-json';
 import { BaseWithData, curryBaseWithDataFunction } from '../algorithm-evaluator';
 import { BaseAddAlgorithm, curryBaseAddAlgorithmFunction } from './add-algorithm';
 
@@ -76,10 +76,10 @@ export function curryBuildFromAssetsFolder(
             {},
             getGetRiskToTime(cox),
             getGetSurvivalToTime(cox),
+            getToJson(coxJson),
             {
                 addLifeTable: curryAddLifeTableFunctionWithAddRefPop(cox, coxJson),
                 addRefPop: curryAddRefPopWithAddLifeTable(cox, coxJson),
-                toJson: curryToJsonFunction(coxJson),
                 withData: curryBaseWithDataFunction({}),
                 addAlgorithm: curryBaseAddAlgorithmFunction(cox, coxJson)
             }

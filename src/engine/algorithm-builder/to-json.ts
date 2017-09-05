@@ -4,11 +4,11 @@ export interface ToJson {
     toJson: () => CoxJson;
 }
 
-export function curryToJsonFunction(
-    coxJson: CoxJson
-): () => CoxJson {
-    return () => {
-        return coxJson;
+export function getToJson(coxJson: CoxJson): ToJson {
+    return {
+        toJson: () => {
+            return coxJson;
+        }
     }
 }
 

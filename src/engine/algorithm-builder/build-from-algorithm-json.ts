@@ -3,7 +3,7 @@ import { AddLifeTableWithAddRefPop, curryAddLifeTableFunctionWithAddRefPop } fro
 import { AddRefPopWithAddLifeTable, curryAddRefPopWithAddLifeTable} from './add-ref-pop';
 import { CoxJson } from '../common/json-types';
 import { parseCoxJsonToCox } from '../json-parser/cox';
-import { ToJson, curryToJsonFunction } from './to-json';
+import { ToJson, getToJson } from './to-json';
 import { BaseWithData, curryBaseWithDataFunction } from '../algorithm-evaluator';
 import { BaseAddAlgorithm, curryBaseAddAlgorithmFunction } from './add-algorithm';
 
@@ -25,6 +25,7 @@ export function curryBuildFromAlgorithmJsonFunction(
             {},
             getGetRiskToTime(cox),
             getGetSurvivalToTime(cox), 
+            getToJson(algorithmJson),
             {
                 addLifeTable: curryAddLifeTableFunctionWithAddRefPop(
                     cox,
@@ -35,7 +36,6 @@ export function curryBuildFromAlgorithmJsonFunction(
                     algorithmJson
                 ),
                 withData: curryBaseWithDataFunction({}),
-                toJson: curryToJsonFunction(algorithmJson),
                 addAlgorithm: curryBaseAddAlgorithmFunction(
                     cox,
                     algorithmJson
