@@ -1,6 +1,6 @@
 import { GetRiskToTime, getGetRiskToTime, GetSurvivalToTime, getGetSurvivalToTime } from '../algorithm-evaluator';
 import { AddLifeTableWithAddRefPop, getAddLifeTableWithAddRefPop } from './add-life-table';
-import { AddRefPopWithAddLifeTable, curryAddRefPopWithAddLifeTable } from './add-ref-pop'
+import { AddRefPopWithAddLifeTable, getAddRefPopWithAddLifeTable } from './add-ref-pop'
 import * as fs from 'fs';
 import { transformPhiatDictionaryToPmml } from '../pmml-transformers/web-specifications';
 import { limesurveyTxtStringToPmmlString } from '../pmml-transformers/limesurvey';
@@ -77,9 +77,9 @@ export function curryBuildFromAssetsFolder(
             getGetRiskToTime(cox),
             getGetSurvivalToTime(cox),
             getToJson(coxJson),
+            getAddRefPopWithAddLifeTable(cox, coxJson),
             getAddLifeTableWithAddRefPop(cox, coxJson),
             {
-                addRefPop: curryAddRefPopWithAddLifeTable(cox, coxJson),
                 withData: curryBaseWithDataFunction({}),
                 addAlgorithm: curryBaseAddAlgorithmFunction(cox, coxJson)
             }

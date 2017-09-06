@@ -3,7 +3,7 @@ import { RefLifeTable } from '../common/life-table';
 import { Cox } from '../cox/cox';
 import { ToJson, getToJson } from './to-json';
 import { CoxJson } from '../common/json-types';
-import { AddRefPopWithAddLifeTableFunctions, curryAddRefPopWithGetLifeExpectancy } from './add-ref-pop';
+import { AddRefPopWithAddLifeTableFunctions, getAddRefPopWithAddLifeTableFunctions } from './add-ref-pop';
 import { ReferencePopulation } from '../health-age/reference-population';
 import { WithDataAndLifeTableFunctions, curryWithDataAndLifeTableFunctionsFunction, FullWithData, curryFullWithDataFunction } from '../algorithm-evaluator';
 import { AddAlgorithmWithLifeTableFunctions, curryAddAlgorithmWithLifeTableFunctionsFunction, AddAlgorithmWithGetHealthAgeAndLifeTableFunctions, curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions } from './add-algorithm';
@@ -33,13 +33,9 @@ export function getAddLifeTableWithAddRefPop(
                 getGetLifeExpectancy(cox, lifeTable),
                 getGetLifeYearsLost(coxJson.causeDeletedRef, lifeTable),
                 getToJson(coxJson),
+                getAddRefPopWithAddLifeTableFunctions(cox, coxJson, lifeTable),
                 {
                     withData: curryWithDataAndLifeTableFunctionsFunction({}),
-                    addRefPop: curryAddRefPopWithGetLifeExpectancy(
-                        cox,
-                        coxJson,
-                        lifeTable
-                    ),
                     addAlgorithm: curryAddAlgorithmWithLifeTableFunctionsFunction(
                         cox,
                         lifeTable,

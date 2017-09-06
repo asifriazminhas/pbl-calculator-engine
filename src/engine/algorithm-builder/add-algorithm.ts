@@ -1,7 +1,7 @@
 import { Cox } from '../cox';
 import { GetRiskToTime, getGetRiskToTime, getGetLifeExpectancy, getGetLifeYearsLost, GetHealthAge, getGetHealthAge, getGetSurvivalToAge, GetSurvivalToTime, getGetSurvivalToTime } from '../algorithm-evaluator';
 import { AddLifeTableWithAddRefPop, getAddLifeTableWithAddRefPop, AddLifeTableEvaluatorFunctions, AddLifeTableWithGetHealthAge, getAddLifeTableWithGetHealthAge } from './add-life-table';
-import { AddRefPopWithAddLifeTable, curryAddRefPopWithAddLifeTable, AddRefPopWithAddLifeTableFunctions, curryAddRefPopWithGetLifeExpectancy } from './add-ref-pop';
+import { AddRefPopWithAddLifeTable, getAddRefPopWithAddLifeTable, AddRefPopWithAddLifeTableFunctions, getAddRefPopWithAddLifeTableFunctions } from './add-ref-pop';
 import { ToJson, getToJson } from './to-json';
 import { CoxJson } from '../common/json-types';
 import { BaseWithData, curryBaseWithDataFunction, WithDataAndLifeTableFunctions, curryWithDataAndLifeTableFunctionsFunction, WithDataAndGetHealthAge, curryWithDataAndGetHealthAgeFunction, FullWithData, curryFullWithDataFunction } from '../algorithm-evaluator';
@@ -26,11 +26,8 @@ export function curryBaseAddAlgorithmFunction(
             getGetSurvivalToTime(cox),
             getToJson(coxJson),
             getAddLifeTableWithAddRefPop(cox, coxJson),
+            getAddRefPopWithAddLifeTable(cox, coxJson),
             {
-                addRefPop: curryAddRefPopWithAddLifeTable(
-                    cox,
-                    coxJson
-                ),
                 withData: curryBaseWithDataFunction(
                     {}
                 )
@@ -60,12 +57,8 @@ export function curryAddAlgorithmWithLifeTableFunctionsFunction(
             getGetLifeExpectancy(cox, refLifeTable),
             getGetLifeYearsLost(coxJson.causeDeletedRef, refLifeTable),
             getToJson(coxJson),
+            getAddRefPopWithAddLifeTableFunctions(cox, coxJson, refLifeTable),
             {
-                addRefPop: curryAddRefPopWithGetLifeExpectancy(
-                    cox,
-                    coxJson,
-                    refLifeTable
-                ),
                 withData: curryWithDataAndLifeTableFunctionsFunction(
                     {}
                 )
