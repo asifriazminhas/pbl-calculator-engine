@@ -1,0 +1,2 @@
+export { GetLifeExpectancy, GetLifeExpectancyResult, getGetLifeExpectancy } from './get-life-expectancy';
+export { GetLifeYearsLost , GetLifeYearsLostResult, getGetLifeYearsLost } from './get-life-years-lost';

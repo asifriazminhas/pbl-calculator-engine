@@ -4,13 +4,13 @@ import { AddLifeTableWithAddRefPop, getAddLifeTableWithAddRefPop, AddLifeTableEv
 import { AddRefPopWithAddLifeTable, getAddRefPopWithAddLifeTable, AddRefPopWithAddLifeTableFunctions, getAddRefPopWithAddLifeTableFunctions } from './add-ref-pop';
 import { ToJson, getToJson } from './to-json';
 import { CoxJson } from '../common/json-types';
-import { BaseWithData, curryBaseWithDataFunction, WithDataAndLifeTableFunctions, curryWithDataAndLifeTableFunctionsFunction, WithDataAndGetHealthAge, curryWithDataAndGetHealthAgeFunction, FullWithData, curryFullWithDataFunction } from '../algorithm-evaluator';
+import { WithDataAndCoxFunctions, getWithDataAndCoxFunctions, WithDataAndCoxFunctionsAndLifeTableFunctions, getWithDataAndCoxFunctionsAndLifeTableFunctions, WithDataAndCoxFunctionsAndAddRefPopFunctions, getWithDataAndCoxFunctionsAndAddRefPopFunctions, CompleteWithData, getCompleteWithData } from '../algorithm-evaluator';
 import { RefLifeTable } from '../common/life-table';
 import { ReferencePopulation } from '../health-age';
 
 export type BaseAddAlgorithmFunction = (
     addedCox: Cox
-) => GetSurvivalToTime & GetRiskToTime & AddLifeTableWithAddRefPop & AddRefPopWithAddLifeTable & ToJson & BaseWithData<{}>;
+) => GetSurvivalToTime & GetRiskToTime & AddLifeTableWithAddRefPop & AddRefPopWithAddLifeTable & ToJson & WithDataAndCoxFunctions<{}>;
 export interface BaseAddAlgorithm {
     addAlgorithm: BaseAddAlgorithmFunction
 }
@@ -27,18 +27,14 @@ export function curryBaseAddAlgorithmFunction(
             getToJson(coxJson),
             getAddLifeTableWithAddRefPop(cox, coxJson),
             getAddRefPopWithAddLifeTable(cox, coxJson),
-            {
-                withData: curryBaseWithDataFunction(
-                    {}
-                )
-            }
+            getWithDataAndCoxFunctions({}),
         );
     }
 }
 
 export type AddAlgorithmReturnsLifeTableFunctionsFunction = (
     addedCox: Cox
-) => GetSurvivalToTime & GetRiskToTime & AddLifeTableEvaluatorFunctions & AddRefPopWithAddLifeTableFunctions & ToJson & WithDataAndLifeTableFunctions<{}>;
+) => GetSurvivalToTime & GetRiskToTime & AddLifeTableEvaluatorFunctions & AddRefPopWithAddLifeTableFunctions & ToJson & WithDataAndCoxFunctionsAndLifeTableFunctions<{}>;
 export interface AddAlgorithmWithLifeTableFunctions {
     addAlgorithm: AddAlgorithmReturnsLifeTableFunctionsFunction;
 }
@@ -58,18 +54,14 @@ export function curryAddAlgorithmWithLifeTableFunctionsFunction(
             getGetLifeYearsLost(coxJson.causeDeletedRef, refLifeTable),
             getToJson(coxJson),
             getAddRefPopWithAddLifeTableFunctions(cox, coxJson, refLifeTable),
-            {
-                withData: curryWithDataAndLifeTableFunctionsFunction(
-                    {}
-                )
-            }
+            getWithDataAndCoxFunctionsAndLifeTableFunctions({})
         )
     }
 }
 
 export type AddAlgorithmReturnsGetHealthAgeFunction = (
     addedCox: Cox
-) => GetSurvivalToTime & GetRiskToTime & AddLifeTableWithGetHealthAge & GetHealthAge & WithDataAndGetHealthAge<{}>;
+) => GetSurvivalToTime & GetRiskToTime & AddLifeTableWithGetHealthAge & GetHealthAge & WithDataAndCoxFunctionsAndAddRefPopFunctions<{}>;
 export interface AddAlgorithmReturnsGetHealthAge {
     addAlgorithm: AddAlgorithmReturnsGetHealthAgeFunction;
 }
@@ -88,16 +80,14 @@ export function curryAddAlgorithmReturnsGetHealthAgeFunction(
             getGetHealthAge(refPop),
             getToJson(coxJson),
             getAddLifeTableWithGetHealthAge(cox, coxJson, refPop),
-            {
-                withData: curryWithDataAndGetHealthAgeFunction({})
-            }
+            getWithDataAndCoxFunctionsAndAddRefPopFunctions({})
         );
     }
 }
 
 export type AddAlgorithmWithGetHealthAgeAndLifeTableFunctionsFunction = (
     addedCox: Cox
-) => GetSurvivalToTime & GetRiskToTime & GetHealthAge & AddLifeTableEvaluatorFunctions & FullWithData<{}> & ToJson;
+) => GetSurvivalToTime & GetRiskToTime & GetHealthAge & AddLifeTableEvaluatorFunctions & CompleteWithData<{}> & ToJson;
 export interface AddAlgorithmWithGetHealthAgeAndLifeTableFunctions {
     addAlgorithm: AddAlgorithmWithGetHealthAgeAndLifeTableFunctionsFunction;
 }
@@ -117,9 +107,7 @@ export function curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(
             getGetLifeExpectancy(cox, refLifeTable),
             getGetLifeYearsLost(coxJson.causeDeletedRef, refLifeTable),
             getToJson(coxJson),
-            {
-                withData: curryFullWithDataFunction({})
-            }
+            getCompleteWithData({})
         )
     }
 }

@@ -1,167 +1,158 @@
-import { GetSurvivalToTimeReturnsBaseWithDataFunction, curryGetSurvivalToTimeReturnsBaseWithDataFunction,  GetSurvivalToTimeReturnsWithDataAndGetHealthAge, curryGetSurvivalToTimeReturnsWithDataAndGetHealthAge, GetSurvivalToTimeReturnsWithDataAndLifeTableFunctionsFunction, curryGetSurvivalToTimeReturnsWithDataAndGetLifeExpectancy, GetSurvivalToTimeReturnsFullWithData, curryGetSurvivalToTimeReturnsFullWithData } from './get-survival-to-time';
-import { GetRiskToTimeReturnsBaseWithDataFunction, curryGetRiskToTimeReturnsBaseWithDataFunction, GetRiskToTimeReturnsWithDataAndGetHealthAge, curryGetRiskToTimeReturnsWithDataAndGetHealthAge, GeRiskToTimeReturnsWithDataAndGetLifeExpectancy, curryGetRiskToTimeReturnsWithDataAndGetLifeExpectancy, GetRiskToTimeReturnsFullWithData, curryGetRiskToTimeReturnsFullWithData } from './get-risk-to-time';
-import { GetLifeExpectancyReturnsFullWithDataFunction, curryGetLifeExpectancyReturnsFullWithDataFunction, GetLifeExpectancyReturnsWithDataAndLifeTableFunctions, curryGetLifeExpectancyReturnsWithDataAndLifeTableFunctions } from './get-life-expectancy';
-import { GetHealthAgeReturnsWithDataAndGetHealthAgeFunction, curryGetHealthAgeReturnsWithDataAndGetHealthAgeFunction, GetHealthAgeReturnsFullWithDataFunction, curryGetHealthAgeReturnsFullWithDataFunction } from './get-health-age';
-import { GetLifeYearsLostReturnsWithDataAndLifeTableFunctionsFunction, curryGetLifeYearsLostReturnsWithDataAndLifeTableFunction, GetLifeYearsLostReturnsFullWithData, curryGetLifeYearsLostReturnsFullWithDataFunction } from './get-life-years-lost';
-import { Data } from '../../common/datum';
+import { End, getEnd } from './end';
+import { GetSurvivalToTime, GetSurvivalToTimeResult, getGetSurvivalToTime, GetRiskToTime, GetRiskToTimeResult, getGetRiskToTime } from './cox-functions';
+import { GetLifeExpectancy, GetLifeExpectancyResult, getGetLifeExpectancy, GetLifeYearsLost, GetLifeYearsLostResult, getGetLifeYearsLost } from './life-table-functions';
+import { GetHealthAge, GetHealthAgeResult, getGetHealthAge } from './add-ref-pop-functions';
 
-export interface BaseWithDataFunctionReturn<T extends object> {
-    end: () => T;
-    getSurvivalToTime: GetSurvivalToTimeReturnsBaseWithDataFunction<T>;
-    getRiskToTime: GetRiskToTimeReturnsBaseWithDataFunction<T>
+export interface BaseWithDataResult<T extends object> extends End<T> {
+
 }
-export function getBaseWithDataFunctionReturn<T extends object>(
+export function getBaseWithDataResult<T extends object>(
     currentResult: T
-): BaseWithDataFunctionReturn<T> {
-    return {
-        getSurvivalToTime: curryGetSurvivalToTimeReturnsBaseWithDataFunction(
-            currentResult
-        ),
-        getRiskToTime: curryGetRiskToTimeReturnsBaseWithDataFunction(
-            currentResult
-        ),
-        end: () => {
-            return currentResult;
-        }
-    }
-}
-export type BaseWithDataFunction<T extends object> = (
-    data: Data
-) => BaseWithDataFunctionReturn<T>
-export interface BaseWithData<T extends object> {
-    withData: BaseWithDataFunction<T>;
-}
-export function curryBaseWithDataFunction<T extends object>(
-    currentResult: T
-): BaseWithDataFunction<T> {
-    return () => {
-        return getBaseWithDataFunctionReturn(currentResult);
-    }
+): BaseWithDataResult<T> {
+    return Object.assign({}, getEnd(currentResult));
 }
 
-export interface WithDataAndLifeTableFunctionsFunctionReturn<T extends object> {
-    getSurvivalToTime: GetSurvivalToTimeReturnsWithDataAndLifeTableFunctionsFunction<T>;
-    getRiskToTime: GeRiskToTimeReturnsWithDataAndGetLifeExpectancy<T>;
-    getLifeExpectancy: GetLifeExpectancyReturnsWithDataAndLifeTableFunctions<T>;
-    getLifeYearsLost: GetLifeYearsLostReturnsWithDataAndLifeTableFunctionsFunction<T>;
-    end: () => T;
+export interface WithDataAndCoxFunctionsResult<T extends object> extends BaseWithDataResult<T>, GetSurvivalToTime<T, WithDataAndCoxFunctionsResult<T & GetSurvivalToTimeResult>>, GetRiskToTime<T, WithDataAndCoxFunctionsResult<T & GetRiskToTimeResult>> {
+
 }
-export function getWithDataAndLifeTableFunctionsFunctionReturn<T extends object>(
+export interface WithDataAndCoxFunctions<T extends object> {
+    withData: () => WithDataAndCoxFunctionsResult<T>;
+}
+export function getWithDataAndCoxFunctionsResult<
+    T extends object
+>(
     currentResult: T
-): WithDataAndLifeTableFunctionsFunctionReturn<T> {
+): WithDataAndCoxFunctionsResult<T> {
+    const getNextObjectInChain = (nextResult: any) => {
+        return getWithDataAndCoxFunctionsResult(nextResult);
+    }
+
+    return Object.assign(
+        {},
+        getGetSurvivalToTime(currentResult, getNextObjectInChain),
+        getGetRiskToTime(currentResult, getNextObjectInChain),
+        getBaseWithDataResult(currentResult)
+    )
+}
+export function getWithDataAndCoxFunctions<T extends object>(
+    currentResult: T
+): WithDataAndCoxFunctions<T> {
     return {
-        getSurvivalToTime: curryGetSurvivalToTimeReturnsWithDataAndGetLifeExpectancy(
-            currentResult
-        ),
-        getRiskToTime: curryGetRiskToTimeReturnsWithDataAndGetLifeExpectancy(
-            currentResult
-        ),
-        getLifeExpectancy: curryGetLifeExpectancyReturnsWithDataAndLifeTableFunctions(
-            currentResult
-        ),
-        getLifeYearsLost: curryGetLifeYearsLostReturnsWithDataAndLifeTableFunction(
-            currentResult
-        ),
-        end: () => {
-            return currentResult;
+        withData: () => {
+            return getWithDataAndCoxFunctionsResult(currentResult);
         }
     }
 }
 
-export type WithDataAndLifeTableFunctionsFunction<T extends object> = (
-    data: Data
-) => WithDataAndLifeTableFunctionsFunctionReturn<T>;
-export interface WithDataAndLifeTableFunctions<T extends object> { 
-    withData: WithDataAndLifeTableFunctionsFunction<T>
+export interface WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T extends object> extends BaseWithDataResult<T>, GetSurvivalToTime<T, WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T & GetSurvivalToTimeResult>>, GetRiskToTime<T, WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T & GetRiskToTimeResult>>, GetLifeExpectancy<T, WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T & GetLifeExpectancyResult>>, GetLifeYearsLost<T, WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T & GetLifeYearsLostResult>> {
+
 }
-export function curryWithDataAndLifeTableFunctionsFunction<T extends object>(
+export interface WithDataAndCoxFunctionsAndLifeTableFunctions<T extends object> {
+    withData: () => WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T>
+}
+export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
+    T extends object
+>(
     currentResult: T
-): WithDataAndLifeTableFunctionsFunction<T> {
-    return () => {
-        return getWithDataAndLifeTableFunctionsFunctionReturn(currentResult);
+): WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T> {
+    const getNextObjectInChain = (nextResult: any) => {
+        return getWithDataAndCoxFunctionsAndLifeTableFunctionsResult(
+            nextResult
+        )
     }
+
+    return Object.assign(
+        getGetSurvivalToTime(currentResult, getNextObjectInChain),
+        getGetRiskToTime(currentResult, getNextObjectInChain),
+        getGetLifeExpectancy(currentResult, getNextObjectInChain),
+        getGetLifeYearsLost(currentResult, getNextObjectInChain),
+        getBaseWithDataResult(currentResult),
+    );
+}
+export function getWithDataAndCoxFunctionsAndLifeTableFunctions<
+    T extends object
+>(
+    currentResult: T
+): WithDataAndCoxFunctionsAndLifeTableFunctions<T> {
+    return {
+        withData: () => {
+            return getWithDataAndCoxFunctionsAndLifeTableFunctionsResult(
+                currentResult
+            );
+        }
+    };
 }
 
-export interface WithDataAndGetHealthAgeFunctionReturn<T extends object> {
-    getSurvivalToTime: GetSurvivalToTimeReturnsWithDataAndGetHealthAge<T>;
-    getRiskToTime: GetRiskToTimeReturnsWithDataAndGetHealthAge<T>;
-    getHealthAge: GetHealthAgeReturnsWithDataAndGetHealthAgeFunction<T>;
-    end: () => T
+export interface WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T extends object> extends BaseWithDataResult<T>, GetSurvivalToTime<T, WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T & GetSurvivalToTimeResult>>, GetRiskToTime<T, WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T & GetRiskToTimeResult>>, GetHealthAge<T, WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T & GetHealthAgeResult>> {
+
 }
-export function getWithDataAndGetHealthAgeFunctionReturn<T extends object>(
+export interface WithDataAndCoxFunctionsAndAddRefPopFunctions<T extends object> {
+    withData: () => WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T>;
+}
+export function getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult<
+    T extends object
+>(
     currentResult: T
-): WithDataAndGetHealthAgeFunctionReturn<T> {
-    return {
-        getSurvivalToTime: curryGetSurvivalToTimeReturnsWithDataAndGetHealthAge(
-            currentResult
-        ),
-        getRiskToTime: curryGetRiskToTimeReturnsWithDataAndGetHealthAge(
-            currentResult
-        ),
-        getHealthAge: curryGetHealthAgeReturnsWithDataAndGetHealthAgeFunction(
-            currentResult
-        ),
-        end: () => {
-            return currentResult;
-        }
+): WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T> {
+    const getNextObjectInChain = (nextResult: any) => {
+        return getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult(nextResult)
     }
-}
-export type WithDataAndGetHealthAgeFunction<T extends object> = (
-    data: Data
-) => WithDataAndGetHealthAgeFunctionReturn<T>;   
-export interface WithDataAndGetHealthAge<T extends object> { 
-    withData: WithDataAndGetHealthAgeFunction<T>
-}
-export function curryWithDataAndGetHealthAgeFunction<T extends object>(
-    currentResult: T
-): WithDataAndGetHealthAgeFunction<T> {
-    return () => {
-        return getWithDataAndGetHealthAgeFunctionReturn(currentResult);
-    }
+
+    return Object.assign(
+        getGetSurvivalToTime(currentResult, getNextObjectInChain),
+        getGetRiskToTime(currentResult, getNextObjectInChain),
+        getGetHealthAge(currentResult, getNextObjectInChain),
+        getBaseWithDataResult(currentResult)
+    );
 }
 
-export interface FullWithDataFunctionReturn<T extends object> {
-    getSurvivalToTime: GetSurvivalToTimeReturnsFullWithData<T>;
-    getRiskToTime: GetRiskToTimeReturnsFullWithData<T>;
-    getLifeExpectancy: GetLifeExpectancyReturnsFullWithDataFunction<T>;
-    getHealthAge: GetHealthAgeReturnsFullWithDataFunction<T>;
-    getLifeYearsLost: GetLifeYearsLostReturnsFullWithData<T>;
-    end: () => T;
-}
-export function getFullWithDataFunctionReturn<T extends object>(
+export function getWithDataAndCoxFunctionsAndAddRefPopFunctions<
+    T extends object
+>(
     currentResult: T
-): FullWithDataFunctionReturn<T> {
+): WithDataAndCoxFunctionsAndAddRefPopFunctions<T> {
     return {
-        getSurvivalToTime: curryGetSurvivalToTimeReturnsFullWithData(
-            currentResult
-        ),
-        getRiskToTime: curryGetRiskToTimeReturnsFullWithData(
-            currentResult
-        ),
-        getLifeExpectancy: curryGetLifeExpectancyReturnsFullWithDataFunction(
-            currentResult
-        ),
-        getLifeYearsLost: curryGetLifeYearsLostReturnsFullWithDataFunction(
-            currentResult
-        ),
-        getHealthAge: curryGetHealthAgeReturnsFullWithDataFunction(
-            currentResult
-        ),
-        end: () => {
-            return currentResult;
+        withData: () => {
+            return getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult(
+                currentResult
+            )
         }
     }
+} 
+
+export interface CompleteWithDataResult<T extends object> extends BaseWithDataResult<T>, GetSurvivalToTime<T, CompleteWithDataResult<T & GetSurvivalToTimeResult>>, GetRiskToTime<T, CompleteWithDataResult<T & GetRiskToTimeResult>>, GetLifeExpectancy<T, CompleteWithDataResult<T & GetLifeExpectancyResult>>, GetLifeYearsLost<T, CompleteWithDataResult<T & GetLifeYearsLostResult>> , GetHealthAge<T, CompleteWithDataResult<T & GetHealthAgeResult>> {
+
 }
-export type FullWithDataFunction<T extends object> = (
-    data: Data
-) => FullWithDataFunctionReturn<T>;
-export interface FullWithData<T extends object>{ 
-    withData: FullWithDataFunction<T>
-}
-export function curryFullWithDataFunction<T extends object>(
+
+export function getCompleteWithDataResult<
+    T extends object
+>(
     currentResult: T
-): FullWithDataFunction<T> {
-    return () => {
-        return getFullWithDataFunctionReturn(currentResult);
+): CompleteWithDataResult<T> {
+    const getNextObjectInChain = (nextResult: any) => {
+        return getCompleteWithDataResult(nextResult);
+    }
+
+    return Object.assign(
+        getGetSurvivalToTime(currentResult, getNextObjectInChain),
+        getGetRiskToTime(currentResult, getNextObjectInChain),
+        getGetLifeExpectancy(currentResult, getNextObjectInChain),
+        getGetLifeYearsLost(currentResult, getNextObjectInChain),
+        getGetHealthAge(currentResult, getNextObjectInChain),
+        getBaseWithDataResult(currentResult)
+    )
+}
+export interface CompleteWithData<T extends object> {
+        withData: () => CompleteWithDataResult<T>
+}
+export function getCompleteWithData<
+    T extends object
+>(
+    currentResult: T
+): CompleteWithData<T> {
+    return {
+        withData: () => {
+            return getCompleteWithDataResult(currentResult);
+        }
     }
 }

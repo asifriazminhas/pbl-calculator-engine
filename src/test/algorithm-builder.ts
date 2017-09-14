@@ -11,7 +11,7 @@ async function test() {
     
     const result = algorithm
         .addAlgorithm({} as any)
-        .withData([])
+        .withData()
         .getRiskToTime()
         .getSurvivalToTime()
         .end();
@@ -22,11 +22,11 @@ async function test() {
         .addLifeTable([])
         .addAlgorithm({} as any);
     const resultTwo = algorithmWithLifeTable
-        .withData([])
+        .withData()
         .getRiskToTime()
         .getSurvivalToTime()
         .getLifeExpectancy()
-        .getLifeYearsLost('Smoking')
+        .getLifeYearsLost()
         .end();
     resultTwo
 
@@ -34,7 +34,7 @@ async function test() {
         .addRefPop([])
         .addAlgorithm({} as any);
     const resultThree = algorithmWithLifeTableAndRefPop
-        .withData([])
+        .withData()
         .getHealthAge();
     resultThree;
     

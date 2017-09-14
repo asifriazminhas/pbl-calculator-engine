@@ -1,4 +1,4 @@
-export { BaseWithData, curryBaseWithDataFunction, WithDataAndLifeTableFunctions,curryWithDataAndLifeTableFunctionsFunction, FullWithData, curryFullWithDataFunction, WithDataAndGetHealthAge, curryWithDataAndGetHealthAgeFunction } from './with-data/with-data';
+export { getWithDataAndCoxFunctions, WithDataAndCoxFunctions, getWithDataAndCoxFunctionsAndLifeTableFunctions, WithDataAndCoxFunctionsAndLifeTableFunctions, getWithDataAndCoxFunctionsAndAddRefPopFunctions, WithDataAndCoxFunctionsAndAddRefPopFunctions, getCompleteWithData, CompleteWithData } from './with-data';
 export { GetSurvivalToTime, getGetSurvivalToTime } from './get-survival-to-time';
 export { GetRiskToTime, getGetRiskToTime } from './get-risk-to-time';
 export { GetLifeYearsLost, getGetLifeYearsLost } from './get-life-years-lost';
