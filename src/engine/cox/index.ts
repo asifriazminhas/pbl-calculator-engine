@@ -1,1 +1,1 @@
-export { Cox, getSurvivalToTime } from './cox';
+export { Cox, getSurvivalToTime, getRiskToTime } from './cox';

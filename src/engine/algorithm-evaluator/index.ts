@@ -5,3 +5,4 @@ export { GetLifeYearsLost, getGetLifeYearsLost } from './get-life-years-lost';
 export { GetLifeExpectancy, getGetLifeExpectancy } from './get-life-expectancy';
 export { GetHealthAge, getGetHealthAge } from './get-health-age';
 export { GetSurvivalToAge, getGetSurvivalToAge } from './get-survival-to-age';
+export { WithCauseImpactWithCoxFunctions, getWithCauseImpactWithCoxFunctions, WithCauseImpactWithCoxFunctionsAndLifeExpectancyFunction, getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions } from './with-cause-impact';

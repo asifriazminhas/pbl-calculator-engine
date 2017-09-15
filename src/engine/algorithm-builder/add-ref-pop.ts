@@ -1,4 +1,4 @@
-import { GetSurvivalToTime, getGetSurvivalToTime, GetRiskToTime, getGetRiskToTime, getGetLifeYearsLost, getGetLifeExpectancy, GetHealthAge, getGetHealthAge, getGetSurvivalToAge } from '../algorithm-evaluator';
+import { GetSurvivalToTime, getGetSurvivalToTime, GetRiskToTime, getGetRiskToTime, getGetLifeYearsLost, getGetLifeExpectancy, GetHealthAge, getGetHealthAge, getGetSurvivalToAge, WithCauseImpactWithCoxFunctions, getWithCauseImpactWithCoxFunctions, WithCauseImpactWithCoxFunctionsAndLifeExpectancyFunction, getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions } from '../algorithm-evaluator';
 import { AddLifeTableWithGetHealthAge, getAddLifeTableWithGetHealthAge, AddLifeTableEvaluatorFunctions } from './add-life-table';
 import { ToJson, getToJson } from './to-json';
 import { ReferencePopulation } from '../health-age/reference-population';
@@ -8,16 +8,17 @@ import { RefLifeTable } from '../common/life-table';
 import { WithDataAndCoxFunctionsAndAddRefPopFunctions, getWithDataAndCoxFunctionsAndAddRefPopFunctions, CompleteWithData, getCompleteWithData } from '../algorithm-evaluator';
 import { AddAlgorithmReturnsGetHealthAge, curryAddAlgorithmReturnsGetHealthAgeFunction, AddAlgorithmWithGetHealthAgeAndLifeTableFunctions,curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions } from './add-algorithm';
 
-export type AddRefPopFunction<T extends AddLifeTableWithGetHealthAge | AddLifeTableEvaluatorFunctions, U extends WithDataAndCoxFunctionsAndAddRefPopFunctions<{}> | CompleteWithData<{}>, V extends AddAlgorithmReturnsGetHealthAge | AddAlgorithmWithGetHealthAgeAndLifeTableFunctions> = (
+export type AddRefPopFunction<T extends AddLifeTableWithGetHealthAge | AddLifeTableEvaluatorFunctions, U extends WithDataAndCoxFunctionsAndAddRefPopFunctions<{}> | CompleteWithData<{}>, V extends AddAlgorithmReturnsGetHealthAge | AddAlgorithmWithGetHealthAgeAndLifeTableFunctions,
+W extends WithCauseImpactWithCoxFunctions | WithCauseImpactWithCoxFunctionsAndLifeExpectancyFunction> = (
     refPop: ReferencePopulation
-) => GetSurvivalToTime & GetRiskToTime & ToJson & GetHealthAge & T & U & V;
+) => GetSurvivalToTime & GetRiskToTime & ToJson & GetHealthAge & T & U & V & W;
 
 export interface AddRefPopWithAddLifeTable {
-    addRefPop: AddRefPopFunction<AddLifeTableWithGetHealthAge, WithDataAndCoxFunctionsAndAddRefPopFunctions<{}>, AddAlgorithmReturnsGetHealthAge>;
+    addRefPop: AddRefPopFunction<AddLifeTableWithGetHealthAge, WithDataAndCoxFunctionsAndAddRefPopFunctions<{}>, AddAlgorithmReturnsGetHealthAge, WithCauseImpactWithCoxFunctions>;
 }
 
 export interface AddRefPopWithAddLifeTableFunctions {
-    addRefPop: AddRefPopFunction<AddLifeTableEvaluatorFunctions, CompleteWithData<{}>, AddAlgorithmWithGetHealthAgeAndLifeTableFunctions>;
+    addRefPop: AddRefPopFunction<AddLifeTableEvaluatorFunctions, CompleteWithData<{}>, AddAlgorithmWithGetHealthAgeAndLifeTableFunctions, WithCauseImpactWithCoxFunctionsAndLifeExpectancyFunction>;
 }
 
 export function getAddRefPopWithAddLifeTable(
@@ -34,6 +35,10 @@ export function getAddRefPopWithAddLifeTable(
                 getToJson(coxJson),
                 getAddLifeTableWithGetHealthAge(cox, coxJson, refPop),
                 getWithDataAndCoxFunctionsAndAddRefPopFunctions({}),
+                getWithCauseImpactWithCoxFunctions(
+                    coxJson,
+                    cox
+                ),
                 {
                     addAlgorithm: curryAddAlgorithmReturnsGetHealthAgeFunction(
                         cox,
@@ -63,6 +68,11 @@ export function getAddRefPopWithAddLifeTableFunctions(
                 getGetLifeYearsLost(coxJson.causeDeletedRef, refLifeTable),
                 getToJson(coxJson),
                 getCompleteWithData({}),
+                getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
+                    coxJson,
+                    cox,
+                    refLifeTable
+                ),
                 {
                     addAlgorithm: curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(
                         cox,

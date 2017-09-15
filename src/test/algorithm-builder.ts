@@ -9,6 +9,11 @@ async function test() {
         .buildSurvivalAlgorithm()
         .buildFromAssetsFolder(assetsFolderPath)
     
+    //Test getCauseImpact
+    algorithm
+        .withCauseImpact('Smoking')
+        .getRiskToTime([]);
+    
     const result = algorithm
         .addAlgorithm({} as any)
         .withData()
@@ -21,6 +26,10 @@ async function test() {
     const algorithmWithLifeTable = algorithm
         .addLifeTable([])
         .addAlgorithm({} as any);
+    algorithmWithLifeTable
+        .withCauseImpact('Smoking')
+        .getLifeExpectancy([]);
+        
     const resultTwo = algorithmWithLifeTable
         .withData()
         .getRiskToTime()

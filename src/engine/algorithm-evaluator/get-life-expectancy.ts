@@ -1,6 +1,6 @@
-import { Cox, getSurvivalToTime } from '../cox/cox';
-import { getLifeExpectancyForAge } from '../life-expectancy/life-expectancy';
-import { RefLifeTable, getCompleteLifeTableWithStartAge } from '../common/life-table';
+import { Cox } from '../cox/cox';
+import { getLifeExpectancyUsingRefLifeTable } from '../life-expectancy/life-expectancy';
+import { RefLifeTable } from '../common/life-table';
 import { Data } from '../common/datum';
 
 export interface GetLifeExpectancy {
@@ -14,35 +14,12 @@ export function getGetLifeExpectancy(
 ): GetLifeExpectancy {
     return {
         getLifeExpectancy: (data) => {
-            //TODO Change this to have an optional parameter called age
-            const ageDatum = data
-                .find(datum => datum.coefficent === 'age');
-            if (!ageDatum) {
-                throw new Error(`No datum object found for coefficent age`);
-            }
-
-            const dataWithoutAgeDatum = data
-                .filter(datum => datum.coefficent === 'age');
-
-            const completeLifeTable = getCompleteLifeTableWithStartAge(
+            return getLifeExpectancyUsingRefLifeTable(
+                data,
                 refLifeTable,
-                (age) => {
-                    return 1 - getSurvivalToTime(
-                        coxAlgorithm,
-                        dataWithoutAgeDatum.concat({
-                            name: 'age',
-                            coefficent: age
-                        })
-                    );
-                },
-                ageDatum.coefficent as number,
+                coxAlgorithm,
                 useExFromLifeTableFromAge
-            );
-
-            return getLifeExpectancyForAge(
-                ageDatum.coefficent as number,
-                completeLifeTable
-            );
+            )
         }
     }
 }
