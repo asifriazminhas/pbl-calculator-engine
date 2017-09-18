@@ -56,7 +56,13 @@ export function getWithDataAndCoxFunctionsResult<
             data,
             cox
         ),
-        getGetRiskToTime(currentResult, getNextObjectInChain),
+        getGetRiskToTime(
+            currentResult, 
+            getNextObjectInChain, 
+            memoizedData,
+            data, 
+            cox
+        ),
         getBaseWithDataResult(currentResult),
         getWithCauseImpactAndCoxFunctions(currentResult, getNextObjectInChain)
     )
@@ -109,7 +115,13 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
             data,
             cox
         ),
-        getGetRiskToTime(currentResult, getNextObjectInChain),
+        getGetRiskToTime(
+            currentResult, 
+            getNextObjectInChain,
+            memoizedData,
+            data,
+            cox
+        ),
         getGetLifeExpectancy(currentResult, getNextObjectInChain),
         getGetLifeYearsLost(currentResult, getNextObjectInChain),
         getBaseWithDataResult(currentResult),
@@ -170,7 +182,13 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult<
             data,
             cox
         ),
-        getGetRiskToTime(currentResult, getNextObjectInChain),
+        getGetRiskToTime(
+            currentResult, 
+            getNextObjectInChain,
+            memoizedData,
+            data,
+            cox
+        ),
         getGetHealthAge(currentResult, getNextObjectInChain),
         getBaseWithDataResult(currentResult),
         getWithCauseImpactAndCoxFunctions(
@@ -228,7 +246,13 @@ export function getCompleteWithDataResult<
             data,
             cox
         ),
-        getGetRiskToTime(currentResult, getNextObjectInChain),
+        getGetRiskToTime(
+            currentResult, 
+            getNextObjectInChain,
+            memoizedData,
+            data,
+            cox
+        ),
         getGetLifeExpectancy(currentResult, getNextObjectInChain),
         getGetLifeYearsLost(currentResult, getNextObjectInChain),
         getGetHealthAge(currentResult, getNextObjectInChain),

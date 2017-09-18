@@ -1,6 +1,7 @@
 import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
-import { getSurvivalToTime, Cox, getTimeMultiplier } from '../../../cox';
+import { Cox, getTimeMultiplier } from '../../../cox';
 import { WithDataMemoizedData } from '../memoized-data';
+import { updateMemoizedData } from './with-data-cox-functions-common';
 import { Data } from '../../../common/data';
 import * as moment from 'moment';
 
@@ -27,24 +28,21 @@ export function getGetSurvivalToTime<
 ): GetSurvivalToTime<T, U> {
     return {
         getSurvivalToTime: (time) => {
-            if(!memoizedData.oneYearSurvivalProbability) {
-                memoizedData.oneYearSurvivalProbability = getSurvivalToTime(
-                    cox,
-                    data
-                );
-                memoizedData.oneYearRiskProbability = 1 - memoizedData.oneYearSurvivalProbability;
-            }
+            const updatedMemoizedData = updateMemoizedData(
+                memoizedData,
+                data,
+                cox
+            );
             
-            let survivalToTime = memoizedData.oneYearSurvivalProbability;
+            let survivalToTime = updatedMemoizedData.oneYearSurvivalProbability;
             if(time) {
-                survivalToTime = memoizedData.oneYearSurvivalProbability*getTimeMultiplier(
-                    moment(time)
-                );
+                survivalToTime = updatedMemoizedData
+                    .oneYearSurvivalProbability*getTimeMultiplier(moment(time));
             }
 
             return getNextObjectInChain(
                 Object.assign({}, currentResult, { survivalToTime }),
-                memoizedData
+                updatedMemoizedData
             );
         }
     }
