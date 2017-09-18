@@ -7,6 +7,7 @@ import { WithDataMemoizedData } from './memoized-data';
 import { Data } from '../../common/data';
 import { Cox } from '../../cox';
 import { ReferencePopulation } from '../../health-age';
+import { RefLifeTable } from '../../common/life-table';
 
 export interface BaseWithDataResult<T extends object> extends End<T> {
 
@@ -97,14 +98,18 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
     currentResult: T,
     memoizedData: WithDataMemoizedData,
     data: Data,
-    cox: Cox
+    cox: Cox,
+    refLifeTable: RefLifeTable,
+    useExFromLifeTableFromAge: number = 99
 ): WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T> {
     const getNextObjectInChain = (nextResult: any, memoizedData: any) => {
         return getWithDataAndCoxFunctionsAndLifeTableFunctionsResult(
             nextResult,
             memoizedData,
             data,
-            cox
+            cox,
+            refLifeTable,
+            useExFromLifeTableFromAge
         )
     }
 
@@ -123,7 +128,15 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
             data,
             cox
         ),
-        getGetLifeExpectancy(currentResult, getNextObjectInChain),
+        getGetLifeExpectancy(
+            currentResult, 
+            getNextObjectInChain,
+            memoizedData,
+            data,
+            refLifeTable,
+            cox,
+            useExFromLifeTableFromAge
+        ),
         getGetLifeYearsLost(currentResult, getNextObjectInChain),
         getBaseWithDataResult(currentResult),
         getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction(
@@ -138,7 +151,9 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctions<
 >(
     currentResult: T,
     memoizedData: WithDataMemoizedData,
-    cox: Cox
+    cox: Cox,
+    refLifeTable: RefLifeTable,
+    useExFromLifeTableFromAge: number = 99
 ): WithDataAndCoxFunctionsAndLifeTableFunctions<T> {
     return {
         withData: (data) => {
@@ -146,7 +161,9 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctions<
                 currentResult,
                 memoizedData,
                 data, 
-                cox
+                cox,
+                refLifeTable,
+                useExFromLifeTableFromAge
             );
         }
     };
@@ -240,7 +257,9 @@ export function getCompleteWithDataResult<
     memoizedData: WithDataMemoizedData,
     data: Data,
     cox: Cox,
-    refPop: ReferencePopulation
+    refPop: ReferencePopulation,
+    refLifeTable: RefLifeTable,
+    useExFromLifeTableFromAge: number = 99
 ): CompleteWithDataResult<T> {
     const getNextObjectInChain = (nextResult: any, memoizedData: any) => {
         return getCompleteWithDataResult(
@@ -248,7 +267,9 @@ export function getCompleteWithDataResult<
             memoizedData,
             data,
             cox,
-            refPop
+            refPop,
+            refLifeTable,
+            useExFromLifeTableFromAge
         );
     }
 
@@ -267,7 +288,14 @@ export function getCompleteWithDataResult<
             data,
             cox
         ),
-        getGetLifeExpectancy(currentResult, getNextObjectInChain),
+        getGetLifeExpectancy(
+            currentResult, 
+            getNextObjectInChain,
+            memoizedData,
+            data,
+            refLifeTable,
+            cox
+        ),
         getGetLifeYearsLost(currentResult, getNextObjectInChain),
         getGetHealthAge(
             currentResult, 
@@ -294,7 +322,9 @@ export function getCompleteWithData<
     currentResult: T,
     memoizedData: WithDataMemoizedData,
     cox: Cox,
-    refPop: ReferencePopulation
+    refPop: ReferencePopulation,
+    refLifeTable: RefLifeTable,
+    useExFromLifeTableFromAge: number = 99
 ): CompleteWithData<T> {
     return {
         withData: (data) => {
@@ -303,7 +333,9 @@ export function getCompleteWithData<
                 memoizedData,
                 data,
                 cox,
-                refPop
+                refPop,
+                refLifeTable,
+                useExFromLifeTableFromAge
             );
         }
     }

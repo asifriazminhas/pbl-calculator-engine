@@ -72,7 +72,7 @@ export function getAddRefPopWithAddLifeTableFunctions(
                 getGetLifeExpectancy(cox, refLifeTable),
                 getGetLifeYearsLost(coxJson.causeDeletedRef, refLifeTable),
                 getToJson(coxJson),
-                getCompleteWithData({}, {}, cox, refPop),
+                getCompleteWithData({}, {}, cox, refPop, refLifeTable),
                 getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
                     coxJson,
                     cox,

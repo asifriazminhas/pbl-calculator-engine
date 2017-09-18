@@ -25,12 +25,13 @@ function getLifeExpectancyForAge(
     }
 }
 
-export function getLifeExpectancyUsingRefLifeTable(
-    data: Data,
+
+export function getCompleteLifeTableForDataUsingAlgorithm(
     refLifeTable: RefLifeTable,
-    coxAlgorithm: Cox,
+    data: Data,
+    cox: Cox,
     useExFromLifeTableFromAge: number = 99
-): number {
+): CompleteLifeTable {
     //TODO Change this to have an optional parameter called age
     const ageDatum = data
         .find(datum => datum.coefficent === 'age');
@@ -41,11 +42,11 @@ export function getLifeExpectancyUsingRefLifeTable(
     const dataWithoutAgeDatum = data
         .filter(datum => datum.coefficent === 'age');
 
-    const completeLifeTable = getCompleteLifeTableWithStartAge(
+    return getCompleteLifeTableWithStartAge(
         refLifeTable,
         (age) => {
             return 1 - getSurvivalToTime(
-                coxAlgorithm,
+                cox,
                 dataWithoutAgeDatum.concat({
                     name: 'age',
                     coefficent: age
@@ -55,6 +56,26 @@ export function getLifeExpectancyUsingRefLifeTable(
         ageDatum.coefficent as number,
         useExFromLifeTableFromAge
     );
+}
+
+export function getLifeExpectancyUsingRefLifeTable(
+    data: Data,
+    refLifeTable: RefLifeTable,
+    coxAlgorithm: Cox,
+    useExFromLifeTableFromAge: number = 99,
+    completeLifeTable: CompleteLifeTable = getCompleteLifeTableForDataUsingAlgorithm(
+        refLifeTable,
+        data,
+        coxAlgorithm,
+        useExFromLifeTableFromAge
+    )
+): number {
+    //TODO Change this to have an optional parameter called age
+    const ageDatum = data
+        .find(datum => datum.coefficent === 'age');
+    if (!ageDatum) {
+        throw new Error(`No datum object found for coefficent age`);
+    }
 
     return getLifeExpectancyForAge(
         ageDatum.coefficent as number,
