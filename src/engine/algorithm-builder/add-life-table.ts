@@ -7,6 +7,7 @@ import { AddRefPopWithAddLifeTableFunctions, getAddRefPopWithAddLifeTableFunctio
 import { ReferencePopulation } from '../health-age/reference-population';
 import { WithDataAndCoxFunctionsAndLifeTableFunctions, getWithDataAndCoxFunctionsAndLifeTableFunctions, CompleteWithData, getCompleteWithData } from '../algorithm-evaluator';
 import { AddAlgorithmWithLifeTableFunctions, curryAddAlgorithmWithLifeTableFunctionsFunction, AddAlgorithmWithGetHealthAgeAndLifeTableFunctions, curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions } from './add-algorithm';
+import { CauseImpactRef } from '../cause-impact';
 
 export type AddLifeTableEvaluatorFunctions = GetLifeExpectancy & GetLifeYearsLost & GetSurvivalToAge;
 
@@ -21,7 +22,8 @@ export interface AddLifeTableWithGetHealthAge {
 
 export function getAddLifeTableWithAddRefPop(
     cox: Cox,
-    coxJson: CoxJson
+    coxJson: CoxJson,
+    causeImpactRef: CauseImpactRef = coxJson.causeDeletedRef
 ): AddLifeTableWithAddRefPop {
     return {
         addLifeTable: (lifeTable) => {
@@ -41,7 +43,7 @@ export function getAddLifeTableWithAddRefPop(
                     lifeTable,
                 ),
                 getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
-                    coxJson,
+                    causeImpactRef,
                     cox,
                     lifeTable
                 ),
@@ -59,7 +61,8 @@ export function getAddLifeTableWithAddRefPop(
 export function getAddLifeTableWithGetHealthAge(
     cox: Cox,
     coxJson: CoxJson,
-    refPop: ReferencePopulation
+    refPop: ReferencePopulation,
+    causeImpactRef: CauseImpactRef = coxJson.causeDeletedRef
 ): AddLifeTableWithGetHealthAge {
     return {
         addLifeTable: (lifeTable) => {
@@ -74,7 +77,7 @@ export function getAddLifeTableWithGetHealthAge(
                 getToJson(coxJson),
                 getCompleteWithData({}, {}, cox, refPop, lifeTable),
                 getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
-                    coxJson,
+                    causeImpactRef,
                     cox,
                     lifeTable
                 ),

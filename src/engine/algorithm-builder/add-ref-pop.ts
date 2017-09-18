@@ -7,6 +7,7 @@ import { Cox } from '../cox/cox';
 import { RefLifeTable } from '../common/life-table';
 import { WithDataAndCoxFunctionsAndAddRefPopFunctions, getWithDataAndCoxFunctionsAndAddRefPopFunctions, CompleteWithData, getCompleteWithData } from '../algorithm-evaluator';
 import { AddAlgorithmReturnsGetHealthAge, curryAddAlgorithmReturnsGetHealthAgeFunction, AddAlgorithmWithGetHealthAgeAndLifeTableFunctions,curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions } from './add-algorithm';
+import { CauseImpactRef } from '../cause-impact';
 
 export type AddRefPopFunction<T extends AddLifeTableWithGetHealthAge | AddLifeTableEvaluatorFunctions, U extends WithDataAndCoxFunctionsAndAddRefPopFunctions<{}> | CompleteWithData<{}>, V extends AddAlgorithmReturnsGetHealthAge | AddAlgorithmWithGetHealthAgeAndLifeTableFunctions,
 W extends WithCauseImpactWithCoxFunctions | WithCauseImpactWithCoxFunctionsAndLifeExpectancyFunction> = (
@@ -41,7 +42,7 @@ export function getAddRefPopWithAddLifeTable(
                     refPop
                 ),
                 getWithCauseImpactWithCoxFunctions(
-                    coxJson,
+                    coxJson.causeDeletedRef,
                     cox
                 ),
                 {
@@ -59,7 +60,8 @@ export function getAddRefPopWithAddLifeTable(
 export function getAddRefPopWithAddLifeTableFunctions(
     cox: Cox,
     coxJson: CoxJson,
-    refLifeTable: RefLifeTable
+    refLifeTable: RefLifeTable,
+    causeImpactRef: CauseImpactRef = coxJson.causeDeletedRef
 ): AddRefPopWithAddLifeTableFunctions {
     return {
         addRefPop: (refPop) => {
@@ -74,7 +76,7 @@ export function getAddRefPopWithAddLifeTableFunctions(
                 getToJson(coxJson),
                 getCompleteWithData({}, {}, cox, refPop, refLifeTable),
                 getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
-                    coxJson,
+                    causeImpactRef,
                     cox,
                     refLifeTable
                 ),

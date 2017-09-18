@@ -81,7 +81,7 @@ export function curryBuildFromAssetsFolder(
             getAddLifeTableWithAddRefPop(cox, coxJson),
             getWithDataAndCoxFunctions({}, {}, cox),
             getWithCauseImpactWithCoxFunctions(
-                coxJson,
+                coxJson.causeDeletedRef,
                 cox
             ),
             {

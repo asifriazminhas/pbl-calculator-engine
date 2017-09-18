@@ -1,31 +1,27 @@
 import { Data } from '../../common/data';
-import { getLifeExpectancyUsingRefLifeTable } from '../../life-expectancy';
 import { RefLifeTable } from '../../common/life-table';
 import { Cox } from '../../cox';
-import { getDataForCauseImpactForRiskFactor } from './cause-impact-common';
-import { CoxJson } from '../../common/json-types';
+import { getLifeExpectancyWithCauseImpact, CauseImpactRef } from '../../cause-impact';
 
 export interface GetLifeExpectancyWithCauseImpact {
     getLifeExpectancy: (data: Data) => number
 }
 
 export function getGetLifeExpectancyWithCauseImpact(
+    causeImpactRef: CauseImpactRef,
     riskFactor: string,
     refLifeTable: RefLifeTable,
     coxAlgorithm: Cox,
-    coxJson: CoxJson,
     useExFromLifeTableFromAge: number = 99
 ): GetLifeExpectancyWithCauseImpact {
     return {
         getLifeExpectancy: (data) => {
-            return getLifeExpectancyUsingRefLifeTable(
-                getDataForCauseImpactForRiskFactor(
-                    coxJson,
-                    riskFactor,
-                    data
-                ),
-                refLifeTable,
+            return getLifeExpectancyWithCauseImpact(
+                causeImpactRef,
                 coxAlgorithm,
+                refLifeTable,
+                riskFactor,
+                data,
                 useExFromLifeTableFromAge
             )
         }

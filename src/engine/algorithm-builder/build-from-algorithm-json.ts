@@ -29,7 +29,7 @@ export function curryBuildFromAlgorithmJsonFunction(
             getAddRefPopWithAddLifeTable(cox, algorithmJson),
             getWithDataAndCoxFunctions({}, {}, cox),
             getWithCauseImpactWithCoxFunctions(
-                algorithmJson,
+                algorithmJson.causeDeletedRef,
                 cox
             ),
             {

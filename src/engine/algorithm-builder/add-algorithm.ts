@@ -7,6 +7,7 @@ import { CoxJson } from '../common/json-types';
 import { WithDataAndCoxFunctions, getWithDataAndCoxFunctions, WithDataAndCoxFunctionsAndLifeTableFunctions, getWithDataAndCoxFunctionsAndLifeTableFunctions, WithDataAndCoxFunctionsAndAddRefPopFunctions, getWithDataAndCoxFunctionsAndAddRefPopFunctions, CompleteWithData, getCompleteWithData, WithCauseImpactWithCoxFunctions, getWithCauseImpactWithCoxFunctions, WithCauseImpactWithCoxFunctionsAndLifeExpectancyFunction, getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions } from '../algorithm-evaluator';
 import { RefLifeTable } from '../common/life-table';
 import { ReferencePopulation } from '../health-age';
+import { CauseImpactRef } from '../cause-impact';
 
 export type BaseAddAlgorithmFunction = (
     addedCox: Cox
@@ -28,7 +29,7 @@ export function curryBaseAddAlgorithmFunction(
             getAddLifeTableWithAddRefPop(cox, coxJson),
             getAddRefPopWithAddLifeTable(cox, coxJson),
             getWithDataAndCoxFunctions({}, {}, cox),
-            getWithCauseImpactWithCoxFunctions(coxJson, cox)
+            getWithCauseImpactWithCoxFunctions(coxJson.causeDeletedRef, cox)
         );
     }
 }
@@ -43,6 +44,7 @@ export function curryAddAlgorithmWithLifeTableFunctionsFunction(
     cox: Cox,
     refLifeTable: RefLifeTable,
     coxJson: CoxJson,
+    causeImpactRef: CauseImpactRef = coxJson.causeDeletedRef,
     useExFromLifeTableFromAge: number = 99
 ): AddAlgorithmReturnsLifeTableFunctionsFunction {
     return (addedCox) => {
@@ -64,7 +66,7 @@ export function curryAddAlgorithmWithLifeTableFunctionsFunction(
                 useExFromLifeTableFromAge
             ),
             getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
-                coxJson,
+                causeImpactRef,
                 cox,
                 refLifeTable
             )
@@ -99,7 +101,7 @@ export function curryAddAlgorithmReturnsGetHealthAgeFunction(
                 cox, 
                 refPop
             ),
-            getWithCauseImpactWithCoxFunctions(coxJson, cox)
+            getWithCauseImpactWithCoxFunctions(coxJson.causeDeletedRef, cox)
         );
     }
 }
@@ -115,7 +117,8 @@ export function curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(
     coxJson: CoxJson,
     refPop: ReferencePopulation,
     refLifeTable: RefLifeTable,
-    useExFromLifeTableFromAge: number = 99
+    useExFromLifeTableFromAge: number = 99,
+    causeImpactRef: CauseImpactRef = coxJson.causeDeletedRef
 ): AddAlgorithmWithGetHealthAgeAndLifeTableFunctionsFunction {
     return () => {
         return Object.assign(
@@ -136,7 +139,7 @@ export function curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(
                 useExFromLifeTableFromAge
             ),
             getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
-                coxJson,
+                causeImpactRef,
                 cox,
                 refLifeTable
             )

@@ -1,27 +1,24 @@
 import * as moment from 'moment';
-import { CoxJson } from '../../common/json-types';
 import { Data } from '../../common/data';
-import { getDataForCauseImpactForRiskFactor } from './cause-impact-common';
-import { Cox, getSurvivalToTime } from '../../cox';
+import { CauseImpactRef, getSurvivalToTimeWithCauseImpact } from '../../cause-impact';
+import { Cox } from '../../cox';
 
 export interface GetSurvivalToTimeWithCauseImpact {
     getSurvivalToTime: (data: Data, time?: moment.Moment | Date) => number;
 }
 
 export function getGetSurvivalToTimeWithCauseImpact(
-    coxJson: CoxJson,
+    causeImpactRef: CauseImpactRef,
     cox: Cox,
     riskFactor: string
 ): GetSurvivalToTimeWithCauseImpact {
     return {
         getSurvivalToTime: (data, time) => {
-            return getSurvivalToTime(
+            return getSurvivalToTimeWithCauseImpact(
+                causeImpactRef,
                 cox,
-                getDataForCauseImpactForRiskFactor(
-                    coxJson,
-                    riskFactor,
-                    data
-                ),
+                riskFactor,
+                data,
                 time
             )
         }
