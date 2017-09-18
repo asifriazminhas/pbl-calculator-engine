@@ -63,7 +63,7 @@ export function getAddLifeTableWithGetHealthAge(
                 getGetRiskToTime(cox),
                 getGetSurvivalToAge(cox, lifeTable),
                 getGetSurvivalToTime(cox),
-                getGetHealthAge(refPop),
+                getGetHealthAge(refPop, cox),
                 getGetLifeExpectancy(cox, lifeTable),
                 getGetLifeYearsLost(coxJson.causeDeletedRef, lifeTable),
                 getToJson(coxJson),
