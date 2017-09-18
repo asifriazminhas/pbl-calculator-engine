@@ -1,4 +1,4 @@
-import { BaseWithDataResult } from '../with-data';
+import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 
 export interface GetLifeYearsLostResult {
     lifeYearsLost: {
@@ -18,7 +18,7 @@ export function getGetLifeYearsLost<
     U extends BaseWithDataResult<T & GetLifeYearsLostResult>
 >(
     currentResult: T,
-    getNextObjectInChain: (nextResult: T & GetLifeYearsLostResult) => U
+    getNextObjectInChain: getNextObjectInChain<T & GetLifeYearsLostResult, U>
 ): GetLifeYearsLost<T, U> {
     return {
         getLifeYearsLost: () => {
@@ -27,7 +27,8 @@ export function getGetLifeYearsLost<
             };
 
             return getNextObjectInChain(
-                Object.assign({}, currentResult, { lifeYearsLost })
+                Object.assign({}, currentResult, { lifeYearsLost }),
+                {}
             );
         }
     }

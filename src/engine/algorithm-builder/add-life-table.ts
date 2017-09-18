@@ -34,7 +34,7 @@ export function getAddLifeTableWithAddRefPop(
                 getGetLifeYearsLost(coxJson.causeDeletedRef, lifeTable),
                 getToJson(coxJson),
                 getAddRefPopWithAddLifeTableFunctions(cox, coxJson, lifeTable),
-                getWithDataAndCoxFunctionsAndLifeTableFunctions({}),
+                getWithDataAndCoxFunctionsAndLifeTableFunctions({}, {}, cox),
                 getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
                     coxJson,
                     cox,
@@ -67,7 +67,7 @@ export function getAddLifeTableWithGetHealthAge(
                 getGetLifeExpectancy(cox, lifeTable),
                 getGetLifeYearsLost(coxJson.causeDeletedRef, lifeTable),
                 getToJson(coxJson),
-                getCompleteWithData({}),
+                getCompleteWithData({}, {}, cox),
                 getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
                     coxJson,
                     cox,

@@ -16,6 +16,12 @@ function calculateScore(
         .reduce(add);
 }
 
+export function getTimeMultiplier(
+    time: moment.Moment
+) {
+    return Math.abs((moment().diff(time, 'years', true)))
+}
+
 //By default it's time argument is set to 1 year from now
 export function getSurvivalToTime(
     cox: Cox,
@@ -53,7 +59,7 @@ export function getSurvivalToTime(
         -1 * cox.baselineHazard * Math.pow(Math.E, score)
     );
 
-    return oneYearSurvivalProbability * Math.abs((moment().diff(formattedTime, 'years', true)));
+    return oneYearSurvivalProbability * getTimeMultiplier(formattedTime);
 }
 
 export function getRiskToTime(

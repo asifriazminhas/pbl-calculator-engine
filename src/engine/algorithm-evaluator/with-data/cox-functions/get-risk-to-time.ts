@@ -1,4 +1,4 @@
-import { BaseWithDataResult } from '../with-data';
+import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 
 export interface GetRiskToTimeResult {
     riskToTime: number;
@@ -16,14 +16,15 @@ export function getGetRiskToTime<
     U extends BaseWithDataResult<T & GetRiskToTimeResult>
 >(
     currentResult: T,
-    getNextObjectInChain: (nextResult: T & GetRiskToTimeResult) => U
+    getNextObjectInChain: getNextObjectInChain<T & GetRiskToTimeResult, U>
 ): GetRiskToTime<T, U> {
     return {
         getRiskToTime: () => {
             const riskToTime = Math.random();
 
             return getNextObjectInChain(
-                Object.assign({}, currentResult, { riskToTime })
+                Object.assign({}, currentResult, { riskToTime }),
+                {}
             )
         }
     }

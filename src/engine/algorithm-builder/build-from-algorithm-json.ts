@@ -27,7 +27,7 @@ export function curryBuildFromAlgorithmJsonFunction(
             getGetSurvivalToTime(cox), 
             getToJson(algorithmJson),
             getAddRefPopWithAddLifeTable(cox, algorithmJson),
-            getWithDataAndCoxFunctions({}),
+            getWithDataAndCoxFunctions({}, {}, cox),
             getWithCauseImpactWithCoxFunctions(
                 algorithmJson,
                 cox

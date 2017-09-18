@@ -1,4 +1,4 @@
-import { BaseWithDataResult } from '../with-data';
+import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 
 export interface GetLifeExpectancyResult {
     lifeExpectancy: number;
@@ -16,14 +16,15 @@ export function getGetLifeExpectancy<
     U extends BaseWithDataResult<T & GetLifeExpectancyResult>
 >(
     currentResult: T,
-    getNextObjectInChain: (nextResult: T & GetLifeExpectancyResult) => U
+    getNextObjectInChain: getNextObjectInChain<T & GetLifeExpectancyResult, U>
 ): GetLifeExpectancy<T, U> {
     return {
         getLifeExpectancy: () => {
             const lifeExpectancy = Math.random();
 
             return getNextObjectInChain(
-                Object.assign({}, currentResult, { lifeExpectancy })
+                Object.assign({}, currentResult, { lifeExpectancy }),
+                {}
             );
         }
     }

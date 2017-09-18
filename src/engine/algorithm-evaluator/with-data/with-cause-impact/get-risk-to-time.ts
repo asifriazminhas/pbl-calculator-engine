@@ -1,5 +1,5 @@
 import { WithCauseImpactChainMethodResult } from './with-cause-impact-common';
-import { BaseWithDataResult } from '../with-data';
+import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 
 export interface GetRiskToTimeWithCauseImpact<
     T extends object,
@@ -13,7 +13,7 @@ export function getGetRiskToTimeWithCauseImpact<
     U extends BaseWithDataResult<T & WithCauseImpactChainMethodResult>
 >(
     currentResult: T,
-    getNextObjectInChain: (nextResult: T & WithCauseImpactChainMethodResult) => U
+    getNextObjectInChain: getNextObjectInChain<T & WithCauseImpactChainMethodResult, U>
 ): GetRiskToTimeWithCauseImpact<T, U> {
     return {
         getRiskToTime: () => {
@@ -28,7 +28,8 @@ export function getGetRiskToTimeWithCauseImpact<
                             lifeExpectancy: 0
                         }
                     }
-                })
+                }),
+                {}
             );
         }
     }

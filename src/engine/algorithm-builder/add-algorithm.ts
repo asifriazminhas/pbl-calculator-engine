@@ -27,7 +27,7 @@ export function curryBaseAddAlgorithmFunction(
             getToJson(coxJson),
             getAddLifeTableWithAddRefPop(cox, coxJson),
             getAddRefPopWithAddLifeTable(cox, coxJson),
-            getWithDataAndCoxFunctions({}),
+            getWithDataAndCoxFunctions({}, {}, cox),
             getWithCauseImpactWithCoxFunctions(coxJson, cox)
         );
     }
@@ -55,7 +55,7 @@ export function curryAddAlgorithmWithLifeTableFunctionsFunction(
             getGetLifeYearsLost(coxJson.causeDeletedRef, refLifeTable),
             getToJson(coxJson),
             getAddRefPopWithAddLifeTableFunctions(cox, coxJson, refLifeTable),
-            getWithDataAndCoxFunctionsAndLifeTableFunctions({}),
+            getWithDataAndCoxFunctionsAndLifeTableFunctions({}, {}, cox),
             getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
                 coxJson,
                 cox,
@@ -86,7 +86,7 @@ export function curryAddAlgorithmReturnsGetHealthAgeFunction(
             getGetHealthAge(refPop),
             getToJson(coxJson),
             getAddLifeTableWithGetHealthAge(cox, coxJson, refPop),
-            getWithDataAndCoxFunctionsAndAddRefPopFunctions({}),
+            getWithDataAndCoxFunctionsAndAddRefPopFunctions({}, {}, cox),
             getWithCauseImpactWithCoxFunctions(coxJson, cox)
         );
     }
@@ -114,7 +114,7 @@ export function curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(
             getGetLifeExpectancy(cox, refLifeTable),
             getGetLifeYearsLost(coxJson.causeDeletedRef, refLifeTable),
             getToJson(coxJson),
-            getCompleteWithData({}),
+            getCompleteWithData({}, {}, cox),
             getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
                 coxJson,
                 cox,

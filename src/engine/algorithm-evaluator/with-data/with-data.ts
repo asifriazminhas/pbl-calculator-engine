@@ -3,6 +3,9 @@ import { GetSurvivalToTime, GetSurvivalToTimeResult, getGetSurvivalToTime, GetRi
 import { GetLifeExpectancy, GetLifeExpectancyResult, getGetLifeExpectancy, GetLifeYearsLost, GetLifeYearsLostResult, getGetLifeYearsLost, GetSurvivalToAge, GetSurvivalToAgeResult, getGetSurvivalToAge } from './life-table-functions';
 import { GetHealthAge, GetHealthAgeResult, getGetHealthAge } from './add-ref-pop-functions';
 import { WithCauseImpactAndCoxFunctions, getWithCauseImpactAndCoxFunctions, WithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction, getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction, WithCauseImpactChainMethodResult } from './with-cause-impact';
+import { WithDataMemoizedData } from './memoized-data';
+import { Data } from '../../common/data';
+import { Cox } from '../../cox';
 
 export interface BaseWithDataResult<T extends object> extends End<T> {
 
@@ -13,35 +16,64 @@ export function getBaseWithDataResult<T extends object>(
     return Object.assign({}, getEnd(currentResult));
 }
 
+export type getNextObjectInChain<
+    T extends object,
+    U extends BaseWithDataResult<T>
+> = (nextResult: T, memoizedData: WithDataMemoizedData) => U;
+
 export interface WithDataAndCoxFunctionsResult<T extends object> extends BaseWithDataResult<T>, GetSurvivalToTime<T, WithDataAndCoxFunctionsResult<T & GetSurvivalToTimeResult>>, GetRiskToTime<T, WithDataAndCoxFunctionsResult<T & GetRiskToTimeResult>>, WithCauseImpactAndCoxFunctions<T, WithDataAndCoxFunctionsResult<T & WithCauseImpactChainMethodResult>> {
 
 }
 export interface WithDataAndCoxFunctions<T extends object> {
-    withData: () => WithDataAndCoxFunctionsResult<T>;
+    withData: (data: Data) => WithDataAndCoxFunctionsResult<T>;
 }
 export function getWithDataAndCoxFunctionsResult<
     T extends object
 >(
-    currentResult: T
+    currentResult: T,
+    memoizedData: WithDataMemoizedData,
+    data: Data,
+    cox: Cox
 ): WithDataAndCoxFunctionsResult<T> {
-    const getNextObjectInChain = (nextResult: any) => {
-        return getWithDataAndCoxFunctionsResult(nextResult);
+    const getNextObjectInChain = (
+        nextResult: any,
+        memoizedData: any
+    ) => {
+        return getWithDataAndCoxFunctionsResult(
+            nextResult, 
+            memoizedData,
+            data,
+            cox
+        );
     }
 
     return Object.assign(
         {},
-        getGetSurvivalToTime(currentResult, getNextObjectInChain),
+        getGetSurvivalToTime(
+            currentResult, 
+            getNextObjectInChain, 
+            memoizedData,
+            data,
+            cox
+        ),
         getGetRiskToTime(currentResult, getNextObjectInChain),
         getBaseWithDataResult(currentResult),
         getWithCauseImpactAndCoxFunctions(currentResult, getNextObjectInChain)
     )
 }
 export function getWithDataAndCoxFunctions<T extends object>(
-    currentResult: T
+    currentResult: T,
+    memoizedData: WithDataMemoizedData,
+    cox: Cox
 ): WithDataAndCoxFunctions<T> {
     return {
-        withData: () => {
-            return getWithDataAndCoxFunctionsResult(currentResult);
+        withData: (data) => {
+            return getWithDataAndCoxFunctionsResult(
+                currentResult,
+                memoizedData,
+                data,
+                cox
+            );
         }
     }
 }
@@ -50,21 +82,33 @@ export interface WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T extends ob
 
 }
 export interface WithDataAndCoxFunctionsAndLifeTableFunctions<T extends object> {
-    withData: () => WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T>
+    withData: (data: Data) => WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T>
 }
 export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
     T extends object
 >(
-    currentResult: T
+    currentResult: T,
+    memoizedData: WithDataMemoizedData,
+    data: Data,
+    cox: Cox
 ): WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T> {
-    const getNextObjectInChain = (nextResult: any) => {
+    const getNextObjectInChain = (nextResult: any, memoizedData: any) => {
         return getWithDataAndCoxFunctionsAndLifeTableFunctionsResult(
-            nextResult
+            nextResult,
+            memoizedData,
+            data,
+            cox
         )
     }
 
     return Object.assign(
-        getGetSurvivalToTime(currentResult, getNextObjectInChain),
+        getGetSurvivalToTime(
+            currentResult, 
+            getNextObjectInChain,
+            memoizedData,
+            data,
+            cox
+        ),
         getGetRiskToTime(currentResult, getNextObjectInChain),
         getGetLifeExpectancy(currentResult, getNextObjectInChain),
         getGetLifeYearsLost(currentResult, getNextObjectInChain),
@@ -79,12 +123,17 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
 export function getWithDataAndCoxFunctionsAndLifeTableFunctions<
     T extends object
 >(
-    currentResult: T
+    currentResult: T,
+    memoizedData: WithDataMemoizedData,
+    cox: Cox
 ): WithDataAndCoxFunctionsAndLifeTableFunctions<T> {
     return {
-        withData: () => {
+        withData: (data) => {
             return getWithDataAndCoxFunctionsAndLifeTableFunctionsResult(
-                currentResult
+                currentResult,
+                memoizedData,
+                data, 
+                cox
             );
         }
     };
@@ -94,19 +143,33 @@ export interface WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T extends ob
 
 }
 export interface WithDataAndCoxFunctionsAndAddRefPopFunctions<T extends object> {
-    withData: () => WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T>;
+    withData: (data: Data) => WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T>;
 }
 export function getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult<
     T extends object
 >(
-    currentResult: T
+    currentResult: T,
+    memoizedData: WithDataMemoizedData,
+    data: Data, 
+    cox: Cox
 ): WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T> {
-    const getNextObjectInChain = (nextResult: any) => {
-        return getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult(nextResult)
+    const getNextObjectInChain = (nextResult: any, memoizedData: any) => {
+        return getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult(
+            nextResult,
+            memoizedData,
+            data, 
+            cox
+        )
     }
 
     return Object.assign(
-        getGetSurvivalToTime(currentResult, getNextObjectInChain),
+        getGetSurvivalToTime(
+            currentResult, 
+            getNextObjectInChain,
+            memoizedData,
+            data,
+            cox
+        ),
         getGetRiskToTime(currentResult, getNextObjectInChain),
         getGetHealthAge(currentResult, getNextObjectInChain),
         getBaseWithDataResult(currentResult),
@@ -120,12 +183,17 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult<
 export function getWithDataAndCoxFunctionsAndAddRefPopFunctions<
     T extends object
 >(
-    currentResult: T
+    currentResult: T,
+    memoizedData: WithDataMemoizedData,
+    cox: Cox
 ): WithDataAndCoxFunctionsAndAddRefPopFunctions<T> {
     return {
-        withData: () => {
+        withData: (data) => {
             return getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult(
-                currentResult
+                currentResult,
+                memoizedData,
+                data, 
+                cox
             )
         }
     }
@@ -138,14 +206,28 @@ export interface CompleteWithDataResult<T extends object> extends BaseWithDataRe
 export function getCompleteWithDataResult<
     T extends object
 >(
-    currentResult: T
+    currentResult: T,
+    memoizedData: WithDataMemoizedData,
+    data: Data,
+    cox: Cox
 ): CompleteWithDataResult<T> {
-    const getNextObjectInChain = (nextResult: any) => {
-        return getCompleteWithDataResult(nextResult);
+    const getNextObjectInChain = (nextResult: any, memoizedData: any) => {
+        return getCompleteWithDataResult(
+            nextResult,
+            memoizedData,
+            data,
+            cox
+        );
     }
 
     return Object.assign(
-        getGetSurvivalToTime(currentResult, getNextObjectInChain),
+        getGetSurvivalToTime(
+            currentResult, 
+            getNextObjectInChain,
+            memoizedData,
+            data,
+            cox
+        ),
         getGetRiskToTime(currentResult, getNextObjectInChain),
         getGetLifeExpectancy(currentResult, getNextObjectInChain),
         getGetLifeYearsLost(currentResult, getNextObjectInChain),
@@ -159,16 +241,23 @@ export function getCompleteWithDataResult<
     )
 }
 export interface CompleteWithData<T extends object> {
-        withData: () => CompleteWithDataResult<T>
+        withData: (data: Data) => CompleteWithDataResult<T>
 }
 export function getCompleteWithData<
     T extends object
 >(
-    currentResult: T
+    currentResult: T,
+    memoizedData: WithDataMemoizedData,
+    cox: Cox
 ): CompleteWithData<T> {
     return {
-        withData: () => {
-            return getCompleteWithDataResult(currentResult);
+        withData: (data) => {
+            return getCompleteWithDataResult(
+                currentResult,
+                memoizedData,
+                data,
+                cox
+            );
         }
     }
 }

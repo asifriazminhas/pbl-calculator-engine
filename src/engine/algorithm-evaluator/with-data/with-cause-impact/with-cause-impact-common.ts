@@ -1,7 +1,7 @@
 import { GetSurvivalToTimeWithCauseImpact, getGetSurvivalToTimeWithCauseImpact } from './get-survival-to-time';
 import { GetRiskToTimeWithCauseImpact, getGetRiskToTimeWithCauseImpact } from './get-risk-to-time';
 import { GetLifeExpectancyWithCauseImpact, getGetLifeExpectancyWithCauseImpact } from './get-life-expectancy';
-import { BaseWithDataResult } from '../with-data';
+import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 
 export interface WithCauseImpactChainMethodResult {
     withCauseImpact: {
@@ -25,7 +25,7 @@ export function getWithCauseImpactAndCoxFunctions<
     U extends BaseWithDataResult<T & WithCauseImpactChainMethodResult>
 >(
     currentResult: T,
-    getNextObjectInChain: (nextResult: T & WithCauseImpactChainMethodResult) => U
+    getNextObjectInChain: getNextObjectInChain<T & WithCauseImpactChainMethodResult, U>
 ): WithCauseImpactAndCoxFunctions<T, U> {
     return {
         withCauseImpact: () => {
@@ -56,7 +56,7 @@ export function getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<
     U extends BaseWithDataResult<T & WithCauseImpactChainMethodResult>
 >(
     currentResult: T,
-    getNextObjectInChain: (nextResult: T & WithCauseImpactChainMethodResult) => U
+    getNextObjectInChain: getNextObjectInChain<T & WithCauseImpactChainMethodResult, U>
 ): WithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<T, U> {
     return {
         withCauseImpact: () => {

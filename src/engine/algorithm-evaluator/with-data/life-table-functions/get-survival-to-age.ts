@@ -1,4 +1,4 @@
-import { BaseWithDataResult } from '../with-data';
+import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 
 export interface GetSurvivalToAgeResult {
     survivalToAge: {
@@ -18,7 +18,7 @@ export function getGetSurvivalToAge<
     U extends BaseWithDataResult<T & GetSurvivalToAgeResult>
 >(
     currentResult: T,
-    getNextObjectInChain: (nextResult: T & GetSurvivalToAgeResult) => U
+    getNextObjectInChain: getNextObjectInChain<T & GetSurvivalToAgeResult, U>
 ): GetSurvivalToAge<T, U> {
     return {
         getSurvivalToAge: () => {
@@ -29,7 +29,8 @@ export function getGetSurvivalToAge<
                     survivalToAge: {
                         [1]: survivalToAge
                     }
-                })
+                }),
+                {}
             )
         }
     }

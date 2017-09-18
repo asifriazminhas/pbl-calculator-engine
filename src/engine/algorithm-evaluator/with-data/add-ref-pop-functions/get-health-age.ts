@@ -1,4 +1,4 @@
-import { BaseWithDataResult } from '../with-data';
+import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 
 export interface GetHealthAgeResult {
     healthAge: number;
@@ -16,14 +16,15 @@ export function getGetHealthAge<
     U extends BaseWithDataResult<T & GetHealthAgeResult>
 >(
     currentResult: T,
-    getNextObjectInChain: (nextResult: T & GetHealthAgeResult) => U
+    getNextObjectInChain: getNextObjectInChain<T & GetHealthAgeResult, U>
 ): GetHealthAge<T, U> {
     return {
         getHealthAge: () => {
             const healthAge = Math.random();
 
             return getNextObjectInChain(
-                Object.assign({}, currentResult, { healthAge })
+                Object.assign({}, currentResult, { healthAge }),
+                {}
             );
         }
     }
