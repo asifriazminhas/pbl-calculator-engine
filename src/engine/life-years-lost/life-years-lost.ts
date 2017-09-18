@@ -1,14 +1,28 @@
 import { Data } from '../common/datum';
 import { RefLifeTable } from '../common/life-table';
+import { CauseImpactRef, getLifeExpectancyWithCauseImpact } from '../cause-impact';
+import { getLifeExpectancyUsingRefLifeTable } from '../life-expectancy';
+import { Cox } from '../cox';
 
-//TODO Implement this
 export function getLifeYearsLost(
-    causeDeletedRef: any,
+    causeDeletedRef: CauseImpactRef,
     refLifeTable: RefLifeTable,
+    cox: Cox,
     data: Data,
-    riskFactor: string
+    riskFactor: string,
+    useExFromLifeTableFromAge: number = 99
 ): number {
-    riskFactor; data; causeDeletedRef; refLifeTable;
-
-    return Math.random();
+    return getLifeExpectancyUsingRefLifeTable(
+        data,
+        refLifeTable,
+        cox,
+        useExFromLifeTableFromAge
+    ) - getLifeExpectancyWithCauseImpact(
+        causeDeletedRef,
+        cox,
+        refLifeTable,
+        riskFactor,
+        data,
+        useExFromLifeTableFromAge
+    )
 }
