@@ -6,6 +6,7 @@ import { WithCauseImpactAndCoxFunctions, getWithCauseImpactAndCoxFunctions, With
 import { WithDataMemoizedData } from './memoized-data';
 import { Data } from '../../common/data';
 import { Cox } from '../../cox';
+import { ReferencePopulation } from '../../health-age';
 
 export interface BaseWithDataResult<T extends object> extends End<T> {
 
@@ -163,14 +164,16 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult<
     currentResult: T,
     memoizedData: WithDataMemoizedData,
     data: Data, 
-    cox: Cox
+    cox: Cox,
+    refPop: ReferencePopulation
 ): WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T> {
     const getNextObjectInChain = (nextResult: any, memoizedData: any) => {
         return getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult(
             nextResult,
             memoizedData,
             data, 
-            cox
+            cox,
+            refPop
         )
     }
 
@@ -189,7 +192,14 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult<
             data,
             cox
         ),
-        getGetHealthAge(currentResult, getNextObjectInChain),
+        getGetHealthAge(
+            currentResult, 
+            getNextObjectInChain, 
+            memoizedData,
+            data,
+            cox,
+            refPop
+        ),
         getBaseWithDataResult(currentResult),
         getWithCauseImpactAndCoxFunctions(
             currentResult,
@@ -203,7 +213,8 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctions<
 >(
     currentResult: T,
     memoizedData: WithDataMemoizedData,
-    cox: Cox
+    cox: Cox,
+    refPop: ReferencePopulation
 ): WithDataAndCoxFunctionsAndAddRefPopFunctions<T> {
     return {
         withData: (data) => {
@@ -211,7 +222,8 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctions<
                 currentResult,
                 memoizedData,
                 data, 
-                cox
+                cox,
+                refPop
             )
         }
     }
@@ -227,14 +239,16 @@ export function getCompleteWithDataResult<
     currentResult: T,
     memoizedData: WithDataMemoizedData,
     data: Data,
-    cox: Cox
+    cox: Cox,
+    refPop: ReferencePopulation
 ): CompleteWithDataResult<T> {
     const getNextObjectInChain = (nextResult: any, memoizedData: any) => {
         return getCompleteWithDataResult(
             nextResult,
             memoizedData,
             data,
-            cox
+            cox,
+            refPop
         );
     }
 
@@ -255,7 +269,14 @@ export function getCompleteWithDataResult<
         ),
         getGetLifeExpectancy(currentResult, getNextObjectInChain),
         getGetLifeYearsLost(currentResult, getNextObjectInChain),
-        getGetHealthAge(currentResult, getNextObjectInChain),
+        getGetHealthAge(
+            currentResult, 
+            getNextObjectInChain, 
+            memoizedData,
+            data,
+            cox,
+            refPop
+        ),
         getBaseWithDataResult(currentResult),
         getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction(
             currentResult,
@@ -272,7 +293,8 @@ export function getCompleteWithData<
 >(
     currentResult: T,
     memoizedData: WithDataMemoizedData,
-    cox: Cox
+    cox: Cox,
+    refPop: ReferencePopulation
 ): CompleteWithData<T> {
     return {
         withData: (data) => {
@@ -280,7 +302,8 @@ export function getCompleteWithData<
                 currentResult,
                 memoizedData,
                 data,
-                cox
+                cox,
+                refPop
             );
         }
     }

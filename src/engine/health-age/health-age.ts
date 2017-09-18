@@ -5,10 +5,9 @@ import { Cox, getRiskToTime } from '../cox';
 export function getHealthAge(
     refPop: ReferencePopulation,
     data: Data,
-    cox: Cox
+    cox: Cox,
+    oneYearRisk: number=getRiskToTime(cox, data)
 ): number {
-    const oneYearRisk = getRiskToTime(cox, data);
-
     return refPop.reduce((currentRefPopRow, refPopRow) => {
         if(Math.abs(refPopRow.outcomeRisk - oneYearRisk) < 
             Math.abs(currentRefPopRow.outcomeRisk - oneYearRisk)) {
