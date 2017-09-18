@@ -1,27 +1,32 @@
 import { Data } from '../common/datum';
-import { getLifeYearsLost } from '../life-years-lost/life-years-lost';
 import { RefLifeTable } from '../common/life-table';
+import { getLifeYearsLost } from '../life-years-lost';
+import { CauseImpactRef } from '../cause-impact';
+import { Cox } from '../cox';
 
 export interface GetLifeYearsLost {
     getLifeYearsLost: (
         data: Data,
-        riskFactor: string
+        riskFactor: string,
+        useExFromLifeTableFromAge: number
     ) => number;
 }
 
-//TODO Fix this
 export function getGetLifeYearsLost(
-    causeDeletedRef: any,
-    refLifeTable: RefLifeTable
+    causeDeletedRef: CauseImpactRef,
+    refLifeTable: RefLifeTable,
+    cox: Cox
 ): GetLifeYearsLost {
     return {
-        getLifeYearsLost: (data, riskFactor) => {
+        getLifeYearsLost: (data, riskFactor, useExFromLifeTableFromAge=99) => {
             return getLifeYearsLost(
                 causeDeletedRef,
                 refLifeTable,
+                cox,
                 data,
-                riskFactor
-            );
+                riskFactor,
+                useExFromLifeTableFromAge
+            )
         }
     };
 }

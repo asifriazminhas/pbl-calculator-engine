@@ -55,7 +55,7 @@ export function curryAddAlgorithmWithLifeTableFunctionsFunction(
             getGetSurvivalToTime(cox),
             getGetSurvivalToAge(cox, refLifeTable),
             getGetLifeExpectancy(cox, refLifeTable),
-            getGetLifeYearsLost(coxJson.causeDeletedRef, refLifeTable),
+            getGetLifeYearsLost(coxJson.causeDeletedRef, refLifeTable, cox),
             getToJson(coxJson),
             getAddRefPopWithAddLifeTableFunctions(cox, coxJson, refLifeTable),
             getWithDataAndCoxFunctionsAndLifeTableFunctions(
@@ -128,7 +128,7 @@ export function curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(
             getGetSurvivalToTime(cox),
             getGetHealthAge(refPop, cox),
             getGetLifeExpectancy(cox, refLifeTable),
-            getGetLifeYearsLost(coxJson.causeDeletedRef, refLifeTable),
+            getGetLifeYearsLost(coxJson.causeDeletedRef, refLifeTable, cox),
             getToJson(coxJson),
             getCompleteWithData(
                 {}, 
