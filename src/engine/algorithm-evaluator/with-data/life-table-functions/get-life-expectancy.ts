@@ -1,9 +1,10 @@
 import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { WithDataMemoizedData } from '../memoized-data';
-import { RefLifeTable } from '../../../common/life-table';
+import { RefLifeTable, CompleteLifeTableRow } from '../../../common/life-table';
 import { getLifeExpectancyUsingRefLifeTable, getCompleteLifeTableForDataUsingAlgorithm } from '../../../life-expectancy';
 import { Cox } from '../../../cox';
 import { Data } from '../../../common/data';
+import { Datum } from '../../../common/datum';
 
 export interface GetLifeExpectancyResult {
     lifeExpectancy: number;
@@ -37,6 +38,17 @@ export function getGetLifeExpectancy<
                     cox,
                     useExFromLifeTableFromAge
                 );
+                if(!currentMemoizedData.oneYearSurvivalProbability) {
+                    const ageDatum = data
+                        .find((datum) => datum.coefficent === 'age') as Datum;
+                    const lifeTableRowForAgeDatum = currentMemoizedData
+                        .completeLifeTable
+                        .find((lifeTableRow) => {
+                            return lifeTableRow.age === ageDatum.coefficent;
+                        }) as CompleteLifeTableRow;
+                    currentMemoizedData.oneYearSurvivalProbability = lifeTableRowForAgeDatum.qx;
+                    currentMemoizedData.oneYearRiskProbability = 1 - lifeTableRowForAgeDatum.qx;
+                }
             }
 
             const lifeExpectancy = getLifeExpectancyUsingRefLifeTable(
