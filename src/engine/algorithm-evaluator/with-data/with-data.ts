@@ -2,6 +2,7 @@ import { End, getEnd } from './end';
 import { GetSurvivalToTime, GetSurvivalToTimeResult, getGetSurvivalToTime, GetRiskToTime, GetRiskToTimeResult, getGetRiskToTime } from './cox-functions';
 import { GetLifeExpectancy, GetLifeExpectancyResult, getGetLifeExpectancy, GetLifeYearsLost, GetLifeYearsLostResult, getGetLifeYearsLost } from './life-table-functions';
 import { GetHealthAge, GetHealthAgeResult, getGetHealthAge } from './add-ref-pop-functions';
+import { WithCauseImpactAndCoxFunctions, getWithCauseImpactAndCoxFunctions, WithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction, getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction, WithCauseImpactChainMethodResult } from './with-cause-impact';
 
 export interface BaseWithDataResult<T extends object> extends End<T> {
 
@@ -12,7 +13,7 @@ export function getBaseWithDataResult<T extends object>(
     return Object.assign({}, getEnd(currentResult));
 }
 
-export interface WithDataAndCoxFunctionsResult<T extends object> extends BaseWithDataResult<T>, GetSurvivalToTime<T, WithDataAndCoxFunctionsResult<T & GetSurvivalToTimeResult>>, GetRiskToTime<T, WithDataAndCoxFunctionsResult<T & GetRiskToTimeResult>> {
+export interface WithDataAndCoxFunctionsResult<T extends object> extends BaseWithDataResult<T>, GetSurvivalToTime<T, WithDataAndCoxFunctionsResult<T & GetSurvivalToTimeResult>>, GetRiskToTime<T, WithDataAndCoxFunctionsResult<T & GetRiskToTimeResult>>, WithCauseImpactAndCoxFunctions<T, WithDataAndCoxFunctionsResult<T & WithCauseImpactChainMethodResult>> {
 
 }
 export interface WithDataAndCoxFunctions<T extends object> {
@@ -31,7 +32,8 @@ export function getWithDataAndCoxFunctionsResult<
         {},
         getGetSurvivalToTime(currentResult, getNextObjectInChain),
         getGetRiskToTime(currentResult, getNextObjectInChain),
-        getBaseWithDataResult(currentResult)
+        getBaseWithDataResult(currentResult),
+        getWithCauseImpactAndCoxFunctions(currentResult, getNextObjectInChain)
     )
 }
 export function getWithDataAndCoxFunctions<T extends object>(
@@ -44,7 +46,7 @@ export function getWithDataAndCoxFunctions<T extends object>(
     }
 }
 
-export interface WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T extends object> extends BaseWithDataResult<T>, GetSurvivalToTime<T, WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T & GetSurvivalToTimeResult>>, GetRiskToTime<T, WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T & GetRiskToTimeResult>>, GetLifeExpectancy<T, WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T & GetLifeExpectancyResult>>, GetLifeYearsLost<T, WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T & GetLifeYearsLostResult>> {
+export interface WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T extends object> extends BaseWithDataResult<T>, GetSurvivalToTime<T, WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T & GetSurvivalToTimeResult>>, GetRiskToTime<T, WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T & GetRiskToTimeResult>>, GetLifeExpectancy<T, WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T & GetLifeExpectancyResult>>, GetLifeYearsLost<T, WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T & GetLifeYearsLostResult>>,WithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<T,WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T & WithCauseImpactChainMethodResult>> {
 
 }
 export interface WithDataAndCoxFunctionsAndLifeTableFunctions<T extends object> {
@@ -67,6 +69,10 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
         getGetLifeExpectancy(currentResult, getNextObjectInChain),
         getGetLifeYearsLost(currentResult, getNextObjectInChain),
         getBaseWithDataResult(currentResult),
+        getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction(
+            currentResult,
+            getNextObjectInChain
+        )
     );
 }
 export function getWithDataAndCoxFunctionsAndLifeTableFunctions<
@@ -83,7 +89,7 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctions<
     };
 }
 
-export interface WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T extends object> extends BaseWithDataResult<T>, GetSurvivalToTime<T, WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T & GetSurvivalToTimeResult>>, GetRiskToTime<T, WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T & GetRiskToTimeResult>>, GetHealthAge<T, WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T & GetHealthAgeResult>> {
+export interface WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T extends object> extends BaseWithDataResult<T>, GetSurvivalToTime<T, WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T & GetSurvivalToTimeResult>>, GetRiskToTime<T, WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T & GetRiskToTimeResult>>, GetHealthAge<T, WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T & GetHealthAgeResult>>, WithCauseImpactAndCoxFunctions<T, WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T & WithCauseImpactChainMethodResult>> {
 
 }
 export interface WithDataAndCoxFunctionsAndAddRefPopFunctions<T extends object> {
@@ -102,7 +108,11 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult<
         getGetSurvivalToTime(currentResult, getNextObjectInChain),
         getGetRiskToTime(currentResult, getNextObjectInChain),
         getGetHealthAge(currentResult, getNextObjectInChain),
-        getBaseWithDataResult(currentResult)
+        getBaseWithDataResult(currentResult),
+        getWithCauseImpactAndCoxFunctions(
+            currentResult,
+            getNextObjectInChain
+        )
     );
 }
 
@@ -120,7 +130,7 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctions<
     }
 } 
 
-export interface CompleteWithDataResult<T extends object> extends BaseWithDataResult<T>, GetSurvivalToTime<T, CompleteWithDataResult<T & GetSurvivalToTimeResult>>, GetRiskToTime<T, CompleteWithDataResult<T & GetRiskToTimeResult>>, GetLifeExpectancy<T, CompleteWithDataResult<T & GetLifeExpectancyResult>>, GetLifeYearsLost<T, CompleteWithDataResult<T & GetLifeYearsLostResult>> , GetHealthAge<T, CompleteWithDataResult<T & GetHealthAgeResult>> {
+export interface CompleteWithDataResult<T extends object> extends BaseWithDataResult<T>, GetSurvivalToTime<T, CompleteWithDataResult<T & GetSurvivalToTimeResult>>, GetRiskToTime<T, CompleteWithDataResult<T & GetRiskToTimeResult>>, GetLifeExpectancy<T, CompleteWithDataResult<T & GetLifeExpectancyResult>>, GetLifeYearsLost<T, CompleteWithDataResult<T & GetLifeYearsLostResult>> , GetHealthAge<T, CompleteWithDataResult<T & GetHealthAgeResult>>, WithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<T, CompleteWithDataResult<T & WithCauseImpactChainMethodResult>> {
 
 }
 
@@ -139,7 +149,11 @@ export function getCompleteWithDataResult<
         getGetLifeExpectancy(currentResult, getNextObjectInChain),
         getGetLifeYearsLost(currentResult, getNextObjectInChain),
         getGetHealthAge(currentResult, getNextObjectInChain),
-        getBaseWithDataResult(currentResult)
+        getBaseWithDataResult(currentResult),
+        getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction(
+            currentResult,
+            getNextObjectInChain
+        )
     )
 }
 export interface CompleteWithData<T extends object> {
