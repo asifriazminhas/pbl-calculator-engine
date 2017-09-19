@@ -35,7 +35,7 @@ async function test() {
         .getRiskToTime()
         .getSurvivalToTime()
         .getLifeExpectancy()
-        .getLifeYearsLost()
+        .getLifeYearsLost('')
         .getSurvivalToAge()
         .withCauseImpact()
         .getLifeExpectancy()

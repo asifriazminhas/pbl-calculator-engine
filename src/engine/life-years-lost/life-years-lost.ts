@@ -3,6 +3,7 @@ import { RefLifeTable } from '../common/life-table';
 import { CauseImpactRef, getLifeExpectancyWithCauseImpact } from '../cause-impact';
 import { getLifeExpectancyUsingRefLifeTable } from '../life-expectancy';
 import { Cox } from '../cox';
+import { CompleteLifeTable } from '../common/life-table';
 
 export function getLifeYearsLost(
     causeDeletedRef: CauseImpactRef,
@@ -10,19 +11,23 @@ export function getLifeYearsLost(
     cox: Cox,
     data: Data,
     riskFactor: string,
-    useExFromLifeTableFromAge: number = 99
+    useExFromLifeTableFromAge: number = 99,
+    completeLifeTableForData?: CompleteLifeTable,
+    completeLifeTableForCauseImpactData?: CompleteLifeTable
 ): number {
     return getLifeExpectancyUsingRefLifeTable(
         data,
         refLifeTable,
         cox,
-        useExFromLifeTableFromAge
+        useExFromLifeTableFromAge,
+        completeLifeTableForData
     ) - getLifeExpectancyWithCauseImpact(
         causeDeletedRef,
         cox,
         refLifeTable,
         riskFactor,
         data,
-        useExFromLifeTableFromAge
+        useExFromLifeTableFromAge,
+        completeLifeTableForCauseImpactData
     )
 }

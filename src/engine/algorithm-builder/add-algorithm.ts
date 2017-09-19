@@ -63,6 +63,7 @@ export function curryAddAlgorithmWithLifeTableFunctionsFunction(
                 {}, 
                 cox,
                 refLifeTable,
+                causeImpactRef,
                 useExFromLifeTableFromAge
             ),
             getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
@@ -135,7 +136,8 @@ export function curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(
                 {}, 
                 cox, 
                 refPop,
-                refLifeTable, 
+                refLifeTable,
+                causeImpactRef, 
                 useExFromLifeTableFromAge
             ),
             getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(

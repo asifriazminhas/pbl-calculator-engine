@@ -2,7 +2,7 @@ import { CauseImpactRef } from './cause-impact-ref';
 import { Cox, getSurvivalToTime, getRiskToTime } from '../cox';
 import { Data, updateDataWithData } from '../common/data';
 import * as moment from 'moment';
-import { RefLifeTable } from '../common/life-table';
+import { RefLifeTable, CompleteLifeTable } from '../common/life-table';
 import { getLifeExpectancyUsingRefLifeTable } from '../life-expectancy';
 
 export function getSurvivalToTimeWithCauseImpact(
@@ -39,12 +39,14 @@ export function getLifeExpectancyWithCauseImpact(
     refLifeTable: RefLifeTable,
     riskFactor: string,
     data: Data,
-    useExFromLifeTableFromAge: number = 99
+    useExFromLifeTableFromAge: number = 99,
+    completeLifeTableForCauseImpactData?: CompleteLifeTable
 ): number {
     return getLifeExpectancyUsingRefLifeTable(
         updateDataWithData(data, causeImpactRef[riskFactor]),
         refLifeTable,
         cox,
-        useExFromLifeTableFromAge
+        useExFromLifeTableFromAge,
+        completeLifeTableForCauseImpactData
     )
 }
