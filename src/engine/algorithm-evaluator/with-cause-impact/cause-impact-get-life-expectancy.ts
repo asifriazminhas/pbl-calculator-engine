@@ -9,7 +9,7 @@ export interface GetLifeExpectancyWithCauseImpact {
 
 export function getGetLifeExpectancyWithCauseImpact(
     causeImpactRef: CauseImpactRef,
-    riskFactor: string,
+    riskFactors: Array<string>,
     refLifeTable: RefLifeTable,
     coxAlgorithm: Cox,
     useExFromLifeTableFromAge: number = 99
@@ -20,7 +20,7 @@ export function getGetLifeExpectancyWithCauseImpact(
                 causeImpactRef,
                 coxAlgorithm,
                 refLifeTable,
-                riskFactor,
+                riskFactors,
                 data,
                 useExFromLifeTableFromAge
             )

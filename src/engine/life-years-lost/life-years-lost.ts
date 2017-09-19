@@ -10,7 +10,7 @@ export function getLifeYearsLost(
     refLifeTable: RefLifeTable,
     cox: Cox,
     data: Data,
-    riskFactor: string,
+    riskFactors: string[],
     useExFromLifeTableFromAge: number = 99,
     completeLifeTableForData?: CompleteLifeTable,
     completeLifeTableForCauseImpactData?: CompleteLifeTable
@@ -25,7 +25,7 @@ export function getLifeYearsLost(
         causeDeletedRef,
         cox,
         refLifeTable,
-        riskFactor,
+        riskFactors,
         data,
         useExFromLifeTableFromAge,
         completeLifeTableForCauseImpactData

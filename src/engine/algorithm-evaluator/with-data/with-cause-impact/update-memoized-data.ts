@@ -8,22 +8,24 @@ import { CauseImpactRef } from '../../../cause-impact';
 export function updateMemoizedData(
     currentMemoizedData: WithDataMemoizedData,
     refLifeTable: RefLifeTable,
-    riskFactor: string,
+    riskFactors: string[],
     data: Data,
     causeDeletedRef: CauseImpactRef,
     cox: Cox,
     useExFromLifeTableFromAge: number = 99
 ) {
-    if(!currentMemoizedData.completeLifeTableForRiskFactors ||currentMemoizedData.completeLifeTableForRiskFactors[riskFactor]) {
+    const riskFactorKey = riskFactors.join('+');
+
+    if(!currentMemoizedData.completeLifeTableForRiskFactors ||currentMemoizedData.completeLifeTableForRiskFactors[riskFactorKey]) {
         currentMemoizedData.completeLifeTableForRiskFactors = Object.assign(
             {},
             currentMemoizedData.completeLifeTableForRiskFactors, 
             {
-                [riskFactor]: getCompleteLifeTableForDataUsingAlgorithm(
+                [riskFactorKey]: getCompleteLifeTableForDataUsingAlgorithm(
                     refLifeTable,
                     updateDataWithData(
                         data, 
-                        causeDeletedRef[riskFactor]
+                        causeDeletedRef[riskFactorKey]
                     ),
                     cox,
                     useExFromLifeTableFromAge

@@ -1,4 +1,4 @@
-import { WithCauseImpactChainMethodResult, updateWithCauseImpactChainMethodResult } from './with-cause-impact-common';
+import { WithCauseImpactChainMethodResult, updateWithCauseImpactChainMethodResult, getRiskFactorKey } from './with-cause-impact-common';
 import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { updateMemoizedData } from './update-memoized-data';
 import { getLifeExpectancyWithCauseImpact } from '../../../cause-impact';
@@ -26,15 +26,17 @@ export function getGetLifeExpectancyWithCauseImpact<
     refLifeTable: RefLifeTable,
     causeDeletedRef: CauseImpactRef,
     cox: Cox,
-    riskFactor: string,
+    riskFactors: string[],
     useExFromLifeTableFromAge: number = 99
 ): GetLifeExpectancyWithCauseImpact<T, U> {
     return {
         getLifeExpectancy: () => {
+            const riskFactorKey = getRiskFactorKey(riskFactors);
+
             const updatedMemoizedData = updateMemoizedData(
                 currentMemoizedData,
                 refLifeTable,
-                riskFactor,
+                riskFactors,
                 data,
                 causeDeletedRef,
                 cox,
@@ -45,12 +47,12 @@ export function getGetLifeExpectancyWithCauseImpact<
                 causeDeletedRef,
                 cox,
                 refLifeTable,
-                riskFactor,
+                riskFactors,
                 data,
                 useExFromLifeTableFromAge,
                 (updatedMemoizedData.completeLifeTableForRiskFactors as {
                     [index: string]: CompleteLifeTable
-                })[riskFactor],
+                })[riskFactorKey],
             )
 
             return getNextObjectInChain(
@@ -58,9 +60,9 @@ export function getGetLifeExpectancyWithCauseImpact<
                     {}, 
                     currentResult, 
                     updateWithCauseImpactChainMethodResult(
-                        riskFactor,
+                        riskFactorKey,
                         {
-                            [riskFactor]: {
+                            [riskFactorKey]: {
                                 lifeExpectancy: withCauseImpactLifeExpectancy
                             }
                         },

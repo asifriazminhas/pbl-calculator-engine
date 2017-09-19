@@ -1,4 +1,4 @@
-import { WithCauseImpactChainMethodResult, updateWithCauseImpactChainMethodResult } from './with-cause-impact-common';
+import { WithCauseImpactChainMethodResult, updateWithCauseImpactChainMethodResult, getRiskFactorKey } from './with-cause-impact-common';
 import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { WithDataMemoizedData } from '../memoized-data';
 import { getSurvivalToTimeWithCauseImpact, CauseImpactRef } from '../../../cause-impact';
@@ -21,20 +21,22 @@ export function getGetSurvivalToTimeWithCauseImpact<
     getNextObjectInChain: getNextObjectInChain<T & WithCauseImpactChainMethodResult, U>,
     currentMemoizedData: WithDataMemoizedData,
     data: Data,
-    riskFactor: string,
+    riskFactors: string[],
     causeDeletedRef: CauseImpactRef,
     cox: Cox
 ): GetSurvivalToTimeWithCauseImpact<T, U> {
     return {
         getSurvivalToTime: (time) => {
+            const riskFactorKey = getRiskFactorKey(riskFactors);
+
             let survivalToTimeWithCauseImpact: number;
             if(
-                !currentMemoizedData.oneYearSurvivalProbabilityForRiskFactors || currentMemoizedData.oneYearSurvivalProbabilityForRiskFactors[riskFactor] === undefined
+                !currentMemoizedData.oneYearSurvivalProbabilityForRiskFactors || currentMemoizedData.oneYearSurvivalProbabilityForRiskFactors[riskFactorKey] === undefined
             ) {
                 const oneYearSurvivalToTimeForCurrentRiskFactor = getSurvivalToTimeWithCauseImpact(
                     causeDeletedRef,
                     cox,
-                    riskFactor,
+                    riskFactors,
                     data
                 );
 
@@ -43,7 +45,7 @@ export function getGetSurvivalToTimeWithCauseImpact<
                         {}, 
                         currentMemoizedData.oneYearSurvivalProbabilityForRiskFactors,
                         {
-                            [riskFactor]: oneYearSurvivalToTimeForCurrentRiskFactor
+                            [riskFactorKey]: oneYearSurvivalToTimeForCurrentRiskFactor
                         }
                     );
                 currentMemoizedData.oneYearRiskProbabilityForRiskFactors = Object
@@ -51,21 +53,21 @@ export function getGetSurvivalToTimeWithCauseImpact<
                         {}, 
                         currentMemoizedData.oneYearRiskProbabilityForRiskFactors,
                         {
-                            [riskFactor]: 1 - oneYearSurvivalToTimeForCurrentRiskFactor
+                            [riskFactorKey]: 1 - oneYearSurvivalToTimeForCurrentRiskFactor
                         }
                     )
             }
 
-            survivalToTimeWithCauseImpact = ((currentMemoizedData.oneYearSurvivalProbabilityForRiskFactors as {[index: string]: number})[riskFactor] as number)*getTimeMultiplier(moment(time))
+            survivalToTimeWithCauseImpact = ((currentMemoizedData.oneYearSurvivalProbabilityForRiskFactors as {[index: string]: number})[riskFactorKey] as number)*getTimeMultiplier(moment(time))
 
             return getNextObjectInChain(
                 Object.assign(
                     {},
                     currentResult,
                     updateWithCauseImpactChainMethodResult(
-                        riskFactor,
+                        riskFactorKey,
                         {
-                            [riskFactor]: {
+                            [riskFactorKey]: {
                                 survivalToTime: survivalToTimeWithCauseImpact
                             }
                         },

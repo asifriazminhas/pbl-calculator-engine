@@ -10,14 +10,14 @@ export interface GetSurvivalToTimeWithCauseImpact {
 export function getGetSurvivalToTimeWithCauseImpact(
     causeImpactRef: CauseImpactRef,
     cox: Cox,
-    riskFactor: string
+    riskFactors: string[]
 ): GetSurvivalToTimeWithCauseImpact {
     return {
         getSurvivalToTime: (data, time) => {
             return getSurvivalToTimeWithCauseImpact(
                 causeImpactRef,
                 cox,
-                riskFactor,
+                riskFactors,
                 data,
                 time
             )

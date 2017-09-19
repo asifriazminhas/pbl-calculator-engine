@@ -5,7 +5,7 @@ import { Cox } from '../../cox';
 import { RefLifeTable } from '../../common/life-table';
 import { CauseImpactRef } from '../../cause-impact';
 
-export type WithCauseImpactFunction<T> = (riskFactor: string) => T;
+export type WithCauseImpactFunction<T> = (...riskFactor: string[]) => T;
 
 export interface WithCauseImpactWithCoxFunctions {
     withCauseImpact: WithCauseImpactFunction<GetSurvivalToTimeWithCauseImpact & GetRiskToTimeWithCauseImpact>;
@@ -16,18 +16,18 @@ export function getWithCauseImpactWithCoxFunctions(
     coxAlgorithm: Cox
 ): WithCauseImpactWithCoxFunctions {
     return {
-        withCauseImpact: (riskFactor) => {
+        withCauseImpact: (...riskFactors: string[]) => {
             return Object.assign(
                 {},
                 getGetSurvivalToTimeWithCauseImpact(
                     causeImpactRef,
                     coxAlgorithm,
-                    riskFactor
+                    riskFactors
                 ),
                 getGetRiskToTimeWithCauseImpact(
                     causeImpactRef,
                     coxAlgorithm,
-                    riskFactor
+                    riskFactors
                 )
             )
         }
@@ -45,22 +45,22 @@ export function getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
     useExFromLifeTableFromAge: number = 99
 ): WithCauseImpactWithCoxFunctionsAndLifeExpectancyFunction {
     return {
-        withCauseImpact: (riskFactor) => {
+        withCauseImpact: (...riskFactors: string[]) => {
             return Object.assign(
                 {},
                 getGetSurvivalToTimeWithCauseImpact(
                     causeImpactRef, 
                     coxAlgorithm,
-                    riskFactor
+                    riskFactors
                 ),
                 getGetRiskToTimeWithCauseImpact(
                     causeImpactRef, 
                     coxAlgorithm,
-                    riskFactor
+                    riskFactors
                 ),
                 getGetLifeExpectancyWithCauseImpact(
                     causeImpactRef,
-                    riskFactor,
+                    riskFactors,
                     refLifeTable,
                     coxAlgorithm,
                     useExFromLifeTableFromAge

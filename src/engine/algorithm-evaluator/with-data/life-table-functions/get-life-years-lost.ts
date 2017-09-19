@@ -6,7 +6,8 @@ import { RefLifeTable, CompleteLifeTable } from '../../../common/life-table';
 import { Cox } from '../../../cox';
 import { CauseImpactRef } from '../../../cause-impact';
 import { updateMemoizedData } from './update-memoized-data';
-import { updateMemoizedData as updateMemoizedDataForCauseImpact } from '../with-cause-impact'
+import { updateMemoizedData as updateMemoizedDataForCauseImpact, getRiskFactorKey } from '../with-cause-impact'
+
 export interface GetLifeYearsLostResult {
     lifeYearsLost: {
         [index: string]: number;
@@ -17,7 +18,7 @@ export interface GetLifeYearsLost<
     T extends object,
     U extends BaseWithDataResult<T & GetLifeYearsLostResult>
 > {
-    getLifeYearsLost: (riskFactor: string) => U;
+    getLifeYearsLost: (...riskFactors: string[]) => U;
 }
 
 export function getGetLifeYearsLost<
@@ -34,7 +35,7 @@ export function getGetLifeYearsLost<
     useExFromLifeTableFromAge: number = 99
 ): GetLifeYearsLost<T, U> {
     return {
-        getLifeYearsLost: (riskFactor) => {
+        getLifeYearsLost: (...riskFactors) => {
             const updatedMemoizedData = updateMemoizedDataForCauseImpact(
                 updateMemoizedData(
                     currentMemoizedData,
@@ -44,28 +45,28 @@ export function getGetLifeYearsLost<
                     useExFromLifeTableFromAge
                 ),
                 refLifeTable,
-                riskFactor,
+                riskFactors,
                 data,
                 causeDeletedRef,
                 cox,
                 useExFromLifeTableFromAge
             );
 
-
+            const riskFactorKey = getRiskFactorKey(riskFactors);
 
             const lifeYearsLost = Object.assign(
                 {}, 
                 (currentResult as T & GetLifeYearsLostResult).lifeYearsLost, 
                 {
-                    [riskFactor]: getLifeYearsLost(
+                    [riskFactorKey]: getLifeYearsLost(
                         causeDeletedRef,
                         refLifeTable,
                         cox,
                         data,
-                        riskFactor,
+                        riskFactors,
                         useExFromLifeTableFromAge,
                         updatedMemoizedData.completeLifeTable,
-                        (updatedMemoizedData.completeLifeTableForRiskFactors as { [index: string]: CompleteLifeTable})[riskFactor]
+                        (updatedMemoizedData.completeLifeTableForRiskFactors as { [index: string]: CompleteLifeTable})[riskFactorKey]
                     )
                 }
             );

@@ -7,7 +7,7 @@ import { Cox } from '../cox';
 export interface GetLifeYearsLost {
     getLifeYearsLost: (
         data: Data,
-        riskFactor: string,
+        riskFactors: string[],
         useExFromLifeTableFromAge: number
     ) => number;
 }
@@ -18,13 +18,13 @@ export function getGetLifeYearsLost(
     cox: Cox
 ): GetLifeYearsLost {
     return {
-        getLifeYearsLost: (data, riskFactor, useExFromLifeTableFromAge=99) => {
+        getLifeYearsLost: (data, riskFactors, useExFromLifeTableFromAge=99) => {
             return getLifeYearsLost(
                 causeDeletedRef,
                 refLifeTable,
                 cox,
                 data,
-                riskFactor,
+                riskFactors,
                 useExFromLifeTableFromAge
             )
         }

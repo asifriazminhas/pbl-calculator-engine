@@ -8,9 +8,14 @@ import { RefLifeTable } from '../../../common/life-table';
 import { CauseImpactRef } from '../../../cause-impact';
 import { Cox } from '../../../cox';
 
+export function getRiskFactorKey(
+    riskFactors: string[]
+): string {
+    return riskFactors.join('+');
+}
 
 export function updateWithCauseImpactChainMethodResult(
-    riskFactor: string,
+    riskFactorKey: string,
     update: {
         [index: string]: {
             survivalToTime?: number,
@@ -29,7 +34,7 @@ export function updateWithCauseImpactChainMethodResult(
         }
     }
 
-    let updatedWithCauseImpactForCurrentRiskFactor = updatedWithCauseImpactResult.withCauseImpact[riskFactor];
+    let updatedWithCauseImpactForCurrentRiskFactor = updatedWithCauseImpactResult.withCauseImpact[riskFactorKey];
     if(!updatedWithCauseImpactForCurrentRiskFactor) {
         updatedWithCauseImpactForCurrentRiskFactor = {
             riskToTime: [],
@@ -38,20 +43,20 @@ export function updateWithCauseImpactChainMethodResult(
         }
     }
 
-    if(update[riskFactor].riskToTime !== undefined) {
+    if(update[riskFactorKey].riskToTime !== undefined) {
         updatedWithCauseImpactForCurrentRiskFactor.riskToTime
-            .push(update[riskFactor].riskToTime as number)
+            .push(update[riskFactorKey].riskToTime as number)
     }
-    else if(update[riskFactor].survivalToTime !== undefined) {
+    else if(update[riskFactorKey].survivalToTime !== undefined) {
         updatedWithCauseImpactForCurrentRiskFactor.survivalToTime
-            .push(update[riskFactor].survivalToTime as number)
+            .push(update[riskFactorKey].survivalToTime as number)
     }
-    else if(update[riskFactor].lifeExpectancy !== undefined) {
-        updatedWithCauseImpactForCurrentRiskFactor.lifeExpectancy = update[riskFactor].lifeExpectancy;
+    else if(update[riskFactorKey].lifeExpectancy !== undefined) {
+        updatedWithCauseImpactForCurrentRiskFactor.lifeExpectancy = update[riskFactorKey].lifeExpectancy;
     }
 
     return Object.assign({}, updatedWithCauseImpactResult, {
-        [riskFactor]: updatedWithCauseImpactForCurrentRiskFactor
+        [riskFactorKey]: updatedWithCauseImpactForCurrentRiskFactor
     });
 }
 
@@ -69,7 +74,7 @@ export interface WithCauseImpactAndCoxFunctions<
     T extends object,
     U extends BaseWithDataResult<T & WithCauseImpactChainMethodResult>
 > {
-    withCauseImpact: (riskFactor: string) => GetSurvivalToTimeWithCauseImpact<T, U> & GetRiskToTimeWithCauseImpact<T, U>
+    withCauseImpact: (...riskFactors: string[]) => GetSurvivalToTimeWithCauseImpact<T, U> & GetRiskToTimeWithCauseImpact<T, U>
 }
 
 export function getWithCauseImpactAndCoxFunctions<
@@ -84,7 +89,7 @@ export function getWithCauseImpactAndCoxFunctions<
     cox: Cox
 ): WithCauseImpactAndCoxFunctions<T, U> {
     return {
-        withCauseImpact: (riskFactor) => {
+        withCauseImpact: (...riskFactors) => {
             return Object.assign(
                 {},
                 getGetSurvivalToTimeWithCauseImpact(
@@ -92,7 +97,7 @@ export function getWithCauseImpactAndCoxFunctions<
                     getNextObjectInChain,
                     currentMemoizedData,
                     data,
-                    riskFactor,
+                    riskFactors,
                     causeDeletedRef,
                     cox
                 ),
@@ -101,7 +106,7 @@ export function getWithCauseImpactAndCoxFunctions<
                     getNextObjectInChain,
                     currentMemoizedData,
                     data,
-                    riskFactor,
+                    riskFactors,
                     causeDeletedRef,
                     cox
                 )
@@ -114,7 +119,7 @@ export interface WithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<
     T extends object,
     U extends BaseWithDataResult<T & WithCauseImpactChainMethodResult>
 > {
-    withCauseImpact: (riskFactor: string) => GetSurvivalToTimeWithCauseImpact<T, U> & GetRiskToTimeWithCauseImpact<T, U> & GetLifeExpectancyWithCauseImpact<T, U>
+    withCauseImpact: (...riskFactors: string[]) => GetSurvivalToTimeWithCauseImpact<T, U> & GetRiskToTimeWithCauseImpact<T, U> & GetLifeExpectancyWithCauseImpact<T, U>
 }
 
 export function getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<
@@ -131,7 +136,7 @@ export function getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<
     useExFromLifeTableFromAge: number = 99
 ): WithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<T, U> {
     return {
-        withCauseImpact: (riskFactor) => {
+        withCauseImpact: (...riskFactors) => {
             return Object.assign(
                 {},
                 getGetSurvivalToTimeWithCauseImpact(
@@ -139,7 +144,7 @@ export function getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<
                     getNextObjectInChain,
                     currentMemoizedData,
                     data,
-                    riskFactor,
+                    riskFactors,
                     causeDeletedRef,
                     cox
                 ),
@@ -148,7 +153,7 @@ export function getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<
                     getNextObjectInChain,
                     currentMemoizedData,
                     data,
-                    riskFactor,
+                    riskFactors,
                     causeDeletedRef,
                     cox
                 ),
@@ -160,7 +165,7 @@ export function getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<
                     refLifeTable,
                     causeDeletedRef,
                     cox,
-                    riskFactor,
+                    riskFactors,
                     useExFromLifeTableFromAge
                 )
             )
