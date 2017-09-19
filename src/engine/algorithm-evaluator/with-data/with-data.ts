@@ -172,7 +172,15 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
             cox,
             useExFromLifeTableFromAge
         ),
-        getGetSurvivalToAge(currentResult, getNextObjectInChain)
+        getGetSurvivalToAge(
+            currentResult, 
+            getNextObjectInChain,
+            memoizedData,
+            data,
+            refLifeTable,
+            cox,
+            useExFromLifeTableFromAge
+        )
     );
 }
 export function getWithDataAndCoxFunctionsAndLifeTableFunctions<
@@ -366,7 +374,15 @@ export function getCompleteWithDataResult<
             cox,
             useExFromLifeTableFromAge
         ),
-        getGetSurvivalToAge(currentResult, getNextObjectInChain)
+        getGetSurvivalToAge(
+            currentResult, 
+            getNextObjectInChain,
+            memoizedData,
+            data,
+            refLifeTable,
+            cox,
+            useExFromLifeTableFromAge
+        )
     )
 }
 export interface CompleteWithData<T extends object> {
