@@ -35,9 +35,9 @@ async function test() {
         .getRiskToTime()
         .getSurvivalToTime()
         .getLifeExpectancy()
-        .getLifeYearsLost('')
+        .getLifeYearsLost('Physical Activity')
         .getSurvivalToAge()
-        .withCauseImpact()
+        .withCauseImpact('Smoking')
         .getLifeExpectancy()
         .end();
     resultTwo

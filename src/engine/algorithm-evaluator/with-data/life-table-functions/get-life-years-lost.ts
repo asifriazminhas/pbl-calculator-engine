@@ -1,13 +1,12 @@
 import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { WithDataMemoizedData } from '../memoized-data';
 import { getLifeYearsLost } from '../../../life-years-lost';
-import { Data, updateDataWithData } from '../../../common/data';
+import { Data } from '../../../common/data';
 import { RefLifeTable, CompleteLifeTable } from '../../../common/life-table';
 import { Cox } from '../../../cox';
 import { CauseImpactRef } from '../../../cause-impact';
 import { updateMemoizedData } from './update-memoized-data';
-import { getCompleteLifeTableForDataUsingAlgorithm } from '../../../life-expectancy';
-
+import { updateMemoizedData as updateMemoizedDataForCauseImpact } from '../with-cause-impact'
 export interface GetLifeYearsLostResult {
     lifeYearsLost: {
         [index: string]: number;
@@ -32,35 +31,27 @@ export function getGetLifeYearsLost<
     refLifeTable: RefLifeTable,
     cox: Cox,
     causeDeletedRef: CauseImpactRef,
-    useExFromLifeTable: number = 99
+    useExFromLifeTableFromAge: number = 99
 ): GetLifeYearsLost<T, U> {
     return {
         getLifeYearsLost: (riskFactor) => {
-            const updatedMemoizedData = updateMemoizedData(
-                currentMemoizedData,
+            const updatedMemoizedData = updateMemoizedDataForCauseImpact(
+                updateMemoizedData(
+                    currentMemoizedData,
+                    refLifeTable,
+                    data,
+                    cox,
+                    useExFromLifeTableFromAge
+                ),
                 refLifeTable,
+                riskFactor,
                 data,
+                causeDeletedRef,
                 cox,
-                useExFromLifeTable
+                useExFromLifeTableFromAge
             );
 
-            if(!updatedMemoizedData.completeLifeTableForRiskFactors ||updatedMemoizedData.completeLifeTableForRiskFactors[riskFactor]) {
-                updatedMemoizedData.completeLifeTableForRiskFactors = Object.assign(
-                    {},
-                    updatedMemoizedData.completeLifeTableForRiskFactors, 
-                    {
-                        [riskFactor]: getCompleteLifeTableForDataUsingAlgorithm(
-                            refLifeTable,
-                            updateDataWithData(
-                                data, 
-                                causeDeletedRef[riskFactor]
-                            ),
-                            cox,
-                            useExFromLifeTable
-                        )
-                    }
-                )
-            }
+
 
             const lifeYearsLost = Object.assign(
                 {}, 
@@ -72,7 +63,7 @@ export function getGetLifeYearsLost<
                         cox,
                         data,
                         riskFactor,
-                        useExFromLifeTable,
+                        useExFromLifeTableFromAge,
                         updatedMemoizedData.completeLifeTable,
                         (updatedMemoizedData.completeLifeTableForRiskFactors as { [index: string]: CompleteLifeTable})[riskFactor]
                     )

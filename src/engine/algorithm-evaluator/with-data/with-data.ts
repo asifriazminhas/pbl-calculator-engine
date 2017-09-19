@@ -153,7 +153,13 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
         getBaseWithDataResult(currentResult),
         getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction(
             currentResult,
-            getNextObjectInChain
+            getNextObjectInChain,
+            memoizedData,
+            data,
+            refLifeTable,
+            causeDeletedRef,
+            cox,
+            useExFromLifeTableFromAge
         ),
         getGetSurvivalToAge(currentResult, getNextObjectInChain)
     );
@@ -333,7 +339,13 @@ export function getCompleteWithDataResult<
         getBaseWithDataResult(currentResult),
         getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction(
             currentResult,
-            getNextObjectInChain
+            getNextObjectInChain,
+            memoizedData,
+            data,
+            refLifeTable,
+            causeDeletedRef,
+            cox,
+            useExFromLifeTableFromAge
         ),
         getGetSurvivalToAge(currentResult, getNextObjectInChain)
     )
