@@ -79,7 +79,12 @@ export function curryBuildFromAssetsFolder(
             getToJson(coxJson),
             getAddRefPopWithAddLifeTable(cox, coxJson),
             getAddLifeTableWithAddRefPop(cox, coxJson),
-            getWithDataAndCoxFunctions({}, {}, cox),
+            getWithDataAndCoxFunctions(
+                {}, 
+                {}, 
+                cox,
+                coxJson.causeDeletedRef
+            ),
             getWithCauseImpactWithCoxFunctions(
                 coxJson.causeDeletedRef,
                 cox

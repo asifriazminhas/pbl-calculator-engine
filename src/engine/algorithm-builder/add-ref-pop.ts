@@ -24,7 +24,8 @@ export interface AddRefPopWithAddLifeTableFunctions {
 
 export function getAddRefPopWithAddLifeTable(
     cox: Cox,
-    coxJson: CoxJson
+    coxJson: CoxJson,
+    causeImpactRef: CauseImpactRef = coxJson.causeDeletedRef
 ): AddRefPopWithAddLifeTable {
     return {
         addRefPop: (refPop) => {
@@ -39,7 +40,8 @@ export function getAddRefPopWithAddLifeTable(
                     {}, 
                     {}, 
                     cox,
-                    refPop
+                    refPop,
+                    causeImpactRef
                 ),
                 getWithCauseImpactWithCoxFunctions(
                     coxJson.causeDeletedRef,

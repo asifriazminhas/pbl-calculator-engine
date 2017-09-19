@@ -6,5 +6,11 @@ export interface WithDataMemoizedData {
     completeLifeTable?: CompleteLifeTable;
     completeLifeTableForRiskFactors?: {
         [index: string]: CompleteLifeTable | undefined
+    },
+    oneYearRiskProbabilityForRiskFactors?: {
+        [index: string]: number | undefined
+    };
+    oneYearSurvivalProbabilityForRiskFactors?: {
+        [index: string]: number | undefined;
     }
 }

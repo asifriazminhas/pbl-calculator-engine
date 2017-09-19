@@ -36,7 +36,8 @@ export function getWithDataAndCoxFunctionsResult<
     currentResult: T,
     memoizedData: WithDataMemoizedData,
     data: Data,
-    cox: Cox
+    cox: Cox,
+    causeDeletedRef: CauseImpactRef
 ): WithDataAndCoxFunctionsResult<T> {
     const getNextObjectInChain = (
         nextResult: any,
@@ -46,7 +47,8 @@ export function getWithDataAndCoxFunctionsResult<
             nextResult, 
             memoizedData,
             data,
-            cox
+            cox,
+            causeDeletedRef
         );
     }
 
@@ -67,13 +69,21 @@ export function getWithDataAndCoxFunctionsResult<
             cox
         ),
         getBaseWithDataResult(currentResult),
-        getWithCauseImpactAndCoxFunctions(currentResult, getNextObjectInChain)
+        getWithCauseImpactAndCoxFunctions(
+            currentResult, 
+            getNextObjectInChain,
+            memoizedData,
+            data,
+            causeDeletedRef,
+            cox
+        )
     )
 }
 export function getWithDataAndCoxFunctions<T extends object>(
     currentResult: T,
     memoizedData: WithDataMemoizedData,
-    cox: Cox
+    cox: Cox,
+    causeDeletedRef: CauseImpactRef
 ): WithDataAndCoxFunctions<T> {
     return {
         withData: (data) => {
@@ -81,7 +91,8 @@ export function getWithDataAndCoxFunctions<T extends object>(
                 currentResult,
                 memoizedData,
                 data,
-                cox
+                cox,
+                causeDeletedRef
             );
         }
     }
@@ -202,7 +213,8 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult<
     memoizedData: WithDataMemoizedData,
     data: Data, 
     cox: Cox,
-    refPop: ReferencePopulation
+    refPop: ReferencePopulation,
+    causeDeletedRef: CauseImpactRef
 ): WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T> {
     const getNextObjectInChain = (nextResult: any, memoizedData: any) => {
         return getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult(
@@ -210,7 +222,8 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult<
             memoizedData,
             data, 
             cox,
-            refPop
+            refPop,
+            causeDeletedRef
         )
     }
 
@@ -240,7 +253,11 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult<
         getBaseWithDataResult(currentResult),
         getWithCauseImpactAndCoxFunctions(
             currentResult,
-            getNextObjectInChain
+            getNextObjectInChain,
+            memoizedData,
+            data,
+            causeDeletedRef,
+            cox
         )
     );
 }
@@ -251,7 +268,8 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctions<
     currentResult: T,
     memoizedData: WithDataMemoizedData,
     cox: Cox,
-    refPop: ReferencePopulation
+    refPop: ReferencePopulation,
+    causeDeletedRef: CauseImpactRef
 ): WithDataAndCoxFunctionsAndAddRefPopFunctions<T> {
     return {
         withData: (data) => {
@@ -260,7 +278,8 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctions<
                 memoizedData,
                 data, 
                 cox,
-                refPop
+                refPop,
+                causeDeletedRef
             )
         }
     }

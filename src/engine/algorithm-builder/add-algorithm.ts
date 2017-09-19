@@ -17,7 +17,8 @@ export interface BaseAddAlgorithm {
 }
 export function curryBaseAddAlgorithmFunction(
     cox: Cox,
-    coxJson: CoxJson
+    coxJson: CoxJson,
+    causeImpactRef: CauseImpactRef = coxJson.causeDeletedRef
 ): BaseAddAlgorithmFunction {
     return (addedCox) => {
         addedCox;
@@ -28,7 +29,12 @@ export function curryBaseAddAlgorithmFunction(
             getToJson(coxJson),
             getAddLifeTableWithAddRefPop(cox, coxJson),
             getAddRefPopWithAddLifeTable(cox, coxJson),
-            getWithDataAndCoxFunctions({}, {}, cox),
+            getWithDataAndCoxFunctions(
+                {}, 
+                {}, 
+                cox,
+                causeImpactRef
+            ),
             getWithCauseImpactWithCoxFunctions(coxJson.causeDeletedRef, cox)
         );
     }
@@ -84,7 +90,8 @@ export interface AddAlgorithmReturnsGetHealthAge {
 export function curryAddAlgorithmReturnsGetHealthAgeFunction(
     cox: Cox,
     coxJson: CoxJson,
-    refPop: ReferencePopulation
+    refPop: ReferencePopulation,
+    causeImpactRef: CauseImpactRef = coxJson.causeDeletedRef
 ): AddAlgorithmReturnsGetHealthAgeFunction {
     return (addedCox) => {
         addedCox;
@@ -100,7 +107,8 @@ export function curryAddAlgorithmReturnsGetHealthAgeFunction(
                 {}, 
                 {}, 
                 cox, 
-                refPop
+                refPop,
+                causeImpactRef
             ),
             getWithCauseImpactWithCoxFunctions(coxJson.causeDeletedRef, cox)
         );

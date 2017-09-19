@@ -13,9 +13,9 @@ export function updateWithCauseImpactChainMethodResult(
     riskFactor: string,
     update: {
         [index: string]: {
-            survivalToTime?: number[],
-            riskToTime?: number[],
-            lifeExpectancy: number
+            survivalToTime?: number,
+            riskToTime?: number,
+            lifeExpectancy?: number
         }
     },
     currentWithCauseImpactResult?: WithCauseImpactChainMethodResult['withCauseImpact']
@@ -30,11 +30,25 @@ export function updateWithCauseImpactChainMethodResult(
     }
 
     let updatedWithCauseImpactForCurrentRiskFactor = updatedWithCauseImpactResult.withCauseImpact[riskFactor];
-    updatedWithCauseImpactForCurrentRiskFactor = Object.assign(
-        {},
-        updatedWithCauseImpactForCurrentRiskFactor,
-        update
-    );
+    if(!updatedWithCauseImpactForCurrentRiskFactor) {
+        updatedWithCauseImpactForCurrentRiskFactor = {
+            riskToTime: [],
+            survivalToTime: [],
+            lifeExpectancy: undefined
+        }
+    }
+
+    if(update[riskFactor].riskToTime !== undefined) {
+        updatedWithCauseImpactForCurrentRiskFactor.riskToTime
+            .push(update[riskFactor].riskToTime as number)
+    }
+    else if(update[riskFactor].survivalToTime !== undefined) {
+        updatedWithCauseImpactForCurrentRiskFactor.survivalToTime
+            .push(update[riskFactor].survivalToTime as number)
+    }
+    else if(update[riskFactor].lifeExpectancy !== undefined) {
+        updatedWithCauseImpactForCurrentRiskFactor.lifeExpectancy = update[riskFactor].lifeExpectancy;
+    }
 
     return Object.assign({}, updatedWithCauseImpactResult, {
         [riskFactor]: updatedWithCauseImpactForCurrentRiskFactor
@@ -46,7 +60,7 @@ export interface WithCauseImpactChainMethodResult {
         [index: string]: {
             survivalToTime: number[],
             riskToTime: number[],
-            lifeExpectancy: number
+            lifeExpectancy?: number
         }
     }
 }
@@ -63,19 +77,33 @@ export function getWithCauseImpactAndCoxFunctions<
     U extends BaseWithDataResult<T & WithCauseImpactChainMethodResult>
 >(
     currentResult: T,
-    getNextObjectInChain: getNextObjectInChain<T & WithCauseImpactChainMethodResult, U>
+    getNextObjectInChain: getNextObjectInChain<T & WithCauseImpactChainMethodResult, U>,
+    currentMemoizedData: WithDataMemoizedData,
+    data: Data,
+    causeDeletedRef: CauseImpactRef,
+    cox: Cox
 ): WithCauseImpactAndCoxFunctions<T, U> {
     return {
-        withCauseImpact: () => {
+        withCauseImpact: (riskFactor) => {
             return Object.assign(
                 {},
                 getGetSurvivalToTimeWithCauseImpact(
                     currentResult, 
-                    getNextObjectInChain
+                    getNextObjectInChain,
+                    currentMemoizedData,
+                    data,
+                    riskFactor,
+                    causeDeletedRef,
+                    cox
                 ),
                 getGetRiskToTimeWithCauseImpact(
-                    currentResult,
-                    getNextObjectInChain
+                    currentResult, 
+                    getNextObjectInChain,
+                    currentMemoizedData,
+                    data,
+                    riskFactor,
+                    causeDeletedRef,
+                    cox
                 )
             )
         }
@@ -108,11 +136,21 @@ export function getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<
                 {},
                 getGetSurvivalToTimeWithCauseImpact(
                     currentResult, 
-                    getNextObjectInChain
+                    getNextObjectInChain,
+                    currentMemoizedData,
+                    data,
+                    riskFactor,
+                    causeDeletedRef,
+                    cox
                 ),
                 getGetRiskToTimeWithCauseImpact(
-                    currentResult,
-                    getNextObjectInChain
+                    currentResult, 
+                    getNextObjectInChain,
+                    currentMemoizedData,
+                    data,
+                    riskFactor,
+                    causeDeletedRef,
+                    cox
                 ),
                 getGetLifeExpectancyWithCauseImpact(
                     currentResult,
