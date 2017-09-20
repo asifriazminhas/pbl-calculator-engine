@@ -37,7 +37,7 @@ export function getWithDataAndCoxFunctionsResult<
     memoizedData: WithDataMemoizedData,
     data: Data,
     cox: Cox,
-    causeDeletedRef: CauseImpactRef
+    causeImpactRef: CauseImpactRef
 ): WithDataAndCoxFunctionsResult<T> {
     const getNextObjectInChain = (
         nextResult: any,
@@ -48,7 +48,7 @@ export function getWithDataAndCoxFunctionsResult<
             memoizedData,
             data,
             cox,
-            causeDeletedRef
+            causeImpactRef
         );
     }
 
@@ -74,7 +74,7 @@ export function getWithDataAndCoxFunctionsResult<
             getNextObjectInChain,
             memoizedData,
             data,
-            causeDeletedRef,
+            causeImpactRef,
             cox
         )
     )
@@ -83,7 +83,7 @@ export function getWithDataAndCoxFunctions<T extends object>(
     currentResult: T,
     memoizedData: WithDataMemoizedData,
     cox: Cox,
-    causeDeletedRef: CauseImpactRef
+    causeImpactRef: CauseImpactRef
 ): WithDataAndCoxFunctions<T> {
     return {
         withData: (data) => {
@@ -92,7 +92,7 @@ export function getWithDataAndCoxFunctions<T extends object>(
                 memoizedData,
                 data,
                 cox,
-                causeDeletedRef
+                causeImpactRef
             );
         }
     }
@@ -112,7 +112,7 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
     data: Data,
     cox: Cox,
     refLifeTable: RefLifeTable,
-    causeDeletedRef: CauseImpactRef,
+    causeImpactRef: CauseImpactRef,
     useExFromLifeTableFromAge: number = 99
 ): WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T> {
     const getNextObjectInChain = (nextResult: any, memoizedData: any) => {
@@ -122,7 +122,7 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
             data,
             cox,
             refLifeTable,
-            causeDeletedRef,
+            causeImpactRef,
             useExFromLifeTableFromAge
         )
     }
@@ -158,7 +158,7 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
             data,
             refLifeTable,
             cox,
-            causeDeletedRef,
+            causeImpactRef,
             useExFromLifeTableFromAge
         ),
         getBaseWithDataResult(currentResult),
@@ -168,7 +168,7 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
             memoizedData,
             data,
             refLifeTable,
-            causeDeletedRef,
+            causeImpactRef,
             cox,
             useExFromLifeTableFromAge
         ),
@@ -190,7 +190,7 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctions<
     memoizedData: WithDataMemoizedData,
     cox: Cox,
     refLifeTable: RefLifeTable,
-    causeDeletedRef: CauseImpactRef,
+    causeImpactRef: CauseImpactRef,
     useExFromLifeTableFromAge: number = 99
 ): WithDataAndCoxFunctionsAndLifeTableFunctions<T> {
     return {
@@ -201,7 +201,7 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctions<
                 data, 
                 cox,
                 refLifeTable,
-                causeDeletedRef,
+                causeImpactRef,
                 useExFromLifeTableFromAge
             );
         }
@@ -222,7 +222,7 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult<
     data: Data, 
     cox: Cox,
     refPop: ReferencePopulation,
-    causeDeletedRef: CauseImpactRef
+    causeImpactRef: CauseImpactRef
 ): WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T> {
     const getNextObjectInChain = (nextResult: any, memoizedData: any) => {
         return getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult(
@@ -231,7 +231,7 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult<
             data, 
             cox,
             refPop,
-            causeDeletedRef
+            causeImpactRef
         )
     }
 
@@ -264,7 +264,7 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult<
             getNextObjectInChain,
             memoizedData,
             data,
-            causeDeletedRef,
+            causeImpactRef,
             cox
         )
     );
@@ -277,7 +277,7 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctions<
     memoizedData: WithDataMemoizedData,
     cox: Cox,
     refPop: ReferencePopulation,
-    causeDeletedRef: CauseImpactRef
+    causeImpactRef: CauseImpactRef
 ): WithDataAndCoxFunctionsAndAddRefPopFunctions<T> {
     return {
         withData: (data) => {
@@ -287,7 +287,7 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctions<
                 data, 
                 cox,
                 refPop,
-                causeDeletedRef
+                causeImpactRef
             )
         }
     }
@@ -306,7 +306,7 @@ export function getCompleteWithDataResult<
     cox: Cox,
     refPop: ReferencePopulation,
     refLifeTable: RefLifeTable,
-    causeDeletedRef: CauseImpactRef,
+    causeImpactRef: CauseImpactRef,
     useExFromLifeTableFromAge: number = 99
 ): CompleteWithDataResult<T> {
     const getNextObjectInChain = (nextResult: any, memoizedData: any) => {
@@ -317,7 +317,7 @@ export function getCompleteWithDataResult<
             cox,
             refPop,
             refLifeTable,
-            causeDeletedRef,
+            causeImpactRef,
             useExFromLifeTableFromAge
         );
     }
@@ -352,7 +352,7 @@ export function getCompleteWithDataResult<
             data,
             refLifeTable,
             cox,
-            causeDeletedRef,
+            causeImpactRef,
             useExFromLifeTableFromAge
         ),
         getGetHealthAge(
@@ -370,7 +370,7 @@ export function getCompleteWithDataResult<
             memoizedData,
             data,
             refLifeTable,
-            causeDeletedRef,
+            causeImpactRef,
             cox,
             useExFromLifeTableFromAge
         ),
@@ -396,7 +396,7 @@ export function getCompleteWithData<
     cox: Cox,
     refPop: ReferencePopulation,
     refLifeTable: RefLifeTable,
-    causeDeletedRef: CauseImpactRef,
+    causeImpactRef: CauseImpactRef,
     useExFromLifeTableFromAge: number = 99
 ): CompleteWithData<T> {
     return {
@@ -408,7 +408,7 @@ export function getCompleteWithData<
                 cox,
                 refPop,
                 refLifeTable,
-                causeDeletedRef,
+                causeImpactRef,
                 useExFromLifeTableFromAge
             );
         }

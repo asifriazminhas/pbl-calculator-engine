@@ -5,11 +5,12 @@ import { CoxJson } from '../common/json-types';
 import { parseCoxJsonToCox } from '../json-parser/cox';
 import { ToJson, getToJson } from './to-json';
 import { WithDataAndCoxFunctions, getWithDataAndCoxFunctions } from '../algorithm-evaluator';
-import { BaseAddAlgorithm, curryBaseAddAlgorithmFunction } from './add-algorithm';
+import { BaseAddAlgorithm, getBaseAddAlgorithmFunction } from './add-algorithm';
+import { BaseReplaceCauseImpactRef, getBaseReplaceCauseImpactRef } from './replace-cause-impact-ref';
 
 export type BuildFromAlgorithJsonFunction = (
     algorithmJson: CoxJson
-) => GetSurvivalToTime & GetRiskToTime & AddLifeTableWithAddRefPop & ToJson & AddRefPopWithAddLifeTable & WithDataAndCoxFunctions<{}> & BaseAddAlgorithm & WithCauseImpactWithCoxFunctions;
+) => GetSurvivalToTime & GetRiskToTime & AddLifeTableWithAddRefPop & ToJson & AddRefPopWithAddLifeTable & WithDataAndCoxFunctions<{}> & BaseAddAlgorithm & WithCauseImpactWithCoxFunctions & BaseReplaceCauseImpactRef;
 
 export interface BuildFromAlgorithmJson {
     buildFromAlgorithmJson: BuildFromAlgorithJsonFunction
@@ -37,16 +38,15 @@ export function curryBuildFromAlgorithmJsonFunction(
                 algorithmJson.causeDeletedRef,
                 cox
             ),
-            {
-                addLifeTable: getAddLifeTableWithAddRefPop(
-                    cox,
-                    algorithmJson
-                ),
-                addAlgorithm: curryBaseAddAlgorithmFunction(
-                    cox,
-                    algorithmJson
-                )
-            }
+            getBaseAddAlgorithmFunction(
+                cox,
+                algorithmJson
+            ),
+            getAddLifeTableWithAddRefPop(
+                cox,
+                algorithmJson
+            ),
+            getBaseReplaceCauseImpactRef(cox, algorithmJson)
         )
     }
 }

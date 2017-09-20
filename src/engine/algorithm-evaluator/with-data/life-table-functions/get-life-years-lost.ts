@@ -31,7 +31,7 @@ export function getGetLifeYearsLost<
     data: Data,
     refLifeTable: RefLifeTable,
     cox: Cox,
-    causeDeletedRef: CauseImpactRef,
+    causeImpactRef: CauseImpactRef,
     useExFromLifeTableFromAge: number = 99
 ): GetLifeYearsLost<T, U> {
     return {
@@ -47,7 +47,7 @@ export function getGetLifeYearsLost<
                 refLifeTable,
                 riskFactors,
                 data,
-                causeDeletedRef,
+                causeImpactRef,
                 cox,
                 useExFromLifeTableFromAge
             );
@@ -59,7 +59,7 @@ export function getGetLifeYearsLost<
                 (currentResult as T & GetLifeYearsLostResult).lifeYearsLost, 
                 {
                     [riskFactorKey]: getLifeYearsLost(
-                        causeDeletedRef,
+                        causeImpactRef,
                         refLifeTable,
                         cox,
                         data,

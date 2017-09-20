@@ -10,7 +10,7 @@ export function updateMemoizedData(
     refLifeTable: RefLifeTable,
     riskFactors: string[],
     data: Data,
-    causeDeletedRef: CauseImpactRef,
+    causeImpactRef: CauseImpactRef,
     cox: Cox,
     useExFromLifeTableFromAge: number = 99
 ) {
@@ -25,7 +25,7 @@ export function updateMemoizedData(
                     refLifeTable,
                     updateDataWithData(
                         data, 
-                        causeDeletedRef[riskFactorKey]
+                        causeImpactRef[riskFactorKey]
                     ),
                     cox,
                     useExFromLifeTableFromAge

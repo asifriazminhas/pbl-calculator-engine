@@ -24,7 +24,7 @@ export function getGetLifeExpectancyWithCauseImpact<
     currentMemoizedData: WithDataMemoizedData,
     data: Data,
     refLifeTable: RefLifeTable,
-    causeDeletedRef: CauseImpactRef,
+    causeImpactRef: CauseImpactRef,
     cox: Cox,
     riskFactors: string[],
     useExFromLifeTableFromAge: number = 99
@@ -38,13 +38,13 @@ export function getGetLifeExpectancyWithCauseImpact<
                 refLifeTable,
                 riskFactors,
                 data,
-                causeDeletedRef,
+                causeImpactRef,
                 cox,
                 useExFromLifeTableFromAge
             );
 
             const withCauseImpactLifeExpectancy = getLifeExpectancyWithCauseImpact(
-                causeDeletedRef,
+                causeImpactRef,
                 cox,
                 refLifeTable,
                 riskFactors,

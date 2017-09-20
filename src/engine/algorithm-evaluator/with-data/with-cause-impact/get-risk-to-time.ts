@@ -22,7 +22,7 @@ export function getGetRiskToTimeWithCauseImpact<
     currentMemoizedData: WithDataMemoizedData,
     data: Data,
     riskFactors: string[],
-    causeDeletedRef: CauseImpactRef,
+    causeImpactRef: CauseImpactRef,
     cox: Cox
 ): GetRiskToTimeWithCauseImpact<T, U> {
     return {
@@ -34,7 +34,7 @@ export function getGetRiskToTimeWithCauseImpact<
                 !currentMemoizedData.oneYearRiskProbabilityForRiskFactors || currentMemoizedData.oneYearRiskProbabilityForRiskFactors[riskFactorKey] === undefined
             ) {
                 const oneYearRiskToTimeForCurrentRiskFactor = getRiskToTimeWithCauseImpact(
-                    causeDeletedRef,
+                    causeImpactRef,
                     cox,
                     riskFactors,
                     data

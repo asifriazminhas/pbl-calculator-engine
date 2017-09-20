@@ -85,7 +85,7 @@ export function getWithCauseImpactAndCoxFunctions<
     getNextObjectInChain: getNextObjectInChain<T & WithCauseImpactChainMethodResult, U>,
     currentMemoizedData: WithDataMemoizedData,
     data: Data,
-    causeDeletedRef: CauseImpactRef,
+    causeImpactRef: CauseImpactRef,
     cox: Cox
 ): WithCauseImpactAndCoxFunctions<T, U> {
     return {
@@ -98,7 +98,7 @@ export function getWithCauseImpactAndCoxFunctions<
                     currentMemoizedData,
                     data,
                     riskFactors,
-                    causeDeletedRef,
+                    causeImpactRef,
                     cox
                 ),
                 getGetRiskToTimeWithCauseImpact(
@@ -107,7 +107,7 @@ export function getWithCauseImpactAndCoxFunctions<
                     currentMemoizedData,
                     data,
                     riskFactors,
-                    causeDeletedRef,
+                    causeImpactRef,
                     cox
                 )
             )
@@ -131,7 +131,7 @@ export function getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<
     currentMemoizedData: WithDataMemoizedData,
     data: Data,
     refLifeTable: RefLifeTable,
-    causeDeletedRef: CauseImpactRef,
+    causeImpactRef: CauseImpactRef,
     cox: Cox,
     useExFromLifeTableFromAge: number = 99
 ): WithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<T, U> {
@@ -145,7 +145,7 @@ export function getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<
                     currentMemoizedData,
                     data,
                     riskFactors,
-                    causeDeletedRef,
+                    causeImpactRef,
                     cox
                 ),
                 getGetRiskToTimeWithCauseImpact(
@@ -154,7 +154,7 @@ export function getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<
                     currentMemoizedData,
                     data,
                     riskFactors,
-                    causeDeletedRef,
+                    causeImpactRef,
                     cox
                 ),
                 getGetLifeExpectancyWithCauseImpact(
@@ -163,7 +163,7 @@ export function getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<
                     currentMemoizedData,
                     data,
                     refLifeTable,
-                    causeDeletedRef,
+                    causeImpactRef,
                     cox,
                     riskFactors,
                     useExFromLifeTableFromAge

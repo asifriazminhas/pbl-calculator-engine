@@ -8,11 +8,12 @@ import { parseCoxJsonToCox } from '../json-parser/cox';
 import { pmmlXmlStringsToJson } from '../pmml-to-json-parser/pmml';
 import { ToJson, getToJson } from './to-json';
 import { WithDataAndCoxFunctions, getWithDataAndCoxFunctions } from '../algorithm-evaluator';
-import { BaseAddAlgorithm, curryBaseAddAlgorithmFunction } from './add-algorithm';
+import { BaseAddAlgorithm, getBaseAddAlgorithmFunction } from './add-algorithm';
+import { BaseReplaceCauseImpactRef, getBaseReplaceCauseImpactRef } from './replace-cause-impact-ref';
 
 export type BuildFromAssetsFolderFunction = (
     assetsFolderPath: string
-) => Promise<GetSurvivalToTime & GetRiskToTime & AddLifeTableWithAddRefPop & AddRefPopWithAddLifeTable & ToJson & WithDataAndCoxFunctions<{}> & BaseAddAlgorithm & WithCauseImpactWithCoxFunctions>;
+) => Promise<GetSurvivalToTime & GetRiskToTime & AddLifeTableWithAddRefPop & AddRefPopWithAddLifeTable & ToJson & WithDataAndCoxFunctions<{}> & BaseAddAlgorithm & WithCauseImpactWithCoxFunctions & BaseReplaceCauseImpactRef>;
 
 export interface BuildFromAssetsFolder {
     buildFromAssetsFolder: BuildFromAssetsFolderFunction
@@ -89,9 +90,8 @@ export function curryBuildFromAssetsFolder(
                 coxJson.causeDeletedRef,
                 cox
             ),
-            {
-                addAlgorithm: curryBaseAddAlgorithmFunction(cox, coxJson)
-            }
+            getBaseAddAlgorithmFunction(cox, coxJson),
+            getBaseReplaceCauseImpactRef(cox, coxJson)
         )
     }
 }
