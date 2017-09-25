@@ -165,4 +165,20 @@ export interface ExpressionStatementAst {
     expression: AST
 }
 
+export interface BlockStatementAst {
+    type: 'BlockStatement';
+    body: Array<ReturnStatementAst>;
+}
+
+export interface ReturnStatementAst {
+    type: 'ReturnStatement';
+    argument: AST;
+}
+
+export interface FunctionExpressionAst {
+    type: 'FunctionExpression';
+    params: Array<IdentifierAST>;
+    body: BlockStatementAst;
+}
+
 export type AST = LiteralAST | IdentifierAST | BinaryExpressionAST | LogicalExpressionAST | UnaryExpressionAST | AssignmentExpressionAST | ExpressionStatementAST | IfStatementAST | MemberExpressionAST | CallExpressionAST | ConditionalExpressionAST | ExpressionStatementAst

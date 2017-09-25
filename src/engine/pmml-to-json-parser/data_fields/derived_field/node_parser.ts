@@ -1,5 +1,5 @@
 //interfaces
-import { IApply, IFieldRef, IConstant } from '../../../pmml';
+import { IApply, IFieldRef, IConstant } from '../../../pmml/local_transformations/common';
 import {
     LiteralAST,
     BinaryExpressionASTLeftAndRight,
@@ -26,10 +26,13 @@ import {
 
 //Object for oeprators that don't meet the normal parsing conditions
 const ApplyOperatorExceptions: {
-    [index: string]: (apply: IApply) => AST;
+    [index: string]: (
+        apply: IApply, 
+        userDefinedFunctionNames: Array<string>
+    ) => AST;
 } = {
     //The - operator can be a subtraction (a - b) or a negation (-a)
-    '-': function(apply) {
+    '-': function(apply, userDefinedFunctionNames) {
         if(!apply.$$[1]) {
             const leftNode = apply.$$[0];
             let leftNodeAst;
@@ -41,7 +44,10 @@ const ApplyOperatorExceptions: {
                 leftNodeAst = getASTForFieldRef(leftNode as IFieldRef);
             }
             else if(leftNode['#name'] === 'Apply') {
-                leftNodeAst = getASTForApply(leftNode as IApply);
+                leftNodeAst = getASTForApply(
+                    leftNode as IApply,
+                    userDefinedFunctionNames
+                );
             }
 
             if(!leftNodeAst) {
@@ -51,7 +57,10 @@ const ApplyOperatorExceptions: {
             return getUnaryExpressionAST('-', leftNodeAst as any);
         }
         else {
-            return getASTForBinaryExpressionApply(apply);
+            return getASTForBinaryExpressionApply(
+                apply,
+                userDefinedFunctionNames
+            );
         }
     }
 };
@@ -106,25 +115,49 @@ export type GetAstForApplyReturn = BinaryExpressionAST | LogicalExpressionAST | 
  * @param {Apply} apply
  * @returns {AST}
  */
-export function getASTForApply(apply: IApply): GetAstForApplyReturn {
+export function getASTForApply(
+    apply: IApply,
+    userDefinedFunctionNames: Array<string>
+): GetAstForApplyReturn {
     if(ApplyOperatorExceptions[apply.$.function]) {
-        return ApplyOperatorExceptions[apply.$.function](apply) as any;
+        return ApplyOperatorExceptions[apply.$.function](
+            apply,
+            userDefinedFunctionNames
+        ) as any;
     }
     //if the function is a binary expression operator
     if(BinaryExpressionOperators[apply.$.function] !== undefined) {
-        return getASTForBinaryExpressionApply(apply)
+        return getASTForBinaryExpressionApply(
+            apply,
+            userDefinedFunctionNames
+        )
     }
     //if the function is a logical expression operator
     else if(LogicalExpressionOperators[apply.$.function] !==  undefined) {
-        return getASTForLogicalExpressionApply(apply)
+        return getASTForLogicalExpressionApply(
+            apply,
+            userDefinedFunctionNames
+        )
     }
     //if the function is an if statement
     else if(apply.$.function === 'if') {
-        return getASTForIfApply(apply)
+        return getASTForIfApply(
+            apply,
+            userDefinedFunctionNames
+        )
     }
     //if it is one of the special PMML functions
     else if(SpecialFunctions.indexOf(apply.$.function) > -1) {
-        return getASTForCallExpressionApply(apply)
+        return getASTForCallExpressionApply(
+            apply,
+            userDefinedFunctionNames
+        )
+    }
+    else if(userDefinedFunctionNames.indexOf(apply.$.function) > -1) {
+        return getASTForUserDefinedFunctionApply(
+            apply,
+            userDefinedFunctionNames
+        );
     }
     else {
         throw new Error(`Unhandled function ${apply.$.function}`)
@@ -152,7 +185,10 @@ const BinaryExpressionOperators: {
  * @param {Apply} apply
  * @returns {BinaryExpressionAST}
  */
-export function getASTForBinaryExpressionApply(apply: IApply): BinaryExpressionAST {
+export function getASTForBinaryExpressionApply(
+    apply: IApply,
+    userDefinedFunctionNames: Array<string>
+): BinaryExpressionAST {
     var left: BinaryExpressionASTLeftAndRight
     var leftNode = apply.$$[0]
     switch(leftNode['#name']) {
@@ -165,7 +201,7 @@ export function getASTForBinaryExpressionApply(apply: IApply): BinaryExpressionA
             break
         }
         case 'Apply': {
-            left = getASTForApply(leftNode as IApply) as BinaryExpressionASTLeftAndRight
+            left = getASTForApply(leftNode as IApply, userDefinedFunctionNames) as BinaryExpressionASTLeftAndRight
             break
         }
         default: {
@@ -185,7 +221,10 @@ export function getASTForBinaryExpressionApply(apply: IApply): BinaryExpressionA
             break
         }
         case 'Apply': {
-            right = getASTForApply(rightNode as IApply) as BinaryExpressionASTLeftAndRight
+            right = getASTForApply(
+                rightNode as IApply,
+                userDefinedFunctionNames
+            ) as BinaryExpressionASTLeftAndRight
             break
         }
         default: {
@@ -214,7 +253,10 @@ const LogicalExpressionOperators: {
  * @param {Apply} apply
  * @returns {LogicalExpressionAST}
  */
-export function getASTForLogicalExpressionApply(apply: IApply): LogicalExpressionAST {
+export function getASTForLogicalExpressionApply(
+    apply: IApply,
+    userDefinedFunctionNames: Array<string>
+): LogicalExpressionAST {
     var left: LogicalExpressionASTLeftAndRight
     switch(apply.$$[1]['#name']) {
         case 'Constant': {
@@ -226,7 +268,10 @@ export function getASTForLogicalExpressionApply(apply: IApply): LogicalExpressio
             break
         }
         case 'Apply': {
-            left = getASTForApply(apply.$$[0] as IApply) as LogicalExpressionASTLeftAndRight
+            left = getASTForApply(
+                apply.$$[0] as IApply, 
+                userDefinedFunctionNames
+            ) as LogicalExpressionASTLeftAndRight
             break
         }
         default: {
@@ -245,7 +290,10 @@ export function getASTForLogicalExpressionApply(apply: IApply): LogicalExpressio
             break
         }
         case 'Apply': {
-            right = getASTForApply(apply.$$[1] as IApply) as LogicalExpressionASTLeftAndRight
+            right = getASTForApply(
+                apply.$$[1] as IApply,
+                userDefinedFunctionNames
+            ) as LogicalExpressionASTLeftAndRight
             break
         }
         default: {
@@ -267,7 +315,10 @@ export function getASTForLogicalExpressionApply(apply: IApply): LogicalExpressio
  * @param {Apply} apply
  * @returns {ConditionalExpressionAST}
  */
-export function getASTForIfApply(apply: IApply): ConditionalExpressionAST {
+export function getASTForIfApply(
+    apply: IApply,
+    userDefinedFunctionNames: Array<string>
+): ConditionalExpressionAST {
     var test: AST
     switch(apply.$$[0]['#name']) {
         case 'Constant': {
@@ -279,7 +330,10 @@ export function getASTForIfApply(apply: IApply): ConditionalExpressionAST {
             break
         }
         case 'Apply': {
-            test = getASTForApply(apply.$$[0] as IApply)
+            test = getASTForApply(
+                apply.$$[0] as IApply,
+                userDefinedFunctionNames
+            )
             break
         }
         default: {
@@ -298,7 +352,10 @@ export function getASTForIfApply(apply: IApply): ConditionalExpressionAST {
             break
         }
         case 'Apply': {
-            consequent = getASTForApply(apply.$$[1] as IApply)
+            consequent = getASTForApply(
+                apply.$$[1] as IApply,
+                userDefinedFunctionNames
+            )
             break
         }
         default: {
@@ -317,7 +374,10 @@ export function getASTForIfApply(apply: IApply): ConditionalExpressionAST {
             break
         }
         case 'Apply': {
-            alternate = getASTForApply(apply.$$[2] as IApply)
+            alternate = getASTForApply(
+                apply.$$[2] as IApply,
+                userDefinedFunctionNames
+            )
             break
         }
         default: {
@@ -346,7 +406,10 @@ const SpecialFunctions: Array<string> = [
  * @param {Apply} apply
  * @returns {CallExpressionAST}
  */
-export function getASTForCallExpressionApply(apply: IApply): CallExpressionAST {
+export function getASTForCallExpressionApply(
+    apply: IApply,
+    userDefinedFunctionNames: Array<string>
+): CallExpressionAST {
     //We make the function call look like func[apply.$.function] so that we can dynamically make the functions available at runtime
     return getCallExpressionAST(
         getMemberExpressionAST(getLiteralAST(apply.$.function), 'func'),
@@ -360,7 +423,49 @@ export function getASTForCallExpressionApply(apply: IApply): CallExpressionAST {
                     return getASTForFieldRef(apply as IFieldRef)
                 }
                 case 'Apply': {
-                    return getASTForApply(apply as IApply)
+                    return getASTForApply(
+                        apply as IApply,
+                        userDefinedFunctionNames
+                    )
+                }
+                default: {
+                    throw new Error(`Unhandled node type ${apply['#name']}`)
+                }
+            }
+        })
+    );
+}
+
+/**
+ * Maps a PMML apply node whose function string is set to one in the above SpecialFunctions object to a CallExpressionAST
+ * 
+ * @export
+ * @param {Apply} apply
+ * @returns {CallExpressionAST}
+ */
+export function getASTForUserDefinedFunctionApply(
+    apply: IApply,
+    userDefinedFunctionNames: Array<string>
+): CallExpressionAST {
+    //We make the function call look like func[apply.$.function] so that we can dynamically make the functions available at runtime
+    return getCallExpressionAST(
+        getMemberExpressionAST(
+            getLiteralAST(apply.$.function), 'userFunctions'
+        ),
+        //Go through all the function arguments
+        apply.$$.map((apply) => {
+            switch (apply['#name']) {
+                case 'Constant': {
+                    return getASTForConstant(apply as IConstant)
+                }
+                case 'FieldRef': {
+                    return getASTForFieldRef(apply as IFieldRef)
+                }
+                case 'Apply': {
+                    return getASTForApply(
+                        apply as IApply,
+                        userDefinedFunctionNames
+                    )
                 }
                 default: {
                     throw new Error(`Unhandled node type ${apply['#name']}`)

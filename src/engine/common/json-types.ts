@@ -24,7 +24,7 @@ export type InteractionCovariateWithoutOpTypeJson = GenericInteractionCovariateW
 
 export type CovariateJson = GenericCovariate<string>;
 
-export interface CoxJson extends GenericCox<CovariateJson> {
+export interface CoxJson extends GenericCox<CovariateJson, string> {
     derivedFields: Array<DerivedFieldJson>;
     //TODO Implement this
     causeDeletedRef: any;

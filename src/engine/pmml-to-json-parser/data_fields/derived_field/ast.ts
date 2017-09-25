@@ -17,7 +17,10 @@ import {
     CallExpressionArgumentAST,
     ConditionalExpressionTestAST,
     ConditionalExpressionAlternateAST,
-    ConditionalExpressionConsequentAST
+    ConditionalExpressionConsequentAST,
+    FunctionExpressionAst,
+    ReturnStatementAst,
+    AST
 } from '../../interfaces/ast'
 
 /**
@@ -184,6 +187,30 @@ export function getConditionalExpressionAST(test: ConditionalExpressionTestAST, 
         test,
         consequent,
         alternate
+    }
+}
+
+export function getFunctionExpressionAst(
+    params: Array<string>,
+    returnStatementAst: ReturnStatementAst
+): FunctionExpressionAst {
+    return {
+        type: 'FunctionExpression',
+        params: params
+            .map(param => getIdentifierAST(param)),
+        body: {
+            type: 'BlockStatement',
+            body: [returnStatementAst]
+        }
+    }
+}
+
+export function getReturnStatementAst(
+    argument: AST
+): ReturnStatementAst {
+    return {
+        type: 'ReturnStatement',
+        argument
     }
 }
 

@@ -100,14 +100,18 @@ function getDataToCalculateCoefficent(
 
 export function calculateDataToCalculateCoefficent(
     rcsCustomFunction: RcsCustomFunction,
-    data: Data
+    data: Data,
+    userDefinedFunctions: {
+        [index: string]: Function
+    }
 ): Data {
     return [
         {
             name: rcsCustomFunction.firstVariableCovariate.name,
             coefficent: calculateCoefficentForCovariate(
                 rcsCustomFunction.firstVariableCovariate,
-                data
+                data,
+                userDefinedFunctions
             )
         }
     ]

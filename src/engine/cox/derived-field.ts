@@ -19,9 +19,13 @@ function evaluateEquation(
     derivedField: DerivedField,
     obj: {
         [index: string]: any
+    },
+    userFunctions: {
+        [index: string]: Function
     }
 ): any {
     obj;
+    userFunctions
 
     let derived: any = undefined;
     let func = PmmlFunctions;
@@ -34,7 +38,10 @@ function evaluateEquation(
 
 export function calculateCoefficent(
     derivedField: DerivedField,
-    data: Data
+    data: Data,
+    userDefinedFunctions: {
+        [index: string]: Function
+    }
 ): Coefficent {
     //Check if there is a datum for this intermediate predictor. If there is then we don't need to go further
     const datumForCurrentDerivedField = getDatumForField(
@@ -55,7 +62,8 @@ export function calculateCoefficent(
         if (dataForEvaluation.length !== derivedField.derivedFrom.length) {
             dataForEvaluation = calculateDataToCalculateCoefficent(
                 derivedField,
-                data
+                data,
+                userDefinedFunctions
             );
         }
 
@@ -73,7 +81,11 @@ export function calculateCoefficent(
         } = {};
         dataForEvaluation.forEach(datum => obj[datum.name] = datum.coefficent);
 
-        const evaluatedValue = evaluateEquation(derivedField, obj);
+        const evaluatedValue = evaluateEquation(
+            derivedField, 
+            obj, 
+            userDefinedFunctions
+        );
         if (shouldLogDebugInfo()) {
             console.log(`Evaluated value: ${evaluatedValue}`);
             console.groupEnd();
@@ -84,7 +96,10 @@ export function calculateCoefficent(
 
 export function calculateDataToCalculateCoefficent(
     derivedField: DerivedField,
-    data: Data
+    data: Data,
+    userDefinedFunctions: {
+        [index: string]: Function
+    }
 ): Data {
     //Go through each explanatory predictor and calculate the coefficent for each which will be used for the evaluation
     return _.flatten(derivedField.derivedFrom
@@ -96,7 +111,8 @@ export function calculateDataToCalculateCoefficent(
                     fieldName,
                     calculateCoefficentForCovariate(
                         derivedFromItem,
-                        data
+                        data,
+                        userDefinedFunctions
                     )
                 );
             }
@@ -105,7 +121,8 @@ export function calculateDataToCalculateCoefficent(
                     fieldName, 
                     calculateCoefficent(
                         derivedFromItem,
-                        data
+                        data,
+                        userDefinedFunctions
                     )
                 );
             }

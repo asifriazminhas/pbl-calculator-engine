@@ -5,14 +5,18 @@ import { shouldLogDebugInfo} from '../common/env';
 import { GenericCox } from '../common/generic-types';
 import * as moment from 'moment';
 
-export type Cox = GenericCox<Covariate>;
+export type Cox = GenericCox<Covariate, Function>;
 
 function calculateScore(
     cox: Cox,
     data: Data
 ): number {
     return cox.covariates
-        .map(covariate => getComponent(covariate, data))
+        .map(covariate => getComponent(
+            covariate, 
+            data, 
+            cox.userDefinedFunctions
+        ))
         .reduce(add);
 }
 

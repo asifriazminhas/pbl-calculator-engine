@@ -53,7 +53,10 @@ function calculateComponent(
 
 export function getComponent(
     covariate: Covariate,
-    data: Data
+    data: Data,
+    userFunctions: {
+        [index: string]: Function
+    }
 ): number {
     if(shouldLogWarnings()) {
         console.groupCollapsed(`${covariate.name}`);
@@ -61,7 +64,7 @@ export function getComponent(
 
     const component = calculateComponent(
         covariate,
-        calculateCoefficent(covariate, data)
+        calculateCoefficent(covariate, data, userFunctions)
     );
 
     if(shouldLogDebugInfo() === true) {
@@ -73,11 +76,19 @@ export function getComponent(
 
 export function calculateCoefficent(
     covariate: Covariate,
-    data: Data
+    data: Data,
+    userDefinedFunctions: {
+        [index: string]: Function
+    }
 ): number {
-    const coefficentData = covariate.fieldType ===  FieldTypes.InteractionCovariate ? calculateDataToCalculateCoefficentForInteractionCovariate(covariate, data) : calculateDataToCalculateCoefficent(
+    const coefficentData = covariate.fieldType ===  FieldTypes.InteractionCovariate ? calculateDataToCalculateCoefficentForInteractionCovariate(
+        covariate, 
+        data,
+        userDefinedFunctions
+    ) : calculateDataToCalculateCoefficent(
         covariate,
-        data
+        data,
+        userDefinedFunctions
     );
     
     let coefficent: any = 0;
@@ -94,7 +105,8 @@ export function calculateCoefficent(
     else if (covariate.derivedField) {
         coefficent = calculateCoefficentForDerivedField(
             covariate.derivedField,
-            coefficentData
+            coefficentData,
+            userDefinedFunctions
         );
     }
 
@@ -103,7 +115,10 @@ export function calculateCoefficent(
 
 export function calculateDataToCalculateCoefficent(
     covariate: Covariate,
-    data: Data
+    data: Data,
+    userDefinedFunctions: {
+        [index: string]: Function
+    }
 ): Data {
     //Try to find a datum with the same name field in the data arg
     const datumFound = getDatumForField(covariate, data);
@@ -114,7 +129,8 @@ export function calculateDataToCalculateCoefficent(
         if (covariate.customFunction) {
             return calculateDataToCalculateCoefficentForRcsCustomFunction(
                 covariate.customFunction,
-                data
+                data,
+                userDefinedFunctions
             );
         }
         //Fall back tod erived field
@@ -122,7 +138,8 @@ export function calculateDataToCalculateCoefficent(
             try {
                 return calculateDataToCalculateCoefficentForDerivedField(
                     covariate.derivedField,
-                    data
+                    data,
+                    userDefinedFunctions
                 );
             }
             catch (err) {

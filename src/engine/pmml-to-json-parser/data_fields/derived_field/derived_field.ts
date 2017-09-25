@@ -9,10 +9,13 @@ import { GenericDataField } from '../../../common/generic-types';
 import { FieldTypes } from '../../../common/field-types';
 var astTypes = require('ast-types');
 
-function getAstForDerivedField(derivedField: IDerivedField): ExpressionStatementAST {
+function getAstForDerivedField(
+    derivedField: IDerivedField,
+    userDefinedFunctionNames: Array<string>
+): ExpressionStatementAST {
     let right: any = null;
     if (derivedField.Apply) {
-        right = getASTForApply(derivedField.Apply);
+        right = getASTForApply(derivedField.Apply, userDefinedFunctionNames);
     }
     else if (derivedField.Constant) {
         right = getASTForConstant(derivedField.Constant);
@@ -119,7 +122,10 @@ function getDerivedFromForAst(
         });
 }
 
-export function parseDerivedFields(pmml: Pmml): Array<DerivedFieldJson> {
+export function parseDerivedFields(
+    pmml: Pmml,
+    userDefinedFunctionNames: Array<string>
+): Array<DerivedFieldJson> {
     if (pmml.pmmlXml.PMML.LocalTransformations.DerivedField) {
         //All the derived predictors for this algorithm
         return pmml.pmmlXml.PMML.LocalTransformations.DerivedField
@@ -128,7 +134,10 @@ export function parseDerivedFields(pmml: Pmml): Array<DerivedFieldJson> {
                     .findDataFieldWithName(
                     derivedField.$.name
                     );
-                const ast = getAstForDerivedField(derivedField);
+                const ast = getAstForDerivedField(
+                    derivedField,
+                    userDefinedFunctionNames
+                );
 
                 return Object.assign(
                     {

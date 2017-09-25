@@ -30,11 +30,15 @@ function isCoefficentDatumSetToReferencePoint(
 
 export function calculateDataToCalculateCoefficent(
     interactionCovariate: InteractionCovariate,
-    data: Data
+    data: Data,
+    userDefinedFunctions: {
+        [index: string]: Function
+    }
 ): Array<Datum> {
     const coefficentData = calculateDataToCalculateCoefficentForCovariate(
         interactionCovariate,
-        data
+        data,
+        userDefinedFunctions
     );
 
     if(isCoefficentDatumSetToReferencePoint(
