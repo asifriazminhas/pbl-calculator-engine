@@ -13,9 +13,13 @@ export function parseDefineFunction(
     const functionName = defineFunction.$.name;
 
     //get the names of all the arguments to this function. They are ordered in the way they appear in the Parameters array
-    const argumentNames = defineFunction
-        .ParameterField
-        .map(parameterField => parameterField.$.name);
+    const argumentNames =  defineFunction.ParameterField instanceof Array ? (
+        defineFunction
+            .ParameterField
+            .map(parameterField => parameterField.$.name)
+    ) : (
+        [defineFunction.ParameterField.$.name]
+    );
 
     //Get Ast for the body of the function depending on whether there's an Apply, Constant or FieldRef node
     const functionBodyAst = (
@@ -45,7 +49,7 @@ export function parseDefineFunction(
 
     //Create a string 'userFunctions["functionName"] = function javascriipt string created above'. This will be evaluated in the browser and user to populate an object var called userFunctions with all the functions
     const codeString = `
-        userFunctions[${functionName}] = ${functionBodyJsString}
+        userFunctions["${functionName}"] = ${functionBodyJsString}
     `;
 
     //Return an object with one field named the same as the function name and set to the code string

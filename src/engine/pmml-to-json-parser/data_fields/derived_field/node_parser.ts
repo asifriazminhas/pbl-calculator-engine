@@ -90,6 +90,9 @@ export function getASTForConstant(constant: IConstant): UnaryExpressionAST | Lit
             return getLiteralAST(value)
         }
     }
+    else if(constant.$.dataType === 'NA'){
+        return getLiteralAST(null)
+    }
     else {
         throw new Error(`Unknown dataType ${constant.$.dataType} for Constant`)
     }
@@ -397,7 +400,10 @@ const SpecialFunctions: Array<string> = [
     'notEqual',
     'formatDatetime',
     'max',
-    'sum'
+    'sum',
+    'ifelse',
+    'isIn',
+    'log'
 ]
 /**
  * Maps a PMML apply node whose function string is set to one in the above SpecialFunctions object to a CallExpressionAST
@@ -450,28 +456,28 @@ export function getASTForUserDefinedFunctionApply(
     //We make the function call look like func[apply.$.function] so that we can dynamically make the functions available at runtime
     return getCallExpressionAST(
         getMemberExpressionAST(
-            getLiteralAST(apply.$.function), 'userFunctions'
-        ),
-        //Go through all the function arguments
-        apply.$$.map((apply) => {
-            switch (apply['#name']) {
-                case 'Constant': {
-                    return getASTForConstant(apply as IConstant)
-                }
-                case 'FieldRef': {
-                    return getASTForFieldRef(apply as IFieldRef)
-                }
-                case 'Apply': {
-                    return getASTForApply(
-                        apply as IApply,
-                        userDefinedFunctionNames
-                    )
-                }
-                default: {
-                    throw new Error(`Unhandled node type ${apply['#name']}`)
+            getLiteralAST(apply.$.function), 'userFunctions'),
+            //Go through all the function arguments
+            apply.$$.map((apply) => {
+                switch (apply['#name']) {
+                    case 'Constant': {
+                        return getASTForConstant(apply as IConstant)
+                    }
+                    case 'FieldRef': {
+                        return getASTForFieldRef(apply as IFieldRef)
+                    }
+                    case 'Apply': {
+                        return getASTForApply(
+                            apply as IApply,
+                            userDefinedFunctionNames
+                        )
+                    }
+                    default: {
+                        throw new Error(`Unhandled node type ${apply['#name']}`)
+                    }
                 }
             }
-        })
+        )
     );
 }
 

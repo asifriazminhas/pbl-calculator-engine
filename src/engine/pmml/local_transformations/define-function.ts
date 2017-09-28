@@ -12,7 +12,12 @@ export interface DefineFunction {
             name: string;
             dataType: string;
         }
-    }>;
+    }> | {
+        $: {
+            name: string;
+            dataType: string;
+        }
+    };
     Apply?: IApply;
     Constant?: IConstant;
     FieldRef?: IFieldRef;

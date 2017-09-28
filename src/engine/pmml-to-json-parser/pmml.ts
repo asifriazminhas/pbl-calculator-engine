@@ -25,7 +25,7 @@ export async function pmmlXmlStringsToJson(pmmlXmlStrings: Array<string>): Promi
         baselineHazard: parseBaselineHazardFromPmmlXml(pmml),
         covariates: parseCovariates(pmml),
         derivedFields: parseDerivedFields(pmml, allDefineFunctionNames),
-        userDefinedFunctions: pmml.pmmlXml.PMML.LocalTransformations
+        userFunctions: pmml.pmmlXml.PMML.LocalTransformations
             .DefineFunction
             .map(defineFunction => parseDefineFunction(
                 defineFunction,
@@ -33,7 +33,7 @@ export async function pmmlXmlStringsToJson(pmmlXmlStrings: Array<string>): Promi
             ))
             .reduce((userFunctionObj, currentObject) => {
                 return Object.assign({}, userFunctionObj, currentObject)
-            }),
+            }, {}),
         //TODO Fix this
         causeDeletedRef: null
     };

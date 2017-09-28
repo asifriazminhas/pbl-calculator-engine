@@ -30,7 +30,7 @@ import {
  * @param {(number | string)} value 
  * @returns {LiteralAST} 
  */
-export function getLiteralAST(value: number | string): LiteralAST {
+export function getLiteralAST(value: number | string | null): LiteralAST {
     return {
         type: 'Literal',
         value: value,

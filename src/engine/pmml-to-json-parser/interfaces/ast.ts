@@ -10,7 +10,7 @@ export interface LiteralAST {
     //name of the AST
     type: 'Literal';
     //The value the literal AST represents. eg1: Would be 2 eg2: Would be 'test'
-    value: number | string;
+    value: number | string | null;
     //The string value of the value. eg1: Would be '2' eg2: Would be "'2'"
     raw: string;
 }

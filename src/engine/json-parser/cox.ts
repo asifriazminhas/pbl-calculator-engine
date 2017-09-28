@@ -2,17 +2,17 @@ import { CoxJson } from '../common/json-types';
 import { Cox } from '../cox/cox';
 import { parseCovariateJsonToCovariate } from './covariate';
 
-function parseUserDefinedFunctions(
-    userDefinedFunctionsJson: CoxJson['userDefinedFunctions']
-): Cox['userDefinedFunctions'] {
-    let userDefinedFunctions: Cox['userDefinedFunctions'] = {}
+function parseUserFunctions(
+    userFunctionsJson: CoxJson['userFunctions']
+): Cox['userFunctions'] {
+    let userFunctions: Cox['userFunctions'] = {}
 
-    Object.keys(userDefinedFunctionsJson)
-        .forEach((userDefinedFunctionJsonKey) => {
-            eval(userDefinedFunctionsJson[userDefinedFunctionJsonKey]);
+    Object.keys(userFunctionsJson)
+        .forEach((userFunctionJsonKey) => {
+            eval(userFunctionsJson[userFunctionJsonKey]);
         });
 
-    return userDefinedFunctions;
+    return userFunctions;
 }
 
 export function parseCoxJsonToCox(
@@ -29,8 +29,8 @@ export function parseCoxJsonToCox(
                     coxJson.derivedFields
                 )
             }),
-            userDefinedFunctions: parseUserDefinedFunctions(
-                coxJson.userDefinedFunctions
+            userFunctions: parseUserFunctions(
+                coxJson.userFunctions
             )
         }
     )

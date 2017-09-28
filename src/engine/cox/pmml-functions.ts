@@ -34,5 +34,11 @@ export default {
         return args.reduce((currentSum, currentArg) => {
             return currentSum + currentArg;
         }, 0)
+    },
+    isIn: function(...args: Array<number>): boolean {
+        return args.slice(1).indexOf(args[0]) > -1;
+    },
+    log: function(num: number): number {
+        return Math.log10(num);
     }
 }

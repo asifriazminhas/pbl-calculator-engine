@@ -77,7 +77,7 @@ export interface GenericCox<T, U> {
     description: string;
     covariates: Array<T>;
     baselineHazard: number;
-    userDefinedFunctions: {
+    userFunctions: {
         [index: string]: U
     }
 }

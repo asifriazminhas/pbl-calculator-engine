@@ -15,7 +15,7 @@ function calculateScore(
         .map(covariate => getComponent(
             covariate, 
             data, 
-            cox.userDefinedFunctions
+            cox.userFunctions
         ))
         .reduce(add);
 }
