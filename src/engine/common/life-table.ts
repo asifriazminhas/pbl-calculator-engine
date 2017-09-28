@@ -143,15 +143,19 @@ export function getCompleteLifeTableWithStartAge(
         }));
     });
 
+    const reversedLifeTable = refLifeTable.reverse();
+
     //Reverse the lifetable since for Tx and ex we need the current row and next row
     lifeTable.reverse().forEach((lifeTableRow, index) => {
         lifeTableRow.Tx = getTx(lifeTableRow, lifeTable[index-1]);
-        lifeTableRow.ex = lifeTableRow.age < useLifeTableForExFromAge ? (
+        lifeTableRow.ex = Number(lifeTableRow.age) < useLifeTableForExFromAge ? (
             getex(lifeTableRow, lifeTable[index - 1])
         ) : (
-            lifeTableRow.ex
+            reversedLifeTable[index].ex
         );
     });
+
+    refLifeTable.reverse();
     //Reverse the life table again since reverse is a mutable operation
     lifeTable.reverse();
 

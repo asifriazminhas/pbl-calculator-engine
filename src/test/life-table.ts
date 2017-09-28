@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { expect } from 'chai';
 
-describe(`Life table methods`, function() {
+describe.only(`Life table methods`, function() {
     before(function() {
         this.testLifeTable = csvParse(
             fs.readFileSync(path.join(
@@ -37,6 +37,11 @@ describe(`Life table methods`, function() {
                 'ex'
             ];
 
+            fs.writeFileSync(
+                path.join(__dirname, '../../assets/calculated-life-table.json'),
+                JSON.stringify(this.calculatedLifeTable)
+            );
+            
             fields.forEach((field) => {
                 const diff = this.calculatedLifeTable[index][field] - Number(
                     testLifeTableRow[field]
@@ -44,7 +49,8 @@ describe(`Life table methods`, function() {
                 const errorPercentage = diff/Number(testLifeTableRow[field]);
                 const allowedErrorPercentage = 0.01;
 
-                expect(errorPercentage).to.be.lessThan(allowedErrorPercentage)
+                expect(errorPercentage).to.be
+                    .lessThan(allowedErrorPercentage, `Row ${index} and field ${field}`)
             });
         });
     });
