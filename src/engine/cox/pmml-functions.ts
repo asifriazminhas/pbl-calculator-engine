@@ -7,8 +7,8 @@ export default {
     ln: function(value: number) {
         return Math.log(value)
     },
-    'is.na': function(value: string) {
-        return value === 'NA'
+    'is.na': function(value: any) {
+        return value === null;
     },
     not: function(value: boolean) {
         return !value
@@ -40,5 +40,12 @@ export default {
     },
     log: function(num: number): number {
         return Math.log10(num);
+    },
+    ifelse: function(
+        booleanOne: boolean, 
+        whenTrue: any, 
+        whenFalse: any
+    ): any {
+        return booleanOne ? whenTrue : whenFalse;
     }
 }
