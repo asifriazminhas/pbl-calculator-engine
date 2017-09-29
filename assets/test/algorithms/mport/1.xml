@@ -117,6 +117,8 @@
       <Predictor name="Diabetes_cat"/>
     </FactorList>
     <CovariateList>
+      <Predictor name="AlcoholHeavy_cat"/>
+      <Predictor name="AlcoholMod_cat"/>
       <Predictor name="Age_cont"/>
       <Predictor name="Age_spline"/>
       <Predictor name="QSLightCont_df"/>
