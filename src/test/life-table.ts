@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { expect } from 'chai';
 
-describe.only(`Life table methods`, function() {
+describe(`Life table methods`, function() {
     before(function() {
         this.testLifeTable = csvParse(
             fs.readFileSync(path.join(
