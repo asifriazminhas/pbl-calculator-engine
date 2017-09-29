@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { Covariate } from '../cox/covariate';
 
-export type Coefficent = string | number | moment.Moment | Date;
+export type Coefficent = string | number | moment.Moment | Date | null;
 
 export interface Datum {
     name: string;
