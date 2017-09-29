@@ -15,13 +15,17 @@ function getAstForDerivedField(
 ): ExpressionStatementAST {
     let right: any = null;
     if (derivedField.Apply) {
-        right = getASTForApply(derivedField.Apply, userDefinedFunctionNames);
+        right = getASTForApply(
+            derivedField.Apply, 
+            userDefinedFunctionNames,
+            true
+        );
     }
     else if (derivedField.Constant) {
         right = getASTForConstant(derivedField.Constant);
     }
     else if (derivedField.FieldRef) {
-        right = getASTForFieldRef(derivedField.FieldRef);
+        right = getASTForFieldRef(derivedField.FieldRef, true);
     }
     else {
         throw new Error(`Unknown root node in derived field`);
@@ -54,7 +58,8 @@ function getDerivedFromForAst(
         'derived',
         'func',
         ObjIdentifier,
-        'NA'
+        'NA',
+        'userFunctions'
     ];
 
     astTypes.visit(ast, {
@@ -152,7 +157,10 @@ export function parseDerivedFields(
                     dataFieldForCurrentDerivedField ?
                         parseDataFieldFromDataFieldPmmlNode(
                             dataFieldForCurrentDerivedField
-                        ) : {}
+                        ) : {},
+                    {
+                        fieldType: FieldTypes.DerivedField as FieldTypes.DerivedField
+                    }
                 );
             });
     }
