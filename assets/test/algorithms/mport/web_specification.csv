@@ -17,9 +17,9 @@ MPoRT,Male,EduNoGrad_cat,<High school,Less than high school education,Input,cate
 MPoRT,Male,EduPSGrad,Post-secondary ,Post-secondary school graduate,Reference,categorical,supplementary,NA,0.58,NA,NA,NA,NA,NA,,,,returnInvalid,,,,
 MPoRT,Male,HeartDis_cat,Heart disease,Has heart disease,Input,categorical,active,NA,0.09,"[1,0]",NA,NA,NA,NA,,,,returnInvalid,,,,Yes
 MPoRT,Male,HeartDisNo,No heart disease,Does not have heart disease,Reference,categorical,supplementary,NA,0.91,NA,NA,NA,NA,NA,,,,returnInvalid,,,,
-MPoRT,Male,ImEth0To15_cat,Immigrate <15y,Immigranted <15 years,Input,categorical,active,NA,0.05,"[1,0]",NA,NA,NA,NA,,,,returnInvalid,,,,
-MPoRT,Male,ImEth16To30_cat,Immigrate 15-30y,Immigranted 16 to 30 years,Input,categorical,active,NA,0.04,"[1,0]",NA,NA,NA,NA,,,,returnInvalid,,,,
-MPoRT,Male,ImEth31To45_cat,Immigrate 31-45y,Immigranted 31 to 45 years,Input,categorical,active,NA,0.06,"[1,0]",NA,NA,NA,NA,,,,returnInvalid,,,,
+MPoRT,Male,Immig0To15_cat,Immigrate <15y,Immigranted <15 years,Input,categorical,active,NA,0.05,"[1,0]",NA,NA,NA,NA,,,,returnInvalid,,,,
+MPoRT,Male,Immig16To30_cat,Immigrate 15-30y,Immigranted 16 to 30 years,Input,categorical,active,NA,0.04,"[1,0]",NA,NA,NA,NA,,,,returnInvalid,,,,
+MPoRT,Male,Immig31To45_cat,Immigrate 31-45y,Immigranted 31 to 45 years,Input,categorical,active,NA,0.06,"[1,0]",NA,NA,NA,NA,,,,returnInvalid,,,,
 MPoRT,Male,ImEthNon,Old/no immigrate,Non-immigrant or >45 years in Canada,Reference,categorical,supplementary,NA,0.85,NA,NA,NA,NA,NA,,,,returnInvalid,,,,
 MPoRT,Male,PhysicalActivity_cont,Activity,Average daily leisure time energy expenditure in METs,Input,continuous,active,log(METs/day),0.42,NA,0,0.96,0,2,,,,returnInvalid,,,,
 MPoRT,Male,QSHeavyCont_df,Heavy smoker,Time-varying function for heavy and former heavy smoker,Input,continuous,active,NA,NA,NA,0,1,0,1,,,,returnInvalid,,,,
