@@ -25,7 +25,7 @@ function evaluateEquation(
     }
 ): any {
     obj;
-    userFunctions
+    userFunctions;
 
     let derived: any = undefined;
     let func = PmmlFunctions;
@@ -133,7 +133,10 @@ export function calculateDataToCalculateCoefficent(
                 );
 
                 if (!datumFound) {
-                    throw new Error(``)
+                    return {
+                        name: derivedField.name,
+                        coefficent: null
+                    }
                 }
                 else {
                     return datumFound;
