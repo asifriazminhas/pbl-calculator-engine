@@ -135,6 +135,10 @@
       <Predictor name="Immig31To45_cat"/>
       <Predictor name="EduNoGrad_cat"/>
       <Predictor name="EduHSGrad_cat"/>
+      <Predictor name="HeartDis_cat"/>
+      <Predictor name="Stroke_cat"/>
+      <Predictor name="Cancer_cat"/>
+      <Predictor name="Diabetes_cat"/>
     </CovariateList>
     <PPMatrix>
       <PPCell value="1" predictorName="Age_cont" parameterName="p0"/>
