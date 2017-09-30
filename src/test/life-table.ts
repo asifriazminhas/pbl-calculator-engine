@@ -8,7 +8,7 @@ describe(`Life table methods`, function() {
     before(function() {
         this.testLifeTable = csvParse(
             fs.readFileSync(path.join(
-                __dirname, '../../assets/test/life_table.csv'
+                __dirname, '../../assets/test/life-table/life_table.csv'
             ), 'utf8'), 
             {
                 columns: true
@@ -37,10 +37,10 @@ describe(`Life table methods`, function() {
                 'ex'
             ];
 
-            fs.writeFileSync(
+            /*fs.writeFileSync(
                 path.join(__dirname, '../../assets/calculated-life-table.json'),
                 JSON.stringify(this.calculatedLifeTable)
-            );
+            );*/
             
             fields.forEach((field) => {
                 const diff = this.calculatedLifeTable[index][field] - Number(
