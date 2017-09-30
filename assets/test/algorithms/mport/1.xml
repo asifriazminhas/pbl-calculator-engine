@@ -129,6 +129,8 @@
       <Predictor name="AgeXCancer_int"/>
       <Predictor name="AgeXDiabetes_int"/>
       <Predictor name="Immig0To15_cat"/>
+      <Predictor name="DepIndMod_cat"/>
+      <Predictor name="DepIndHigh_cat"/>
       <Predictor name="Immig16To30_cat"/>
       <Predictor name="Immig31To45_cat"/>
       <Predictor name="EduNoGrad_cat"/>
