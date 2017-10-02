@@ -4,7 +4,7 @@ import { ToJson, getToJson } from './to-json';
 import { ReferencePopulation } from '../health-age/reference-population';
 import { CoxJson } from '../common/json-types';
 import { Cox } from '../cox/cox';
-import { RefLifeTable } from '../common/life-table';
+import { RefLifeTable } from '../life-table';
 import { WithDataAndCoxFunctionsAndAddRefPopFunctions, getWithDataAndCoxFunctionsAndAddRefPopFunctions, CompleteWithData, getCompleteWithData } from '../algorithm-evaluator';
 import { AddAlgorithmReturnsGetHealthAge, getAddAlgorithmReturnsGetHealthAgeFunction, AddAlgorithmWithGetHealthAgeAndLifeTableFunctions,getAddAlgorithmWithGetHealthAgeAndLifeTableFunctions } from './add-algorithm';
 import { CauseImpactRef } from '../cause-impact';

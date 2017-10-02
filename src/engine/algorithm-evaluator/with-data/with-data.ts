@@ -7,7 +7,7 @@ import { WithDataMemoizedData } from './memoized-data';
 import { Data } from '../../common/data';
 import { Cox } from '../../cox';
 import { ReferencePopulation } from '../../health-age';
-import { RefLifeTable } from '../../common/life-table';
+import { RefLifeTable } from '../../life-table';
 import { CauseImpactRef } from '../../cause-impact';
 
 export interface BaseWithDataResult<T extends object> extends End<T> {

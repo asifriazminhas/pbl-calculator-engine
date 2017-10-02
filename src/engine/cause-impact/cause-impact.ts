@@ -2,7 +2,7 @@ import { CauseImpactRef } from './cause-impact-ref';
 import { Cox, getSurvivalToTime, getRiskToTime } from '../cox';
 import { Data, updateDataWithData } from '../common/data';
 import * as moment from 'moment';
-import { RefLifeTable, CompleteLifeTable } from '../common/life-table';
+import { RefLifeTable, CompleteLifeTable } from '../life-table';
 import { getLifeExpectancyUsingRefLifeTable } from '../life-expectancy';
 
 function getCauseImpactDataForRiskFactors(

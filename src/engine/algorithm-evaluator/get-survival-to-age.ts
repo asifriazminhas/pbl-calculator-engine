@@ -1,5 +1,5 @@
 import { getSurvivalToAge } from '../survival-to-age';
-import { getCompleteLifeTableWithStartAge, RefLifeTable } from '../common/life-table';
+import { getCompleteLifeTableWithStartAge, RefLifeTable } from '../life-table';
 import { Data } from '../common/datum';
 import { Cox, getSurvivalToTime } from '../cox';
 

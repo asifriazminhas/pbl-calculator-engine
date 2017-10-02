@@ -6,7 +6,7 @@ import { BaseAddAlgorithm, getBaseAddAlgorithmFunction, AddAlgorithmWithLifeTabl
 import { CauseImpactRef } from '../cause-impact';
 import { Cox } from '../cox';
 import { CoxJson } from '../common/json-types';
-import { RefLifeTable } from '../common/life-table';
+import { RefLifeTable } from '../life-table';
 import { ReferencePopulation } from '../health-age';
 
 export interface BaseReplaceCauseImpactRef {

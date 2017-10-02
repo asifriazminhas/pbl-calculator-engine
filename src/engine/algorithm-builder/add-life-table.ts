@@ -1,5 +1,5 @@
 import { GetRiskToTime, getGetRiskToTime, GetSurvivalToTime, getGetSurvivalToAge, GetLifeExpectancy, getGetLifeExpectancy, GetLifeYearsLost, getGetLifeYearsLost, GetHealthAge, getGetHealthAge, GetSurvivalToAge, getGetSurvivalToTime, WithCauseImpactWithCoxFunctionsAndLifeExpectancyFunction, getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions } from '../algorithm-evaluator';
-import { RefLifeTable } from '../common/life-table';
+import { RefLifeTable } from '../life-table';
 import { Cox } from '../cox/cox';
 import { ToJson, getToJson } from './to-json';
 import { CoxJson } from '../common/json-types';

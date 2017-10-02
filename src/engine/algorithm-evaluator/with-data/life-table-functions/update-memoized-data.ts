@@ -1,5 +1,5 @@
 import { WithDataMemoizedData } from '../memoized-data';
-import { CompleteLifeTable, RefLifeTable, CompleteLifeTableRow } from '../../../common/life-table';
+import { CompleteLifeTable, RefLifeTable, CompleteLifeTableRow } from '../../../life-table';
 import { getCompleteLifeTableForDataUsingAlgorithm } from '../../../life-expectancy';
 import { Data } from '../../../common/data';
 import { Cox } from '../../../cox';

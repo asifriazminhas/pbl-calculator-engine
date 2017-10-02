@@ -1,5 +1,5 @@
 var csvParse = require('csv-parse/lib/sync');
-import { getCompleteLifeTableWithStartAge } from '../engine/common/life-table';
+import { getCompleteLifeTableWithStartAge } from '../engine/life-table';
 import * as path from 'path';
 import * as fs from 'fs';
 import { expect } from 'chai';

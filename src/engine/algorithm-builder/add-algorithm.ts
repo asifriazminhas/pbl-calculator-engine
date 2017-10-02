@@ -5,7 +5,7 @@ import { AddRefPopWithAddLifeTable, getAddRefPopWithAddLifeTable, AddRefPopWithA
 import { ToJson, getToJson } from './to-json';
 import { CoxJson } from '../common/json-types';
 import { WithDataAndCoxFunctions, getWithDataAndCoxFunctions, WithDataAndCoxFunctionsAndLifeTableFunctions, getWithDataAndCoxFunctionsAndLifeTableFunctions, WithDataAndCoxFunctionsAndAddRefPopFunctions, getWithDataAndCoxFunctionsAndAddRefPopFunctions, CompleteWithData, getCompleteWithData, WithCauseImpactWithCoxFunctions, getWithCauseImpactWithCoxFunctions, WithCauseImpactWithCoxFunctionsAndLifeExpectancyFunction, getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions } from '../algorithm-evaluator';
-import { RefLifeTable } from '../common/life-table';
+import { RefLifeTable } from '../life-table';
 import { ReferencePopulation } from '../health-age';
 import { CauseImpactRef } from '../cause-impact';
 import { BaseReplaceCauseImpactRef, getBaseReplaceCauseImpactRef, ReplaceCauseImpactRefWithLifeTableFunctions, getReplaceCauseImpactRefWithLifeTableFunctions, ReplaceCauseImpactRefWithAddRefPopFunctions, getReplaceCauseImpactRefWithAddRefPopFunctions, FullReplaceCauseImpactRef, getFullReplaceCauseImpactRef } from './replace-cause-impact-ref';

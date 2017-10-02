@@ -1,4 +1,4 @@
-import { CompleteLifeTable, getCompleteLifeTableWithStartAge, RefLifeTable } from '../common/life-table';
+import { CompleteLifeTable, getCompleteLifeTableWithStartAge, RefLifeTable } from '../life-table';
 import { Data } from '../common/data';
 import { Cox, getSurvivalToTime } from '../cox';
 

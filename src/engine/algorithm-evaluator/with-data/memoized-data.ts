@@ -1,4 +1,4 @@
-import { CompleteLifeTable } from '../../common/life-table';
+import { CompleteLifeTable } from '../../life-table';
 
 export interface WithDataMemoizedData {
     oneYearSurvivalProbability?: number;

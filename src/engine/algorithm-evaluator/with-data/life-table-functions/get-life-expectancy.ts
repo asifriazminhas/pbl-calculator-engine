@@ -1,6 +1,6 @@
 import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { WithDataMemoizedData } from '../memoized-data';
-import { RefLifeTable } from '../../../common/life-table';
+import { RefLifeTable } from '../../../life-table';
 import { getLifeExpectancyUsingRefLifeTable } from '../../../life-expectancy';
 import { Cox } from '../../../cox';
 import { Data } from '../../../common/data';

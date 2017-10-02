@@ -1,7 +1,7 @@
 import { WithDataMemoizedData } from '../memoized-data';
 import { getCompleteLifeTableForDataUsingAlgorithm } from '../../../life-expectancy';
 import { Cox } from '../../../cox';
-import { RefLifeTable } from '../../../common/life-table';
+import { RefLifeTable } from '../../../life-table';
 import { Data, updateDataWithData } from '../../../common/data';
 import { CauseImpactRef } from '../../../cause-impact';
 

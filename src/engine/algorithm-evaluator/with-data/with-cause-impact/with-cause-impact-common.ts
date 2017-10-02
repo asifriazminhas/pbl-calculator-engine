@@ -4,7 +4,7 @@ import { GetLifeExpectancyWithCauseImpact, getGetLifeExpectancyWithCauseImpact }
 import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { WithDataMemoizedData } from '../memoized-data';
 import { Data } from '../../../common/data';
-import { RefLifeTable } from '../../../common/life-table';
+import { RefLifeTable } from '../../../life-table';
 import { CauseImpactRef } from '../../../cause-impact';
 import { Cox } from '../../../cox';
 

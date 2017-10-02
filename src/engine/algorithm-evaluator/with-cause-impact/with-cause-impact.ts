@@ -2,7 +2,7 @@ import { GetSurvivalToTimeWithCauseImpact, getGetSurvivalToTimeWithCauseImpact }
 import { GetRiskToTimeWithCauseImpact, getGetRiskToTimeWithCauseImpact } from './cause-impact-get-risk-to-time';
 import { GetLifeExpectancyWithCauseImpact, getGetLifeExpectancyWithCauseImpact } from './cause-impact-get-life-expectancy';
 import { Cox } from '../../cox';
-import { RefLifeTable } from '../../common/life-table';
+import { RefLifeTable } from '../../life-table';
 import { CauseImpactRef } from '../../cause-impact';
 
 export type WithCauseImpactFunction<T> = (...riskFactor: string[]) => T;

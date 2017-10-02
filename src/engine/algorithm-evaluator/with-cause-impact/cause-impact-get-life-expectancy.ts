@@ -1,5 +1,5 @@
 import { Data } from '../../common/data';
-import { RefLifeTable } from '../../common/life-table';
+import { RefLifeTable } from '../../life-table';
 import { Cox } from '../../cox';
 import { getLifeExpectancyWithCauseImpact, CauseImpactRef } from '../../cause-impact';
 

@@ -3,7 +3,7 @@ import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { updateMemoizedData } from './update-memoized-data';
 import { getLifeExpectancyWithCauseImpact } from '../../../cause-impact';
 import { WithDataMemoizedData } from '../memoized-data';
-import { RefLifeTable, CompleteLifeTable } from '../../../common/life-table';
+import { RefLifeTable, CompleteLifeTable } from '../../../life-table';
 import { CauseImpactRef } from '../../../cause-impact';
 import { Cox } from '../../../cox';
 import { Data } from '../../../common/data';

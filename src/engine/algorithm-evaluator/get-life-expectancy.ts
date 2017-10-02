@@ -1,6 +1,6 @@
 import { Cox } from '../cox/cox';
 import { getLifeExpectancyUsingRefLifeTable } from '../life-expectancy/life-expectancy';
-import { RefLifeTable } from '../common/life-table';
+import { RefLifeTable } from '../life-table';
 import { Data } from '../common/datum';
 
 export interface GetLifeExpectancy {
