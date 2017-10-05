@@ -1,10 +1,11 @@
 import { WithCauseImpactChainMethodResult, updateWithCauseImpactChainMethodResult, getRiskFactorKey } from './with-cause-impact-common';
 import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { WithDataMemoizedData } from '../memoized-data';
-import { getSurvivalToTimeWithCauseImpact, CauseImpactRef } from '../../../cause-impact';
+import { getSurvivalToTimeWithCauseImpact, CauseImpactRef, CauseImpactRefTypes, getCauseImpactRefForData } from '../../../cause-impact';
 import { Data } from '../../../common/data';
-import { Cox, getTimeMultiplier } from '../../../cox';
+import { getTimeMultiplier } from '../../../cox';
 import * as moment from 'moment';
+import { ModelTypes, JsonModelTypes, getAlgorithmForModelAndData, getAlgorithmJsonForModelAndData } from '../../../model';
 
 export interface GetSurvivalToTimeWithCauseImpact<
     T extends object,
@@ -22,19 +23,36 @@ export function getGetSurvivalToTimeWithCauseImpact<
     currentMemoizedData: WithDataMemoizedData,
     data: Data,
     riskFactors: string[],
-    causeImpactRef: CauseImpactRef,
-    cox: Cox
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
+    causeImpactRef?: CauseImpactRefTypes,
 ): GetSurvivalToTimeWithCauseImpact<T, U> {
     return {
         getSurvivalToTime: (time) => {
             const riskFactorKey = getRiskFactorKey(riskFactors);
+
+            const cox = getAlgorithmForModelAndData(
+                model, data
+            );
+
+            let causeImpactRefToUse: CauseImpactRef;
+            if(causeImpactRef) {
+                causeImpactRefToUse = getCauseImpactRefForData(
+                    causeImpactRef,
+                    data
+                )
+            } else {
+                causeImpactRefToUse = getAlgorithmJsonForModelAndData(
+                    modelJson, data
+                ).causeDeletedRef;
+            }
 
             let survivalToTimeWithCauseImpact: number;
             if(
                 !currentMemoizedData.oneYearSurvivalProbabilityForRiskFactors || currentMemoizedData.oneYearSurvivalProbabilityForRiskFactors[riskFactorKey] === undefined
             ) {
                 const oneYearSurvivalToTimeForCurrentRiskFactor = getSurvivalToTimeWithCauseImpact(
-                    causeImpactRef,
+                    causeImpactRefToUse,
                     cox,
                     riskFactors,
                     data

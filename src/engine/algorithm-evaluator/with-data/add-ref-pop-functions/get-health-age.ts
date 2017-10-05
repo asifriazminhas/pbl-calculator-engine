@@ -1,8 +1,9 @@
 import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { getHealthAge, ReferencePopulation } from '../../../health-age';
-import { Cox, getRiskToTime } from '../../../cox';
+import { getRiskToTime } from '../../../cox';
 import { Data } from '../../../common/data';
 import { WithDataMemoizedData } from '../memoized-data';
+import { ModelTypes, getAlgorithmForModelAndData } from '../../../model';
 
 export interface GetHealthAgeResult {
     healthAge: number;
@@ -23,11 +24,13 @@ export function getGetHealthAge<
     getNextObjectInChain: getNextObjectInChain<T & GetHealthAgeResult, U>,
     currentMemoizedData: WithDataMemoizedData,
     data: Data,
-    cox: Cox,
+    model: ModelTypes,
     refPop: ReferencePopulation
 ): GetHealthAge<T, U> {
     return {
         getHealthAge: () => {
+            const cox = getAlgorithmForModelAndData(model, data);
+            
             if(!currentMemoizedData.oneYearRiskProbability) {
                 currentMemoizedData.oneYearRiskProbability = getRiskToTime(
                     cox,

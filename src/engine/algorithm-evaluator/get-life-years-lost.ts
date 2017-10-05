@@ -1,8 +1,8 @@
 import { Data } from '../common/datum';
 import { RefLifeTable } from '../life-table';
 import { getLifeYearsLost } from '../life-years-lost';
-import { CauseImpactRef } from '../cause-impact';
-import { Cox } from '../cox';
+import { CauseImpactRefTypes, getCauseImpactRefForData, CauseImpactRef } from '../cause-impact';
+import { ModelTypes, getAlgorithmJsonForModelAndData, getAlgorithmForModelAndData, JsonModelTypes } from '../model';
 
 export interface GetLifeYearsLost {
     getLifeYearsLost: (
@@ -13,16 +13,29 @@ export interface GetLifeYearsLost {
 }
 
 export function getGetLifeYearsLost(
-    causeDeletedRef: CauseImpactRef,
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
     refLifeTable: RefLifeTable,
-    cox: Cox
+    causeDeletedRef?: CauseImpactRefTypes,
 ): GetLifeYearsLost {
     return {
         getLifeYearsLost: (data, riskFactors, useExFromLifeTableFromAge=99) => {
+            let causeImpactRefToUse: CauseImpactRef;
+            if(!causeDeletedRef) {
+                causeImpactRefToUse = getAlgorithmJsonForModelAndData(
+                    modelJson, data
+                ).causeDeletedRef;
+            }
+            else {
+                causeImpactRefToUse = getCauseImpactRefForData(
+                    causeDeletedRef, data
+                )
+            }
+
             return getLifeYearsLost(
-                causeDeletedRef,
+                causeImpactRefToUse,
                 refLifeTable,
-                cox,
+                getAlgorithmForModelAndData(model, data),
                 data,
                 riskFactors,
                 useExFromLifeTableFromAge

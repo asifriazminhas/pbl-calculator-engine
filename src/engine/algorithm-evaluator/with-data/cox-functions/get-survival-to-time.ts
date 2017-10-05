@@ -1,9 +1,10 @@
 import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
-import { Cox, getTimeMultiplier } from '../../../cox';
+import { getTimeMultiplier } from '../../../cox';
 import { WithDataMemoizedData } from '../memoized-data';
 import { updateMemoizedData } from './with-data-cox-functions-common';
 import { Data } from '../../../common/data';
 import * as moment from 'moment';
+import { ModelTypes, getAlgorithmForModelAndData } from '../../../model';
 
 export interface GetSurvivalToTimeResult {
     survivalToTime: number;
@@ -24,10 +25,12 @@ export function getGetSurvivalToTime<
     getNextObjectInChain: getNextObjectInChain<T & GetSurvivalToTimeResult, U>,
     memoizedData: WithDataMemoizedData,
     data: Data,
-    cox: Cox,
+    model: ModelTypes,
 ): GetSurvivalToTime<T, U> {
     return {
         getSurvivalToTime: (time) => {
+            const cox = getAlgorithmForModelAndData(model, data);
+            
             const updatedMemoizedData = updateMemoizedData(
                 memoizedData,
                 data,

@@ -1,15 +1,15 @@
 import { GetRiskToTime, getGetRiskToTime, GetSurvivalToTime, getGetSurvivalToTime, WithCauseImpactWithCoxFunctions, getWithCauseImpactWithCoxFunctions } from '../algorithm-evaluator';
 import { AddLifeTableWithAddRefPop, getAddLifeTableWithAddRefPop } from './add-life-table';
 import { AddRefPopWithAddLifeTable, getAddRefPopWithAddLifeTable} from './add-ref-pop';
-import { CoxJson } from '../common/json-types';
-import { parseCoxJsonToCox } from '../json-parser/cox';
+import { parseModelJsonToModel } from '../json-parser';
 import { ToJson, getToJson } from './to-json';
 import { WithDataAndCoxFunctions, getWithDataAndCoxFunctions } from '../algorithm-evaluator';
 import { BaseAddAlgorithm, getBaseAddAlgorithmFunction } from './add-algorithm';
 import { BaseReplaceCauseImpactRef, getBaseReplaceCauseImpactRef } from './replace-cause-impact-ref';
+import { JsonModelTypes } from '../model';
 
 export type BuildFromAlgorithJsonFunction = (
-    algorithmJson: CoxJson
+    modelJson: JsonModelTypes
 ) => GetSurvivalToTime & GetRiskToTime & AddLifeTableWithAddRefPop & ToJson & AddRefPopWithAddLifeTable & WithDataAndCoxFunctions<{}> & BaseAddAlgorithm & WithCauseImpactWithCoxFunctions & BaseReplaceCauseImpactRef;
 
 export interface BuildFromAlgorithmJson {
@@ -19,34 +19,31 @@ export interface BuildFromAlgorithmJson {
 export function curryBuildFromAlgorithmJsonFunction(
 
 ): BuildFromAlgorithJsonFunction {
-    return (algorithmJson) => {
-        const cox = parseCoxJsonToCox(algorithmJson);
+    return (modelJson) => {
+        const model = parseModelJsonToModel(modelJson);
 
         return Object.assign(
             {},
-            getGetRiskToTime(cox),
-            getGetSurvivalToTime(cox), 
-            getToJson(algorithmJson),
-            getAddRefPopWithAddLifeTable(cox, algorithmJson),
+            getGetRiskToTime(model),
+            getGetSurvivalToTime(model), 
+            getToJson(modelJson),
+            getAddRefPopWithAddLifeTable(model, modelJson),
             getWithDataAndCoxFunctions(
                 {},
                 {}, 
-                cox, 
-                algorithmJson.causeDeletedRef
+                model, 
+                modelJson
             ),
             getWithCauseImpactWithCoxFunctions(
-                algorithmJson.causeDeletedRef,
-                cox
+                model, modelJson
             ),
             getBaseAddAlgorithmFunction(
-                cox,
-                algorithmJson
+                model, modelJson
             ),
             getAddLifeTableWithAddRefPop(
-                cox,
-                algorithmJson
+                model, modelJson
             ),
-            getBaseReplaceCauseImpactRef(cox, algorithmJson)
+            getBaseReplaceCauseImpactRef(model, modelJson)
         )
     }
 }

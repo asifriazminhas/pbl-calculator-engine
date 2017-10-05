@@ -1,19 +1,24 @@
 import { getSurvivalToAge } from '../survival-to-age';
 import { getCompleteLifeTableWithStartAge, RefLifeTable } from '../life-table';
 import { Data } from '../common/datum';
-import { Cox, getSurvivalToTime } from '../cox';
+import { getSurvivalToTime } from '../cox';
+import { ModelTypes, getAlgorithmForModelAndData } from '../model';
 
 export interface GetSurvivalToAge {
     getSurvivalToAge: (data: Data, age: number) => number;
 }
 
 export function getGetSurvivalToAge(
-    cox: Cox,
+    model: ModelTypes,
     refLifeTable: RefLifeTable,
     useExFromLifeTableFromAge: number = 99
 ): GetSurvivalToAge {
     return {
         getSurvivalToAge: (data: Data, age: number) => {
+            const cox = getAlgorithmForModelAndData(
+                model, data
+            );
+
             const ageDatum = data
             .find(datum => datum.coefficent === 'age');
             if(!ageDatum) {

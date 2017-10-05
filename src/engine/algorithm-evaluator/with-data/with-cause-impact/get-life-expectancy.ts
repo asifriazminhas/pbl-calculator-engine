@@ -4,9 +4,9 @@ import { updateMemoizedData } from './update-memoized-data';
 import { getLifeExpectancyWithCauseImpact } from '../../../cause-impact';
 import { WithDataMemoizedData } from '../memoized-data';
 import { RefLifeTable, CompleteLifeTable } from '../../../life-table';
-import { CauseImpactRef } from '../../../cause-impact';
-import { Cox } from '../../../cox';
+import { CauseImpactRef, CauseImpactRefTypes, getCauseImpactRefForData } from '../../../cause-impact';
 import { Data } from '../../../common/data';
+import { ModelTypes, JsonModelTypes, getAlgorithmForModelAndData, getAlgorithmJsonForModelAndData } from '../../../model';
 
 export interface GetLifeExpectancyWithCauseImpact<
     T extends object,
@@ -24,27 +24,43 @@ export function getGetLifeExpectancyWithCauseImpact<
     currentMemoizedData: WithDataMemoizedData,
     data: Data,
     refLifeTable: RefLifeTable,
-    causeImpactRef: CauseImpactRef,
-    cox: Cox,
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
     riskFactors: string[],
-    useExFromLifeTableFromAge: number = 99
+    useExFromLifeTableFromAge: number = 99,
+    causeImpactRef?: CauseImpactRefTypes,
 ): GetLifeExpectancyWithCauseImpact<T, U> {
     return {
         getLifeExpectancy: () => {
             const riskFactorKey = getRiskFactorKey(riskFactors);
+
+            let causeImpactRefToUse: CauseImpactRef;
+            if(causeImpactRef) {
+                causeImpactRefToUse = getCauseImpactRefForData(
+                    causeImpactRef, data
+                );
+            } else {
+                causeImpactRefToUse = getAlgorithmJsonForModelAndData(
+                    modelJson, data
+                ).causeDeletedRef
+            }
+
+            const cox = getAlgorithmForModelAndData(
+                model, data
+            );
 
             const updatedMemoizedData = updateMemoizedData(
                 currentMemoizedData,
                 refLifeTable,
                 riskFactors,
                 data,
-                causeImpactRef,
+                causeImpactRefToUse,
                 cox,
                 useExFromLifeTableFromAge
             );
 
             const withCauseImpactLifeExpectancy = getLifeExpectancyWithCauseImpact(
-                causeImpactRef,
+                causeImpactRefToUse,
                 cox,
                 refLifeTable,
                 riskFactors,

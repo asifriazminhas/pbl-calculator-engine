@@ -1,7 +1,7 @@
 import { GenericCategoricalDerivedField, GenericContinuousDerivedField, GenericDerivedFieldWithoutOpType, GenericDataField } from '../common/generic-types';
 import { getDatumForField } from './field';
 import { FieldTypes } from '../common/field-types';
-import * as _ from 'lodash';
+import { flatten } from 'lodash';
 import { Data, datumFactory, Coefficent } from '../common/datum';
 import { Covariate, calculateCoefficent as calculateCoefficentForCovariate } from './covariate'
 import PmmlFunctions from './pmml-functions'
@@ -102,7 +102,7 @@ export function calculateDataToCalculateCoefficent(
     }
 ): Data {
     //Go through each explanatory predictor and calculate the coefficent for each which will be used for the evaluation
-    return _.flatten(derivedField.derivedFrom
+    return flatten(derivedField.derivedFrom
         .map((derivedFromItem) => {
             const fieldName = derivedFromItem.name;
 
@@ -143,4 +143,34 @@ export function calculateDataToCalculateCoefficent(
                 }
             }
         }));
+}
+
+export function getLeafFieldsForDerivedField(
+    derivedField: DerivedField
+): Array<DerivedFrom> {
+    if(derivedField.derivedFrom.length === 0) {
+        return [
+            derivedField
+        ];
+    } else {
+        return flatten(
+            derivedField
+                .derivedFrom
+                .map((derivedFromItem) => {
+                    if(derivedFromItem.fieldType === FieldTypes.DataField) {
+                        return derivedFromItem;
+                    } else if(derivedFromItem.fieldType === FieldTypes.DerivedField) {
+                        return getLeafFieldsForDerivedField(derivedField);
+                    } else {
+                        if(derivedFromItem.derivedField) {
+                            return getLeafFieldsForDerivedField(
+                                derivedFromItem.derivedField
+                            );
+                        } else {
+                            return derivedFromItem;
+                        }
+                    }
+                })
+        )
+    }
 }

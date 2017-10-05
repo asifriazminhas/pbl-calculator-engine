@@ -1,94 +1,100 @@
-import { Cox } from '../cox';
 import { GetRiskToTime, getGetRiskToTime, getGetLifeExpectancy, getGetLifeYearsLost, GetHealthAge, getGetHealthAge, getGetSurvivalToAge, GetSurvivalToTime, getGetSurvivalToTime } from '../algorithm-evaluator';
 import { AddLifeTableWithAddRefPop, getAddLifeTableWithAddRefPop, AddLifeTableEvaluatorFunctions, AddLifeTableWithGetHealthAge, getAddLifeTableWithGetHealthAge } from './add-life-table';
 import { AddRefPopWithAddLifeTable, getAddRefPopWithAddLifeTable, AddRefPopWithAddLifeTableFunctions, getAddRefPopWithAddLifeTableFunctions } from './add-ref-pop';
 import { ToJson, getToJson } from './to-json';
-import { CoxJson } from '../common/json-types';
 import { WithDataAndCoxFunctions, getWithDataAndCoxFunctions, WithDataAndCoxFunctionsAndLifeTableFunctions, getWithDataAndCoxFunctionsAndLifeTableFunctions, WithDataAndCoxFunctionsAndAddRefPopFunctions, getWithDataAndCoxFunctionsAndAddRefPopFunctions, CompleteWithData, getCompleteWithData, WithCauseImpactWithCoxFunctions, getWithCauseImpactWithCoxFunctions, WithCauseImpactWithCoxFunctionsAndLifeExpectancyFunction, getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions } from '../algorithm-evaluator';
 import { RefLifeTable } from '../life-table';
 import { ReferencePopulation } from '../health-age';
-import { CauseImpactRef } from '../cause-impact';
+import { CauseImpactRefTypes } from '../cause-impact';
 import { BaseReplaceCauseImpactRef, getBaseReplaceCauseImpactRef, ReplaceCauseImpactRefWithLifeTableFunctions, getReplaceCauseImpactRefWithLifeTableFunctions, ReplaceCauseImpactRefWithAddRefPopFunctions, getReplaceCauseImpactRefWithAddRefPopFunctions, FullReplaceCauseImpactRef, getFullReplaceCauseImpactRef } from './replace-cause-impact-ref';
+import { ModelTypes, JsonModelTypes } from '../model';
 
 export type BaseAddAlgorithmFunction = (
-    addedCox: Cox
+    addedModel: ModelTypes
 ) => GetSurvivalToTime & GetRiskToTime & AddLifeTableWithAddRefPop & AddRefPopWithAddLifeTable & ToJson & WithDataAndCoxFunctions<{}> & WithCauseImpactWithCoxFunctions & BaseReplaceCauseImpactRef;
 export interface BaseAddAlgorithm {
     addAlgorithm: BaseAddAlgorithmFunction
 }
 export function getBaseAddAlgorithmFunction(
-    cox: Cox,
-    coxJson: CoxJson,
-    causeImpactRef: CauseImpactRef = coxJson.causeDeletedRef
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
+    causeImpactRef?: CauseImpactRefTypes
 ): BaseAddAlgorithm {
     return {
-        addAlgorithm: (addedCox) => {
-            addedCox;
+        addAlgorithm: (addedModel) => {
+            addedModel;
 
             return Object.assign(
-                getGetRiskToTime(cox),
-                getGetSurvivalToTime(cox),
-                getToJson(coxJson),
-                getAddLifeTableWithAddRefPop(cox, coxJson),
-                getAddRefPopWithAddLifeTable(cox, coxJson),
+                getGetRiskToTime(model),
+                getGetSurvivalToTime(model),
+                getToJson(modelJson),
+                getAddLifeTableWithAddRefPop(model, modelJson, causeImpactRef),
+                getAddRefPopWithAddLifeTable(model, modelJson, causeImpactRef),
                 getWithDataAndCoxFunctions(
                     {}, 
                     {}, 
-                    cox,
+                    model,
+                    modelJson,
                     causeImpactRef
                 ),
                 getWithCauseImpactWithCoxFunctions(
-                    coxJson.causeDeletedRef, 
-                    cox
+                    model,
+                    modelJson,
+                    causeImpactRef
                 ),
-                getBaseReplaceCauseImpactRef(cox, coxJson)
+                getBaseReplaceCauseImpactRef(model, modelJson)
             );
         }
     }
 }
 
 export type AddAlgorithmReturnsLifeTableFunctionsFunction = (
-    addedCox: Cox
+    addedModel: ModelTypes
 ) => GetSurvivalToTime & GetRiskToTime & AddLifeTableEvaluatorFunctions & AddRefPopWithAddLifeTableFunctions & ToJson & WithDataAndCoxFunctionsAndLifeTableFunctions<{}> & WithCauseImpactWithCoxFunctionsAndLifeExpectancyFunction & ReplaceCauseImpactRefWithLifeTableFunctions;
 export interface AddAlgorithmWithLifeTableFunctions {
     addAlgorithm: AddAlgorithmReturnsLifeTableFunctionsFunction;
 }
 export function getAddAlgorithmWithLifeTableFunctions(
-    cox: Cox,
+    model: ModelTypes,
     refLifeTable: RefLifeTable,
-    coxJson: CoxJson,
-    causeImpactRef: CauseImpactRef = coxJson.causeDeletedRef,
+    modelJson: JsonModelTypes,
+    causeImpactRef?: CauseImpactRefTypes,
     useExFromLifeTableFromAge: number = 99
 ): AddAlgorithmWithLifeTableFunctions {
     return {
-        addAlgorithm: (addedCox) => {
-            addedCox;
+        addAlgorithm: (addedModel) => {
+            addedModel;
 
             return Object.assign(
-                getGetRiskToTime(cox),
-                getGetSurvivalToTime(cox),
-                getGetSurvivalToAge(cox, refLifeTable),
-                getGetLifeExpectancy(cox, refLifeTable),
-                getGetLifeYearsLost(coxJson.causeDeletedRef, refLifeTable, cox),
-                getToJson(coxJson),
-                getAddRefPopWithAddLifeTableFunctions(cox, coxJson, refLifeTable),
+                getGetRiskToTime(model),
+                getGetSurvivalToTime(model),
+                getGetSurvivalToAge(model, refLifeTable),
+                getGetLifeExpectancy(model, refLifeTable),
+                getGetLifeYearsLost(model, modelJson, refLifeTable, causeImpactRef),
+                getToJson(modelJson),
+                getAddRefPopWithAddLifeTableFunctions(
+                    model, modelJson, refLifeTable, causeImpactRef),
                 getWithDataAndCoxFunctionsAndLifeTableFunctions(
                     {}, 
                     {}, 
-                    cox,
+                    model,
+                    modelJson,
                     refLifeTable,
                     causeImpactRef,
                     useExFromLifeTableFromAge
                 ),
                 getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
-                    causeImpactRef,
-                    cox,
-                    refLifeTable
+                    model,
+                    modelJson,
+                    refLifeTable,
+                    useExFromLifeTableFromAge,
+                    causeImpactRef
                 ),
                 getReplaceCauseImpactRefWithLifeTableFunctions(
-                    cox,
+                    model,
                     refLifeTable,
-                    coxJson
+                    modelJson,
+                    useExFromLifeTableFromAge
                 )
             )
         }
@@ -96,16 +102,16 @@ export function getAddAlgorithmWithLifeTableFunctions(
 }
 
 export type AddAlgorithmReturnsGetHealthAgeFunction = (
-    addedCox: Cox
+    addedModel: ModelTypes
 ) => GetSurvivalToTime & GetRiskToTime & AddLifeTableWithGetHealthAge & GetHealthAge & WithDataAndCoxFunctionsAndAddRefPopFunctions<{}> & WithCauseImpactWithCoxFunctions & ReplaceCauseImpactRefWithAddRefPopFunctions;
 export interface AddAlgorithmReturnsGetHealthAge {
     addAlgorithm: AddAlgorithmReturnsGetHealthAgeFunction;
 }
 export function getAddAlgorithmReturnsGetHealthAgeFunction(
-    cox: Cox,
-    coxJson: CoxJson,
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
     refPop: ReferencePopulation,
-    causeImpactRef: CauseImpactRef = coxJson.causeDeletedRef
+    causeImpactRef?: CauseImpactRefTypes
 ): AddAlgorithmReturnsGetHealthAge {
     return {
         addAlgorithm: (addedCox) => {
@@ -113,25 +119,27 @@ export function getAddAlgorithmReturnsGetHealthAgeFunction(
 
             return Object.assign(
                 {},
-                getGetRiskToTime(cox),
-                getGetSurvivalToTime(cox), 
-                getGetHealthAge(refPop, cox),
-                getToJson(coxJson),
-                getAddLifeTableWithGetHealthAge(cox, coxJson, refPop),
+                getGetRiskToTime(model),
+                getGetSurvivalToTime(model), 
+                getGetHealthAge(refPop, model),
+                getToJson(modelJson),
+                getAddLifeTableWithGetHealthAge(model, modelJson, refPop),
                 getWithDataAndCoxFunctionsAndAddRefPopFunctions(
                     {}, 
                     {}, 
-                    cox, 
+                    model,
+                    modelJson, 
                     refPop,
                     causeImpactRef
                 ),
                 getWithCauseImpactWithCoxFunctions(
-                    coxJson.causeDeletedRef, 
-                    cox
+                    model,
+                    modelJson,
+                    causeImpactRef
                 ),
                 getReplaceCauseImpactRefWithAddRefPopFunctions(
-                    cox,
-                    coxJson,
+                    model,
+                    modelJson,
                     refPop
                 )
             );
@@ -140,47 +148,47 @@ export function getAddAlgorithmReturnsGetHealthAgeFunction(
 }
 
 export type AddAlgorithmWithGetHealthAgeAndLifeTableFunctionsFunction = (
-    addedCox: Cox
+    addedModel: ModelTypes
 ) => GetSurvivalToTime & GetRiskToTime & GetHealthAge & AddLifeTableEvaluatorFunctions & CompleteWithData<{}> & WithCauseImpactWithCoxFunctionsAndLifeExpectancyFunction & ToJson & FullReplaceCauseImpactRef;
 export interface AddAlgorithmWithGetHealthAgeAndLifeTableFunctions {
     addAlgorithm: AddAlgorithmWithGetHealthAgeAndLifeTableFunctionsFunction;
 }
 export function getAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(
-    cox: Cox,
-    coxJson: CoxJson,
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
     refPop: ReferencePopulation,
     refLifeTable: RefLifeTable,
     useExFromLifeTableFromAge: number = 99,
-    causeImpactRef: CauseImpactRef = coxJson.causeDeletedRef
+    causeImpactRef?: CauseImpactRefTypes
 ): AddAlgorithmWithGetHealthAgeAndLifeTableFunctions {
     return {
         addAlgorithm: () => {
             return Object.assign(
                 {},
-                getGetRiskToTime(cox),
-                getGetSurvivalToAge(cox, refLifeTable),
-                getGetSurvivalToTime(cox),
-                getGetHealthAge(refPop, cox),
-                getGetLifeExpectancy(cox, refLifeTable),
-                getGetLifeYearsLost(coxJson.causeDeletedRef, refLifeTable, cox),
-                getToJson(coxJson),
+                getGetRiskToTime(model),
+                getGetSurvivalToAge(model, refLifeTable),
+                getGetSurvivalToTime(model),
+                getGetHealthAge(refPop, model),
+                getGetLifeExpectancy(model, refLifeTable),
+                getGetLifeYearsLost(
+                    model, modelJson, refLifeTable, causeImpactRef),
+                getToJson(modelJson),
                 getCompleteWithData(
                     {}, 
                     {}, 
-                    cox, 
+                    model, 
+                    modelJson,
                     refPop,
                     refLifeTable,
                     causeImpactRef, 
                     useExFromLifeTableFromAge
                 ),
                 getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
-                    causeImpactRef,
-                    cox,
-                    refLifeTable
+                    model, modelJson, refLifeTable
                 ),
                 getFullReplaceCauseImpactRef(
-                    cox,
-                    coxJson,
+                    model,
+                    modelJson,
                     refLifeTable,
                     refPop,
                     useExFromLifeTableFromAge

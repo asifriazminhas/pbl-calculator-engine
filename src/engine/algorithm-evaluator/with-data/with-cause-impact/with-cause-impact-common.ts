@@ -5,8 +5,8 @@ import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { WithDataMemoizedData } from '../memoized-data';
 import { Data } from '../../../common/data';
 import { RefLifeTable } from '../../../life-table';
-import { CauseImpactRef } from '../../../cause-impact';
-import { Cox } from '../../../cox';
+import { CauseImpactRefTypes } from '../../../cause-impact';
+import { ModelTypes, JsonModelTypes } from '../../../model';
 
 export function getRiskFactorKey(
     riskFactors: string[]
@@ -85,8 +85,9 @@ export function getWithCauseImpactAndCoxFunctions<
     getNextObjectInChain: getNextObjectInChain<T & WithCauseImpactChainMethodResult, U>,
     currentMemoizedData: WithDataMemoizedData,
     data: Data,
-    causeImpactRef: CauseImpactRef,
-    cox: Cox
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
+    causeImpactRef?: CauseImpactRefTypes,
 ): WithCauseImpactAndCoxFunctions<T, U> {
     return {
         withCauseImpact: (...riskFactors) => {
@@ -98,8 +99,9 @@ export function getWithCauseImpactAndCoxFunctions<
                     currentMemoizedData,
                     data,
                     riskFactors,
-                    causeImpactRef,
-                    cox
+                    model,
+                    modelJson,
+                    causeImpactRef
                 ),
                 getGetRiskToTimeWithCauseImpact(
                     currentResult, 
@@ -107,8 +109,9 @@ export function getWithCauseImpactAndCoxFunctions<
                     currentMemoizedData,
                     data,
                     riskFactors,
-                    causeImpactRef,
-                    cox
+                    model, 
+                    modelJson,
+                    causeImpactRef
                 )
             )
         }
@@ -131,8 +134,9 @@ export function getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<
     currentMemoizedData: WithDataMemoizedData,
     data: Data,
     refLifeTable: RefLifeTable,
-    causeImpactRef: CauseImpactRef,
-    cox: Cox,
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
+    causeImpactRef?: CauseImpactRefTypes,
     useExFromLifeTableFromAge: number = 99
 ): WithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<T, U> {
     return {
@@ -145,8 +149,9 @@ export function getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<
                     currentMemoizedData,
                     data,
                     riskFactors,
-                    causeImpactRef,
-                    cox
+                    model,
+                    modelJson,
+                    causeImpactRef
                 ),
                 getGetRiskToTimeWithCauseImpact(
                     currentResult, 
@@ -154,8 +159,9 @@ export function getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<
                     currentMemoizedData,
                     data,
                     riskFactors,
-                    causeImpactRef,
-                    cox
+                    model, 
+                    modelJson,
+                    causeImpactRef
                 ),
                 getGetLifeExpectancyWithCauseImpact(
                     currentResult,
@@ -163,10 +169,11 @@ export function getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction<
                     currentMemoizedData,
                     data,
                     refLifeTable,
-                    causeImpactRef,
-                    cox,
+                    model,
+                    modelJson,
                     riskFactors,
-                    useExFromLifeTableFromAge
+                    useExFromLifeTableFromAge,
+                    causeImpactRef
                 )
             )
         }

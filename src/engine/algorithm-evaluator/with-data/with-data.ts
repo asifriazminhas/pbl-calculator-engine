@@ -5,10 +5,10 @@ import { GetHealthAge, GetHealthAgeResult, getGetHealthAge } from './add-ref-pop
 import { WithCauseImpactAndCoxFunctions, getWithCauseImpactAndCoxFunctions, WithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction, getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction, WithCauseImpactChainMethodResult } from './with-cause-impact';
 import { WithDataMemoizedData } from './memoized-data';
 import { Data } from '../../common/data';
-import { Cox } from '../../cox';
 import { ReferencePopulation } from '../../health-age';
 import { RefLifeTable } from '../../life-table';
-import { CauseImpactRef } from '../../cause-impact';
+import { CauseImpactRefTypes } from '../../cause-impact';
+import { ModelTypes, JsonModelTypes } from '../../model';
 
 export interface BaseWithDataResult<T extends object> extends End<T> {
 
@@ -36,8 +36,9 @@ export function getWithDataAndCoxFunctionsResult<
     currentResult: T,
     memoizedData: WithDataMemoizedData,
     data: Data,
-    cox: Cox,
-    causeImpactRef: CauseImpactRef
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
+    causeImpactRef?: CauseImpactRefTypes
 ): WithDataAndCoxFunctionsResult<T> {
     const getNextObjectInChain = (
         nextResult: any,
@@ -47,7 +48,8 @@ export function getWithDataAndCoxFunctionsResult<
             nextResult, 
             memoizedData,
             data,
-            cox,
+            model,
+            modelJson,
             causeImpactRef
         );
     }
@@ -59,14 +61,14 @@ export function getWithDataAndCoxFunctionsResult<
             getNextObjectInChain, 
             memoizedData,
             data,
-            cox
+            model
         ),
         getGetRiskToTime(
             currentResult, 
             getNextObjectInChain, 
             memoizedData,
             data, 
-            cox
+            model
         ),
         getBaseWithDataResult(currentResult),
         getWithCauseImpactAndCoxFunctions(
@@ -74,16 +76,18 @@ export function getWithDataAndCoxFunctionsResult<
             getNextObjectInChain,
             memoizedData,
             data,
-            causeImpactRef,
-            cox
+            model,
+            modelJson,
+            causeImpactRef
         )
     )
 }
 export function getWithDataAndCoxFunctions<T extends object>(
     currentResult: T,
     memoizedData: WithDataMemoizedData,
-    cox: Cox,
-    causeImpactRef: CauseImpactRef
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
+    causeImpactRef?: CauseImpactRefTypes
 ): WithDataAndCoxFunctions<T> {
     return {
         withData: (data) => {
@@ -91,7 +95,8 @@ export function getWithDataAndCoxFunctions<T extends object>(
                 currentResult,
                 memoizedData,
                 data,
-                cox,
+                model,
+                modelJson,
                 causeImpactRef
             );
         }
@@ -110,9 +115,10 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
     currentResult: T,
     memoizedData: WithDataMemoizedData,
     data: Data,
-    cox: Cox,
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
     refLifeTable: RefLifeTable,
-    causeImpactRef: CauseImpactRef,
+    causeImpactRef?: CauseImpactRefTypes,
     useExFromLifeTableFromAge: number = 99
 ): WithDataAndCoxFunctionsAndLifeTableFunctionsResult<T> {
     const getNextObjectInChain = (nextResult: any, memoizedData: any) => {
@@ -120,7 +126,8 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
             nextResult,
             memoizedData,
             data,
-            cox,
+            model,
+            modelJson,
             refLifeTable,
             causeImpactRef,
             useExFromLifeTableFromAge
@@ -133,14 +140,14 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
             getNextObjectInChain,
             memoizedData,
             data,
-            cox
+            model
         ),
         getGetRiskToTime(
             currentResult, 
             getNextObjectInChain,
             memoizedData,
             data,
-            cox
+            model
         ),
         getGetLifeExpectancy(
             currentResult, 
@@ -148,7 +155,7 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
             memoizedData,
             data,
             refLifeTable,
-            cox,
+            model,
             useExFromLifeTableFromAge
         ),
         getGetLifeYearsLost(
@@ -157,7 +164,8 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
             memoizedData,
             data,
             refLifeTable,
-            cox,
+            model,
+            modelJson,
             causeImpactRef,
             useExFromLifeTableFromAge
         ),
@@ -168,8 +176,9 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
             memoizedData,
             data,
             refLifeTable,
+            model,
+            modelJson,
             causeImpactRef,
-            cox,
             useExFromLifeTableFromAge
         ),
         getGetSurvivalToAge(
@@ -178,8 +187,8 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctionsResult<
             memoizedData,
             data,
             refLifeTable,
-            cox,
-            useExFromLifeTableFromAge
+            model,
+            useExFromLifeTableFromAge,
         )
     );
 }
@@ -188,9 +197,10 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctions<
 >(
     currentResult: T,
     memoizedData: WithDataMemoizedData,
-    cox: Cox,
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
     refLifeTable: RefLifeTable,
-    causeImpactRef: CauseImpactRef,
+    causeImpactRef?: CauseImpactRefTypes,
     useExFromLifeTableFromAge: number = 99
 ): WithDataAndCoxFunctionsAndLifeTableFunctions<T> {
     return {
@@ -199,7 +209,8 @@ export function getWithDataAndCoxFunctionsAndLifeTableFunctions<
                 currentResult,
                 memoizedData,
                 data, 
-                cox,
+                model,
+                modelJson,
                 refLifeTable,
                 causeImpactRef,
                 useExFromLifeTableFromAge
@@ -220,16 +231,18 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult<
     currentResult: T,
     memoizedData: WithDataMemoizedData,
     data: Data, 
-    cox: Cox,
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
     refPop: ReferencePopulation,
-    causeImpactRef: CauseImpactRef
+    causeImpactRef?: CauseImpactRefTypes
 ): WithDataAndCoxFunctionsAndAddRefPopFunctionsResult<T> {
     const getNextObjectInChain = (nextResult: any, memoizedData: any) => {
         return getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult(
             nextResult,
             memoizedData,
             data, 
-            cox,
+            model,
+            modelJson,
             refPop,
             causeImpactRef
         )
@@ -241,21 +254,21 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult<
             getNextObjectInChain,
             memoizedData,
             data,
-            cox
+            model
         ),
         getGetRiskToTime(
             currentResult, 
             getNextObjectInChain,
             memoizedData,
             data,
-            cox
+            model
         ),
         getGetHealthAge(
             currentResult, 
             getNextObjectInChain, 
             memoizedData,
             data,
-            cox,
+            model,
             refPop
         ),
         getBaseWithDataResult(currentResult),
@@ -264,8 +277,9 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctionsResult<
             getNextObjectInChain,
             memoizedData,
             data,
-            causeImpactRef,
-            cox
+            model,
+            modelJson,
+            causeImpactRef
         )
     );
 }
@@ -275,9 +289,10 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctions<
 >(
     currentResult: T,
     memoizedData: WithDataMemoizedData,
-    cox: Cox,
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
     refPop: ReferencePopulation,
-    causeImpactRef: CauseImpactRef
+    causeImpactRef?: CauseImpactRefTypes
 ): WithDataAndCoxFunctionsAndAddRefPopFunctions<T> {
     return {
         withData: (data) => {
@@ -285,7 +300,8 @@ export function getWithDataAndCoxFunctionsAndAddRefPopFunctions<
                 currentResult,
                 memoizedData,
                 data, 
-                cox,
+                model,
+                modelJson,
                 refPop,
                 causeImpactRef
             )
@@ -303,10 +319,11 @@ export function getCompleteWithDataResult<
     currentResult: T,
     memoizedData: WithDataMemoizedData,
     data: Data,
-    cox: Cox,
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
     refPop: ReferencePopulation,
     refLifeTable: RefLifeTable,
-    causeImpactRef: CauseImpactRef,
+    causeImpactRef?: CauseImpactRefTypes,
     useExFromLifeTableFromAge: number = 99
 ): CompleteWithDataResult<T> {
     const getNextObjectInChain = (nextResult: any, memoizedData: any) => {
@@ -314,7 +331,8 @@ export function getCompleteWithDataResult<
             nextResult,
             memoizedData,
             data,
-            cox,
+            model,
+            modelJson,
             refPop,
             refLifeTable,
             causeImpactRef,
@@ -328,14 +346,14 @@ export function getCompleteWithDataResult<
             getNextObjectInChain,
             memoizedData,
             data,
-            cox
+            model
         ),
         getGetRiskToTime(
             currentResult, 
             getNextObjectInChain,
             memoizedData,
             data,
-            cox
+            model
         ),
         getGetLifeExpectancy(
             currentResult, 
@@ -343,7 +361,7 @@ export function getCompleteWithDataResult<
             memoizedData,
             data,
             refLifeTable,
-            cox
+            model
         ),
         getGetLifeYearsLost(
             currentResult, 
@@ -351,7 +369,8 @@ export function getCompleteWithDataResult<
             memoizedData,
             data,
             refLifeTable,
-            cox,
+            model,
+            modelJson,
             causeImpactRef,
             useExFromLifeTableFromAge
         ),
@@ -360,7 +379,7 @@ export function getCompleteWithDataResult<
             getNextObjectInChain, 
             memoizedData,
             data,
-            cox,
+            model,
             refPop
         ),
         getBaseWithDataResult(currentResult),
@@ -370,8 +389,9 @@ export function getCompleteWithDataResult<
             memoizedData,
             data,
             refLifeTable,
+            model,
+            modelJson,
             causeImpactRef,
-            cox,
             useExFromLifeTableFromAge
         ),
         getGetSurvivalToAge(
@@ -380,7 +400,7 @@ export function getCompleteWithDataResult<
             memoizedData,
             data,
             refLifeTable,
-            cox,
+            model,
             useExFromLifeTableFromAge
         )
     )
@@ -393,10 +413,11 @@ export function getCompleteWithData<
 >(
     currentResult: T,
     memoizedData: WithDataMemoizedData,
-    cox: Cox,
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
     refPop: ReferencePopulation,
     refLifeTable: RefLifeTable,
-    causeImpactRef: CauseImpactRef,
+    causeImpactRef?: CauseImpactRefTypes,
     useExFromLifeTableFromAge: number = 99
 ): CompleteWithData<T> {
     return {
@@ -405,7 +426,8 @@ export function getCompleteWithData<
                 currentResult,
                 memoizedData,
                 data,
-                cox,
+                model,
+                modelJson,
                 refPop,
                 refLifeTable,
                 causeImpactRef,

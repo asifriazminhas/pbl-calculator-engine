@@ -1,2 +1,2 @@
 export { getSurvivalToTimeWithCauseImpact, getRiskToTimeWithCauseImpact, getLifeExpectancyWithCauseImpact } from './cause-impact';
-export { CauseImpactRef } from './cause-impact-ref';
+export { CauseImpactRef, CauseImpactRefTypes, getCauseImpactRefForData } from './cause-impact-ref';

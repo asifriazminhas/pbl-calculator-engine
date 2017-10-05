@@ -1,0 +1,1 @@
+export { parseModelJsonToModel } from './model';

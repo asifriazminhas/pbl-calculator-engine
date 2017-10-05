@@ -4,7 +4,7 @@ import { getSurvivalToAge } from '../../../survival-to-age';
 import { updateMemoizedData } from './update-memoized-data';
 import { RefLifeTable } from '../../../life-table';
 import { Data } from '../../../common/data';
-import { Cox } from '../../../cox';
+import { ModelTypes, getAlgorithmForModelAndData } from '../../../model';
 
 export interface GetSurvivalToAgeResult {
     survivalToAge: {
@@ -28,11 +28,13 @@ export function getGetSurvivalToAge<
     currentMemoizedData: WithDataMemoizedData,
     data: Data,
     refLifeTable: RefLifeTable,
-    cox: Cox,
+    model: ModelTypes,
     useExFromLifeTableFromAge: number = 99
 ): GetSurvivalToAge<T, U> {
     return {
         getSurvivalToAge: (age) => {
+            const cox = getAlgorithmForModelAndData(model, data);
+            
             const updatedMemoizedData = updateMemoizedData(
                 currentMemoizedData,
                 refLifeTable,

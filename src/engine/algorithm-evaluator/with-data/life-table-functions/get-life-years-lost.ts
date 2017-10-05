@@ -3,10 +3,10 @@ import { WithDataMemoizedData } from '../memoized-data';
 import { getLifeYearsLost } from '../../../life-years-lost';
 import { Data } from '../../../common/data';
 import { RefLifeTable, CompleteLifeTable } from '../../../life-table';
-import { Cox } from '../../../cox';
-import { CauseImpactRef } from '../../../cause-impact';
+import { CauseImpactRef, CauseImpactRefTypes, getCauseImpactRefForData } from '../../../cause-impact';
 import { updateMemoizedData } from './update-memoized-data';
 import { updateMemoizedData as updateMemoizedDataForCauseImpact, getRiskFactorKey } from '../with-cause-impact'
+import { ModelTypes, JsonModelTypes, getAlgorithmJsonForModelAndData, getAlgorithmForModelAndData } from '../../../model';
 
 export interface GetLifeYearsLostResult {
     lifeYearsLost: {
@@ -30,12 +30,26 @@ export function getGetLifeYearsLost<
     currentMemoizedData: WithDataMemoizedData,
     data: Data,
     refLifeTable: RefLifeTable,
-    cox: Cox,
-    causeImpactRef: CauseImpactRef,
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
+    causeImpactRef?: CauseImpactRefTypes,
     useExFromLifeTableFromAge: number = 99
 ): GetLifeYearsLost<T, U> {
     return {
         getLifeYearsLost: (...riskFactors) => {
+            const cox = getAlgorithmForModelAndData(model, data);
+
+            let causeImpactRefToUse: CauseImpactRef;
+            if(causeImpactRef) {
+                causeImpactRefToUse = getCauseImpactRefForData(
+                    causeImpactRef, data
+                );
+            } else {
+                causeImpactRefToUse = getAlgorithmJsonForModelAndData(
+                    modelJson, data
+                ).causeDeletedRef;
+            }
+
             const updatedMemoizedData = updateMemoizedDataForCauseImpact(
                 updateMemoizedData(
                     currentMemoizedData,
@@ -47,7 +61,7 @@ export function getGetLifeYearsLost<
                 refLifeTable,
                 riskFactors,
                 data,
-                causeImpactRef,
+                causeImpactRefToUse,
                 cox,
                 useExFromLifeTableFromAge
             );
@@ -59,7 +73,7 @@ export function getGetLifeYearsLost<
                 (currentResult as T & GetLifeYearsLostResult).lifeYearsLost, 
                 {
                     [riskFactorKey]: getLifeYearsLost(
-                        causeImpactRef,
+                        causeImpactRefToUse,
                         refLifeTable,
                         cox,
                         data,

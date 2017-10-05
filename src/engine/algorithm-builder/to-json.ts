@@ -1,13 +1,13 @@
-import { CoxJson } from '../common/json-types';
+import { JsonModelTypes } from '../model';
 
 export interface ToJson {
-    toJson: () => CoxJson;
+    toJson: () => JsonModelTypes;
 }
 
-export function getToJson(coxJson: CoxJson): ToJson {
+export function getToJson(modelJson: JsonModelTypes): ToJson {
     return {
         toJson: () => {
-            return coxJson;
+            return modelJson;
         }
     }
 }

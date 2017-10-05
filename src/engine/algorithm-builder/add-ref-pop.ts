@@ -2,13 +2,12 @@ import { GetSurvivalToTime, getGetSurvivalToTime, GetRiskToTime, getGetRiskToTim
 import { AddLifeTableWithGetHealthAge, getAddLifeTableWithGetHealthAge, AddLifeTableEvaluatorFunctions } from './add-life-table';
 import { ToJson, getToJson } from './to-json';
 import { ReferencePopulation } from '../health-age/reference-population';
-import { CoxJson } from '../common/json-types';
-import { Cox } from '../cox/cox';
 import { RefLifeTable } from '../life-table';
 import { WithDataAndCoxFunctionsAndAddRefPopFunctions, getWithDataAndCoxFunctionsAndAddRefPopFunctions, CompleteWithData, getCompleteWithData } from '../algorithm-evaluator';
 import { AddAlgorithmReturnsGetHealthAge, getAddAlgorithmReturnsGetHealthAgeFunction, AddAlgorithmWithGetHealthAgeAndLifeTableFunctions,getAddAlgorithmWithGetHealthAgeAndLifeTableFunctions } from './add-algorithm';
-import { CauseImpactRef } from '../cause-impact';
+import { CauseImpactRefTypes } from '../cause-impact';
 import { ReplaceCauseImpactRefWithAddRefPopFunctions, getReplaceCauseImpactRefWithAddRefPopFunctions, FullReplaceCauseImpactRef, getFullReplaceCauseImpactRef} from './replace-cause-impact-ref';
+import { ModelTypes, JsonModelTypes } from '../model';
 
 export type AddRefPopFunction<T extends AddLifeTableWithGetHealthAge | AddLifeTableEvaluatorFunctions, U extends WithDataAndCoxFunctionsAndAddRefPopFunctions<{}> | CompleteWithData<{}>, V extends AddAlgorithmReturnsGetHealthAge | AddAlgorithmWithGetHealthAgeAndLifeTableFunctions,
 W extends WithCauseImpactWithCoxFunctions | WithCauseImpactWithCoxFunctionsAndLifeExpectancyFunction,
@@ -25,38 +24,42 @@ export interface AddRefPopWithAddLifeTableFunctions {
 }
 
 export function getAddRefPopWithAddLifeTable(
-    cox: Cox,
-    coxJson: CoxJson,
-    causeImpactRef: CauseImpactRef = coxJson.causeDeletedRef
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
+    causeImpactRef?: CauseImpactRefTypes
 ): AddRefPopWithAddLifeTable {
     return {
         addRefPop: (refPop) => {
             return Object.assign(
                 {},
-                getGetRiskToTime(cox),
-                getGetSurvivalToTime(cox),
-                getGetHealthAge(refPop, cox),
-                getToJson(coxJson),
-                getAddLifeTableWithGetHealthAge(cox, coxJson, refPop),
+                getGetRiskToTime(model),
+                getGetSurvivalToTime(model),
+                getGetHealthAge(refPop, model),
+                getToJson(modelJson),
+                getAddLifeTableWithGetHealthAge(
+                    model, modelJson, refPop, causeImpactRef),
                 getWithDataAndCoxFunctionsAndAddRefPopFunctions(
                     {}, 
                     {}, 
-                    cox,
+                    model,
+                    modelJson,
                     refPop,
                     causeImpactRef
                 ),
                 getWithCauseImpactWithCoxFunctions(
-                    coxJson.causeDeletedRef,
-                    cox
+                    model,
+                    modelJson,
+                    causeImpactRef
                 ),
                 getAddAlgorithmReturnsGetHealthAgeFunction(
-                    cox,
-                    coxJson,
-                    refPop
+                    model,
+                    modelJson,
+                    refPop,
+                    causeImpactRef
                 ),
                 getReplaceCauseImpactRefWithAddRefPopFunctions(
-                    cox,
-                    coxJson,
+                    model,
+                    modelJson,
                     refPop
                 )
             )
@@ -65,46 +68,53 @@ export function getAddRefPopWithAddLifeTable(
 }
 
 export function getAddRefPopWithAddLifeTableFunctions(
-    cox: Cox,
-    coxJson: CoxJson,
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
     refLifeTable: RefLifeTable,
-    causeImpactRef: CauseImpactRef = coxJson.causeDeletedRef
+    causeImpactRef?: CauseImpactRefTypes
 ): AddRefPopWithAddLifeTableFunctions {
     return {
         addRefPop: (refPop) => {
             return Object.assign(
                 {},
-                getGetRiskToTime(cox),
-                getGetSurvivalToTime(cox),
-                getGetSurvivalToAge(cox, refLifeTable),
-                getGetHealthAge(refPop, cox),
-                getGetLifeExpectancy(cox, refLifeTable),
-                getGetLifeYearsLost(coxJson.causeDeletedRef, refLifeTable, cox),
-                getToJson(coxJson),
+                getGetRiskToTime(model),
+                getGetSurvivalToTime(model),
+                getGetSurvivalToAge(model, refLifeTable),
+                getGetHealthAge(refPop, model),
+                getGetLifeExpectancy(model, refLifeTable),
+                getGetLifeYearsLost(
+                    model, modelJson, refLifeTable, causeImpactRef),
+                getToJson(modelJson),
                 getCompleteWithData(
                     {}, 
                     {}, 
-                    cox, 
+                    model,
+                    modelJson,
                     refPop, 
                     refLifeTable,
                     causeImpactRef
                 ),
                 getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
-                    causeImpactRef,
-                    cox,
-                    refLifeTable
+                    model,
+                    modelJson,
+                    refLifeTable,
+                    undefined,
+                    causeImpactRef
                 ),
                 getAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(
-                    cox,
-                    coxJson,
+                    model,
+                    modelJson,
                     refPop,
-                    refLifeTable
+                    refLifeTable,
+                    undefined,
+                    causeImpactRef
                 ),
                 getFullReplaceCauseImpactRef(
-                    cox,
-                    coxJson,
+                    model,
+                    modelJson,
                     refLifeTable,
-                    refPop
+                    refPop,
+                    undefined
                 )
             )
         }

@@ -1,14 +1,13 @@
 import { GetRiskToTime, getGetRiskToTime, GetSurvivalToTime, getGetSurvivalToAge, GetLifeExpectancy, getGetLifeExpectancy, GetLifeYearsLost, getGetLifeYearsLost, GetHealthAge, getGetHealthAge, GetSurvivalToAge, getGetSurvivalToTime, WithCauseImpactWithCoxFunctionsAndLifeExpectancyFunction, getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions } from '../algorithm-evaluator';
 import { RefLifeTable } from '../life-table';
-import { Cox } from '../cox/cox';
 import { ToJson, getToJson } from './to-json';
-import { CoxJson } from '../common/json-types';
 import { AddRefPopWithAddLifeTableFunctions, getAddRefPopWithAddLifeTableFunctions } from './add-ref-pop';
 import { ReferencePopulation } from '../health-age/reference-population';
 import { WithDataAndCoxFunctionsAndLifeTableFunctions, getWithDataAndCoxFunctionsAndLifeTableFunctions, CompleteWithData, getCompleteWithData } from '../algorithm-evaluator';
 import { AddAlgorithmWithLifeTableFunctions, getAddAlgorithmWithLifeTableFunctions, AddAlgorithmWithGetHealthAgeAndLifeTableFunctions, getAddAlgorithmWithGetHealthAgeAndLifeTableFunctions } from './add-algorithm';
-import { CauseImpactRef } from '../cause-impact';
+import { CauseImpactRefTypes } from '../cause-impact';
 import { ReplaceCauseImpactRefWithLifeTableFunctions, getReplaceCauseImpactRefWithLifeTableFunctions, FullReplaceCauseImpactRef, getFullReplaceCauseImpactRef } from './replace-cause-impact-ref';
+import { ModelTypes, JsonModelTypes } from '../model';
 
 export type AddLifeTableEvaluatorFunctions = GetLifeExpectancy & GetLifeYearsLost & GetSurvivalToAge;
 
@@ -23,42 +22,49 @@ export interface AddLifeTableWithGetHealthAge {
 }
 
 export function getAddLifeTableWithAddRefPop(
-    cox: Cox,
-    coxJson: CoxJson,
-    causeImpactRef: CauseImpactRef = coxJson.causeDeletedRef
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
+    causeImpactRef?: CauseImpactRefTypes
 ): AddLifeTableWithAddRefPop {
     return {
         addLifeTable: (lifeTable) => {
             return Object.assign(
                 {},
-                getGetRiskToTime(cox),
-                getGetSurvivalToTime(cox),
-                getGetSurvivalToAge(cox, lifeTable),
-                getGetLifeExpectancy(cox, lifeTable),
-                getGetLifeYearsLost(coxJson.causeDeletedRef, lifeTable, cox),
-                getToJson(coxJson),
-                getAddRefPopWithAddLifeTableFunctions(cox, coxJson, lifeTable),
+                getGetRiskToTime(model),
+                getGetSurvivalToTime(model),
+                getGetSurvivalToAge(model, lifeTable),
+                getGetLifeExpectancy(model, lifeTable),
+                getGetLifeYearsLost(
+                    model, modelJson, lifeTable, causeImpactRef),
+                getToJson(modelJson),
+                getAddRefPopWithAddLifeTableFunctions(
+                    model, modelJson, lifeTable, causeImpactRef
+                ),
                 getWithDataAndCoxFunctionsAndLifeTableFunctions(
                     {}, 
                     {}, 
-                    cox,
+                    model,
+                    modelJson,
                     lifeTable,
                     causeImpactRef
                 ),
                 getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
-                    causeImpactRef,
-                    cox,
-                    lifeTable
+                    model, 
+                    modelJson,
+                    lifeTable,
+                    undefined,
+                    causeImpactRef
                 ),
                 getAddAlgorithmWithLifeTableFunctions(
-                    cox,
+                    model,
                     lifeTable,
-                    coxJson
+                    modelJson,
+                    causeImpactRef
                 ),
                 getReplaceCauseImpactRefWithLifeTableFunctions(
-                    cox,
+                    model,
                     lifeTable,
-                    coxJson
+                    modelJson
                 )
             )
         }
@@ -66,44 +72,50 @@ export function getAddLifeTableWithAddRefPop(
 }
 
 export function getAddLifeTableWithGetHealthAge(
-    cox: Cox,
-    coxJson: CoxJson,
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
     refPop: ReferencePopulation,
-    causeImpactRef: CauseImpactRef = coxJson.causeDeletedRef
+    causeImpactRef?: CauseImpactRefTypes
 ): AddLifeTableWithGetHealthAge {
     return {
         addLifeTable: (lifeTable) => {
             return Object.assign(
                 {},
-                getGetRiskToTime(cox),
-                getGetSurvivalToAge(cox, lifeTable),
-                getGetSurvivalToTime(cox),
-                getGetHealthAge(refPop, cox),
-                getGetLifeExpectancy(cox, lifeTable),
-                getGetLifeYearsLost(coxJson.causeDeletedRef, lifeTable, cox),
-                getToJson(coxJson),
+                getGetRiskToTime(model),
+                getGetSurvivalToAge(model, lifeTable),
+                getGetSurvivalToTime(model),
+                getGetHealthAge(refPop, model),
+                getGetLifeExpectancy(model, lifeTable),
+                getGetLifeYearsLost(
+                    model, modelJson, lifeTable, causeImpactRef),
+                getToJson(modelJson),
                 getCompleteWithData(
                     {}, 
                     {}, 
-                    cox, 
-                    refPop, 
-                    lifeTable, 
+                    model,
+                    modelJson,
+                    refPop,
+                    lifeTable,
                     causeImpactRef
                 ),
                 getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
-                    causeImpactRef,
-                    cox,
-                    lifeTable
+                    model,
+                    modelJson,
+                    lifeTable,
+                    undefined,
+                    causeImpactRef
                 ),
                 getAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(
-                    cox,
-                    coxJson,
+                    model,
+                    modelJson,
                     refPop,
-                    lifeTable
+                    lifeTable,
+                    undefined,
+                    causeImpactRef
                 ),
                 getFullReplaceCauseImpactRef(
-                    cox,
-                    coxJson,
+                    model,
+                    modelJson,
                     lifeTable,
                     refPop
                 )

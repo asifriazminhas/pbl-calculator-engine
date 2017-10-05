@@ -1,9 +1,10 @@
 import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { updateMemoizedData } from './with-data-cox-functions-common';
 import * as moment from 'moment';
-import { Cox, getTimeMultiplier } from '../../../cox';
+import { getTimeMultiplier } from '../../../cox';
 import { Data } from '../../../common/data';
 import { WithDataMemoizedData } from '../memoized-data';
+import { ModelTypes, getAlgorithmForModelAndData } from '../../../model';
 
 export interface GetRiskToTimeResult {
     riskToTime: number;
@@ -24,10 +25,12 @@ export function getGetRiskToTime<
     getNextObjectInChain: getNextObjectInChain<T & GetRiskToTimeResult, U>,
     currentMemoizedData: WithDataMemoizedData,
     data: Data,
-    cox: Cox
+    model: ModelTypes
 ): GetRiskToTime<T, U> {
     return {
         getRiskToTime: (time) => {
+            const cox = getAlgorithmForModelAndData(model, data);
+            
             const updatedMemoizedData = updateMemoizedData(
                 currentMemoizedData,
                 data,

@@ -30,6 +30,7 @@ export interface BaseDataField {
 }
 
 interface PhiatCsvRow extends BaseDataField {
+    Tool: string;
     Mean: string;
 }
 
@@ -179,6 +180,7 @@ function addGeneralRegressionModelNode(
 }
 
 export function transformPhiatDictionaryToPmml(
+    algorithmName: string,
     phiatCsvString: string,
     webSpecificationsCategories: string,
     gender: 'Male' | 'Female' | 'both',
@@ -188,9 +190,15 @@ export function transformPhiatDictionaryToPmml(
 ): string {
     addBetas;
     //Parse the csv string into array of objects
-    const phiatCsv: Array<PhiatCsvRow> = csvParse(phiatCsvString, {
+    const originalPhiatCsv: Array<PhiatCsvRow> = csvParse(phiatCsvString, {
         columns: true
     });
+
+    const phiatCsv = originalPhiatCsv
+        .filter(phiatCsv => phiatCsv.Tool === algorithmName);
+    if(phiatCsv.length === 0) {
+        throw new Error(`No rows found in web specifications csv for algorithm ${algorithmName}`);
+    }
 
     const webSpecificationsCategoriesCsv: Array<WebSpecificationCategoriesCsvRow> = csvParse(
         webSpecificationsCategories,

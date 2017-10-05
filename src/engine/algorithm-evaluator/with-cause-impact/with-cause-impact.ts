@@ -1,9 +1,9 @@
 import { GetSurvivalToTimeWithCauseImpact, getGetSurvivalToTimeWithCauseImpact } from './cause-impact-get-survival-to-time';
 import { GetRiskToTimeWithCauseImpact, getGetRiskToTimeWithCauseImpact } from './cause-impact-get-risk-to-time';
 import { GetLifeExpectancyWithCauseImpact, getGetLifeExpectancyWithCauseImpact } from './cause-impact-get-life-expectancy';
-import { Cox } from '../../cox';
 import { RefLifeTable } from '../../life-table';
-import { CauseImpactRef } from '../../cause-impact';
+import { CauseImpactRefTypes } from '../../cause-impact';
+import { ModelTypes, JsonModelTypes } from '../../model';
 
 export type WithCauseImpactFunction<T> = (...riskFactor: string[]) => T;
 
@@ -12,22 +12,25 @@ export interface WithCauseImpactWithCoxFunctions {
 }
 
 export function getWithCauseImpactWithCoxFunctions(
-    causeImpactRef: CauseImpactRef,
-    coxAlgorithm: Cox
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
+    causeImpactRef?: CauseImpactRefTypes,
 ): WithCauseImpactWithCoxFunctions {
     return {
         withCauseImpact: (...riskFactors: string[]) => {
             return Object.assign(
                 {},
                 getGetSurvivalToTimeWithCauseImpact(
-                    causeImpactRef,
-                    coxAlgorithm,
-                    riskFactors
+                    model,
+                    modelJson,
+                    riskFactors,
+                    causeImpactRef
                 ),
                 getGetRiskToTimeWithCauseImpact(
-                    causeImpactRef,
-                    coxAlgorithm,
-                    riskFactors
+                    model,
+                    modelJson,
+                    riskFactors,
+                    causeImpactRef
                 )
             )
         }
@@ -39,31 +42,35 @@ export interface WithCauseImpactWithCoxFunctionsAndLifeExpectancyFunction {
 }
 
 export function getWithCauseImpactWithCoxFunctionsAndLifeExpectancyFunctions(
-    causeImpactRef: CauseImpactRef,
-    coxAlgorithm: Cox,
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
     refLifeTable: RefLifeTable,
-    useExFromLifeTableFromAge: number = 99
+    useExFromLifeTableFromAge: number = 99,
+    causeImpactRef?: CauseImpactRefTypes,
 ): WithCauseImpactWithCoxFunctionsAndLifeExpectancyFunction {
     return {
         withCauseImpact: (...riskFactors: string[]) => {
             return Object.assign(
                 {},
                 getGetSurvivalToTimeWithCauseImpact(
-                    causeImpactRef, 
-                    coxAlgorithm,
-                    riskFactors
+                    model,
+                    modelJson,
+                    riskFactors,
+                    causeImpactRef
                 ),
                 getGetRiskToTimeWithCauseImpact(
-                    causeImpactRef, 
-                    coxAlgorithm,
-                    riskFactors
+                    model,
+                    modelJson,
+                    riskFactors,
+                    causeImpactRef
                 ),
                 getGetLifeExpectancyWithCauseImpact(
-                    causeImpactRef,
                     riskFactors,
                     refLifeTable,
-                    coxAlgorithm,
-                    useExFromLifeTableFromAge
+                    model,
+                    modelJson,
+                    useExFromLifeTableFromAge,causeImpactRef,
+
                 )
             )
         }

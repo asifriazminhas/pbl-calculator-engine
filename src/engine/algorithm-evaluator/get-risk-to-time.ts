@@ -1,17 +1,19 @@
-import { getRiskToTime, Cox } from '../cox/cox';
+import { getRiskToTime } from '../cox/cox';
 import { Data } from '../common/datum';
 import * as moment from 'moment';
+import { ModelTypes, getAlgorithmForModelAndData } from '../model';
 
 export interface GetRiskToTime {
     getRiskToTime: (data: Data, time?: Date | moment.Moment) => number;
 }
 
 export function getGetRiskToTime(
-    cox: Cox
+    model: ModelTypes
 ): GetRiskToTime {
     return {
         getRiskToTime: (data, time) => {
-            return getRiskToTime(cox, data, time);
+            return getRiskToTime(
+                getAlgorithmForModelAndData(model, data), data, time);
         }
     };
 }

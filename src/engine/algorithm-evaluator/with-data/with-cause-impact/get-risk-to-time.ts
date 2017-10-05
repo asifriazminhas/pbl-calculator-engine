@@ -1,10 +1,11 @@
 import { WithCauseImpactChainMethodResult, updateWithCauseImpactChainMethodResult, getRiskFactorKey } from './with-cause-impact-common';
 import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { WithDataMemoizedData } from '../memoized-data';
-import { getRiskToTimeWithCauseImpact, CauseImpactRef } from '../../../cause-impact';
+import { getRiskToTimeWithCauseImpact, CauseImpactRef, CauseImpactRefTypes, getCauseImpactRefForData } from '../../../cause-impact';
 import { Data } from '../../../common/data';
-import { Cox, getTimeMultiplier } from '../../../cox';
+import { getTimeMultiplier } from '../../../cox';
 import * as moment from 'moment';
+import { ModelTypes, JsonModelTypes, getAlgorithmForModelAndData, getAlgorithmJsonForModelAndData } from '../../../model';
 
 export interface GetRiskToTimeWithCauseImpact<
     T extends object,
@@ -22,19 +23,35 @@ export function getGetRiskToTimeWithCauseImpact<
     currentMemoizedData: WithDataMemoizedData,
     data: Data,
     riskFactors: string[],
-    causeImpactRef: CauseImpactRef,
-    cox: Cox
+    model: ModelTypes,
+    modelJson: JsonModelTypes,
+    causeImpactRef?: CauseImpactRefTypes,
 ): GetRiskToTimeWithCauseImpact<T, U> {
     return {
         getRiskToTime: (time) => {
+            const cox = getAlgorithmForModelAndData(
+                model, data
+            );
+
             const riskFactorKey = getRiskFactorKey(riskFactors);
+
+            let causeImpactRefToUse: CauseImpactRef;
+            if(causeImpactRef) {
+                causeImpactRefToUse = getCauseImpactRefForData(
+                    causeImpactRef, data
+                );
+            } else {
+                causeImpactRefToUse = getAlgorithmJsonForModelAndData(
+                    modelJson, data
+                ).causeDeletedRef;
+            }
 
             let riskToTimeWithCauseImpact: number;
             if(
                 !currentMemoizedData.oneYearRiskProbabilityForRiskFactors || currentMemoizedData.oneYearRiskProbabilityForRiskFactors[riskFactorKey] === undefined
             ) {
                 const oneYearRiskToTimeForCurrentRiskFactor = getRiskToTimeWithCauseImpact(
-                    causeImpactRef,
+                    causeImpactRefToUse,
                     cox,
                     riskFactors,
                     data

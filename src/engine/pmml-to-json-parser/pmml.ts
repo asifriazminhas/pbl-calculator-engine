@@ -3,14 +3,17 @@ import { parseDerivedFields } from './data_fields/derived_field/derived_field';
 import { Pmml, PmmlParser } from '../pmml';
 import { CoxJson } from '../common/json-types';
 import { parseDefineFunction } from './define-function/define-function';
+import { JsonModelTypes, Predicate, ModelType } from '../model';
 
-//import { parseFromAlgorithmJson } from '../json/algorithm';
-
-function parseBaselineHazardFromPmmlXml(pmml: Pmml): number {
+function parseBaselineHazardFromPmmlXml(
+    pmml: Pmml
+): number {
     return Number(pmml.pmmlXml.PMML.GeneralRegressionModel.$.baselineHazard);
 }
 
-export async function pmmlXmlStringsToJson(pmmlXmlStrings: Array<string>): Promise<CoxJson> {
+async function pmmlStringsToJson(
+    pmmlXmlStrings: string[]
+): Promise<CoxJson> {
     const pmml = await PmmlParser
         .parsePmmlFromPmmlXmlStrings(pmmlXmlStrings)
 
@@ -41,4 +44,32 @@ export async function pmmlXmlStringsToJson(pmmlXmlStrings: Array<string>): Promi
     //parseFromAlgorithmJson(parsedAlgorithm);
 
     return parsedAlgorithm;
+}
+
+export async function pmmlXmlStringsToJson(
+    modelPmmlXmlStrings: string[][],
+    predicates: Predicate[]
+): Promise<JsonModelTypes> {
+    const parsedAlgorithms = await Promise.all(
+        modelPmmlXmlStrings
+            .map(pmmlXmlStrings => pmmlStringsToJson(pmmlXmlStrings))
+    );
+
+    if(parsedAlgorithms.length === 1) {
+        return {
+            modelType: ModelType.SingleAlgorithm,
+            algorithm: parsedAlgorithms[0]
+        };
+    } else {
+        return {
+            modelType: ModelType.MultipleAlgorithm,
+            algorithms: parsedAlgorithms
+                .map((parsedAlgorithm, index) => {
+                    return {
+                        algorithm: parsedAlgorithm,
+                        predicate: predicates[index]
+                    }
+                })
+        };
+    }
 }

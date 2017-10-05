@@ -1,17 +1,19 @@
-import { getSurvivalToTime, Cox } from '../cox/cox';
+import { getSurvivalToTime } from '../cox/cox';
 import { Data } from '../common/datum';
 import * as moment from 'moment';
+import { ModelTypes, getAlgorithmForModelAndData } from '../model';
 
 export interface GetSurvivalToTime {
     getSurvivalToTime: (data: Data, time?: Date | moment.Moment) => number;
 }
 
 export function getGetSurvivalToTime(
-    cox: Cox
+    model: ModelTypes
 ): GetSurvivalToTime {
     return {
         getSurvivalToTime: (data, time) => {
-            return getSurvivalToTime(cox, data, time)
+            return getSurvivalToTime(
+                getAlgorithmForModelAndData(model, data), data, time)
         }
     }
 }

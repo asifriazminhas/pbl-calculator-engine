@@ -1,14 +1,14 @@
-import { Cox } from '../cox/cox';
 import { getLifeExpectancyUsingRefLifeTable } from '../life-expectancy/life-expectancy';
 import { RefLifeTable } from '../life-table';
 import { Data } from '../common/datum';
+import { ModelTypes, getAlgorithmForModelAndData } from '../model';
 
 export interface GetLifeExpectancy {
     getLifeExpectancy: (data: Data) => number;
 }
 
 export function getGetLifeExpectancy(
-    coxAlgorithm: Cox,
+    model: ModelTypes,
     refLifeTable: RefLifeTable,
     useExFromLifeTableFromAge: number = 99
 ): GetLifeExpectancy {
@@ -17,7 +17,7 @@ export function getGetLifeExpectancy(
             return getLifeExpectancyUsingRefLifeTable(
                 data,
                 refLifeTable,
-                coxAlgorithm,
+                getAlgorithmForModelAndData(model, data),
                 useExFromLifeTableFromAge
             )
         }
