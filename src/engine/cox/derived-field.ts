@@ -160,7 +160,7 @@ export function getLeafFieldsForDerivedField(
                     if(derivedFromItem.fieldType === FieldTypes.DataField) {
                         return derivedFromItem;
                     } else if(derivedFromItem.fieldType === FieldTypes.DerivedField) {
-                        return getLeafFieldsForDerivedField(derivedField);
+                        return getLeafFieldsForDerivedField(derivedFromItem);
                     } else {
                         if(derivedFromItem.derivedField) {
                             return getLeafFieldsForDerivedField(
