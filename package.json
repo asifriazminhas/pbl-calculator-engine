@@ -13,7 +13,8 @@
     "build-ts:watch": "tsc -w",
     "build": "rm -rf ./lib && rm -rf ./dist && npm run build-ts && npm run build-umd",
     "prepublish": "npm run build",
-    "lifetable-csv-to-json": "node ./lib/scripts/lifetable-csv-to-json.js"
+    "lifetable-csv-to-json": "node ./lib/scripts/lifetable-csv-to-json.js",
+    "test": "tape lib/test/local-transformations-tape.js | node_modules/.bin/tap-spec"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,7 @@
     "@types/mocha": "2.2.32",
     "@types/node": "6.0.42",
     "@types/source-map-support": "0.2.28",
+    "@types/tape": "4.2.30",
     "@types/xml2js": "0.0.28",
     "@types/xmlbuilder": "0.0.29",
     "@types/yargs": "6.6.0",
@@ -47,6 +49,7 @@
     "babel-preset-es2015": "6.18.0",
     "chai": "3.5.0",
     "mocha": "3.1.2",
+    "tap-spec": "4.1.1",
     "tslib": "1.7.1",
     "typescript": "2.4.1",
     "webpack": "1.13.3"
@@ -55,12 +58,13 @@
     "@ottawamhealth/pbl-limesurvey-engine": "0.1.2",
     "ast-types": "0.9.12",
     "bluebird": "3.4.6",
-    "escodegen": "1.8.1",
     "csv-parse": "1.1.7",
+    "escodegen": "1.8.1",
     "exceljs": "0.4.10",
     "lodash": "4.17.4",
     "moment": "2.17.1",
     "source-map-support": "0.4.3",
+    "tape": "4.8.0",
     "xml2js": "0.4.17",
     "xmlbuilder": "8.2.2",
     "yargs": "6.6.0"
