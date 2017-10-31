@@ -1,19 +1,11 @@
 import { FieldType, Field } from '../field';
 import { CategoricalOpType, ContinuousOpType } from '../op-type';
-import { CustomFunctionTypes } from './custom-function-types';
-
-export interface GenericRcsCustomFunction<T> {
-    customFunctionType: CustomFunctionTypes.RcsCustomFunction;
-    knots: Array<number>;
-    firstVariableCovariate: T;
-    variableNumber: number;
-}
-export type GenericCustomFunctions<T> = GenericRcsCustomFunction<T>;
+import { GenericCustomFunction } from '../custom-function';
 
 export interface GenericBaseCovariate<T> extends Field {
     beta: number;
     referencePoint: number;
-    customFunction: GenericCustomFunctions<T> | undefined;
+    customFunction: GenericCustomFunction<T> | undefined;
 }
 export interface GenericNonInteractionCovariateWithoutOpType<T> extends GenericBaseCovariate<T> {
     fieldType: FieldType.NonInteractionCovariate;

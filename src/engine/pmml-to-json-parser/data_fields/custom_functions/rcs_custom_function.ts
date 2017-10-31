@@ -1,6 +1,6 @@
 import { RcsCustomFunctionJson } from '../../../common/json-types';
 import { IRestrictedCubicSpline, IParameter } from '../../../pmml';
-import { CustomFunctionTypes } from '../../../common/custom-function-types';
+import { CustomFunctionType } from '../../../custom-function';
 
 /**
  * Given a the label field for a Parameter XML node it checks if this predictor has an RCS custom function or not. Eg. age_rcs2 has an rcs function 
@@ -76,7 +76,7 @@ export function parseRcsSpline(parameter: IParameter, restrictedCubicSpline: IRe
         //Otherwise Return the Spline object
         else {
             return {
-                customFunctionType: CustomFunctionTypes.RcsCustomFunction,
+                customFunctionType: CustomFunctionType.RcsCustomFunction,
                 knots: parseKnotLocations(
                     restrictedCubicSplinePCell.$.knotLocations
                 ),

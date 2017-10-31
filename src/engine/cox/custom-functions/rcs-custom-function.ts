@@ -1,5 +1,5 @@
 import { Covariate, calculateCoefficent as calculateCoefficentForCovariate } from '../covariate';
-import { GenericRcsCustomFunction } from '../../common/generic-types';
+import { GenericRcsCustomFunction } from '../../custom-function';
 import { Data, Datum } from '../../common/datum';
 import { isFieldWithName } from '../field';
 
