@@ -1,4 +1,4 @@
-import { GenericCox } from './generic-types';
+import { GenericCox } from '../generic-cox';
 import { DataField } from '../data-field';
 import { GenericDerivedField } from '../derived-field';
 import { GenericCustomFunction, GenericRcsCustomFunction } from '../custom-function';

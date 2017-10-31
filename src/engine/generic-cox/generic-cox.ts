@@ -8,8 +8,3 @@ export interface GenericCox<T, U> {
         [index: string]: U
     }
 }
-
-
-
-
-
