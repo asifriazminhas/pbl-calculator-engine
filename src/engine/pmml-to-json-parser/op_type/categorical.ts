@@ -1,5 +1,6 @@
 import { IDataField, ICategoricalDataField } from '../../pmml';
-import { GenericField, GenericCategory, GenericCategoricalOpType } from '../../common/generic-types';
+import { GenericCategory, GenericCategoricalOpType } from '../../common/generic-types';
+import { GenericField } from '../../field';
 
 export function isCategoricalDataField(dataField: IDataField): dataField is ICategoricalDataField {
     return dataField.$.optype === 'categorical';

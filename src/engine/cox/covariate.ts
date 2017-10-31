@@ -1,4 +1,4 @@
-import { FieldTypes } from '../common/field-types';
+import { FieldType } from '../field';
 import { InteractionCovariate } from './interaction-covariate';
 import { NonInteractionCovariate } from './non-interaction-covariate';
 import { Data, datumFactory, datumFromCovariateReferencePointFactory } from '../common/datum';
@@ -81,7 +81,7 @@ export function calculateCoefficent(
         [index: string]: Function
     }
 ): number {
-    const coefficentData = covariate.fieldType ===  FieldTypes.InteractionCovariate ? calculateDataToCalculateCoefficentForInteractionCovariate(
+    const coefficentData = covariate.fieldType ===  FieldType.InteractionCovariate ? calculateDataToCalculateCoefficentForInteractionCovariate(
         covariate, 
         data,
         userDefinedFunctions

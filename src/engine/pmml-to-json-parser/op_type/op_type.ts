@@ -1,7 +1,7 @@
 import { OpTypes } from '../../common/op-types';
 import { addCategoricalFieldsIfCategorical } from './categorical';
 import { addContinuousFieldsIfContinuous } from './continuous';
-import { GenericField } from '../../common/generic-types';
+import { GenericField } from '../../field';
 import { IDataField } from '../../pmml';
 
 export function addCategoricalOrContinuousFields<T extends GenericField>(

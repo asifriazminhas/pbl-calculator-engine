@@ -1,5 +1,5 @@
 import { Data, Datum } from '../common/datum';
-import { GenericField } from '../common/generic-types';
+import { GenericField } from '../field';
 
 export function getDatumForField(
     field: GenericField,

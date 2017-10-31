@@ -6,7 +6,7 @@ import * as escodegen from 'escodegen';
 import { getASTForApply, getASTForConstant, getASTForFieldRef } from './node_parser';
 import { parseDataFieldFromDataFieldPmmlNode } from '../data_field';
 import { GenericDataField } from '../../../common/generic-types';
-import { FieldTypes } from '../../../common/field-types';
+import { FieldType } from '../../../field';
 var astTypes = require('ast-types');
 
 function getAstForDerivedField(
@@ -111,13 +111,13 @@ function getDerivedFromForAst(
                             dataFieldForCurrentDerivedField
                         ),
                         {
-                            fieldType: FieldTypes.DataField as FieldTypes.DataField
+                            fieldType: FieldType.DataField as FieldType.DataField
                         }
                     );
                 }
                 else {
                     return {
-                        fieldType: FieldTypes.DataField as FieldTypes.DataField,
+                        fieldType: FieldType.DataField as FieldType.DataField,
                         name: derivedFromItem,
                         displayName: '',
                         extensions: {}
@@ -146,7 +146,7 @@ export function parseDerivedFields(
 
                 return Object.assign(
                     {
-                        fieldType: FieldTypes.DerivedField as FieldTypes.DerivedField,
+                        fieldType: FieldType.DerivedField as FieldType.DerivedField,
                         name: derivedField.$.name,
                         opType: getOpTypeFromPmmlOpType(derivedField.$.optype),
                         equation: escodegen.generate(ast),
@@ -159,7 +159,7 @@ export function parseDerivedFields(
                             dataFieldForCurrentDerivedField
                         ) : {},
                     {
-                        fieldType: FieldTypes.DerivedField as FieldTypes.DerivedField
+                        fieldType: FieldType.DerivedField as FieldType.DerivedField
                     }
                 );
             });

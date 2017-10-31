@@ -1,6 +1,6 @@
 import { GenericCategoricalDerivedField, GenericContinuousDerivedField, GenericDerivedFieldWithoutOpType, GenericDataField } from '../common/generic-types';
 import { getDatumForField } from './field';
-import { FieldTypes } from '../common/field-types';
+import { FieldType } from '../field';
 import { flatten } from 'lodash';
 import { Data, datumFactory, Coefficent } from '../common/datum';
 import { Covariate, calculateCoefficent as calculateCoefficentForCovariate } from './covariate'
@@ -106,7 +106,7 @@ export function calculateDataToCalculateCoefficent(
         .map((derivedFromItem) => {
             const fieldName = derivedFromItem.name;
 
-            if (derivedFromItem.fieldType === FieldTypes.InteractionCovariate || derivedFromItem.fieldType === FieldTypes.NonInteractionCovariate) {
+            if (derivedFromItem.fieldType === FieldType.InteractionCovariate || derivedFromItem.fieldType === FieldType.NonInteractionCovariate) {
                 return datumFactory(
                     fieldName,
                     calculateCoefficentForCovariate(
@@ -116,7 +116,7 @@ export function calculateDataToCalculateCoefficent(
                     )
                 );
             }
-            else if (derivedFromItem.fieldType === FieldTypes.DerivedField) {
+            else if (derivedFromItem.fieldType === FieldType.DerivedField) {
                 return datumFactory(
                     fieldName, 
                     calculateCoefficent(
@@ -157,9 +157,9 @@ export function getLeafFieldsForDerivedField(
             derivedField
                 .derivedFrom
                 .map((derivedFromItem) => {
-                    if(derivedFromItem.fieldType === FieldTypes.DataField) {
+                    if(derivedFromItem.fieldType === FieldType.DataField) {
                         return derivedFromItem;
-                    } else if(derivedFromItem.fieldType === FieldTypes.DerivedField) {
+                    } else if(derivedFromItem.fieldType === FieldType.DerivedField) {
                         return getLeafFieldsForDerivedField(derivedFromItem);
                     } else {
                         if(derivedFromItem.derivedField) {

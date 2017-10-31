@@ -1,4 +1,4 @@
-export enum FieldTypes {
+export enum FieldType {
     DataField=0,
     DerivedField=1,
     NonInteractionCovariate=2,

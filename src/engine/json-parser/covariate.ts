@@ -2,7 +2,7 @@ import { CovariateJson } from '../common/json-types';
 import { Covariate } from '../cox/covariate';
 import { DerivedFieldJson } from '../common/json-types';
 import { findDerivedFieldJsonWithName, parseDerivedFieldJsonToDerivedField } from './derived-field';
-import { FieldTypes } from '../common/field-types';
+import { FieldType } from '../field';
 import { InteractionCovariate } from '../cox/interaction-covariate';
 import { parseCustomFunctionJsonToCustomFunction } from './custom-functions/custom-function';
 
@@ -34,7 +34,7 @@ export function parseCovariateJsonToCovariate(
         derivedFieldJsons
     ) : undefined;
 
-    if (covariateJson.fieldType === FieldTypes.InteractionCovariate) {
+    if (covariateJson.fieldType === FieldType.InteractionCovariate) {
         if (!parsedDerivedField) {
             throw new Error();
         }

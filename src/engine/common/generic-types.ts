@@ -1,14 +1,6 @@
-import { FieldTypes } from './field-types';
+import { FieldType, GenericField } from '../field';
 import { OpTypes } from './op-types';
 import { CustomFunctionTypes } from './custom-function-types';
-
-export interface GenericField {
-    name: string;
-    displayName: string;
-    extensions: {
-        [index: string]: string;
-    };
-}
 
 export interface GenericCategory {
     value: string;
@@ -27,14 +19,14 @@ export interface GenericContinuousOpType {
 }
 
 export interface GenericDataFieldWithoutOpType extends GenericField {
-    fieldType: FieldTypes.DataField;
+    fieldType: FieldType.DataField;
 }
 export interface GenericCategoricalDataField extends GenericDataFieldWithoutOpType, GenericCategoricalOpType {}
 export interface GenericContinuousDataField extends GenericDataFieldWithoutOpType, GenericContinuousOpType {}
 export type GenericDataField = GenericDataFieldWithoutOpType | GenericCategoricalDataField | GenericContinuousDataField;
 
 export interface GenericDerivedFieldWithoutOpType<T> extends GenericField {
-    fieldType: FieldTypes.DerivedField;
+    fieldType: FieldType.DerivedField;
     equation: string;
     derivedFrom: Array<T>;
 }
@@ -56,14 +48,14 @@ export interface GenericBaseCovariate<T> extends GenericField {
     customFunction: GenericCustomFunctions<T> | undefined;
 }
 export interface GenericNonInteractionCovariateWithoutOpType<T> extends GenericBaseCovariate<T> {
-    fieldType: FieldTypes.NonInteractionCovariate;
+    fieldType: FieldType.NonInteractionCovariate;
 }
 export interface GenericCategoricalNonInteractionCovariate<T> extends GenericNonInteractionCovariateWithoutOpType<T>, GenericCategoricalOpType {}
 export interface GenericContinuousNonInteractionCovariate<T> extends GenericNonInteractionCovariateWithoutOpType<T>, GenericContinuousOpType {}
 export type GenericNonInteractionCovariate<T> = GenericNonInteractionCovariateWithoutOpType<T> | GenericCategoricalNonInteractionCovariate<T> | GenericContinuousNonInteractionCovariate<T>;
 
 export interface GenericInteractionCovariateWithoutOpType<T> extends GenericBaseCovariate<T> {
-    fieldType: FieldTypes.InteractionCovariate;
+    fieldType: FieldType.InteractionCovariate;
 }
 export interface GenericCategoricalInteractionCovariate<T> extends GenericInteractionCovariateWithoutOpType<T>, GenericCategoricalOpType {}
 export interface GenericContinuousInteractionCovariate<T> extends GenericInteractionCovariateWithoutOpType<T>, GenericContinuousOpType {}

@@ -1,5 +1,6 @@
-import { GenericField, GenericContinuousOpType } from '../../common/generic-types';
+import { GenericContinuousOpType } from '../../common/generic-types';
 import { IDataField, IContinuousDataField } from '../../pmml';
+import { GenericField } from '../../field';
 
 export function isContinuousDataField(dataField: IDataField): dataField is IContinuousDataField {
     return dataField.$.optype === 'continuous';

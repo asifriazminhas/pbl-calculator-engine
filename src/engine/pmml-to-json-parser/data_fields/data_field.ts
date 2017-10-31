@@ -1,8 +1,7 @@
-import { GenericField } from '../../common/generic-types';
+import { GenericField, FieldType } from '../../field';
 import { IDataField } from '../../pmml';
 import { addCategoricalOrContinuousFields } from '../op_type/op_type';
 import { parseExtensions } from '../extensions';
-import { FieldTypes } from '../../common/field-types';
 
 export function parseDataFieldFromDataFieldPmmlNode(
     dataFieldNode: IDataField
@@ -12,7 +11,7 @@ export function parseDataFieldFromDataFieldPmmlNode(
             name: dataFieldNode.$.name,
             displayName: dataFieldNode.$.displayName,
             extensions: parseExtensions(dataFieldNode),
-            fieldType: FieldTypes.DataField
+            fieldType: FieldType.DataField
         },
         dataFieldNode,
     );
