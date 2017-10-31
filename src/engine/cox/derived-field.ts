@@ -5,7 +5,7 @@ import { flatten } from 'lodash';
 import { Data, datumFactory, Coefficent } from '../data';
 import { Covariate, calculateCoefficent as calculateCoefficentForCovariate } from './covariate'
 import PmmlFunctions from './pmml-functions'
-import { shouldLogDebugInfo } from '../common/env';
+import { shouldLogDebugInfo } from '../env';
 import { GenericBaseDerivedField, GenericCategoricalDerivedField, GenericContinuousDerivedField } from '../derived-field';
 
 export type DerivedFrom = DerivedField | DataField | Covariate;

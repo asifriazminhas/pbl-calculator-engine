@@ -1,7 +1,7 @@
 import { Covariate, getComponent } from './covariate';
 import { Data } from '../data';
 import { add } from 'lodash';
-import { shouldLogDebugInfo} from '../common/env';
+import { shouldLogDebugInfo } from '../env';
 import { GenericCox } from '../generic-cox';
 import * as moment from 'moment';
 

@@ -5,7 +5,7 @@ import { Data, datumFactory, datumFromCovariateReferencePointFactory } from '../
 import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForRcsCustomFunction, calculateCoefficent as calculateCoefficentForRcsCustomFunction } from './custom-functions/rcs-custom-function';
 import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForDerivedField, calculateCoefficent as calculateCoefficentForDerivedField } from './derived-field';
 import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForInteractionCovariate } from './interaction-covariate';
-import { shouldLogDebugInfo, shouldLogWarnings } from '../common/env';
+import { shouldLogDebugInfo, shouldLogWarnings } from '../env';
 import { getDatumForField } from './field';
 import * as moment from 'moment';
 
