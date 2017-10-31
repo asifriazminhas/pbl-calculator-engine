@@ -1,5 +1,5 @@
 import { IApply, IConstant, IFieldRef } from './common';
-import { getMergeArraysFunction } from '../../common/merge';
+import { getMergeArraysFunction } from '../../merge';
 
 export interface DefineFunction {
     $: {

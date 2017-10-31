@@ -1,4 +1,4 @@
-import { getMergeArraysFunction } from '../../common/merge';
+import { getMergeArraysFunction } from '../../merge';
 import { IApply, IConstant, IFieldRef } from './common';
 
 export interface IDerivedField {
