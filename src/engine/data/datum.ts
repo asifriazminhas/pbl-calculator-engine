@@ -1,28 +1,23 @@
 import { Covariate } from '../cox/covariate';
 import { Coefficent } from './coefficent';
 
-export interface Datum {
+export interface IDatum {
     name: string;
     coefficent: Coefficent;
 }
 
-export type Data = Array<Datum>;
-
-export function datumFactory(
-    name: string,
-    coefficent: Coefficent
-): Datum {
+export function datumFactory(name: string, coefficent: Coefficent): IDatum {
     return {
+        coefficent,
         name,
-        coefficent
     };
 }
 
 export function datumFromCovariateReferencePointFactory(
-    covariate: Covariate
-): Datum {
+    covariate: Covariate,
+): IDatum {
     return {
+        coefficent: covariate.referencePoint,
         name: covariate.name,
-        coefficent: covariate.referencePoint
-    }
+    };
 }
