@@ -1,4 +1,3 @@
-import { GenericCategoricalDerivedField, GenericContinuousDerivedField, GenericDerivedFieldWithoutOpType } from '../common/generic-types';
 import { DataField } from '../data-field';
 import { getDatumForField } from './field';
 import { FieldType } from '../field';
@@ -7,10 +6,11 @@ import { Data, datumFactory, Coefficent } from '../common/datum';
 import { Covariate, calculateCoefficent as calculateCoefficentForCovariate } from './covariate'
 import PmmlFunctions from './pmml-functions'
 import { shouldLogDebugInfo } from '../common/env';
+import { GenericBaseDerivedField, GenericCategoricalDerivedField, GenericContinuousDerivedField } from '../derived-field';
 
 export type DerivedFrom = DerivedField | DataField | Covariate;
 
-export interface DerivedFieldWithoutOpType extends GenericDerivedFieldWithoutOpType<DerivedFrom> {}
+export interface DerivedFieldWithoutOpType extends GenericBaseDerivedField<DerivedFrom> {}
 export interface CategoricalDerivedField extends GenericCategoricalDerivedField<DerivedFrom> {}
 export interface ContinuousDerivedField extends GenericContinuousDerivedField<DerivedFrom> {}
 

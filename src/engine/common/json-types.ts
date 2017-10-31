@@ -1,11 +1,9 @@
-import { GenericDerivedField, GenericCategoricalDerivedField, GenericContinuousDerivedField, GenericDerivedFieldWithoutOpType, GenericRcsCustomFunction, GenericCustomFunctions, GenericBaseCovariate, GenericCategoricalNonInteractionCovariate, GenericContinuousNonInteractionCovariate, GenericNonInteractionCovariate, GenericNonInteractionCovariateWithoutOpType, GenericCategoricalInteractionCovariate, GenericContinuousInteractionCovariate, GenericInteractionCovariate, GenericInteractionCovariateWithoutOpType, GenericCovariate, GenericCox } from './generic-types';
+import { GenericRcsCustomFunction, GenericCustomFunctions, GenericBaseCovariate, GenericCategoricalNonInteractionCovariate, GenericContinuousNonInteractionCovariate, GenericNonInteractionCovariate, GenericNonInteractionCovariateWithoutOpType, GenericCategoricalInteractionCovariate, GenericContinuousInteractionCovariate, GenericInteractionCovariate, GenericInteractionCovariateWithoutOpType, GenericCovariate, GenericCox } from './generic-types';
 import { DataField } from '../data-field';
+import { GenericDerivedField } from '../derived-field';
 
 export type DerivedFromJson = string | DataField;
 
-export type CategoricalDerivedFieldJson = GenericCategoricalDerivedField<DerivedFromJson>;
-export type ContinuousDerivedFieldJson = GenericContinuousDerivedField<DerivedFromJson>;
-export type DerivedFieldWithoutOpTypeJson = GenericDerivedFieldWithoutOpType<DerivedFromJson>;
 export type DerivedFieldJson = GenericDerivedField<DerivedFromJson>;
 
 export type RcsCustomFunctionJson = GenericRcsCustomFunction<string>;

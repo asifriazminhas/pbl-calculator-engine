@@ -2,15 +2,6 @@ import { FieldType, Field } from '../field';
 import { CategoricalOpType, ContinuousOpType } from '../op-type';
 import { CustomFunctionTypes } from './custom-function-types';
 
-export interface GenericDerivedFieldWithoutOpType<T> extends Field {
-    fieldType: FieldType.DerivedField;
-    equation: string;
-    derivedFrom: Array<T>;
-}
-export interface GenericCategoricalDerivedField<T> extends GenericDerivedFieldWithoutOpType<T>, CategoricalOpType { }
-export interface GenericContinuousDerivedField<T> extends GenericDerivedFieldWithoutOpType<T>, ContinuousOpType { }
-export type GenericDerivedField<T> = GenericDerivedFieldWithoutOpType<T> | GenericCategoricalDerivedField<T> | GenericContinuousDerivedField<T>;
-
 export interface GenericRcsCustomFunction<T> {
     customFunctionType: CustomFunctionTypes.RcsCustomFunction;
     knots: Array<number>;
