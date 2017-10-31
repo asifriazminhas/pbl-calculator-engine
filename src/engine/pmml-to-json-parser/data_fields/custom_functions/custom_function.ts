@@ -1,5 +1,5 @@
 import { isRestrictedCubicSplineCustomFunction, parseRcsSpline } from './rcs_custom_function';
-import { CustomFunctionsJson } from '../../../common/json-types';
+import { CustomFunctionsJson } from '../../../json-parser/json-types';
 import { IRestrictedCubicSpline, IParameter } from '../../../pmml';
 
 /**

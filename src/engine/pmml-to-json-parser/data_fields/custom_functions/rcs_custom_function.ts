@@ -1,4 +1,4 @@
-import { RcsCustomFunctionJson } from '../../../common/json-types';
+import { RcsCustomFunctionJson } from '../../../json-parser/json-types';
 import { IRestrictedCubicSpline, IParameter } from '../../../pmml';
 import { CustomFunctionType } from '../../../custom-function';
 

@@ -1,5 +1,5 @@
 import { GenericMultipleAlgorithmModel } from '../generic';
-import { CoxJson } from '../../common/json-types';
+import { CoxJson } from '../../json-parser/json-types';
 import { Data } from '../../common/data';
 import { getPredicateResult } from '../multiple-algorithm-model/predicate';
 

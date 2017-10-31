@@ -1,7 +1,6 @@
 import { parseCustomFunction } from './custom_functions/custom_function';
-import { RcsCustomFunctionJson } from '../../common/json-types';
-import { Pmml, IDataField, IParameter, IPCell, IPredictor } from '../../pmml';
-import { CovariateJson } from '../../common/json-types';
+import { RcsCustomFunctionJson, CovariateJson } from '../../json-parser/json-types';
+import { Pmml, IDataField, IParameter, IPCell, IPredictor } from '../../pmml';;
 import { parseDataFieldFromDataFieldPmmlNode } from './data_field';
 import { parseExtensions } from '../extensions';
 import { throwErrorIfUndefined } from '../../common/undefined';

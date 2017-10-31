@@ -1,7 +1,7 @@
 import { parseCovariates } from './data_fields/covariate';
 import { parseDerivedFields } from './data_fields/derived_field/derived_field';
 import { Pmml, PmmlParser } from '../pmml';
-import { CoxJson } from '../common/json-types';
+import { CoxJson } from '../json-parser/json-types';
 import { parseDefineFunction } from './define-function/define-function';
 import { JsonModelTypes, Predicate, ModelType } from '../model';
 

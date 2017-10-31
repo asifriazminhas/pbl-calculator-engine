@@ -1,7 +1,6 @@
-import { RcsCustomFunctionJson, CovariateJson } from '../../common/json-types';
 import { RcsCustomFunction } from '../../cox/custom-functions/rcs-custom-function';
 import { parseCovariateJsonToCovariate, findCovariateJsonWithName } from '../covariate';
-import { DerivedFieldJson } from '../../common/json-types';
+import { DerivedFieldJson, RcsCustomFunctionJson, CovariateJson } from '../json-types';
 
 export function parseRcsCustomFunctionJsonToRcsCustomFunction(
     rcsCustomFunctionJson: RcsCustomFunctionJson,

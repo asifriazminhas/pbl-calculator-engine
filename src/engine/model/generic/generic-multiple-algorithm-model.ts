@@ -1,5 +1,5 @@
 import { Cox } from '../../cox';
-import { CoxJson } from '../../common/json-types';
+import { CoxJson } from '../../json-parser/json-types';
 import { Predicate } from '../multiple-algorithm-model/predicate';
 import { ModelType } from '../model-type';
 

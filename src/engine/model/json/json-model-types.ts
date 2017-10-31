@@ -1,6 +1,6 @@
 import { SingleAlgorithmModelJson } from './json-single-algorithm-model';
 import { MultipleAlgorithmModelJson, getAlgorithmJsonForData } from './json-multiple-algorithm-model';
-import { CoxJson } from '../../common/json-types';
+import { CoxJson } from '../../json-parser/json-types';
 import { ModelType } from '../model-type';
 import { Data } from '../../common/data';
 

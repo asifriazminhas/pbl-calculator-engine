@@ -1,4 +1,4 @@
-import { DerivedFieldJson } from '../../../common/json-types';
+import { DerivedFieldJson } from '../../../json-parser/json-types';
 import { getOpTypeFromPmmlOpType } from '../../op_type/op_type';
 import { IDerivedField, Pmml } from '../../../pmml';
 import { ExpressionStatementAST } from '../../interfaces/ast';

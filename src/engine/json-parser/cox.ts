@@ -1,4 +1,4 @@
-import { CoxJson } from '../common/json-types';
+import { CoxJson } from './json-types';
 import { Cox } from '../cox/cox';
 import { parseCovariateJsonToCovariate } from './covariate';
 
