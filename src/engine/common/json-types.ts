@@ -1,6 +1,7 @@
-import { GenericDerivedField, GenericCategoricalDerivedField, GenericContinuousDerivedField, GenericDerivedFieldWithoutOpType, GenericRcsCustomFunction, GenericCustomFunctions, GenericBaseCovariate, GenericCategoricalNonInteractionCovariate, GenericContinuousNonInteractionCovariate, GenericNonInteractionCovariate, GenericNonInteractionCovariateWithoutOpType, GenericCategoricalInteractionCovariate, GenericContinuousInteractionCovariate, GenericInteractionCovariate, GenericInteractionCovariateWithoutOpType, GenericCovariate, GenericDataField, GenericCox } from './generic-types';
+import { GenericDerivedField, GenericCategoricalDerivedField, GenericContinuousDerivedField, GenericDerivedFieldWithoutOpType, GenericRcsCustomFunction, GenericCustomFunctions, GenericBaseCovariate, GenericCategoricalNonInteractionCovariate, GenericContinuousNonInteractionCovariate, GenericNonInteractionCovariate, GenericNonInteractionCovariateWithoutOpType, GenericCategoricalInteractionCovariate, GenericContinuousInteractionCovariate, GenericInteractionCovariate, GenericInteractionCovariateWithoutOpType, GenericCovariate, GenericCox } from './generic-types';
+import { DataField } from '../data-field';
 
-export type DerivedFromJson = string | GenericDataField;
+export type DerivedFromJson = string | DataField;
 
 export type CategoricalDerivedFieldJson = GenericCategoricalDerivedField<DerivedFromJson>;
 export type ContinuousDerivedFieldJson = GenericContinuousDerivedField<DerivedFromJson>;

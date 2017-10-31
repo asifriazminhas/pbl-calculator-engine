@@ -5,7 +5,7 @@ import { ExpressionStatementAST } from '../../interfaces/ast';
 import * as escodegen from 'escodegen';
 import { getASTForApply, getASTForConstant, getASTForFieldRef } from './node_parser';
 import { parseDataFieldFromDataFieldPmmlNode } from '../data_field';
-import { GenericDataField } from '../../../common/generic-types';
+import { DataField } from '../../../data-field';
 import { FieldType } from '../../../field';
 var astTypes = require('ast-types');
 
@@ -51,7 +51,7 @@ function getAstForDerivedField(
 function getDerivedFromForAst(
     ast: ExpressionStatementAST,
     pmml: Pmml
-): Array<string | GenericDataField> {
+): Array<string | DataField> {
     const derivedFrom: Array<string> = [];
     const ObjIdentifier = 'obj';
     const IdentifiersToNotInclude = [

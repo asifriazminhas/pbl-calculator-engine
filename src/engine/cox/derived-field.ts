@@ -1,4 +1,5 @@
-import { GenericCategoricalDerivedField, GenericContinuousDerivedField, GenericDerivedFieldWithoutOpType, GenericDataField } from '../common/generic-types';
+import { GenericCategoricalDerivedField, GenericContinuousDerivedField, GenericDerivedFieldWithoutOpType } from '../common/generic-types';
+import { DataField } from '../data-field';
 import { getDatumForField } from './field';
 import { FieldType } from '../field';
 import { flatten } from 'lodash';
@@ -7,7 +8,7 @@ import { Covariate, calculateCoefficent as calculateCoefficentForCovariate } fro
 import PmmlFunctions from './pmml-functions'
 import { shouldLogDebugInfo } from '../common/env';
 
-export type DerivedFrom = DerivedField | GenericDataField | Covariate;
+export type DerivedFrom = DerivedField | DataField | Covariate;
 
 export interface DerivedFieldWithoutOpType extends GenericDerivedFieldWithoutOpType<DerivedFrom> {}
 export interface CategoricalDerivedField extends GenericCategoricalDerivedField<DerivedFrom> {}

@@ -2,13 +2,6 @@ import { FieldType, Field } from '../field';
 import { CategoricalOpType, ContinuousOpType } from '../op-type';
 import { CustomFunctionTypes } from './custom-function-types';
 
-export interface GenericDataFieldWithoutOpType extends Field {
-    fieldType: FieldType.DataField;
-}
-export interface GenericCategoricalDataField extends GenericDataFieldWithoutOpType, CategoricalOpType {}
-export interface GenericContinuousDataField extends GenericDataFieldWithoutOpType, ContinuousOpType {}
-export type GenericDataField = GenericDataFieldWithoutOpType | GenericCategoricalDataField | GenericContinuousDataField;
-
 export interface GenericDerivedFieldWithoutOpType<T> extends Field {
     fieldType: FieldType.DerivedField;
     equation: string;
