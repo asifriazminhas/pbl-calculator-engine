@@ -1,8 +1,8 @@
-import { GenericNonInteractionCovariateWithoutOpType, GenericCategoricalNonInteractionCovariate, GenericContinuousNonInteractionCovariate } from '../common/generic-types';
+import { GenericBaseNonInteractionCovariate, GenericCategoricalNonInteractionCovariate, GenericContinuousNonInteractionCovariate } from '../covariate';
 import { Covariate } from './covariate';
 import { DerivedField } from './derived-field';
 
-export interface NonInteractionCovariateWithoutOpType extends GenericNonInteractionCovariateWithoutOpType<Covariate> {
+export interface NonInteractionCovariateWithoutOpType extends GenericBaseNonInteractionCovariate<Covariate> {
     derivedField: DerivedField | undefined
 }
 

@@ -1,7 +1,8 @@
-import { GenericBaseCovariate, GenericCategoricalNonInteractionCovariate, GenericContinuousNonInteractionCovariate, GenericNonInteractionCovariate, GenericNonInteractionCovariateWithoutOpType, GenericCategoricalInteractionCovariate, GenericContinuousInteractionCovariate, GenericInteractionCovariate, GenericInteractionCovariateWithoutOpType, GenericCovariate, GenericCox } from './generic-types';
+import { GenericCox } from './generic-types';
 import { DataField } from '../data-field';
 import { GenericDerivedField } from '../derived-field';
 import { GenericCustomFunction, GenericRcsCustomFunction } from '../custom-function';
+import { GenericBaseCovariate, GenericCategoricalNonInteractionCovariate, GenericContinuousNonInteractionCovariate, GenericNonInteractionCovariate, GenericCategoricalInteractionCovariate, GenericContinuousInteractionCovariate, GenericInteractionCovariate, GenericBaseInteractionCovariate, GenericBaseNonInteractionCovariate, GenericCovariate } from '../covariate';
 
 export type DerivedFromJson = string | DataField;
 
@@ -15,12 +16,12 @@ export type BaseCovariateJson = GenericBaseCovariate<string>;
 export type CategoricalNonInteractionCovariateJson = GenericCategoricalNonInteractionCovariate<string>;
 export type ContinuousNonInteractionCovariateJson = GenericContinuousNonInteractionCovariate<string>;
 export type NonInteractionCovariateJson = GenericNonInteractionCovariate<string>;
-export type NonInteractionCovariateWithoutOpTypeJson = GenericNonInteractionCovariateWithoutOpType<string>;
+export type NonInteractionCovariateWithoutOpTypeJson = GenericBaseNonInteractionCovariate<string>;
 
 export type CategoricalInteractionCovariateJson = GenericCategoricalInteractionCovariate<string>;
 export type ContinuousInteractionCovariateJson = GenericContinuousInteractionCovariate<string>;
 export type InteractionCovariateJson = GenericInteractionCovariate<string>;
-export type InteractionCovariateWithoutOpTypeJson = GenericInteractionCovariateWithoutOpType<string>;
+export type InteractionCovariateWithoutOpTypeJson = GenericBaseInteractionCovariate<string>;
 
 export type CovariateJson = GenericCovariate<string>;
 

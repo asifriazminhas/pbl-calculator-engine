@@ -1,11 +1,11 @@
-import { GenericInteractionCovariateWithoutOpType, GenericCategoricalInteractionCovariate, GenericContinuousInteractionCovariate } from '../common/generic-types';
+import { GenericBaseInteractionCovariate, GenericCategoricalInteractionCovariate, GenericContinuousInteractionCovariate } from '../covariate';
 import { DerivedField } from './derived-field';
 import { Covariate } from './covariate';
 import { Data, Datum, datumFromCovariateReferencePointFactory } from '../common/datum';
 import { NonInteractionCovariate } from './non-interaction-covariate';
 import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForCovariate } from './covariate';
 
-export interface InteractionCovariateWithoutOpType extends GenericInteractionCovariateWithoutOpType<Covariate> {
+export interface InteractionCovariateWithoutOpType extends GenericBaseInteractionCovariate<Covariate> {
     derivedField: DerivedField;
 }
 export interface CategoricalInteractionCovariate extends GenericCategoricalInteractionCovariate<Covariate>, InteractionCovariateWithoutOpType {}
