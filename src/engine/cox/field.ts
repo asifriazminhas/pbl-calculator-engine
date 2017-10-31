@@ -1,15 +1,15 @@
 import { Data, Datum } from '../common/datum';
-import { GenericField } from '../field';
+import { Field } from '../field';
 
 export function getDatumForField(
-    field: GenericField,
+    field: Field,
     data: Data
 ): Datum | undefined {
     return data.find(datum => datum.name === field.name);
 }
 
 export function isFieldWithName(
-    field: GenericField,
+    field: Field,
     name: string
 ): boolean {
     return field.name === name;

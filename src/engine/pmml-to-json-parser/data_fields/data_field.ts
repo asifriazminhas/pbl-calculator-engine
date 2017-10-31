@@ -1,11 +1,11 @@
-import { GenericField, FieldType } from '../../field';
+import { Field, FieldType } from '../../field';
 import { IDataField } from '../../pmml';
 import { addCategoricalOrContinuousFields } from '../op_type/op_type';
 import { parseExtensions } from '../extensions';
 
 export function parseDataFieldFromDataFieldPmmlNode(
     dataFieldNode: IDataField
-): GenericField {
+): Field {
     return addCategoricalOrContinuousFields(
         {
             name: dataFieldNode.$.name,
