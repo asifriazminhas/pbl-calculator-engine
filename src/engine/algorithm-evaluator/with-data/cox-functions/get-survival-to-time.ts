@@ -2,7 +2,7 @@ import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { getTimeMultiplier } from '../../../cox';
 import { WithDataMemoizedData } from '../memoized-data';
 import { updateMemoizedData } from './with-data-cox-functions-common';
-import { Data } from '../../../common/data';
+import { Data } from '../../../data';
 import * as moment from 'moment';
 import { ModelTypes, getAlgorithmForModelAndData } from '../../../model';
 

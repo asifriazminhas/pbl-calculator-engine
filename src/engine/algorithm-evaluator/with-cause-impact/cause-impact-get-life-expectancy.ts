@@ -1,4 +1,4 @@
-import { Data } from '../../common/data';
+import { Data } from '../../data';
 import { RefLifeTable } from '../../life-table';
 import { getLifeExpectancyWithCauseImpact, CauseImpactRef, CauseImpactRefTypes, getCauseImpactRefForData } from '../../cause-impact';
 import { ModelTypes, getAlgorithmForModelAndData, JsonModelTypes, getAlgorithmJsonForModelAndData } from '../../model';

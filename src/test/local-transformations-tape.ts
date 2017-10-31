@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { AlgorithmBuilder } from '../engine/algorithm-builder/algorithm-builder';
 import { parseModelJsonToModel } from '../engine/json-parser/model';
-import { Data } from '../engine/common/data';
+import { Data } from '../engine/data';
 import { Covariate } from '../engine/cox/covariate';
 import { getLeafFieldsForDerivedField, calculateCoefficent } from '../engine/cox/derived-field';
 import { ModelType } from '../engine/model/model-type';

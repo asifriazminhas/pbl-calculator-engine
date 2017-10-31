@@ -5,7 +5,7 @@ import { getLifeExpectancyWithCauseImpact } from '../../../cause-impact';
 import { WithDataMemoizedData } from '../memoized-data';
 import { RefLifeTable, CompleteLifeTable } from '../../../life-table';
 import { CauseImpactRef, CauseImpactRefTypes, getCauseImpactRefForData } from '../../../cause-impact';
-import { Data } from '../../../common/data';
+import { Data } from '../../../data';
 import { ModelTypes, JsonModelTypes, getAlgorithmForModelAndData, getAlgorithmJsonForModelAndData } from '../../../model';
 
 export interface GetLifeExpectancyWithCauseImpact<

@@ -1,5 +1,5 @@
 import { Covariate, getComponent } from './covariate';
-import { Data } from '../common/datum';
+import { Data } from '../data';
 import { add } from 'lodash';
 import { shouldLogDebugInfo} from '../common/env';
 import { GenericCox } from '../generic-cox';

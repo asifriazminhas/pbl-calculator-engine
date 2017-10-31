@@ -1,7 +1,7 @@
 import { FieldType } from '../field';
 import { InteractionCovariate } from './interaction-covariate';
 import { NonInteractionCovariate } from './non-interaction-covariate';
-import { Data, datumFactory, datumFromCovariateReferencePointFactory } from '../common/datum';
+import { Data, datumFactory, datumFromCovariateReferencePointFactory } from '../data';
 import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForRcsCustomFunction, calculateCoefficent as calculateCoefficentForRcsCustomFunction } from './custom-functions/rcs-custom-function';
 import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForDerivedField, calculateCoefficent as calculateCoefficentForDerivedField } from './derived-field';
 import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForInteractionCovariate } from './interaction-covariate';

@@ -1,4 +1,4 @@
-import { Data } from '../../../common/data';
+import { Data } from '../../../data';
 import { WithDataMemoizedData } from '../memoized-data';
 import { Cox, getSurvivalToTime } from '../../../cox';
 

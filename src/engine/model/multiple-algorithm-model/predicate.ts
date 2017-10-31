@@ -1,5 +1,4 @@
-import { Data } from '../../common/data';
-import { Datum } from '../../common/datum';
+import { Data, Datum } from '../../data';
 
 /**
  * Used in MultipleAlgoithms model type to decide which algorithm is run on a given set of data

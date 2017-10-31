@@ -1,4 +1,4 @@
-import { Data } from '../common/datum';
+import { Data } from '../data';
 import { CauseImpactRef, getLifeExpectancyWithCauseImpact } from '../cause-impact';
 import { getLifeExpectancyUsingRefLifeTable } from '../life-expectancy';
 import { Cox } from '../cox';

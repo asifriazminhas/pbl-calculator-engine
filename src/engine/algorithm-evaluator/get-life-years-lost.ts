@@ -1,4 +1,4 @@
-import { Data } from '../common/datum';
+import { Data } from '../data';
 import { RefLifeTable } from '../life-table';
 import { getLifeYearsLost } from '../life-years-lost';
 import { CauseImpactRefTypes, getCauseImpactRefForData, CauseImpactRef } from '../cause-impact';

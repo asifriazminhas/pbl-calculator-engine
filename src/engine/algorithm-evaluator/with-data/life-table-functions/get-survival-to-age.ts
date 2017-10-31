@@ -3,7 +3,7 @@ import { WithDataMemoizedData } from '../memoized-data';
 import { getSurvivalToAge } from '../../../survival-to-age';
 import { updateMemoizedData } from './update-memoized-data';
 import { RefLifeTable } from '../../../life-table';
-import { Data } from '../../../common/data';
+import { Data } from '../../../data';
 import { ModelTypes, getAlgorithmForModelAndData } from '../../../model';
 
 export interface GetSurvivalToAgeResult {

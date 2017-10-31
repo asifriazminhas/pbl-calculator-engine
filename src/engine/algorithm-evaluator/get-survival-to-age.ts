@@ -1,6 +1,6 @@
 import { getSurvivalToAge } from '../survival-to-age';
 import { getCompleteLifeTableWithStartAge, RefLifeTable } from '../life-table';
-import { Data } from '../common/datum';
+import { Data } from '../data';
 import { getSurvivalToTime } from '../cox';
 import { ModelTypes, getAlgorithmForModelAndData } from '../model';
 

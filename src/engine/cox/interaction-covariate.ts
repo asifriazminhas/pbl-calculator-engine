@@ -1,7 +1,7 @@
 import { GenericBaseInteractionCovariate, GenericCategoricalInteractionCovariate, GenericContinuousInteractionCovariate } from '../covariate';
 import { DerivedField } from './derived-field';
 import { Covariate } from './covariate';
-import { Data, Datum, datumFromCovariateReferencePointFactory } from '../common/datum';
+import { Data, Datum, datumFromCovariateReferencePointFactory } from '../data';
 import { NonInteractionCovariate } from './non-interaction-covariate';
 import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForCovariate } from './covariate';
 

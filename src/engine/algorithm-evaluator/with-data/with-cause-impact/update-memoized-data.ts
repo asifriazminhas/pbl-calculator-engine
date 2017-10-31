@@ -2,7 +2,7 @@ import { WithDataMemoizedData } from '../memoized-data';
 import { getCompleteLifeTableForDataUsingAlgorithm } from '../../../life-expectancy';
 import { Cox } from '../../../cox';
 import { RefLifeTable } from '../../../life-table';
-import { Data, updateDataWithData } from '../../../common/data';
+import { Data, updateDataWithData } from '../../../data';
 import { CauseImpactRef } from '../../../cause-impact';
 
 export function updateMemoizedData(

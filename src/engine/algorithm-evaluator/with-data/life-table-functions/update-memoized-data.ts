@@ -1,9 +1,8 @@
 import { WithDataMemoizedData } from '../memoized-data';
 import { CompleteLifeTable, RefLifeTable, CompleteLifeTableRow } from '../../../life-table';
 import { getCompleteLifeTableForDataUsingAlgorithm } from '../../../life-expectancy';
-import { Data } from '../../../common/data';
+import { Data, Datum } from '../../../data';
 import { Cox } from '../../../cox';
-import { Datum } from '../../../common/datum';
 
 export function updateMemoizedData(
     currentMemoizedData: WithDataMemoizedData,

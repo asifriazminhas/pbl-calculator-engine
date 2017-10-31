@@ -1,4 +1,4 @@
-import { Data } from '../engine/common/data';
+import { Data } from '../engine/data';
 import { SingleAlgorithmModel, MultipleAlgorithmModel, getAlgorithmForModelAndData, ModelType } from '../engine/model';
 import { getLeafFieldsForDerivedField, DerivedField, calculateCoefficent } from '../engine/cox/derived-field';
 import { Covariate } from '../engine/cox/covariate';

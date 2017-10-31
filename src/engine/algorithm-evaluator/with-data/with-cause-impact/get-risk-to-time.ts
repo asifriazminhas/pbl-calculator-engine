@@ -2,7 +2,7 @@ import { WithCauseImpactChainMethodResult, updateWithCauseImpactChainMethodResul
 import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { WithDataMemoizedData } from '../memoized-data';
 import { getRiskToTimeWithCauseImpact, CauseImpactRef, CauseImpactRefTypes, getCauseImpactRefForData } from '../../../cause-impact';
-import { Data } from '../../../common/data';
+import { Data } from '../../../data';
 import { getTimeMultiplier } from '../../../cox';
 import * as moment from 'moment';
 import { ModelTypes, JsonModelTypes, getAlgorithmForModelAndData, getAlgorithmJsonForModelAndData } from '../../../model';

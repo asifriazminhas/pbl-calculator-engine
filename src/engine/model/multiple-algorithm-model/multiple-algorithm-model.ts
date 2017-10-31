@@ -1,6 +1,6 @@
 import { GenericMultipleAlgorithmModel } from '../generic';
 import { Cox } from '../../cox';
-import { Data } from '../../common/data';
+import { Data } from '../../data';
 import { getPredicateResult } from './predicate';
 
 export type MultipleAlgorithmModel = GenericMultipleAlgorithmModel<Cox>;

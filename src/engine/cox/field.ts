@@ -1,4 +1,4 @@
-import { Data, Datum } from '../common/datum';
+import { Data, Datum } from '../data';
 import { Field } from '../field';
 
 export function getDatumForField(

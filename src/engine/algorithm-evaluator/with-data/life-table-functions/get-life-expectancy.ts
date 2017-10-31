@@ -2,7 +2,7 @@ import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { WithDataMemoizedData } from '../memoized-data';
 import { RefLifeTable } from '../../../life-table';
 import { getLifeExpectancyUsingRefLifeTable } from '../../../life-expectancy';
-import { Data } from '../../../common/data';
+import { Data } from '../../../data';
 import { updateMemoizedData } from './update-memoized-data';
 import { ModelTypes, getAlgorithmForModelAndData } from '../../../model';
 

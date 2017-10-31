@@ -4,7 +4,7 @@ import { GetLifeExpectancy, GetLifeExpectancyResult, getGetLifeExpectancy, GetLi
 import { GetHealthAge, GetHealthAgeResult, getGetHealthAge } from './add-ref-pop-functions';
 import { WithCauseImpactAndCoxFunctions, getWithCauseImpactAndCoxFunctions, WithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction, getWithCauseImpactAndCoxFunctionsAndLifeExpectancyFunction, WithCauseImpactChainMethodResult } from './with-cause-impact';
 import { WithDataMemoizedData } from './memoized-data';
-import { Data } from '../../common/data';
+import { Data } from '../../data';
 import { ReferencePopulation } from '../../health-age';
 import { RefLifeTable } from '../../life-table';
 import { CauseImpactRefTypes } from '../../cause-impact';

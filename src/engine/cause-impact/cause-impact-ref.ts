@@ -1,4 +1,4 @@
-import { Data } from '../common/data';
+import { Data } from '../data';
 
 export interface CauseImpactRef {
     [index: string]: Data;

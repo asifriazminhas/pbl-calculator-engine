@@ -1,6 +1,6 @@
 import { GenericMultipleAlgorithmModel } from '../generic';
 import { CoxJson } from '../../json-parser/json-types';
-import { Data } from '../../common/data';
+import { Data } from '../../data';
 import { getPredicateResult } from '../multiple-algorithm-model/predicate';
 
 export type MultipleAlgorithmModelJson = GenericMultipleAlgorithmModel<CoxJson>;

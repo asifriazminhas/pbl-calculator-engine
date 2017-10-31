@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import { Data } from '../../common/data';
+import { Data } from '../../data';
 import { CauseImpactRef, getSurvivalToTimeWithCauseImpact, CauseImpactRefTypes, getCauseImpactRefForData } from '../../cause-impact';
 import { ModelTypes, getAlgorithmForModelAndData, JsonModelTypes, getAlgorithmJsonForModelAndData } from '../../model';
 

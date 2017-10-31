@@ -3,7 +3,7 @@ import { GetRiskToTimeWithCauseImpact, getGetRiskToTimeWithCauseImpact } from '.
 import { GetLifeExpectancyWithCauseImpact, getGetLifeExpectancyWithCauseImpact } from './get-life-expectancy';
 import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { WithDataMemoizedData } from '../memoized-data';
-import { Data } from '../../../common/data';
+import { Data } from '../../../data';
 import { RefLifeTable } from '../../../life-table';
 import { CauseImpactRefTypes } from '../../../cause-impact';
 import { ModelTypes, JsonModelTypes } from '../../../model';

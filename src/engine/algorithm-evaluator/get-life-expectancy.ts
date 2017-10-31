@@ -1,6 +1,6 @@
 import { getLifeExpectancyUsingRefLifeTable } from '../life-expectancy/life-expectancy';
 import { RefLifeTable } from '../life-table';
-import { Data } from '../common/datum';
+import { Data } from '../data';
 import { ModelTypes, getAlgorithmForModelAndData } from '../model';
 
 export interface GetLifeExpectancy {

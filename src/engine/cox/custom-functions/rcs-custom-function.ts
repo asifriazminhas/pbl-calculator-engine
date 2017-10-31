@@ -1,6 +1,6 @@
 import { Covariate, calculateCoefficent as calculateCoefficentForCovariate } from '../covariate';
 import { GenericRcsCustomFunction } from '../../custom-function';
-import { Data, Datum } from '../../common/datum';
+import { Data, Datum } from '../../data';
 import { isFieldWithName } from '../field';
 
 export interface RcsCustomFunction extends GenericRcsCustomFunction<Covariate>{}

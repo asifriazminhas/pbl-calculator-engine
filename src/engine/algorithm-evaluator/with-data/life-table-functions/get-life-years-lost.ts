@@ -1,7 +1,7 @@
 import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { WithDataMemoizedData } from '../memoized-data';
 import { getLifeYearsLost } from '../../../life-years-lost';
-import { Data } from '../../../common/data';
+import { Data } from '../../../data';
 import { RefLifeTable, CompleteLifeTable } from '../../../life-table';
 import { CauseImpactRef, CauseImpactRefTypes, getCauseImpactRefForData } from '../../../cause-impact';
 import { updateMemoizedData } from './update-memoized-data';

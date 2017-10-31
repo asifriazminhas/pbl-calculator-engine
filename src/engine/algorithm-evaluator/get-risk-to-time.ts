@@ -1,5 +1,5 @@
 import { getRiskToTime } from '../cox/cox';
-import { Data } from '../common/datum';
+import { Data } from '../data';
 import * as moment from 'moment';
 import { ModelTypes, getAlgorithmForModelAndData } from '../model';
 

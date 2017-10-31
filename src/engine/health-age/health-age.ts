@@ -1,4 +1,4 @@
-import { Data } from '../common/datum';
+import { Data } from '../data';
 import { ReferencePopulation } from './reference-population';
 import { Cox, getRiskToTime } from '../cox';
 

@@ -1,6 +1,6 @@
 import { SingleAlgorithmModel } from './single-algorithm-model';
 import { MultipleAlgorithmModel, getAlgorithmForData } from './multiple-algorithm-model';
-import { Data } from '../common/data';
+import { Data } from '../data';
 import { Cox } from '../cox';
 import { ModelType } from './model-type';
 

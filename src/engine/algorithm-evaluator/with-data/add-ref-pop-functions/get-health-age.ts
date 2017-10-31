@@ -1,7 +1,7 @@
 import { BaseWithDataResult, getNextObjectInChain } from '../with-data';
 import { getHealthAge, ReferencePopulation } from '../../../health-age';
 import { getRiskToTime } from '../../../cox';
-import { Data } from '../../../common/data';
+import { Data } from '../../../data';
 import { WithDataMemoizedData } from '../memoized-data';
 import { ModelTypes, getAlgorithmForModelAndData } from '../../../model';
 

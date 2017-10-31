@@ -2,7 +2,7 @@ import { DataField } from '../data-field';
 import { getDatumForField } from './field';
 import { FieldType } from '../field';
 import { flatten } from 'lodash';
-import { Data, datumFactory, Coefficent } from '../common/datum';
+import { Data, datumFactory, Coefficent } from '../data';
 import { Covariate, calculateCoefficent as calculateCoefficentForCovariate } from './covariate'
 import PmmlFunctions from './pmml-functions'
 import { shouldLogDebugInfo } from '../common/env';
