@@ -3,7 +3,7 @@ import { RcsCustomFunctionJson, CovariateJson } from '../../json-parser/json-typ
 import { Pmml, IDataField, IParameter, IPCell, IPredictor } from '../../pmml';;
 import { parseDataFieldFromDataFieldPmmlNode } from './data_field';
 import { parseExtensions } from '../extensions';
-import { throwErrorIfUndefined } from '../../common/undefined';
+import { throwErrorIfUndefined } from '../../undefined';
 import { NoDataFieldNodeFound, NoParameterNodeFoundWithLabel, NoPCellNodeFoundWithParameterName } from '../errors';
 import { FieldType } from '../../field';
 

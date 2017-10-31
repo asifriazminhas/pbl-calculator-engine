@@ -1,5 +1,5 @@
 import { IDerivedField, mergeDerivedFields } from './derived_field';
-import { returnEmptyArrayIfUndefined } from '../../common/undefined';
+import { returnEmptyArrayIfUndefined } from '../../undefined';
 import { DefineFunction, mergeDefineFunctions } from './define-function';
 
 export interface ILocalTransformations {
