@@ -1,4 +1,4 @@
-import { OpTypes } from '../../common/op-types';
+import { OpType } from '../../op-type';
 import { addCategoricalFieldsIfCategorical } from './categorical';
 import { addContinuousFieldsIfContinuous } from './continuous';
 import { GenericField } from '../../field';
@@ -14,13 +14,13 @@ export function addCategoricalOrContinuousFields<T extends GenericField>(
     );
 }
 
-export function getOpTypeFromPmmlOpType(opType: string): OpTypes {
+export function getOpTypeFromPmmlOpType(opType: string): OpType {
     switch(opType) {
         case 'continuous': {
-            return OpTypes.Continuous
+            return OpType.Continuous
         }
         case 'categorical': {
-            return OpTypes.Categorical
+            return OpType.Categorical
         }
         default: {
             throw new Error(`Unknown Pmml OpType ${opType}`)

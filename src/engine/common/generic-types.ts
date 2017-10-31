@@ -1,5 +1,5 @@
 import { FieldType, GenericField } from '../field';
-import { OpTypes } from './op-types';
+import { OpType } from '../op-type';
 import { CustomFunctionTypes } from './custom-function-types';
 
 export interface GenericCategory {
@@ -8,12 +8,12 @@ export interface GenericCategory {
     description: string;
 }
 export interface GenericCategoricalOpType {
-    opType: OpTypes.Categorical;
+    opType: OpType.Categorical;
     categories:Array<GenericCategory>;
 }
 
 export interface GenericContinuousOpType {
-    opType: OpTypes.Continuous;
+    opType: OpType.Continuous;
     min: number;
     max: number;
 }
