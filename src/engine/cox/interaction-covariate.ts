@@ -3,7 +3,7 @@ import {
     GenericCategoricalInteractionCovariate,
     GenericContinuousInteractionCovariate,
 } from '../covariate';
-import { DerivedField } from './derived-field';
+import { DerivedField } from '../derived-field';
 import { Covariate } from './covariate';
 import { Data, IDatum, datumFromCovariateReferencePointFactory } from '../data';
 import { NonInteractionCovariate } from './non-interaction-covariate';

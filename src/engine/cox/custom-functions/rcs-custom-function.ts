@@ -4,7 +4,7 @@ import {
 } from '../covariate';
 import { GenericRcsCustomFunction } from '../../custom-function';
 import { Data, IDatum } from '../../data';
-import { isFieldWithName } from '../field';
+import { isFieldWithName } from '../../field';
 
 export interface RcsCustomFunction
     extends GenericRcsCustomFunction<Covariate> {}
