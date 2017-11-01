@@ -2,10 +2,10 @@ import { Covariate, getComponent } from './covariate';
 import { Data } from '../data';
 import { add } from 'lodash';
 import { shouldLogDebugInfo } from '../env';
-import { GenericCox } from '../generic-cox';
+import { IGenericCox } from '../generic-cox';
 import * as moment from 'moment';
 
-export type Cox = GenericCox<Covariate, Function>;
+export type Cox = IGenericCox<Covariate, Function>;
 
 function calculateScore(
     cox: Cox,

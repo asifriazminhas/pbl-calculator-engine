@@ -1,1 +1,1 @@
-export { GenericCox } from './generic-cox';
+export { IGenericCox } from './generic-cox';
