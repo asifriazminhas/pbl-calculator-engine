@@ -1,9 +1,7 @@
-export { GenericDerivedField } from './generic-derived-field';
-export { GenericBaseDerivedField } from './generic-base-derived-field';
 export {
+    GenericBaseDerivedField,
     GenericCategoricalDerivedField,
-} from './generic-categorical-derived-field';
-export {
     GenericContinuousDerivedField,
-} from './generic-continuous-derived-field';
+    GenericDerivedField,
+} from './generic-derived-field';
 export { DerivedFieldJson, DerivedFromJson } from './json-derived-field';
