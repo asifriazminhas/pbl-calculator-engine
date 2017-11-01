@@ -1,6 +1,6 @@
 import { SingleAlgorithmModelJson } from './json-single-algorithm-model';
 import { MultipleAlgorithmModelJson, getAlgorithmJsonForData } from './json-multiple-algorithm-model';
-import { CoxJson } from '../../json-parser/json-types';
+import { ICoxJson } from '../../cox-json';
 import { ModelType } from '../model-type';
 import { Data } from '../../data';
 
@@ -9,7 +9,7 @@ export type JsonModelTypes = SingleAlgorithmModelJson | MultipleAlgorithmModelJs
 export function getAlgorithmJsonForModelAndData(
     model: JsonModelTypes,
     data: Data
-): CoxJson {
+): ICoxJson {
     if(model.modelType === ModelType.SingleAlgorithm) {
         return model.algorithm;
     }

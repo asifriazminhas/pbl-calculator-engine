@@ -1,7 +1,7 @@
 import { parseCovariates } from './data_fields/covariate';
 import { parseDerivedFields } from './data_fields/derived_field/derived_field';
 import { Pmml, PmmlParser } from '../pmml';
-import { CoxJson } from '../json-parser/json-types';
+import { ICoxJson } from '../cox-json';
 import { parseDefineFunction } from './define-function/define-function';
 import { JsonModelTypes, Predicate, ModelType } from '../model';
 
@@ -13,7 +13,7 @@ function parseBaselineHazardFromPmmlXml(
 
 async function pmmlStringsToJson(
     pmmlXmlStrings: string[]
-): Promise<CoxJson> {
+): Promise<ICoxJson> {
     const pmml = await PmmlParser
         .parsePmmlFromPmmlXmlStrings(pmmlXmlStrings)
 

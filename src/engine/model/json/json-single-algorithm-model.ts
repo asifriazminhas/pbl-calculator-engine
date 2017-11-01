@@ -1,4 +1,4 @@
-import { CoxJson } from '../../json-parser/json-types';
+import { ICoxJson } from '../../cox-json';
 import { GenericSingleAlgorithmModel } from '../generic';
 
-export type SingleAlgorithmModelJson = GenericSingleAlgorithmModel<CoxJson>;
+export type SingleAlgorithmModelJson = GenericSingleAlgorithmModel<ICoxJson>;

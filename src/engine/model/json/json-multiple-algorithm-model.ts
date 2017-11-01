@@ -1,14 +1,14 @@
 import { GenericMultipleAlgorithmModel } from '../generic';
-import { CoxJson } from '../../json-parser/json-types';
+import { ICoxJson } from '../../cox-json';
 import { Data } from '../../data';
 import { getPredicateResult } from '../multiple-algorithm-model/predicate';
 
-export type MultipleAlgorithmModelJson = GenericMultipleAlgorithmModel<CoxJson>;
+export type MultipleAlgorithmModelJson = GenericMultipleAlgorithmModel<ICoxJson>;
 
 export function getAlgorithmJsonForData(
     multipleAlgorithmModel: MultipleAlgorithmModelJson,
     data: Data
-): CoxJson {
+): ICoxJson {
     const matchedAlgorithm = multipleAlgorithmModel
         .algorithms
         .find((algorithmWithPredicate) => {

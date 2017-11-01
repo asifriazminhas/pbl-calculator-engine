@@ -1,10 +1,10 @@
 import { Cox } from '../../cox';
-import { CoxJson } from '../../json-parser/json-types';
+import { ICoxJson } from '../../cox-json';
 import { Predicate } from '../multiple-algorithm-model/predicate';
 import { ModelType } from '../model-type';
 
 export interface GenericMultipleAlgorithmModel<
-    U extends Cox | CoxJson
+    U extends Cox | ICoxJson
 > {
     modelType: ModelType.MultipleAlgorithm;
     algorithms: Array<{

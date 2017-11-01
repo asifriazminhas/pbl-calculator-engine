@@ -1,9 +1,9 @@
-import { CoxJson } from './json-types';
+import { ICoxJson } from '../cox-json';
 import { Cox } from '../cox/cox';
 import { parseCovariateJsonToCovariate } from './covariate';
 
 function parseUserFunctions(
-    userFunctionsJson: CoxJson['userFunctions']
+    userFunctionsJson: ICoxJson['userFunctions']
 ): Cox['userFunctions'] {
     let userFunctions: Cox['userFunctions'] = {}
 
@@ -16,7 +16,7 @@ function parseUserFunctions(
 }
 
 export function parseCoxJsonToCox(
-    coxJson: CoxJson
+    coxJson: ICoxJson
 ): Cox {
     return Object.assign(
         {},
