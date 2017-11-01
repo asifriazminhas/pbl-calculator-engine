@@ -1,10 +1,6 @@
 import { GenericCox } from '../generic-cox';
-import { GenericCustomFunction, GenericRcsCustomFunction } from '../custom-function';
 import { GenericBaseCovariate, GenericCategoricalNonInteractionCovariate, GenericContinuousNonInteractionCovariate, GenericNonInteractionCovariate, GenericCategoricalInteractionCovariate, GenericContinuousInteractionCovariate, GenericInteractionCovariate, GenericBaseInteractionCovariate, GenericBaseNonInteractionCovariate, GenericCovariate } from '../covariate';
 import { DerivedFieldJson } from '../derived-field';
-
-export type RcsCustomFunctionJson = GenericRcsCustomFunction<string>;
-export type CustomFunctionsJson = GenericCustomFunction<string>;
 
 export type BaseCovariateJson = GenericBaseCovariate<string>;
 
