@@ -1,5 +1,5 @@
 import { parseCustomFunction } from './custom_functions/custom_function';
-import { CovariateJson } from '../../json-parser/json-types';
+import { CovariateJson } from '../../covariate';
 import { RcsCustomFunctionJson } from '../../custom-function';
 import { Pmml, IDataField, IParameter, IPCell, IPredictor } from '../../pmml';;
 import { parseDataFieldFromDataFieldPmmlNode } from './data_field';

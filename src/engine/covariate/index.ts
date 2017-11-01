@@ -8,3 +8,4 @@ export { GenericBaseCovariate } from './generic-base-covariate';
 export { GenericNonInteractionCovariate } from './generic-non-interaction-covariate';
 export { GenericInteractionCovariate } from './generic-interaction-covariate';
 export { GenericCovariate } from './generic-covariate';
+export { CovariateJson } from './json-covariate';
