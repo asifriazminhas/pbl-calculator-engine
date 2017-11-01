@@ -1,4 +1,5 @@
-import { CovariateJson, DerivedFieldJson } from './json-types';
+import { CovariateJson } from './json-types';
+import { DerivedFieldJson } from '../derived-field';
 import { Covariate } from '../cox/covariate';
 import { findDerivedFieldJsonWithName, parseDerivedFieldJsonToDerivedField } from './derived-field';
 import { FieldType } from '../field';
