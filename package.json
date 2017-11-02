@@ -4,20 +4,17 @@
     "engines": {
         "node": "~7.x.x"
     },
-    "description":
-        "The engine used to parse PMML files and evaluate algoirithms generated using PMML files",
+    "description": "The engine used to parse PMML files and evaluate algoirithms generated using PMML files",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "scripts": {
         "build-umd": "webpack --config ./webpack/umd.config.js",
         "build-ts": "tsc",
         "build-ts:watch": "tsc -w",
-        "build":
-            "rm -rf ./lib && rm -rf ./dist && npm run build-ts && npm run build-umd",
+        "build": "rm -rf ./lib && rm -rf ./dist && npm run build-ts && npm run build-umd",
         "prepublish": "npm run build",
         "lifetable-csv-to-json": "node ./lib/scripts/lifetable-csv-to-json.js",
-        "test":
-            "tape lib/test/local-transformations-tape.js | node_modules/.bin/tap-spec"
+        "test": "tape lib/test/local-transformations-tape.js | node_modules/.bin/tap-spec"
     },
     "repository": {
         "type": "git",
@@ -28,11 +25,11 @@
     "bugs": {
         "url": "https://github.com/Ottawa-mHealth/pbl-calculator-engine/issues"
     },
-    "homepage":
-        "https://github.com/Ottawa-mHealth/pbl-calculator-engine#readme",
+    "homepage": "https://github.com/Ottawa-mHealth/pbl-calculator-engine#readme",
     "devDependencies": {
         "@types/bluebird": "3.0.33",
         "@types/chai": "3.4.34",
+        "@types/common-tags": "1.4.0",
         "@types/csv-parse": "1.1.5",
         "@types/escodegen": "0.0.6",
         "@types/exceljs": "0.4.0",
@@ -57,13 +54,14 @@
         "tap-spec": "4.1.1",
         "tslib": "1.7.1",
         "tslint": "5.8.0",
-        "typescript": "2.4.1",
+        "typescript": "2.6.1",
         "webpack": "1.13.3"
     },
     "dependencies": {
         "@ottawamhealth/pbl-limesurvey-engine": "0.1.2",
         "ast-types": "0.9.12",
         "bluebird": "3.4.6",
+        "common-tags": "1.4.0",
         "csv-parse": "1.1.7",
         "escodegen": "1.8.1",
         "exceljs": "0.4.10",

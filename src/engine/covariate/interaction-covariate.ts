@@ -2,28 +2,33 @@ import {
     GenericBaseInteractionCovariate,
     GenericCategoricalInteractionCovariate,
     GenericContinuousInteractionCovariate,
-} from '../covariate';
-import { DerivedField } from '../derived-field';
+} from './generic-covariate';
 import { Covariate } from './covariate';
-import { Data, IDatum, datumFromCovariateReferencePointFactory } from '../data';
+import { IBaseCovariate } from './base-covariate';
+import { DerivedField } from '../derived-field';
+import { IDatum, Data, datumFromCovariateReferencePointFactory } from '../data';
 import { NonInteractionCovariate } from './non-interaction-covariate';
-import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForCovariate } from './covariate';
+import { Cox } from '../cox';
+import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForCovariate } from './base-covariate';
 
-export interface InteractionCovariateWithoutOpType
-    extends GenericBaseInteractionCovariate<Covariate> {
+/* Need the following three interfaces because of this issue
+https://github.com/Microsoft/TypeScript/issues/14174 */
+export interface IBaseInteractionCovariate
+    extends GenericBaseInteractionCovariate<Covariate>,
+        IBaseCovariate {
     derivedField: DerivedField;
 }
-export interface CategoricalInteractionCovariate
+export interface ICategoricalInteractionCovariate
     extends GenericCategoricalInteractionCovariate<Covariate>,
-        InteractionCovariateWithoutOpType {}
-export interface ContinuousInteractionCovariate
+        IBaseInteractionCovariate {}
+export interface IContinuousInteractionCovariate
     extends GenericContinuousInteractionCovariate<Covariate>,
-        InteractionCovariateWithoutOpType {}
+        IBaseInteractionCovariate {}
 
 export type InteractionCovariate =
-    | InteractionCovariateWithoutOpType
-    | CategoricalInteractionCovariate
-    | ContinuousInteractionCovariate;
+    | IBaseInteractionCovariate
+    | ICategoricalInteractionCovariate
+    | IContinuousInteractionCovariate;
 
 function isCoefficentDatumSetToReferencePoint(
     interactionCovariate: InteractionCovariate,
@@ -46,10 +51,8 @@ function isCoefficentDatumSetToReferencePoint(
 export function calculateDataToCalculateCoefficent(
     interactionCovariate: InteractionCovariate,
     data: Data,
-    userDefinedFunctions: {
-        [index: string]: Function;
-    },
-): Array<IDatum> {
+    userDefinedFunctions: Cox['userFunctions'],
+): IDatum[] {
     const coefficentData = calculateDataToCalculateCoefficentForCovariate(
         interactionCovariate,
         data,

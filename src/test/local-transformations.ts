@@ -10,7 +10,7 @@ import {
     calculateCoefficent,
 } from '../engine/derived-field/derived-field';
 import { DerivedField } from '../engine/derived-field';
-import { Covariate } from '../engine/cox/covariate';
+import { Covariate } from '../engine/covariate';
 import { Cox } from '../engine/cox/cox';
 import * as fs from 'fs';
 var csvParse = require('csv-parse/lib/sync');

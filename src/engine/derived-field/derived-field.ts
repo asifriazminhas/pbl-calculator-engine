@@ -8,7 +8,7 @@ import { getDatumForField } from '../field';
 import { FieldType } from '../field';
 import { flatten } from 'lodash';
 import { Data, datumFactory, Coefficent } from '../data';
-import { calculateCoefficent as calculateCoefficentForCovariate } from '../cox/covariate';
+import { calculateCoefficent as calculateCoefficentForCovariate } from '../covariate';
 import { Cox } from '../cox';
 import PmmlFunctions from '../cox/pmml-functions';
 import { shouldLogDebugInfo } from '../env';

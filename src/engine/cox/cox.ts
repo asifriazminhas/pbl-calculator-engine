@@ -1,4 +1,4 @@
-import { Covariate, getComponent } from './covariate';
+import { Covariate, getComponent } from '../covariate';
 import { Data } from '../data';
 import { add } from 'lodash';
 import { shouldLogDebugInfo } from '../env';
@@ -7,45 +7,34 @@ import * as moment from 'moment';
 
 export type Cox = IGenericCox<Covariate, Function>;
 
-function calculateScore(
-    cox: Cox,
-    data: Data
-): number {
+function calculateScore(cox: Cox, data: Data): number {
     return cox.covariates
-        .map(covariate => getComponent(
-            covariate, 
-            data, 
-            cox.userFunctions
-        ))
+        .map(covariate => getComponent(covariate, data, cox.userFunctions))
         .reduce(add);
 }
 
-export function getTimeMultiplier(
-    time: moment.Moment
-) {
-    return Math.abs((moment().diff(time, 'years', true)))
+export function getTimeMultiplier(time: moment.Moment) {
+    return Math.abs(moment().diff(time, 'years', true));
 }
 
 //By default it's time argument is set to 1 year from now
 export function getSurvivalToTime(
     cox: Cox,
     data: Data,
-    time?: Date | moment.Moment
+    time?: Date | moment.Moment,
 ): number {
     let formattedTime: moment.Moment;
     if (!time) {
         formattedTime = moment();
-        formattedTime.add(1, 'year')
-    }
-    else if (time instanceof Date) {
+        formattedTime.add(1, 'year');
+    } else if (time instanceof Date) {
         formattedTime = moment(time);
-    }
-    else {
+    } else {
         formattedTime = time;
     }
 
     if (shouldLogDebugInfo() === true) {
-        console.groupCollapsed(`Predictors`)
+        console.groupCollapsed(`Predictors`);
     }
 
     if (shouldLogDebugInfo()) {
@@ -58,10 +47,8 @@ export function getSurvivalToTime(
 
     const score = calculateScore(cox, data);
 
-    const oneYearSurvivalProbability = 1 - Math.pow(
-        Math.E,
-        -1 * cox.baselineHazard * Math.pow(Math.E, score)
-    );
+    const oneYearSurvivalProbability =
+        1 - Math.pow(Math.E, -1 * cox.baselineHazard * Math.pow(Math.E, score));
 
     return oneYearSurvivalProbability * getTimeMultiplier(formattedTime);
 }
@@ -69,7 +56,7 @@ export function getSurvivalToTime(
 export function getRiskToTime(
     cox: Cox,
     data: Data,
-    time?: Date | moment.Moment
+    time?: Date | moment.Moment,
 ): number {
     return 1 - getSurvivalToTime(cox, data, time);
 }

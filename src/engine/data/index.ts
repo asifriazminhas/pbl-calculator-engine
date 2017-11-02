@@ -4,4 +4,4 @@ export {
     datumFactory,
     datumFromCovariateReferencePointFactory,
 } from './datum';
-export { Coefficent } from './coefficent';
+export { Coefficent, formatCoefficentForComponent } from './coefficent';

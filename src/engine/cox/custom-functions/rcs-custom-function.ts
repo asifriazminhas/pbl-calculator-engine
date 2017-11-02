@@ -1,7 +1,7 @@
 import {
     Covariate,
     calculateCoefficent as calculateCoefficentForCovariate,
-} from '../covariate';
+} from '../../covariate';
 import { GenericRcsCustomFunction } from '../../custom-function';
 import { Data, IDatum } from '../../data';
 import { isFieldWithName } from '../../field';

@@ -6,7 +6,7 @@ import * as path from 'path';
 import { AlgorithmBuilder } from '../engine/algorithm-builder/algorithm-builder';
 import { parseModelJsonToModel } from '../engine/json-parser/model';
 import { Data } from '../engine/data';
-import { Covariate } from '../engine/cox/covariate';
+import { Covariate } from '../engine/covariate';
 import {
     getLeafFieldsForDerivedField,
     calculateCoefficent,
