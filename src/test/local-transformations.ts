@@ -1,250 +1,244 @@
+import 'source-map-support/register';
+
+import * as test from 'tape';
+import * as fs from 'fs';
+import * as path from 'path';
+import { AlgorithmBuilder } from '../engine/algorithm-builder/algorithm-builder';
+import { parseModelJsonToModel } from '../engine/json-parser/model';
 import { Data } from '../engine/data';
-import {
-    SingleAlgorithmModel,
-    MultipleAlgorithmModel,
-    getAlgorithmForModelAndData,
-    ModelType,
-} from '../engine/model';
+import { Covariate } from '../engine/covariate';
 import {
     getLeafFieldsForDerivedField,
     calculateCoefficent,
 } from '../engine/derived-field/derived-field';
-import { DerivedField } from '../engine/derived-field';
-import { Covariate } from '../engine/covariate';
+import { ModelType } from '../engine/model/model-type';
+import { ModelTypes } from '../engine/model/model-types';
+import { getAlgorithmForData } from '../engine/model/multiple-algorithm-model/multiple-algorithm-model';
+const csvParse = require('csv-parse/lib/sync');
 import { Cox } from '../engine/cox/cox';
-import * as fs from 'fs';
-var csvParse = require('csv-parse/lib/sync');
-import * as path from 'path';
-import { AlgorithmBuilder } from '../engine/algorithm-builder/algorithm-builder';
-import { parseModelJsonToModel } from '../engine/json-parser';
 import { expect } from 'chai';
 
-const AssetsDir = path.join(__dirname, '../../assets/test');
+const TestAssetsFolderPath = path.join(__dirname, '../../assets/test');
+const TestAlgorithmsFolderPath = `${TestAssetsFolderPath}/algorithms`;
+const TransformationsTestingDataFolderPath = `${TestAssetsFolderPath}/local-transformations`;
 
-type TestObjects = {
-    derivedField: DerivedField;
-    inputData: Data[];
-    outputData: string[];
-}[];
+function getAlgorithmNamesToTest(): string[] {
+    return fs
+        .readdirSync(TestAlgorithmsFolderPath)
+        .filter(algorithmName => algorithmName !== '.DS_Store');
+}
 
-function convertInputDataRowToData(inputData: { [index: string]: any }): Data {
-    return Object.keys(inputData).map(inputDataKey => {
-        const inputDatum = inputData[inputDataKey];
-        let formattedDatum = null;
+async function getModelObjFromAlgorithmName(
+    algorithmName: string,
+): Promise<ModelTypes> {
+    const modelJson = (await AlgorithmBuilder.buildSurvivalAlgorithm().buildFromAssetsFolder(
+        `${TestAlgorithmsFolderPath}/${algorithmName}`,
+    )).toJson();
 
-        if (inputDatum === 'NA') {
-            formattedDatum = null;
-        } else if (isNaN(inputDatum)) {
-            formattedDatum = inputDatum;
-        } else {
-            formattedDatum = Number(inputDatum);
-        }
+    return parseModelJsonToModel(modelJson);
+}
 
+function formatTestingDataCsvColumn(column: any): string | number | null {
+    if (column === 'NA') {
+        return null;
+    } else if (isNaN(column)) {
+        return column;
+    } else {
+        return Number(column);
+    }
+}
+
+function getDataFromTestingDataCsvRow(testingDataCsvRow: {
+    [index: string]: string;
+}): Data {
+    return Object.keys(testingDataCsvRow).map(testingDataCsvColumnName => {
         return {
-            name: inputDataKey,
-            coefficent: formattedDatum,
+            name: testingDataCsvColumnName,
+            coefficent: formatTestingDataCsvColumn(
+                testingDataCsvRow[testingDataCsvColumnName],
+            ),
         };
     });
 }
 
-function getTestObjectForCovariates(
-    covariates: Covariate[],
-    testingDataTable: {
-        [index: string]: string;
-    }[],
-): TestObjects {
-    return covariates
-        .map(covariate => {
-            if (covariate.derivedField) {
-                const derivedField = covariate.derivedField;
+function getTestingDataForCovariate(
+    covariate: Covariate,
+    testingDataCsv: { [index: string]: string }[],
+): {
+    inputData: Data[];
+    expectedOutputs: (number | null)[];
+} {
+    if (covariate.derivedField) {
+        const leafFields = getLeafFieldsForDerivedField(covariate.derivedField);
+        const leadFieldNames = leafFields.map(leafField => leafField.name);
 
-                const leafNodesForDerivedField = getLeafFieldsForDerivedField(
-                    covariate.derivedField,
-                ).map(field => field.name);
+        const inputData = testingDataCsv.map(testingDataCsvRow => {
+            const testingDataCsvRowColumns = Object.keys(testingDataCsvRow);
 
-                const inputDataWithLeadNodeColumns = testingDataTable.map(
-                    testingDataRow => {
-                        return Object.keys(
-                            testingDataRow,
-                        ).reduce(
-                            (inputDataForCovariate, testingDataRowColumn) => {
-                                if (
-                                    leafNodesForDerivedField.indexOf(
-                                        testingDataRowColumn,
-                                    ) > -1
-                                ) {
-                                    return Object.assign(
-                                        {},
-                                        inputDataForCovariate,
-                                        {
-                                            [testingDataRowColumn]:
-                                                testingDataRow[
-                                                    testingDataRowColumn
-                                                ],
-                                        },
-                                    );
-                                } else {
-                                    return inputDataForCovariate;
-                                }
-                            },
-                            {},
-                        );
-                    },
-                );
-                const inputData = inputDataWithLeadNodeColumns.map(inputData =>
-                    convertInputDataRowToData(inputData),
-                );
+            const obj: { [index: string]: string } = {};
 
-                const outputData = testingDataTable.map(testingDataTableRow => {
-                    return testingDataTableRow[covariate.name];
+            testingDataCsvRowColumns
+                .filter(testingDataCsvRowColumn => {
+                    return leadFieldNames.indexOf(testingDataCsvRowColumn) > -1;
+                })
+                .forEach(testingDataCsvRowColumn => {
+                    obj[testingDataCsvRowColumn] =
+                        testingDataCsvRow[testingDataCsvRowColumn];
                 });
 
-                return { derivedField, inputData, outputData };
-            } else {
-                return undefined;
-            }
-        })
-        .filter(setupObject => {
-            return setupObject;
-        }) as TestObjects;
+            return getDataFromTestingDataCsvRow(obj);
+        });
+
+        const expectedOutputs = testingDataCsv.map(testingDataCsvRow => {
+            return formatTestingDataCsvColumn(
+                testingDataCsvRow[covariate.name],
+            ) as number | null;
+        });
+
+        return {
+            inputData,
+            expectedOutputs,
+        };
+    } else {
+        return {
+            inputData: [],
+            expectedOutputs: [],
+        };
+    }
 }
 
-function getTestObjectForSingleAlgorithmModel(
-    model: SingleAlgorithmModel,
-    testingData: {
-        [index: string]: string;
-    }[],
-) {
-    return getTestObjectForCovariates(model.algorithm.covariates, testingData);
-}
-
-const genderData = [
-    {
-        name: 'sex',
-        coefficent: 'male',
-    },
-    {
-        name: 'sex',
-        coefficent: 'female',
-    },
-];
-function getTestObjectForMultipleAlgorithmModel(
-    model: MultipleAlgorithmModel,
-    testingData: {
-        male: {
-            [index: string]: string;
-        }[];
-        female: {
-            [index: string]: string;
-        }[];
-    },
-): TestObjects[] {
-    return genderData.map(genderDatum => {
-        return getTestObjectForCovariates(
-            getAlgorithmForModelAndData(model, [genderDatum]).covariates,
-            (testingData as any)[genderDatum.coefficent],
-        );
-    });
-}
-
-function assertionsForTestingObjects(
-    testingObjects: TestObjects,
+function testCovariateTransformations(
+    covariate: Covariate,
+    inputData: Data[],
+    expectedOutputs: (number | null)[],
     userFunctions: Cox['userFunctions'],
 ) {
-    testingObjects.forEach(({ derivedField, inputData, outputData }) => {
-        inputData.forEach((data, index) => {
-            const actualOutput = calculateCoefficent(
-                derivedField,
-                data,
-                userFunctions,
-            );
-            let expectedOutput: any = outputData[index];
-            if (expectedOutput === 'NA') {
-                expectedOutput = null;
-            }
+    if (!covariate.derivedField) {
+        return;
+    }
 
-            let diffError =
-                (expectedOutput - (actualOutput as number)) / expectedOutput;
+    const derivedField = covariate.derivedField;
+
+    inputData.forEach((currentInputData, index) => {
+        const actualOutput = calculateCoefficent(
+            derivedField,
+            currentInputData,
+            userFunctions,
+        );
+        let expectedOutput = expectedOutputs[index];
+        let diffError: number;
+        if (expectedOutput === null && actualOutput === null) {
+            diffError = 0;
+        } else {
+            diffError =
+                ((expectedOutput as number) - (actualOutput as number)) /
+                (expectedOutput as number);
             if (expectedOutput == 0 && actualOutput == 0) {
                 diffError = 0;
-            } else if (expectedOutput === null && actualOutput === null) {
-                diffError = 0;
             }
+        }
 
-            expect(
-                diffError < 0.00001 || diffError === 0,
-                `DerivedField ${derivedField.name}. Input Row: ${index}. Actual Output: ${actualOutput}. ExpectedOutput: ${expectedOutput}. DiffError: ${diffError}`,
-            ).to.be.true;
-        });
+        expect(
+            diffError < 0.00001 || diffError === 0,
+            `DerivedField ${(derivedField as any)
+                .name}. Input Row: ${index}. Actual Output: ${actualOutput}. ExpectedOutput: ${expectedOutput}. DiffError: ${diffError}`,
+        ).to.be.true;
     });
 }
 
-describe.only(`Testing local transformations`, async function() {
-    fs.readdirSync(`${AssetsDir}/algorithms`).forEach(algorithmName => {
-        const algorithmAssetsDir = `${AssetsDir}/algorithms/${algorithmName}`;
+function testLocalTransformationsForModel(
+    model: ModelTypes,
+    modelName: string,
+    t: test.Test,
+) {
+    if (model.modelType === ModelType.SingleAlgorithm) {
+        const testingCsvData = csvParse(
+            fs.readFileSync(
+                `${TransformationsTestingDataFolderPath}/${modelName}/testing-data.csv`,
+                'utf8',
+            ),
+            {
+                columns: true,
+            },
+        );
+        model.algorithm.covariates.forEach(covariate => {
+            const { inputData, expectedOutputs } = getTestingDataForCovariate(
+                covariate,
+                testingCsvData,
+            );
 
-        it(`Testing transformations for algorithm ${algorithmName}`, async function() {
-            const modelJson = (await AlgorithmBuilder.buildSurvivalAlgorithm().buildFromAssetsFolder(
-                algorithmAssetsDir,
-            )).toJson();
+            testCovariateTransformations(
+                covariate,
+                inputData,
+                expectedOutputs,
+                model.algorithm.userFunctions,
+            );
 
-            const model = parseModelJsonToModel(modelJson);
-
-            if (model.modelType === ModelType.SingleAlgorithm) {
-                const testingData = csvParse(
-                    fs.readFileSync(
-                        `${AssetsDir}/local-transformations/${algorithmName}/testing-data.csv`,
-                        'utf8',
-                    ),
-                    {
-                        columns: true,
-                    },
-                );
-
-                const testingObjects = getTestObjectForSingleAlgorithmModel(
-                    model,
-                    testingData,
-                );
-
-                assertionsForTestingObjects(
-                    testingObjects,
-                    model.algorithm.userFunctions,
-                );
-            } else {
-                const testingData = {
-                    male: csvParse(
-                        fs.readFileSync(
-                            `${AssetsDir}/local-transformations/${algorithmName}/male/testing-data.csv`,
-                            'utf8',
-                        ),
-                        {
-                            columns: true,
-                        },
-                    ),
-                    female: csvParse(
-                        fs.readFileSync(
-                            `${AssetsDir}/local-transformations/${algorithmName}/female/testing-data.csv`,
-                            'utf8',
-                        ),
-                        {
-                            columns: true,
-                        },
-                    ),
-                };
-
-                const testingObjectsForGenders = getTestObjectForMultipleAlgorithmModel(
-                    model,
-                    testingData,
-                );
-
-                genderData.forEach((genderDatum, index) => {
-                    assertionsForTestingObjects(
-                        testingObjectsForGenders[index],
-                        getAlgorithmForModelAndData(model, [genderDatum])
-                            .userFunctions,
-                    );
-                });
-            }
+            t.pass(`Testing transformations for covariate ${covariate.name}`);
         });
+    } else if (model.modelType === ModelType.MultipleAlgorithm) {
+        const genders = ['male', 'female'];
+
+        genders.forEach(gender => {
+            const testingCsvData = csvParse(
+                fs.readFileSync(
+                    `${TransformationsTestingDataFolderPath}/${modelName}/${gender}/testing-data.csv`,
+                    'utf8',
+                ),
+                {
+                    columns: true,
+                },
+            );
+            const algorithmForCurrentGender = getAlgorithmForData(model, [
+                {
+                    name: 'sex',
+                    coefficent: gender,
+                },
+            ]);
+
+            algorithmForCurrentGender.covariates.forEach(covariate => {
+                const {
+                    inputData,
+                    expectedOutputs,
+                } = getTestingDataForCovariate(covariate, testingCsvData);
+
+                testCovariateTransformations(
+                    covariate,
+                    inputData,
+                    expectedOutputs,
+                    algorithmForCurrentGender.userFunctions,
+                );
+
+                t.pass(
+                    `Testing transformations for covariate ${covariate.name}`,
+                );
+            });
+        });
+    }
+
+    t.end();
+}
+
+test(`Testing local transformations`, async function(t) {
+    const namesOfAlgorithmsToTest = getAlgorithmNamesToTest();
+    const models = await Promise.all(
+        namesOfAlgorithmsToTest.map(algorithmName => {
+            return getModelObjFromAlgorithmName(algorithmName);
+        }),
+    );
+
+    models.forEach((model, index) => {
+        t.test(
+            `Testing local transformations for algorithm ${namesOfAlgorithmsToTest[
+                index
+            ]}`,
+            function(t) {
+                testLocalTransformationsForModel(
+                    model,
+                    namesOfAlgorithmsToTest[index],
+                    t,
+                );
+            },
+        );
     });
 });
