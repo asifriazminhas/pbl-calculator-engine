@@ -1,3 +1,3 @@
-import { GenericRcsCustomFunction } from '../generic-rcs-custom-function';
+import { GenericRcsCustomFunction } from '../generic-custom-function';
 
 export type RcsCustomFunctionJson = GenericRcsCustomFunction<string>;

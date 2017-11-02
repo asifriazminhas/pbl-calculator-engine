@@ -1,4 +1,4 @@
-import { CustomFunctionType } from './custom-function-type';
+import { CustomFunctionType } from '../custom-function-type';
 
 export interface GenericRcsCustomFunction<T> {
     customFunctionType: CustomFunctionType.RcsCustomFunction;
