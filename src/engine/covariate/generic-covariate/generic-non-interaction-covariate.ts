@@ -2,4 +2,7 @@ import { GenericBaseNonInteractionCovariate } from './generic-base-non-interacti
 import { GenericCategoricalNonInteractionCovariate } from './generic-categorical-non-interaction-covariate';
 import { GenericContinuousNonInteractionCovariate } from './generic-continuous-non-interaction-covariate';
 
-export type GenericNonInteractionCovariate<T> = GenericBaseNonInteractionCovariate<T> | GenericCategoricalNonInteractionCovariate<T> | GenericContinuousNonInteractionCovariate<T>;
+export type GenericNonInteractionCovariate<T> =
+    | GenericBaseNonInteractionCovariate<T>
+    | GenericCategoricalNonInteractionCovariate<T>
+    | GenericContinuousNonInteractionCovariate<T>;
