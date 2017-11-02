@@ -1,15 +1,15 @@
 import {
     Covariate,
     calculateCoefficent as calculateCoefficentForCovariate,
-} from '../../covariate';
-import { GenericRcsCustomFunction } from '../../custom-function';
-import { Data, IDatum } from '../../data';
-import { isFieldWithName } from '../../field';
+} from '../covariate';
+import { GenericRcsCustomFunction } from './generic-custom-function';
+import { Data, IDatum } from '../data';
+import { isFieldWithName } from '../field';
 
 export interface RcsCustomFunction
     extends GenericRcsCustomFunction<Covariate> {}
 
-//Calculates the first term in the spline equation
+// Calculates the first term in the spline equation
 function getFirstTerm(
     rcsCustomFunction: RcsCustomFunction,
     firstVariableValue: number,

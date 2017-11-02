@@ -9,7 +9,7 @@ import {
 } from '../data';
 import { getDatumForField } from '../field';
 // tslint:disable-next-line
-import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForRcsCustomFunction } from '../cox/custom-functions/rcs-custom-function';
+import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForRcsCustomFunction } from '../custom-function';
 // tslint:disable-next-line
 import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForDerivedField } from '../derived-field';
 import { oneLine } from 'common-tags';

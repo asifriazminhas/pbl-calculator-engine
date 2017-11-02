@@ -1,5 +1,8 @@
-import { RcsCustomFunction } from '../../cox/custom-functions/rcs-custom-function';
-import { parseCovariateJsonToCovariate, findCovariateJsonWithName } from '../covariate';
+import { RcsCustomFunction } from '../../custom-function';
+import {
+    parseCovariateJsonToCovariate,
+    findCovariateJsonWithName,
+} from '../covariate';
 import { CovariateJson } from '../../covariate';
 import { DerivedFieldJson } from '../../derived-field';
 import { RcsCustomFunctionJson } from '../../custom-function';
@@ -7,11 +10,11 @@ import { RcsCustomFunctionJson } from '../../custom-function';
 export function parseRcsCustomFunctionJsonToRcsCustomFunction(
     rcsCustomFunctionJson: RcsCustomFunctionJson,
     covariateJsons: Array<CovariateJson>,
-    derivedFieldJsons: Array<DerivedFieldJson>
+    derivedFieldJsons: Array<DerivedFieldJson>,
 ): RcsCustomFunction {
     const firstVariableCovariate = findCovariateJsonWithName(
         covariateJsons,
-        rcsCustomFunctionJson.firstVariableCovariate
+        rcsCustomFunctionJson.firstVariableCovariate,
     );
 
     if (!firstVariableCovariate) {
@@ -22,7 +25,7 @@ export function parseRcsCustomFunctionJsonToRcsCustomFunction(
         firstVariableCovariate: parseCovariateJsonToCovariate(
             firstVariableCovariate,
             covariateJsons,
-            derivedFieldJsons
-        )
+            derivedFieldJsons,
+        ),
     });
 }

@@ -8,7 +8,7 @@ import { shouldLogDebugInfo, shouldLogWarnings } from '../env';
 import { Data, formatCoefficentForComponent } from '../data';
 import { FieldType } from '../field';
 // tslint:disable-next-line
-import { calculateCoefficent as calculateCoefficentForRcsCustomFunction } from '../cox/custom-functions/rcs-custom-function';
+import { calculateCoefficent as calculateCoefficentForRcsCustomFunction } from '../custom-function';
 import { calculateCoefficent as calculateCoefficentForDerivedField } from '../derived-field';
 import { Cox } from '../cox';
 

@@ -7,3 +7,9 @@ export {
     CustomFunctionsJson,
     RcsCustomFunctionJson,
 } from './json-custom-function';
+export {
+    calculateDataToCalculateCoefficent,
+    calculateCoefficent,
+    RcsCustomFunction,
+} from './rcs-custom-function';
+export { CustomFunction } from './custom-function';
