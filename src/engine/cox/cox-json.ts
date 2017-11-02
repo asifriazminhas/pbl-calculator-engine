@@ -1,4 +1,4 @@
-import { IGenericCox } from '../generic-cox';
+import { IGenericCox } from './generic-cox';
 import { DerivedFieldJson } from '../derived-field';
 import { CovariateJson } from '../covariate';
 
