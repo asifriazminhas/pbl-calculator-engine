@@ -6,6 +6,7 @@ export { CustomFunctionType } from './custom-function-type';
 export {
     CustomFunctionsJson,
     RcsCustomFunctionJson,
+    parseCustomFunctionJsonToCustomFunction,
 } from './json-custom-function';
 export {
     calculateDataToCalculateCoefficent,

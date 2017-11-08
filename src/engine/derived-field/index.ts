@@ -4,7 +4,12 @@ export {
     GenericContinuousDerivedField,
     GenericDerivedField,
 } from './generic-derived-field';
-export { DerivedFieldJson, DerivedFromJson } from './json-derived-field';
+export {
+    DerivedFieldJson,
+    DerivedFromJson,
+    findDerivedFieldJsonWithName,
+    parseDerivedFieldJsonToDerivedField,
+} from './json-derived-field';
 export {
     DerivedField,
     calculateCoefficent,

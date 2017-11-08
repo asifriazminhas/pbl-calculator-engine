@@ -4,4 +4,4 @@ export {
     getRiskToTime,
     getTimeMultiplier,
 } from './cox';
-export { ICoxJson } from './cox-json';
+export { ICoxJson, parseCoxJsonToCox } from './cox-json';

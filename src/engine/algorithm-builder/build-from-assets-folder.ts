@@ -33,7 +33,7 @@ const csvParse = require('csv-parse/lib/sync');
 import { JsonModelTypes } from '../model';
 import { SingleAlgorithmModelJson } from '../single-algorithm-model';
 import { MultipleAlgorithmModelJson } from '../multiple-algorithm-model';
-import { parseModelJsonToModel } from '../json-parser';
+import { parseModelJsonToModel } from '../model';
 
 export type BuildFromAssetsFolderFunction = (
     assetsFolderPath: string,

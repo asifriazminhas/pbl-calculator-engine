@@ -1,1 +1,5 @@
-export { CovariateJson } from './json-covariate';
+export {
+    CovariateJson,
+    findCovariateJsonWithName,
+    parseCovariateJsonToCovariate,
+} from './json-covariate';
