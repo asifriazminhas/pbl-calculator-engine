@@ -1,6 +1,5 @@
-import { Cox } from '../../cox';
-import { ICoxJson } from '../../cox';
-import { ModelType } from '../model-type';
+import { Cox, ICoxJson } from '../cox';
+import { ModelType } from '../model';
 
 export interface GenericSingleAlgorithmModel<U extends Cox | ICoxJson> {
     modelType: ModelType.SingleAlgorithm;

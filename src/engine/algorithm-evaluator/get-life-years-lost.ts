@@ -1,14 +1,23 @@
 import { Data } from '../data';
 import { RefLifeTable } from '../life-table';
 import { getLifeYearsLost } from '../life-years-lost';
-import { CauseImpactRefTypes, getCauseImpactRefForData, CauseImpactRef } from '../cause-impact';
-import { ModelTypes, getAlgorithmJsonForModelAndData, getAlgorithmForModelAndData, JsonModelTypes } from '../model';
+import {
+    CauseImpactRefTypes,
+    getCauseImpactRefForData,
+    CauseImpactRef,
+} from '../cause-impact';
+import {
+    ModelTypes,
+    getAlgorithmJsonForModelAndData,
+    getAlgorithmForModelAndData,
+    JsonModelTypes,
+} from '../model';
 
 export interface GetLifeYearsLost {
     getLifeYearsLost: (
         data: Data,
         riskFactors: string[],
-        useExFromLifeTableFromAge: number
+        useExFromLifeTableFromAge: number,
     ) => number;
 }
 
@@ -19,17 +28,22 @@ export function getGetLifeYearsLost(
     causeDeletedRef?: CauseImpactRefTypes,
 ): GetLifeYearsLost {
     return {
-        getLifeYearsLost: (data, riskFactors, useExFromLifeTableFromAge=99) => {
+        getLifeYearsLost: (
+            data,
+            riskFactors,
+            useExFromLifeTableFromAge = 99,
+        ) => {
             let causeImpactRefToUse: CauseImpactRef;
-            if(!causeDeletedRef) {
+            if (!causeDeletedRef) {
                 causeImpactRefToUse = getAlgorithmJsonForModelAndData(
-                    modelJson, data
+                    modelJson,
+                    data,
                 ).causeDeletedRef;
-            }
-            else {
+            } else {
                 causeImpactRefToUse = getCauseImpactRefForData(
-                    causeDeletedRef, data
-                )
+                    causeDeletedRef,
+                    data,
+                );
             }
 
             return getLifeYearsLost(
@@ -38,8 +52,8 @@ export function getGetLifeYearsLost(
                 getAlgorithmForModelAndData(model, data),
                 data,
                 riskFactors,
-                useExFromLifeTableFromAge
-            )
-        }
+                useExFromLifeTableFromAge,
+            );
+        },
     };
 }

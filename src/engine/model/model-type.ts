@@ -1,4 +1,4 @@
 export enum ModelType {
-    SingleAlgorithm=0,
-    MultipleAlgorithm=1
+    SingleAlgorithm = 0,
+    MultipleAlgorithm = 1,
 }

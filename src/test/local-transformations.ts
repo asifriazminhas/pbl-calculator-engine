@@ -13,7 +13,7 @@ import {
 } from '../engine/derived-field/derived-field';
 import { ModelType } from '../engine/model/model-type';
 import { ModelTypes } from '../engine/model/model-types';
-import { getAlgorithmForData } from '../engine/model/multiple-algorithm-model/multiple-algorithm-model';
+import { getAlgorithmForData } from '../engine/multiple-algorithm-model';
 const csvParse = require('csv-parse/lib/sync');
 import { Cox } from '../engine/cox/cox';
 import { expect } from 'chai';

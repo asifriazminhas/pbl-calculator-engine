@@ -1,4 +1,4 @@
-import { Data, IDatum } from '../../data';
+import { Data, IDatum } from '../data';
 
 /**
  * Used in MultipleAlgoithms model type to decide which algorithm is run on a given set of data
@@ -7,9 +7,10 @@ import { Data, IDatum } from '../../data';
  * @interface Predicate
  */
 export interface Predicate {
-    //A JS string that evaluates to true or false. Run on a set of data to check whether a certain algorithm in a MultipleAlgorithm model shiuld be run
+    /* A JS string that evaluates to true or false. Run on a set of data to
+    check whether a certain algorithm in a MultipleAlgorithm model shiuld be run*/
     equation: string;
-    //The variables from a set of data required in the above equation field
+    // The variables from a set of data required in the above equation field
     variables: string[];
 }
 
@@ -21,8 +22,10 @@ export function getPredicateResult(data: Data, predicate: Predicate): boolean {
                 [currentDatum.name]: currentDatum.coefficent,
             });
         }, {});
+    // tslint:disable-next-line
     obj;
 
+    // tslint:disable-next-line
     let predicateResult: boolean = false;
     eval(predicate.equation);
 

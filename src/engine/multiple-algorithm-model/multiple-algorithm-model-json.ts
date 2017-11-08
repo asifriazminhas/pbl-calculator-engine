@@ -1,7 +1,7 @@
-import { GenericMultipleAlgorithmModel } from '../generic';
-import { ICoxJson } from '../../cox';
-import { Data } from '../../data';
-import { getPredicateResult } from '../multiple-algorithm-model/predicate';
+import { GenericMultipleAlgorithmModel } from './generic-multiple-algorithm-model';
+import { ICoxJson } from '../cox';
+import { Data } from '../data';
+import { getPredicateResult } from './predicate';
 
 export type MultipleAlgorithmModelJson = GenericMultipleAlgorithmModel<
     ICoxJson

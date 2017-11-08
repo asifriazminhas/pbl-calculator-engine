@@ -3,7 +3,8 @@ import { parseDerivedFields } from './data_fields/derived_field/derived_field';
 import { Pmml, PmmlParser } from '../pmml';
 import { ICoxJson } from '../cox';
 import { parseDefineFunction } from './define-function/define-function';
-import { JsonModelTypes, Predicate, ModelType } from '../model';
+import { JsonModelTypes, ModelType } from '../model';
+import { Predicate } from '../multiple-algorithm-model';
 
 function parseBaselineHazardFromPmmlXml(pmml: Pmml): number {
     return Number(pmml.pmmlXml.PMML.GeneralRegressionModel.$.baselineHazard);

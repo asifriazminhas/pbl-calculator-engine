@@ -1,11 +1,11 @@
-import { SingleAlgorithmModelJson } from './json-single-algorithm-model';
+import { SingleAlgorithmModelJson } from '../single-algorithm-model';
 import {
     MultipleAlgorithmModelJson,
     getAlgorithmJsonForData,
-} from './json-multiple-algorithm-model';
-import { ICoxJson } from '../../cox';
-import { ModelType } from '../model-type';
-import { Data } from '../../data';
+} from '../multiple-algorithm-model';
+import { ICoxJson } from '../cox';
+import { ModelType } from './model-type';
+import { Data } from '../data';
 
 export type JsonModelTypes =
     | SingleAlgorithmModelJson
