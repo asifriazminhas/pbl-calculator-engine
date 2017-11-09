@@ -1,1 +1,0 @@
-export { getLifeExpectancyUsingRefLifeTable, getCompleteLifeTableForDataUsingAlgorithm } from './life-expectancy';

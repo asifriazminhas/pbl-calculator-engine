@@ -1,1 +1,0 @@
-export { getSurvivalToAge } from './survival-to-age';
