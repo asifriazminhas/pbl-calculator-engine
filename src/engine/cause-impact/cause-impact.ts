@@ -1,80 +1,77 @@
-import { CauseImpactRef } from './cause-impact-ref';
-import { Cox, getSurvivalToTime, getRiskToTime } from '../cox';
+import {
+    GenderCauseImpactRef,
+    getCauseImpactRefForData,
+    getCauseImpactDataForRiskFactors,
+} from './gender-cause-impact-ref';
 import { Data, updateDataWithData } from '../data';
-import * as moment from 'moment';
-import { RefLifeTable, CompleteLifeTable } from '../life-table';
-import { getLifeExpectancyUsingRefLifeTable } from '../life-expectancy';
 
-function getCauseImpactDataForRiskFactors(
-    riskFactors: Array<string>,
-    causeImpactRef: CauseImpactRef
-): Data {
-    return riskFactors
-        .map((riskFactor) => {
-            return causeImpactRef[riskFactor]
-        })
-        .reduce((currentCauseImpactRefData, causeImpactRefData) => {
-            return currentCauseImpactRefData.concat(causeImpactRefData);
-        }, []);
+export interface IWithDataFunction {
+    withData: (data: Data, ...otherArgs: any[]) => number;
 }
 
-export function getSurvivalToTimeWithCauseImpact(
-    causeImpactRef: CauseImpactRef,
-    cox: Cox,
-    riskFactors: Array<string>,
-    data: Data,
-    time?: Date | moment.Moment
-): number {
-    const causeImpactRefData = getCauseImpactDataForRiskFactors(
-        riskFactors,
-        causeImpactRef
-    );
-
-    return getSurvivalToTime(
-        cox,
-        updateDataWithData(data, causeImpactRefData),
-        time
-    );
-}
-
-export function getRiskToTimeWithCauseImpact(
-    causeImpactRef: CauseImpactRef,
-    cox: Cox,
+function getWithDataFunction(
+    genderCauseImpactRef: GenderCauseImpactRef,
     riskFactors: string[],
-    data: Data,
-    time?: Date | moment.Moment
-): number { 
-    const causeImpactRefData = getCauseImpactDataForRiskFactors(
-        riskFactors,
-        causeImpactRef
-    );
+    func: (data: Data, ...otherArgs: any[]) => number,
+): IWithDataFunction {
+    return {
+        withData: (data, otherArgs) => {
+            const causeImpactRef = getCauseImpactRefForData(
+                genderCauseImpactRef,
+                data,
+            );
 
-    return getRiskToTime(
-        cox,
-        updateDataWithData(data, causeImpactRefData),
-        time
-    );
+            const causeImpactRefData = getCauseImpactDataForRiskFactors(
+                riskFactors,
+                causeImpactRef,
+            );
+
+            return func(
+                updateDataWithData(data, causeImpactRefData),
+                otherArgs,
+            );
+        },
+    };
 }
 
-export function getLifeExpectancyWithCauseImpact(
-    causeImpactRef: CauseImpactRef,
-    cox: Cox,
-    refLifeTable: RefLifeTable,
-    riskFactors: Array<string>,
-    data: Data,
-    useExFromLifeTableFromAge: number = 99,
-    completeLifeTableForCauseImpactData?: CompleteLifeTable
-): number {
-    const causeImpactRefData = getCauseImpactDataForRiskFactors(
-        riskFactors,
-        causeImpactRef
-    );
+export interface IGetCauseImpactFunction {
+    getCauseImpact: (
+        func: (data: Data, ...otherArgs: any[]) => number,
+    ) => IWithDataFunction;
+}
 
-    return getLifeExpectancyUsingRefLifeTable(
-        updateDataWithData(data, causeImpactRefData),
-        refLifeTable,
-        cox,
-        useExFromLifeTableFromAge,
-        completeLifeTableForCauseImpactData
-    )
+function getGetCauseImpactFunction(
+    genderCauseImpactRef: GenderCauseImpactRef,
+    riskFactors: string[],
+): IGetCauseImpactFunction {
+    return {
+        getCauseImpact: func => {
+            return getWithDataFunction(genderCauseImpactRef, riskFactors, func);
+        },
+    };
+}
+
+export type ForRiskFactorFunction = (
+    riskFactor: string,
+) => IGetCauseImpactFunction;
+export type ForRiskFactorsFunction = (
+    riskFactors: string[],
+) => IGetCauseImpactFunction;
+
+export function getForRiskFactorFunction(
+    genderCauseImpactRef: GenderCauseImpactRef,
+): {
+    withRiskFactor: ForRiskFactorFunction;
+    withRiskFactors: ForRiskFactorsFunction;
+} {
+    return {
+        withRiskFactor: riskFactor => {
+            return getGetCauseImpactFunction(genderCauseImpactRef, [
+                riskFactor,
+            ]);
+        },
+        withRiskFactors: riskFactors => {
+            return getGetCauseImpactFunction(genderCauseImpactRef, riskFactors);
+        },
+    };
 }
