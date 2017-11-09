@@ -1,4 +1,9 @@
-export { Data, updateDataWithData } from './data';
+export {
+    Data,
+    updateDataWithData,
+    updataDataWithDatum,
+    findDatumWithName,
+} from './data';
 export {
     IDatum,
     datumFactory,
