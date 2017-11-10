@@ -1,1 +1,0 @@
-export { GetHealthAge, GetHealthAgeResult, getGetHealthAge } from './get-health-age';

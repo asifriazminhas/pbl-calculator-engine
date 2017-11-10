@@ -3,8 +3,7 @@ import 'source-map-support/register';
 import * as test from 'tape';
 import * as fs from 'fs';
 import * as path from 'path';
-import { AlgorithmBuilder } from '../engine/algorithm-builder/algorithm-builder';
-import { parseModelJsonToModel } from '../engine/model';
+import { SurvivalModelBuilder } from '../engine/survival-model-builder/survival-model-builder';
 import { Data } from '../engine/data';
 import { Covariate } from '../engine/covariate';
 import {
@@ -31,11 +30,9 @@ function getAlgorithmNamesToTest(): string[] {
 async function getModelObjFromAlgorithmName(
     algorithmName: string,
 ): Promise<ModelTypes> {
-    const modelJson = (await AlgorithmBuilder.buildSurvivalAlgorithm().buildFromAssetsFolder(
+    return (await SurvivalModelBuilder.buildFromAssetsFolder(
         `${TestAlgorithmsFolderPath}/${algorithmName}`,
-    )).toJson();
-
-    return parseModelJsonToModel(modelJson);
+    )).getModel();
 }
 
 function formatTestingDataCsvColumn(column: any): string | number | null {

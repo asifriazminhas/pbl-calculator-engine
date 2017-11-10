@@ -1,4 +1,7 @@
-import { GenderSpecificCauseImpactRef, CauseImpactRef } from '../engine/cause-impact/cause-impact-ref';
+import {
+    GenderCauseImpactRef,
+    GenderSpecificCauseImpactRef,
+} from '../engine/cause-impact';
 var csvParse = require('csv-parse/lib/sync');
 
 export interface CauseImpactCsvRow {
@@ -12,105 +15,109 @@ export interface CauseImpactCsvRow {
 export type CauseImpactCsv = CauseImpactCsvRow[];
 
 function isEngineRefColumnNAForCauseImpactCsvRow(
-    causeImpactCsvRow: CauseImpactCsvRow
+    causeImpactCsvRow: CauseImpactCsvRow,
 ): boolean {
     return causeImpactCsvRow.EngineRef === 'NA';
 }
 
 function isBothSexesCauseImpactCsvRow(
-    causeImpactCsvRow: CauseImpactCsvRow
+    causeImpactCsvRow: CauseImpactCsvRow,
 ): boolean {
     return causeImpactCsvRow.Sex === 'Both';
 }
 
-function isMaleCauseImpactCsvRow(causeImpactCsvRow: CauseImpactCsvRow): boolean {
-    return causeImpactCsvRow.Sex === 'Male' || isBothSexesCauseImpactCsvRow(
-        causeImpactCsvRow
+function isMaleCauseImpactCsvRow(
+    causeImpactCsvRow: CauseImpactCsvRow,
+): boolean {
+    return (
+        causeImpactCsvRow.Sex === 'Male' ||
+        isBothSexesCauseImpactCsvRow(causeImpactCsvRow)
     );
 }
 
-function isFemaleCauseImpactCsvRow(causeImpactCsvRow: CauseImpactCsvRow): boolean {
-    return causeImpactCsvRow.Sex === 'Female' || isBothSexesCauseImpactCsvRow(
-        causeImpactCsvRow
+function isFemaleCauseImpactCsvRow(
+    causeImpactCsvRow: CauseImpactCsvRow,
+): boolean {
+    return (
+        causeImpactCsvRow.Sex === 'Female' ||
+        isBothSexesCauseImpactCsvRow(causeImpactCsvRow)
     );
 }
 
 function filterOutRowsNotForAlgorithm(
-    algorithm: string
-): (causeImpactCsvRow: CauseImpactCsvRow) => boolean  {
-    return (causeImpactCsvRow) => {
+    algorithm: string,
+): (causeImpactCsvRow: CauseImpactCsvRow) => boolean {
+    return causeImpactCsvRow => {
         //Use indexOf since the Algorithm column can have more than one algorithm in it for example a row can be for both MPoRT and SPoRT
-        return causeImpactCsvRow.Algorithm.indexOf(algorithm) > -1
+        return causeImpactCsvRow.Algorithm.indexOf(algorithm) > -1;
     };
 }
 
 function getCauseImpactRefUpdateObjectForCauseImpactCsvRow(
-    causeImpactCsvRow: CauseImpactCsvRow
-): CauseImpactRef  {
-    return isEngineRefColumnNAForCauseImpactCsvRow(
-        causeImpactCsvRow
-    ) ? {} : {
-        [causeImpactCsvRow.PredictorName]: causeImpactCsvRow.EngineRef
-    };
+    causeImpactCsvRow: CauseImpactCsvRow,
+): GenderSpecificCauseImpactRef {
+    return isEngineRefColumnNAForCauseImpactCsvRow(causeImpactCsvRow)
+        ? {}
+        : {
+              [causeImpactCsvRow.PredictorName]: causeImpactCsvRow.EngineRef,
+          };
 }
 
-function updateGenderSpecificCauseImpactRef(
-    genderSpecificCauseImpactRef: GenderSpecificCauseImpactRef,
-    gender: keyof GenderSpecificCauseImpactRef,
+function updateGenderCauseImpactRef(
+    GenderCauseImpactRef: GenderCauseImpactRef,
+    gender: keyof GenderCauseImpactRef,
     riskFactor: string,
-    update: CauseImpactRef
-): GenderSpecificCauseImpactRef {
-    genderSpecificCauseImpactRef[gender][riskFactor] = Object
-    .assign(
-        {}, 
-        genderSpecificCauseImpactRef[gender][riskFactor], 
-        update
-    ); 
+    update: GenderSpecificCauseImpactRef,
+): GenderCauseImpactRef {
+    GenderCauseImpactRef[gender][riskFactor] = Object.assign(
+        {},
+        GenderCauseImpactRef[gender][riskFactor],
+        update,
+    );
 
-    return genderSpecificCauseImpactRef;
+    return GenderCauseImpactRef;
 }
 
-function reduceToGenderSpecificCauseImpactRefObject(
-    causeImpactRef: GenderSpecificCauseImpactRef,
-    currentCauseImpactCsvRow: CauseImpactCsvRow
-): GenderSpecificCauseImpactRef {
-    if(isMaleCauseImpactCsvRow(currentCauseImpactCsvRow)) {
-        updateGenderSpecificCauseImpactRef(
+function reduceToGenderCauseImpactRefObject(
+    causeImpactRef: GenderCauseImpactRef,
+    currentCauseImpactCsvRow: CauseImpactCsvRow,
+): GenderCauseImpactRef {
+    if (isMaleCauseImpactCsvRow(currentCauseImpactCsvRow)) {
+        updateGenderCauseImpactRef(
             causeImpactRef,
             'male',
             currentCauseImpactCsvRow.RiskFactor,
             getCauseImpactRefUpdateObjectForCauseImpactCsvRow(
-                currentCauseImpactCsvRow
-            )
+                currentCauseImpactCsvRow,
+            ),
         );
     }
-    if(isFemaleCauseImpactCsvRow(currentCauseImpactCsvRow)) {
-        updateGenderSpecificCauseImpactRef(
+    if (isFemaleCauseImpactCsvRow(currentCauseImpactCsvRow)) {
+        updateGenderCauseImpactRef(
             causeImpactRef,
             'female',
             currentCauseImpactCsvRow.RiskFactor,
             getCauseImpactRefUpdateObjectForCauseImpactCsvRow(
-                currentCauseImpactCsvRow
-            )
+                currentCauseImpactCsvRow,
+            ),
         );
     }
 
     return causeImpactRef;
 }
 
-export function convertCauseImpactCsvToGenderSpecificCauseImpactRefForAlgorithm(
+export function convertCauseImpactCsvToGenderCauseImpactRefForAlgorithm(
     algorithm: string,
-    causeImpactCsvString: string
-): GenderSpecificCauseImpactRef 
-{
+    causeImpactCsvString: string,
+): GenderCauseImpactRef {
     const causeImpactCsv: CauseImpactCsv = csvParse(causeImpactCsvString, {
-        columns: true
+        columns: true,
     });
 
     return causeImpactCsv
         .filter(filterOutRowsNotForAlgorithm(algorithm))
-        .reduce(reduceToGenderSpecificCauseImpactRefObject, {
-            'male': {},
-            'female': {}
+        .reduce(reduceToGenderCauseImpactRefObject, {
+            male: {},
+            female: {},
         });
 }

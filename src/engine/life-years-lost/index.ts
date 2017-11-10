@@ -1,1 +1,0 @@
-export { getLifeYearsLost } from './life-years-lost';

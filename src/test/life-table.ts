@@ -3,7 +3,7 @@ const csvParse = require('csv-parse/lib/sync');
 import {
     getCompleteLifeTableWithStartAge,
     CompleteLifeTableRow,
-} from '../engine/life-table';
+} from '../engine/life-table/life-table';
 import * as path from 'path';
 import * as fs from 'fs';
 import { expect } from 'chai';
