@@ -22,6 +22,6 @@ export function findDatumWithName(name: string, data: Data): IDatum {
     );
 }
 
-export function updataDataWithDatum(data: Data, datumUpdate: IDatum): Data {
+export function updateDataWithDatum(data: Data, datumUpdate: IDatum): Data {
     return updateDataWithData(data, [datumUpdate]);
 }

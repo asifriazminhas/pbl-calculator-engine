@@ -1,7 +1,7 @@
 export {
     Data,
     updateDataWithData,
-    updataDataWithDatum,
+    updateDataWithDatum,
     findDatumWithName,
 } from './data';
 export {
