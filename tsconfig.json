@@ -1,27 +1,21 @@
 {
-  "compilerOptions": {
-    "target": "es2015",
-    "module": "commonjs",
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "allowUnreachableCode": false,
-    "moduleResolution": "node",
-    "noUnusedParameters": true,
-    "experimentalDecorators": true,
-    "sourceMap": true,
-    "outDir": "./lib",
-    "skipLibCheck": true,
-    "strictNullChecks": true,
-    "declaration": true,
-    "importHelpers": true,
-    "noUnusedLocals": true
-  },
-  "include": [
-    "./src/**/*.ts",
-    "./typings/**/*.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "lib"
-  ]
+    "compilerOptions": {
+        "target": "es2015",
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "allowUnreachableCode": false,
+        "moduleResolution": "node",
+        "noUnusedParameters": true,
+        "experimentalDecorators": true,
+        "sourceMap": true,
+        "outDir": "./lib",
+        "skipLibCheck": true,
+        "strictNullChecks": true,
+        "declaration": true,
+        "importHelpers": true,
+        "noUnusedLocals": true
+    },
+    "include": ["./src/**/*.ts", "./typings/**/*.d.ts"],
+    "exclude": ["node_modules", "lib"]
 }
