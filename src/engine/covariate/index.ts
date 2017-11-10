@@ -6,3 +6,4 @@ export {
     parseCovariateJsonToCovariate,
     findCovariateJsonWithName,
 } from './json-covariate';
+export { NonInteractionCovariate } from './non-interaction-covariate';
