@@ -2,7 +2,7 @@ import {
     CompleteLifeTable,
     getCompleteLifeTableWithStartAge,
     RefLifeTable,
-} from '../life-table';
+} from './life-table';
 import { Data } from '../data';
 import { Cox, getSurvivalToTime } from '../cox';
 

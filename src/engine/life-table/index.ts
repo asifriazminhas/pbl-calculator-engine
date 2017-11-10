@@ -1,1 +1,1 @@
-export { RefLifeTable, getCompleteLifeTableWithStartAge, CompleteLifeTable, CompleteLifeTableRow } from './life-table';
+export { LifeTableFunctionsBuilder } from './life-table-functions-builder';

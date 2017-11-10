@@ -1,4 +1,4 @@
-import { CompleteLifeTable } from '../life-table';
+import { CompleteLifeTable } from './life-table';
 
 export function getSurvivalToAge(lifeTable: CompleteLifeTable, age: number) {
     const startAgelx = lifeTable[0].lx;
