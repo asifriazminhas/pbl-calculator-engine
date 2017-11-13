@@ -83,6 +83,7 @@ export interface INewContinuousPredictor extends INewPredictor {
 export type INewPredictorTypes =
     | INewCategoricalPredictor
     | INewContinuousPredictor;
+
 export function addPredictor(cox: Cox, predictor: INewPredictorTypes): Cox {
     let newCovariate: NonInteractionCovariate = Object.assign({}, predictor, {
         fieldType: FieldType.NonInteractionCovariate as FieldType.NonInteractionCovariate,
