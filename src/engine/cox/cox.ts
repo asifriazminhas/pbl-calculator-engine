@@ -1,13 +1,19 @@
 import { Covariate, getComponent, NonInteractionCovariate } from '../covariate';
-import { Data } from '../data';
+import { Data, findDatumWithName } from '../data';
 import { add } from 'lodash';
 import { shouldLogDebugInfo } from '../env';
 import { IGenericCox } from './generic-cox';
 import * as moment from 'moment';
 import { FieldType } from '../field';
 import { OpType } from '../op-type';
+import { throwErrorIfUndefined } from '../undefined';
+import { NoBaselineHazardFoundForAge } from '../errors';
 
-export type Cox = IGenericCox<Covariate, Function>;
+export interface IBaselineHazardObject {
+    [index: number]: number | undefined;
+}
+
+export type Cox = IGenericCox<Covariate, Function, IBaselineHazardObject>;
 
 function calculateScore(cox: Cox, data: Data): number {
     return cox.covariates
@@ -19,7 +25,20 @@ export function getTimeMultiplier(time: moment.Moment) {
     return Math.abs(moment().diff(time, 'years', true));
 }
 
-//By default it's time argument is set to 1 year from now
+function getBaselineHazardForData(cox: Cox, data: Data): number {
+    if (typeof cox.baselineHazard === 'number') {
+        return cox.baselineHazard;
+    } else {
+        const ageDatum = findDatumWithName('name', data);
+
+        return throwErrorIfUndefined(
+            cox.baselineHazard[Number(ageDatum.coefficent)],
+            new NoBaselineHazardFoundForAge(ageDatum.coefficent as number),
+        );
+    }
+}
+
+// By default it's time argument is set to 1 year from now
 export function getSurvivalToTime(
     cox: Cox,
     data: Data,
@@ -50,7 +69,11 @@ export function getSurvivalToTime(
     const score = calculateScore(cox, data);
 
     const oneYearSurvivalProbability =
-        1 - Math.pow(Math.E, -1 * cox.baselineHazard * Math.pow(Math.E, score));
+        1 -
+        Math.pow(
+            Math.E,
+            -1 * getBaselineHazardForData(cox, data) * Math.pow(Math.E, score),
+        );
 
     return oneYearSurvivalProbability * getTimeMultiplier(formattedTime);
 }
@@ -110,5 +133,14 @@ export function addPredictor(cox: Cox, predictor: INewPredictorTypes): Cox {
 
     return Object.assign({}, cox, {
         covariates: cox.covariates.concat([newCovariate]),
+    });
+}
+
+export function updateBaselineHazard(
+    cox: Cox,
+    newBaselineHazard: number | IBaselineHazardObject,
+): Cox {
+    return Object.assign({}, cox, {
+        baselineHazard: newBaselineHazard,
     });
 }

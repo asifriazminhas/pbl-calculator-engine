@@ -6,8 +6,12 @@ import {
     Cox,
     INewPredictorTypes,
     addPredictor,
+    IBaselineHazardObject,
 } from '../cox';
 import * as moment from 'moment';
+import { updateBaselineHazardForModel } from '../model';
+
+export type CalibrationObjects = Array<{ age: number; baselineHazard: number }>;
 
 export class SurvivalModelFunctions {
     private model: ModelTypes;
@@ -53,7 +57,66 @@ export class SurvivalModelFunctions {
         }
     }
 
+    public addCalibration(
+        calibrationObjects:
+            | CalibrationObjects
+            | {
+                  male: CalibrationObjects;
+                  female: CalibrationObjects;
+              },
+    ): ModelTypes {
+        if (calibrationObjects instanceof Array) {
+            this.model = updateBaselineHazardForModel(
+                this.model,
+                this.convertCalibrationObjectsToBaselineHazardObject(
+                    calibrationObjects,
+                ),
+            );
+        } else {
+            this.model = updateBaselineHazardForModel(this.model, [
+                {
+                    predicateData: [
+                        {
+                            name: 'sex',
+                            coefficent: 'male',
+                        },
+                    ],
+                    newBaselineHazard: this.convertCalibrationObjectsToBaselineHazardObject(
+                        calibrationObjects.male,
+                    ),
+                },
+                {
+                    predicateData: [
+                        {
+                            name: 'sex',
+                            coefficent: 'female',
+                        },
+                    ],
+                    newBaselineHazard: this.convertCalibrationObjectsToBaselineHazardObject(
+                        calibrationObjects.female,
+                    ),
+                },
+            ]);
+        }
+
+        return this.model;
+    }
+
     public getModel(): ModelTypes {
         return this.model;
+    }
+
+    private convertCalibrationObjectsToBaselineHazardObject(
+        calibrationObjects: CalibrationObjects,
+    ): IBaselineHazardObject {
+        return calibrationObjects.reduce(
+            (baselineHazardObject, currentCalibrationObject) => {
+                return Object.assign({}, baselineHazardObject, {
+                    [currentCalibrationObject.age]:
+                        currentCalibrationObject.baselineHazard,
+                });
+            },
+            {} as IBaselineHazardObject,
+        );
     }
 }

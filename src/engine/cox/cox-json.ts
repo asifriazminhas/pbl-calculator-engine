@@ -5,7 +5,7 @@ import { ICoxJson } from '../cox';
 import { Cox } from '../cox/cox';
 import { parseCovariateJsonToCovariate } from '../covariate';
 
-export interface ICoxJson extends IGenericCox<CovariateJson, string> {
+export interface ICoxJson extends IGenericCox<CovariateJson, string, number> {
     derivedFields: DerivedFieldJson[];
     // TODO Implement this
     causeDeletedRef: any;
