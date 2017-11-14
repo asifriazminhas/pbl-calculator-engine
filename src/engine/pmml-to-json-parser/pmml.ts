@@ -5,6 +5,7 @@ import {
     PmmlParser,
     IGeneralRegressionModel,
     CoxRegressionModelType,
+    LogisticRegressionModelType,
 } from '../pmml';
 import { parseDefineFunction } from './define-function/define-function';
 import { JsonModelTypes, ModelType } from '../model';
@@ -18,6 +19,9 @@ function getAlgorithmTypeFromGeneralRegressionModel(
     switch (generalRegressionModel.$.modelType) {
         case CoxRegressionModelType: {
             return AlgorithmType.Cox;
+        }
+        case LogisticRegressionModelType: {
+            return AlgorithmType.LogisticRegression;
         }
         default: {
             throw new UnknownRegressionType(generalRegressionModel.$.modelType);
@@ -55,11 +59,11 @@ async function pmmlStringsToJson(
             .reduce((userFunctionObj, currentObject) => {
                 return Object.assign({}, userFunctionObj, currentObject);
             }, {}),
-        //TODO Fix this
+        // TODO Fix this
         causeDeletedRef: null,
     };
 
-    //parseFromAlgorithmJson(parsedAlgorithm);
+    // parseFromAlgorithmJson(parsedAlgorithm);
 
     return parsedAlgorithm;
 }
