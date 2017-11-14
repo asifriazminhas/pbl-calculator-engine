@@ -14,7 +14,8 @@
         "strictNullChecks": true,
         "declaration": true,
         "importHelpers": true,
-        "noUnusedLocals": true
+        "noUnusedLocals": true,
+        "strictFunctionTypes": true
     },
     "include": ["./src/**/*.ts", "./typings/**/*.d.ts"],
     "exclude": ["node_modules", "lib"]
