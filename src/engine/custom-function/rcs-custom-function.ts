@@ -130,7 +130,7 @@ export function calculateDataToCalculateCoefficent(
     rcsCustomFunction: RcsCustomFunction,
     data: Data,
     userDefinedFunctions: {
-        [index: string]: Function;
+        [index: string]: () => any;
     },
 ): Data {
     return [

@@ -3,9 +3,5 @@ export {
     getSurvivalToTime,
     getRiskToTime,
     getTimeMultiplier,
-    addPredictor,
-    INewPredictorTypes,
-    IBaselineHazardObject,
-    updateBaselineHazard,
 } from './cox';
-export { ICoxJson, parseCoxJsonToCox } from './cox-json';
+export { ICoxJson } from './cox-json';

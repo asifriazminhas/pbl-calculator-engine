@@ -1,8 +1,11 @@
 import { GenericSingleAlgorithmModel } from './generic-single-algorithm-model';
-import { Cox, IBaselineHazardObject } from '../cox';
-import { updateBaselineHazard } from '../cox/cox';
+import {
+    updateBaselineHazard,
+    IBaselineHazardObject,
+    Algorithm,
+} from '../algorithm';
 
-export type SingleAlgorithmModel = GenericSingleAlgorithmModel<Cox>;
+export type SingleAlgorithmModel = GenericSingleAlgorithmModel<Algorithm>;
 
 export type NewBaselineHazard = number | IBaselineHazardObject;
 

@@ -1,4 +1,6 @@
-import { ICoxJson } from '../cox';
+import { IAlgorithmJson } from '../algorithm';
 import { GenericSingleAlgorithmModel } from './generic-single-algorithm-model';
 
-export type SingleAlgorithmModelJson = GenericSingleAlgorithmModel<ICoxJson>;
+export type SingleAlgorithmModelJson = GenericSingleAlgorithmModel<
+    IAlgorithmJson
+>;

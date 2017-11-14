@@ -1,25 +1,11 @@
-import { Covariate, getComponent, NonInteractionCovariate } from '../covariate';
 import { Data, findDatumWithName } from '../data';
-import { add } from 'lodash';
 import { shouldLogDebugInfo } from '../env';
-import { IGenericCox } from './generic-cox';
 import * as moment from 'moment';
-import { FieldType } from '../field';
-import { OpType } from '../op-type';
 import { throwErrorIfUndefined } from '../undefined';
 import { NoBaselineHazardFoundForAge } from '../errors';
+import { Algorithm, calculateScore } from '../algorithm';
 
-export interface IBaselineHazardObject {
-    [index: number]: number | undefined;
-}
-
-export type Cox = IGenericCox<Covariate, Function, IBaselineHazardObject>;
-
-function calculateScore(cox: Cox, data: Data): number {
-    return cox.covariates
-        .map(covariate => getComponent(covariate, data, cox.userFunctions))
-        .reduce(add);
-}
+export type Cox = Algorithm;
 
 export function getTimeMultiplier(time: moment.Moment) {
     return Math.abs(moment().diff(time, 'years', true));
@@ -84,63 +70,4 @@ export function getRiskToTime(
     time?: Date | moment.Moment,
 ): number {
     return 1 - getSurvivalToTime(cox, data, time);
-}
-
-export interface INewPredictor {
-    name: string;
-    betaCoefficent: number;
-    referencePoint: number | undefined;
-}
-export interface INewCategoricalPredictor extends INewPredictor {
-    type: 'categorical';
-    categories: Array<{
-        category: string;
-        value: string;
-    }>;
-}
-export interface INewContinuousPredictor extends INewPredictor {
-    type: 'continuous';
-    min: number | undefined;
-    max: number | undefined;
-}
-export type INewPredictorTypes =
-    | INewCategoricalPredictor
-    | INewContinuousPredictor;
-
-export function addPredictor(cox: Cox, predictor: INewPredictorTypes): Cox {
-    let newCovariate: NonInteractionCovariate = Object.assign({}, predictor, {
-        fieldType: FieldType.NonInteractionCovariate as FieldType.NonInteractionCovariate,
-        beta: predictor.betaCoefficent,
-        referencePoint: predictor.referencePoint ? predictor.referencePoint : 0,
-        customFunction: undefined,
-        name: predictor.name,
-        displayName: '',
-        extensions: {},
-        derivedField: undefined,
-    });
-    if (predictor.type === 'continuous') {
-        newCovariate = Object.assign({}, newCovariate, {
-            opType: OpType.Continuous,
-            min: predictor.min,
-            max: predictor.max,
-        });
-    } else {
-        newCovariate = Object.assign({}, newCovariate, {
-            opType: OpType.Categorical,
-            categories: predictor.categories,
-        });
-    }
-
-    return Object.assign({}, cox, {
-        covariates: cox.covariates.concat([newCovariate]),
-    });
-}
-
-export function updateBaselineHazard(
-    cox: Cox,
-    newBaselineHazard: number | IBaselineHazardObject,
-): Cox {
-    return Object.assign({}, cox, {
-        baselineHazard: newBaselineHazard,
-    });
 }

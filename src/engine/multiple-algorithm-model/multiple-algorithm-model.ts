@@ -1,16 +1,17 @@
 import { GenericMultipleAlgorithmModel } from './generic-multiple-algorithm-model';
-import { Cox, IBaselineHazardObject, updateBaselineHazard } from '../cox';
+import { Algorithm } from '../algorithm';
+import { updateBaselineHazard, IBaselineHazardObject } from '../algorithm';
 import { Data } from '../data';
 import { getPredicateResult } from './predicate';
 import { throwErrorIfUndefined } from '../undefined';
 import { NoBaselineHazardFoundForAlgorithm } from '../errors';
 
-export type MultipleAlgorithmModel = GenericMultipleAlgorithmModel<Cox>;
+export type MultipleAlgorithmModel = GenericMultipleAlgorithmModel<Algorithm>;
 
 export function getAlgorithmForData(
     multipleAlgorithmModel: MultipleAlgorithmModel,
     data: Data,
-): Cox {
+): Algorithm {
     const matchedAlgorithm = multipleAlgorithmModel.algorithms.find(
         algorithmWithPredicate => {
             return getPredicateResult(data, algorithmWithPredicate.predicate);

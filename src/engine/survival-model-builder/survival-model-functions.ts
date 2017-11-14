@@ -1,15 +1,17 @@
-import { ModelTypes, getAlgorithmForModelAndData, ModelType } from '../model';
-import { Data } from '../data';
 import {
-    getRiskToTime,
-    getSurvivalToTime,
-    Cox,
+    ModelTypes,
+    getAlgorithmForModelAndData,
+    ModelType,
+    updateBaselineHazardForModel,
+} from '../model';
+import { Data } from '../data';
+import { getRiskToTime, getSurvivalToTime, Cox } from '../cox';
+import {
     INewPredictorTypes,
     addPredictor,
     IBaselineHazardObject,
-} from '../cox';
+} from '../algorithm';
 import * as moment from 'moment';
-import { updateBaselineHazardForModel } from '../model';
 
 export type CalibrationObjects = Array<{ age: number; baselineHazard: number }>;
 

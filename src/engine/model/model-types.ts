@@ -10,15 +10,15 @@ import {
     NewBaselineHazard as MultipleAlgorithmModelNewBaselineHazard,
 } from '../multiple-algorithm-model';
 import { Data } from '../data';
-import { Cox } from '../cox';
 import { ModelType } from './model-type';
+import { Algorithm } from '../algorithm';
 
 export type ModelTypes = SingleAlgorithmModel | MultipleAlgorithmModel;
 
 export function getAlgorithmForModelAndData(
     model: ModelTypes,
     data: Data,
-): Cox {
+): Algorithm {
     if (model.modelType === ModelType.SingleAlgorithm) {
         return model.algorithm;
     } else {

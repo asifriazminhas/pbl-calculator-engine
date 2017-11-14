@@ -1,16 +1,37 @@
 import { parseCovariates } from './data_fields/covariate';
 import { parseDerivedFields } from './data_fields/derived_field/derived_field';
-import { Pmml, PmmlParser } from '../pmml';
-import { ICoxJson } from '../cox';
+import {
+    Pmml,
+    PmmlParser,
+    IGeneralRegressionModel,
+    CoxRegressionModelType,
+} from '../pmml';
 import { parseDefineFunction } from './define-function/define-function';
 import { JsonModelTypes, ModelType } from '../model';
 import { Predicate } from '../multiple-algorithm-model';
+import { IAlgorithmJson, AlgorithmType } from '../algorithm';
+import { UnknownRegressionType } from '../errors';
+
+function getAlgorithmTypeFromGeneralRegressionModel(
+    generalRegressionModel: IGeneralRegressionModel,
+): AlgorithmType {
+    switch (generalRegressionModel.$.modelType) {
+        case CoxRegressionModelType: {
+            return AlgorithmType.Cox;
+        }
+        default: {
+            throw new UnknownRegressionType(generalRegressionModel.$.modelType);
+        }
+    }
+}
 
 function parseBaselineHazardFromPmmlXml(pmml: Pmml): number {
     return Number(pmml.pmmlXml.PMML.GeneralRegressionModel.$.baselineHazard);
 }
 
-async function pmmlStringsToJson(pmmlXmlStrings: string[]): Promise<ICoxJson> {
+async function pmmlStringsToJson(
+    pmmlXmlStrings: string[],
+): Promise<IAlgorithmJson> {
     const pmml = await PmmlParser.parsePmmlFromPmmlXmlStrings(pmmlXmlStrings);
 
     const allDefineFunctionNames = pmml.pmmlXml.PMML.LocalTransformations.DefineFunction.map(
@@ -18,6 +39,9 @@ async function pmmlStringsToJson(pmmlXmlStrings: string[]): Promise<ICoxJson> {
     );
 
     const parsedAlgorithm = {
+        algorithmType: getAlgorithmTypeFromGeneralRegressionModel(
+            pmml.pmmlXml.PMML.GeneralRegressionModel,
+        ),
         name: pmml.pmmlXml.PMML.Header.Extension.ModelName,
         version: pmml.pmmlXml.PMML.Header.Extension.Version,
         description: pmml.pmmlXml.PMML.Header.$.description,

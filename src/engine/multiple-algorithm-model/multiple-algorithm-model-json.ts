@@ -1,16 +1,16 @@
 import { GenericMultipleAlgorithmModel } from './generic-multiple-algorithm-model';
-import { ICoxJson } from '../cox';
+import { IAlgorithmJson } from '../algorithm';
 import { Data } from '../data';
 import { getPredicateResult } from './predicate';
 
 export type MultipleAlgorithmModelJson = GenericMultipleAlgorithmModel<
-    ICoxJson
+    IAlgorithmJson
 >;
 
 export function getAlgorithmJsonForData(
     multipleAlgorithmModel: MultipleAlgorithmModelJson,
     data: Data,
-): ICoxJson {
+): IAlgorithmJson {
     const matchedAlgorithm = multipleAlgorithmModel.algorithms.find(
         algorithmWithPredicate => {
             return getPredicateResult(data, algorithmWithPredicate.predicate);
