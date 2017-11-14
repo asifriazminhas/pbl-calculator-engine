@@ -3,11 +3,14 @@ import { shouldLogDebugInfo } from '../env';
 import * as moment from 'moment';
 import {
     Algorithm,
+    AlgorithmType,
     calculateScore,
     getBaselineHazardForData,
 } from '../algorithm';
 
-export type Cox = Algorithm;
+export interface Cox extends Algorithm {
+    algorithmType: AlgorithmType.Cox;
+}
 
 export function getTimeMultiplier(time: moment.Moment) {
     return Math.abs(moment().diff(time, 'years', true));

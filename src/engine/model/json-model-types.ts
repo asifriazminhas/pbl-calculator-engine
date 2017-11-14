@@ -3,11 +3,10 @@ import {
     MultipleAlgorithmModelJson,
     getAlgorithmJsonForData,
 } from '../multiple-algorithm-model';
-import { ICoxJson } from '../cox';
 import { ModelType } from './model-type';
 import { Data } from '../data';
 import { ModelTypes } from './model-types';
-import { parseAlgorithmJson } from '../algorithm';
+import { parseAlgorithmJson, IAlgorithmJson } from '../algorithm';
 
 export type JsonModelTypes =
     | SingleAlgorithmModelJson
@@ -16,7 +15,7 @@ export type JsonModelTypes =
 export function getAlgorithmJsonForModelAndData(
     model: JsonModelTypes,
     data: Data,
-): ICoxJson {
+): IAlgorithmJson {
     if (model.modelType === ModelType.SingleAlgorithm) {
         return model.algorithm;
     } else {
