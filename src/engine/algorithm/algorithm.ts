@@ -1,10 +1,12 @@
 import { Covariate, NonInteractionCovariate } from '../covariate';
 import { IGenericAlgorithm } from './generic-algorithm';
-import { Data } from '../data';
+import { Data, findDatumWithName } from '../data';
 import { getComponent } from '../covariate';
 import { add } from 'lodash';
 import { FieldType } from '../field';
 import { OpType } from '../op-type';
+import { throwErrorIfUndefined } from '../undefined';
+import { NoBaselineHazardFoundForAge } from '../errors';
 
 export interface IBaselineHazardObject {
     [index: number]: number | undefined;
@@ -22,6 +24,22 @@ export function calculateScore(algorithm: Algorithm, data: Data): number {
             getComponent(covariate, data, algorithm.userFunctions),
         )
         .reduce(add);
+}
+
+export function getBaselineHazardForData(
+    algorithm: Algorithm,
+    data: Data,
+): number {
+    if (typeof algorithm.baselineHazard === 'number') {
+        return algorithm.baselineHazard;
+    } else {
+        const ageDatum = findDatumWithName('name', data);
+
+        return throwErrorIfUndefined(
+            algorithm.baselineHazard[Number(ageDatum.coefficent)],
+            new NoBaselineHazardFoundForAge(ageDatum.coefficent as number),
+        );
+    }
 }
 
 export interface INewPredictor {

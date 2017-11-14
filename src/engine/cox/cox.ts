@@ -1,27 +1,16 @@
-import { Data, findDatumWithName } from '../data';
+import { Data } from '../data';
 import { shouldLogDebugInfo } from '../env';
 import * as moment from 'moment';
-import { throwErrorIfUndefined } from '../undefined';
-import { NoBaselineHazardFoundForAge } from '../errors';
-import { Algorithm, calculateScore } from '../algorithm';
+import {
+    Algorithm,
+    calculateScore,
+    getBaselineHazardForData,
+} from '../algorithm';
 
 export type Cox = Algorithm;
 
 export function getTimeMultiplier(time: moment.Moment) {
     return Math.abs(moment().diff(time, 'years', true));
-}
-
-function getBaselineHazardForData(cox: Cox, data: Data): number {
-    if (typeof cox.baselineHazard === 'number') {
-        return cox.baselineHazard;
-    } else {
-        const ageDatum = findDatumWithName('name', data);
-
-        return throwErrorIfUndefined(
-            cox.baselineHazard[Number(ageDatum.coefficent)],
-            new NoBaselineHazardFoundForAge(ageDatum.coefficent as number),
-        );
-    }
 }
 
 // By default it's time argument is set to 1 year from now

@@ -7,5 +7,6 @@ export {
     addPredictor,
     INewPredictorTypes,
     IBaselineHazardObject,
+    getBaselineHazardForData,
 } from './algorithm';
 export { IGenericAlgorithm } from './generic-algorithm';
