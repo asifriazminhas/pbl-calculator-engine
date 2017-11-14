@@ -23,7 +23,7 @@ export class SurvivalModelFunctions {
     }
 
     public getAlgorithmForData(data: Data): Cox {
-        return getAlgorithmForModelAndData(this.model, data);
+        return getAlgorithmForModelAndData(this.model, data) as Cox;
     }
 
     public getRiskToTime(data: Data, time?: Date | moment.Moment) {
