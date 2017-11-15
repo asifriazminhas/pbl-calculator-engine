@@ -2,6 +2,7 @@ import { ModelTypes, getAlgorithmForModelAndData } from '../model';
 import { ReferencePopulation } from './reference-population';
 import { getHealthAge } from './health-age';
 import { Data } from '../data';
+import { Cox } from '../cox';
 
 export class RefPopFunctions {
     private model: ModelTypes;
@@ -13,10 +14,9 @@ export class RefPopFunctions {
     }
 
     public getHealthAge(data: Data): number {
-        return getHealthAge(
-            this.refPop,
+        return getHealthAge(this.refPop, data, getAlgorithmForModelAndData(
+            this.model,
             data,
-            getAlgorithmForModelAndData(this.model, data),
-        );
+        ) as Cox);
     }
 }
