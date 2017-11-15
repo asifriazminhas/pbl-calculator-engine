@@ -1,15 +1,15 @@
 import { parseModelJsonToModel, JsonModelTypes } from '../model';
 import { SurvivalModelFunctions } from './survival-model-functions';
 
-export type BuildFromAlgorithJsonFunction = (
+export type BuildFromModelJsonFunction = (
     modelJson: JsonModelTypes,
 ) => SurvivalModelFunctions;
 
-export interface IBuildFromAlgorithmJson {
-    buildFromAlgorithmJson: BuildFromAlgorithJsonFunction;
+export interface IBuildFromModelJson {
+    buildFromAlgorithmJson: BuildFromModelJsonFunction;
 }
 
-export function getBuildFromAlgorithmJsonFunction(): IBuildFromAlgorithmJson {
+export function getBuildFromModelJsonFunction(): IBuildFromModelJson {
     return {
         buildFromAlgorithmJson: modelJson => {
             const model = parseModelJsonToModel(modelJson);

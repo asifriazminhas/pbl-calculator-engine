@@ -1,10 +1,10 @@
 import {
-    IBuildFromAlgorithmJson,
-    getBuildFromAlgorithmJsonFunction,
-} from './build-from-algorithm-json';
+    IBuildFromModelJson,
+    getBuildFromModelJsonFunction,
+} from './build-from-model-json';
 
-export type SurvivalModelBuilder = IBuildFromAlgorithmJson;
+export type SurvivalModelBuilder = IBuildFromModelJson;
 
 export const SurvivalModelBuilder: SurvivalModelBuilder = {
-    ...getBuildFromAlgorithmJsonFunction(),
+    ...getBuildFromModelJsonFunction(),
 };
