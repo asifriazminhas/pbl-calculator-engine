@@ -15,6 +15,15 @@ export function updateDataWithData(data: Data, dataUpdate: Data): Data {
         .concat(dataUpdate);
 }
 
+/**
+ * Returns the IDatum object whose name field is the same as the name argument.
+ * Throws a NoDatumFoundError if no IDatum object is found
+ *
+ * @export
+ * @param {string} name
+ * @param {Data} data
+ * @returns {IDatum}
+ */
 export function findDatumWithName(name: string, data: Data): IDatum {
     return throwErrorIfUndefined(
         data.find(datum => datum.name === name),
