@@ -6,6 +6,11 @@ export interface IRefLifeTableRow {
 
 export type RefLifeTable = IRefLifeTableRow[];
 
+export interface IGenderSpecificRefLifeTable {
+    male: RefLifeTable;
+    female: RefLifeTable;
+}
+
 export interface ICompleteLifeTableRow extends IRefLifeTableRow {
     lx: number;
     dx: number;

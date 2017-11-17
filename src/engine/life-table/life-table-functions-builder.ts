@@ -1,9 +1,11 @@
 import { SurvivalModelFunctions } from '../survival-model-builder/survival-model-functions';
-import { RefLifeTable } from './life-table';
+import { IGenderSpecificRefLifeTable } from './life-table';
 import { LifeTableFunctions } from './life-table-functions';
 
 export interface IWithRefLifeTable {
-    withRefLifeTable: (refLifeTable: RefLifeTable) => LifeTableFunctions;
+    withRefLifeTable: (
+        genderSpecificRefLifeTable: IGenderSpecificRefLifeTable,
+    ) => LifeTableFunctions;
 }
 
 export interface ILifeTableFunctionsBuilder {
@@ -15,8 +17,13 @@ export interface ILifeTableFunctionsBuilder {
 export const LifeTableFunctionsBuilder: ILifeTableFunctionsBuilder = {
     withSurvivalModel: (survivalModel: SurvivalModelFunctions) => {
         return {
-            withRefLifeTable: (refLifeTable: RefLifeTable) => {
-                return new LifeTableFunctions(survivalModel, refLifeTable);
+            withRefLifeTable: (
+                genderSpecificRefLifeTable: IGenderSpecificRefLifeTable,
+            ) => {
+                return new LifeTableFunctions(
+                    survivalModel,
+                    genderSpecificRefLifeTable,
+                );
             },
         };
     },

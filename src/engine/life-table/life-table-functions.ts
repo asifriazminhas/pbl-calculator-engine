@@ -1,25 +1,30 @@
-import { RefLifeTable, getCompleteLifeTableWithStartAge } from './life-table';
+import {
+    RefLifeTable,
+    getCompleteLifeTableWithStartAge,
+    IGenderSpecificRefLifeTable,
+} from './life-table';
 import { getLifeExpectancyUsingRefLifeTable } from './life-expectancy';
 import { getSurvivalToAge } from './survival-to-age';
 import { Data, updateDataWithDatum, findDatumWithName } from '../data';
 import { SurvivalModelFunctions } from '../survival-model-builder/survival-model-functions';
+import { NoLifeTableFoundError } from '../errors';
 
 export class LifeTableFunctions {
     private survivalFunctions: SurvivalModelFunctions;
-    private refLifeTable: RefLifeTable;
+    private genderSpecificRefLifeTable: IGenderSpecificRefLifeTable;
 
     constructor(
         survivalFunctions: SurvivalModelFunctions,
-        refLifeTable: RefLifeTable,
+        genderSpecificRefLifeTable: IGenderSpecificRefLifeTable,
     ) {
         this.survivalFunctions = survivalFunctions;
-        this.refLifeTable = refLifeTable;
+        this.genderSpecificRefLifeTable = genderSpecificRefLifeTable;
     }
 
     public getLifeExpectancy(data: Data) {
         return getLifeExpectancyUsingRefLifeTable(
             data,
-            this.refLifeTable,
+            this.getRefLifeTableForData(data),
             this.survivalFunctions.getAlgorithmForData(data),
         );
     }
@@ -27,7 +32,7 @@ export class LifeTableFunctions {
     public getSurvivalToAge(data: Data, age: number) {
         return getSurvivalToAge(
             getCompleteLifeTableWithStartAge(
-                this.refLifeTable,
+                this.getRefLifeTableForData(data),
                 ageForRiskToTime => {
                     return this.survivalFunctions.getRiskToTime(
                         updateDataWithDatum(data, {
@@ -40,5 +45,17 @@ export class LifeTableFunctions {
             ),
             age,
         );
+    }
+
+    private getRefLifeTableForData(data: Data): RefLifeTable {
+        const sexDatum = findDatumWithName('sex', data);
+
+        if (sexDatum.coefficent === 'male') {
+            return this.genderSpecificRefLifeTable.male;
+        } else if (sexDatum.coefficent === 'female') {
+            return this.genderSpecificRefLifeTable.female;
+        }
+
+        throw new NoLifeTableFoundError(sexDatum.coefficent as string);
     }
 }
