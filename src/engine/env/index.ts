@@ -1,1 +1,1 @@
-export { shouldLogDebugInfo, shouldLogWarnings } from './env';
+export { shouldLogDebugInfo, shouldLogWarnings, env } from './env';

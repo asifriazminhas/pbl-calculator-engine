@@ -4,3 +4,4 @@ export {
 export { LifeTableFunctionsBuilder } from './engine/life-table';
 export { RefPopFunctionsBuilder } from './engine/ref-pop';
 export { getForRiskFactorFunction } from './engine/cause-impact';
+export { env } from './engine/env';
