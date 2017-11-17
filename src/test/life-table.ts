@@ -2,7 +2,7 @@
 const csvParse = require('csv-parse/lib/sync');
 import {
     getCompleteLifeTableWithStartAge,
-    CompleteLifeTableRow,
+    ICompleteLifeTableRow,
 } from '../engine/life-table/life-table';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -38,7 +38,7 @@ test(`LifeTable.getCompleteLifeTableWithStartAge`, t => {
     );
 
     testLifeTable.forEach((testLifeTableRow: any, index: number) => {
-        const fields: [keyof CompleteLifeTableRow] = ['ex'];
+        const fields: [keyof ICompleteLifeTableRow] = ['ex'];
 
         /*fs.writeFileSync(
             path.join(__dirname, '../../assets/calculated-life-table.json'),
