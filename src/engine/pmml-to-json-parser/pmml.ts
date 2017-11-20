@@ -29,7 +29,7 @@ function getAlgorithmTypeFromGeneralRegressionModel(
     }
 }
 
-function parseBaselineHazardFromPmmlXml(pmml: Pmml): number {
+function parseBaselineFromPmmlXml(pmml: Pmml): number {
     return Number(pmml.pmmlXml.PMML.GeneralRegressionModel.$.baselineHazard);
 }
 
@@ -49,7 +49,7 @@ async function pmmlStringsToJson(
         name: pmml.pmmlXml.PMML.Header.Extension.ModelName,
         version: pmml.pmmlXml.PMML.Header.Extension.Version,
         description: pmml.pmmlXml.PMML.Header.$.description,
-        baselineHazard: parseBaselineHazardFromPmmlXml(pmml),
+        baseline: parseBaselineFromPmmlXml(pmml),
         covariates: parseCovariates(pmml),
         derivedFields: parseDerivedFields(pmml, allDefineFunctionNames),
         userFunctions: pmml.pmmlXml.PMML.LocalTransformations.DefineFunction

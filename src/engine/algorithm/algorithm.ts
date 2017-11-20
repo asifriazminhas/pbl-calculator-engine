@@ -6,16 +6,16 @@ import { add } from 'lodash';
 import { FieldType } from '../field';
 import { OpType } from '../op-type';
 import { throwErrorIfUndefined } from '../undefined';
-import { NoBaselineHazardFoundForAge } from '../errors';
+import { NoBaselineFoundForAge } from '../errors';
 
-export interface IBaselineHazardObject {
+export interface IBaselineObject {
     [index: number]: number | undefined;
 }
 
 export type Algorithm = IGenericAlgorithm<
     Covariate,
     () => any,
-    IBaselineHazardObject
+    IBaselineObject
 >;
 
 export function calculateScore(algorithm: Algorithm, data: Data): number {
@@ -26,18 +26,15 @@ export function calculateScore(algorithm: Algorithm, data: Data): number {
         .reduce(add);
 }
 
-export function getBaselineHazardForData(
-    algorithm: Algorithm,
-    data: Data,
-): number {
-    if (typeof algorithm.baselineHazard === 'number') {
-        return algorithm.baselineHazard;
+export function getBaselineForData(algorithm: Algorithm, data: Data): number {
+    if (typeof algorithm.baseline === 'number') {
+        return algorithm.baseline;
     } else {
         const ageDatum = findDatumWithName('name', data);
 
         return throwErrorIfUndefined(
-            algorithm.baselineHazard[Number(ageDatum.coefficent)],
-            new NoBaselineHazardFoundForAge(ageDatum.coefficent as number),
+            algorithm.baseline[Number(ageDatum.coefficent)],
+            new NoBaselineFoundForAge(ageDatum.coefficent as number),
         );
     }
 }
@@ -95,11 +92,11 @@ export function addPredictor<T extends Algorithm>(
     });
 }
 
-export function updateBaselineHazard<T extends Algorithm>(
+export function updateBaseline<T extends Algorithm>(
     algorithm: T,
-    newBaselineHazard: number | IBaselineHazardObject,
+    newBaseline: number | IBaselineObject,
 ): T {
     return Object.assign({}, algorithm, {
-        baselineHazard: newBaselineHazard,
+        baseline: newBaseline,
     });
 }

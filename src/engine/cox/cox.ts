@@ -5,7 +5,7 @@ import {
     Algorithm,
     AlgorithmType,
     calculateScore,
-    getBaselineHazardForData,
+    getBaselineForData,
 } from '../algorithm';
 
 export interface Cox extends Algorithm {
@@ -37,7 +37,7 @@ export function getSurvivalToTime(
     }
 
     if (shouldLogDebugInfo()) {
-        console.log(`Baseline Hazard: ${this.baselineHazard}`);
+        console.log(`Baseline: ${this.baseline}`);
     }
 
     if (shouldLogDebugInfo() === true) {
@@ -50,7 +50,7 @@ export function getSurvivalToTime(
         1 -
         Math.pow(
             Math.E,
-            -1 * getBaselineHazardForData(cox, data) * Math.pow(Math.E, score),
+            -1 * getBaselineForData(cox, data) * Math.pow(Math.E, score),
         );
 
     return oneYearSurvivalProbability * getTimeMultiplier(formattedTime);

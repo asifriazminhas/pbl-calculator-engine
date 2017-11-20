@@ -1,10 +1,10 @@
 import { GenericMultipleAlgorithmModel } from './generic-multiple-algorithm-model';
 import { Algorithm } from '../algorithm';
-import { updateBaselineHazard, IBaselineHazardObject } from '../algorithm';
+import { updateBaseline, IBaselineObject } from '../algorithm';
 import { Data } from '../data';
 import { getPredicateResult } from './predicate';
 import { throwErrorIfUndefined } from '../undefined';
-import { NoBaselineHazardFoundForAlgorithm } from '../errors';
+import { NoBaselineFoundForAlgorithm } from '../errors';
 
 export type MultipleAlgorithmModel = GenericMultipleAlgorithmModel<Algorithm>;
 
@@ -25,27 +25,24 @@ export function getAlgorithmForData(
     return matchedAlgorithm.algorithm;
 }
 
-export type NewBaselineHazard = Array<{
+export type NewBaseline = Array<{
     predicateData: Data;
-    newBaselineHazard: IBaselineHazardObject;
+    newBaseline: IBaselineObject;
 }>;
-export function updateBaselineHazardForModel(
+export function updateBaselineForModel(
     model: MultipleAlgorithmModel,
-    newBaselineHazards: NewBaselineHazard,
+    newBaselines: NewBaseline,
 ): MultipleAlgorithmModel {
     return Object.assign({}, model, {
         algorithms: model.algorithms.map(({ predicate, algorithm }) => {
-            const newBaselineHazardForCurrentAlgorithm = throwErrorIfUndefined(
-                newBaselineHazards.find(({ predicateData }) => {
+            const newBaselineForCurrentAlgorithm = throwErrorIfUndefined(
+                newBaselines.find(({ predicateData }) => {
                     return getPredicateResult(predicateData, predicate);
                 }),
-                new NoBaselineHazardFoundForAlgorithm(algorithm.name),
+                new NoBaselineFoundForAlgorithm(algorithm.name),
             );
 
-            return updateBaselineHazard(
-                algorithm,
-                newBaselineHazardForCurrentAlgorithm,
-            );
+            return updateBaseline(algorithm, newBaselineForCurrentAlgorithm);
         }),
     });
 }

@@ -2,8 +2,8 @@ export { Predicate } from './predicate';
 export {
     MultipleAlgorithmModel,
     getAlgorithmForData,
-    updateBaselineHazardForModel,
-    NewBaselineHazard,
+    updateBaselineForModel,
+    NewBaseline,
 } from './multiple-algorithm-model';
 export {
     MultipleAlgorithmModelJson,

@@ -1,19 +1,15 @@
 import { GenericSingleAlgorithmModel } from './generic-single-algorithm-model';
-import {
-    updateBaselineHazard,
-    IBaselineHazardObject,
-    Algorithm,
-} from '../algorithm';
+import { updateBaseline, IBaselineObject, Algorithm } from '../algorithm';
 
 export type SingleAlgorithmModel = GenericSingleAlgorithmModel<Algorithm>;
 
-export type NewBaselineHazard = number | IBaselineHazardObject;
+export type NewBaseline = number | IBaselineObject;
 
-export function updateBaselineHazardForModel(
+export function updateBaselineForModel(
     model: SingleAlgorithmModel,
-    newBaselineHazard: NewBaselineHazard,
+    newBaseline: NewBaseline,
 ): SingleAlgorithmModel {
     return Object.assign({}, model, {
-        algorithm: updateBaselineHazard(model.algorithm, newBaselineHazard),
+        algorithm: updateBaseline(model.algorithm, newBaseline),
     });
 }

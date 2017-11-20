@@ -2,7 +2,7 @@ import {
     Algorithm,
     AlgorithmType,
     calculateScore,
-    getBaselineHazardForData,
+    getBaselineForData,
 } from '../algorithm';
 import { Data } from '../data';
 
@@ -15,7 +15,7 @@ export function getRisk(
     data: Data,
 ): number {
     const logit =
-        getBaselineHazardForData(logRegAlgorithm, data) +
+        getBaselineForData(logRegAlgorithm, data) +
         calculateScore(logRegAlgorithm, data);
     const elogit = Math.exp(logit);
 

@@ -1,5 +1,5 @@
 // tslint:disable:max-classes-per-file
-export class NoBaselineHazardFoundForAge extends Error {
+export class NoBaselineFoundForAge extends Error {
     constructor(age: number) {
         super();
 
@@ -7,7 +7,7 @@ export class NoBaselineHazardFoundForAge extends Error {
     }
 }
 
-export class NoBaselineHazardFoundForAlgorithm extends Error {
+export class NoBaselineFoundForAlgorithm extends Error {
     constructor(algorithmName: string) {
         super();
 

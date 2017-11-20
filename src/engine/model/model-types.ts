@@ -1,13 +1,13 @@
 import {
     SingleAlgorithmModel,
-    updateBaselineHazardForModel as updateBaselineHazardForSingleAlgorithmModel,
-    NewBaselineHazard as SingleAlgorithmModelNewBaselineHazard,
+    updateBaselineForModel as updateBaselineForSingleAlgorithmModel,
+    NewBaseline as SingleAlgorithmModelNewBaseline,
 } from '../single-algorithm-model';
 import {
     MultipleAlgorithmModel,
     getAlgorithmForData,
-    updateBaselineHazardForModel as updateBaselineHazardForMultipleAlgorithmModel,
-    NewBaselineHazard as MultipleAlgorithmModelNewBaselineHazard,
+    updateBaselineForModel as updateBaselineForMultipleAlgorithmModel,
+    NewBaseline as MultipleAlgorithmModelNewBaseline,
 } from '../multiple-algorithm-model';
 import { Data } from '../data';
 import { ModelType } from './model-type';
@@ -26,22 +26,22 @@ export function getAlgorithmForModelAndData(
     }
 }
 
-export function updateBaselineHazardForModel(
+export function updateBaselineForModel(
     model: ModelTypes,
-    newBaselineHazard:
+    newBaseline:
         | number
-        | SingleAlgorithmModelNewBaselineHazard
-        | MultipleAlgorithmModelNewBaselineHazard,
+        | SingleAlgorithmModelNewBaseline
+        | MultipleAlgorithmModelNewBaseline,
 ): ModelTypes {
     if (model.modelType === ModelType.SingleAlgorithm) {
-        return updateBaselineHazardForSingleAlgorithmModel(
+        return updateBaselineForSingleAlgorithmModel(
             model,
-            newBaselineHazard as SingleAlgorithmModelNewBaselineHazard,
+            newBaseline as SingleAlgorithmModelNewBaseline,
         );
     } else {
-        return updateBaselineHazardForMultipleAlgorithmModel(
+        return updateBaselineForMultipleAlgorithmModel(
             model,
-            newBaselineHazard as MultipleAlgorithmModelNewBaselineHazard,
+            newBaseline as MultipleAlgorithmModelNewBaseline,
         );
     }
 }

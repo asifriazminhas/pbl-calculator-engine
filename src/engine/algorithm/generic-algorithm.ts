@@ -6,7 +6,7 @@ export interface IGenericAlgorithm<T, U, V> {
     version: string;
     description: string;
     covariates: T[];
-    baselineHazard: number | V;
+    baseline: number | V;
     userFunctions: {
         [index: string]: U;
     };

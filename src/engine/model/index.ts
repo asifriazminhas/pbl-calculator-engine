@@ -7,5 +7,5 @@ export { ModelType } from './model-type';
 export {
     ModelTypes,
     getAlgorithmForModelAndData,
-    updateBaselineHazardForModel,
+    updateBaselineForModel,
 } from './model-types';

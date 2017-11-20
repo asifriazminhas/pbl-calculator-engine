@@ -2,18 +2,18 @@ import {
     ModelTypes,
     getAlgorithmForModelAndData,
     ModelType,
-    updateBaselineHazardForModel,
+    updateBaselineForModel,
 } from '../model';
 import { Data } from '../data';
 import { getRiskToTime, getSurvivalToTime, Cox } from '../cox';
 import {
     INewPredictorTypes,
     addPredictor,
-    IBaselineHazardObject,
+    IBaselineObject,
 } from '../algorithm';
 import * as moment from 'moment';
 
-export type CalibrationObjects = Array<{ age: number; baselineHazard: number }>;
+export type CalibrationObjects = Array<{ age: number; baseline: number }>;
 
 export class SurvivalModelFunctions {
     private model: ModelTypes;
@@ -69,16 +69,16 @@ export class SurvivalModelFunctions {
     ): SurvivalModelFunctions {
         if (calibrationObjects instanceof Array) {
             return new SurvivalModelFunctions(
-                updateBaselineHazardForModel(
+                updateBaselineForModel(
                     this.model,
-                    this.convertCalibrationObjectsToBaselineHazardObject(
+                    this.convertCalibrationObjectsToBaselineObject(
                         calibrationObjects,
                     ),
                 ),
             );
         } else {
             return new SurvivalModelFunctions(
-                updateBaselineHazardForModel(this.model, [
+                updateBaselineForModel(this.model, [
                     {
                         predicateData: [
                             {
@@ -86,7 +86,7 @@ export class SurvivalModelFunctions {
                                 coefficent: 'male',
                             },
                         ],
-                        newBaselineHazard: this.convertCalibrationObjectsToBaselineHazardObject(
+                        newBaseline: this.convertCalibrationObjectsToBaselineObject(
                             calibrationObjects.male,
                         ),
                     },
@@ -97,7 +97,7 @@ export class SurvivalModelFunctions {
                                 coefficent: 'female',
                             },
                         ],
-                        newBaselineHazard: this.convertCalibrationObjectsToBaselineHazardObject(
+                        newBaseline: this.convertCalibrationObjectsToBaselineObject(
                             calibrationObjects.female,
                         ),
                     },
@@ -110,17 +110,17 @@ export class SurvivalModelFunctions {
         return this.model;
     }
 
-    private convertCalibrationObjectsToBaselineHazardObject(
+    private convertCalibrationObjectsToBaselineObject(
         calibrationObjects: CalibrationObjects,
-    ): IBaselineHazardObject {
+    ): IBaselineObject {
         return calibrationObjects.reduce(
-            (baselineHazardObject, currentCalibrationObject) => {
-                return Object.assign({}, baselineHazardObject, {
+            (baselineObject, currentCalibrationObject) => {
+                return Object.assign({}, baselineObject, {
                     [currentCalibrationObject.age]:
-                        currentCalibrationObject.baselineHazard,
+                        currentCalibrationObject.baseline,
                 });
             },
-            {} as IBaselineHazardObject,
+            {} as IBaselineObject,
         );
     }
 }

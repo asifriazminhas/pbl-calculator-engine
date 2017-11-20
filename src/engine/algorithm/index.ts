@@ -3,10 +3,10 @@ export { AlgorithmType } from './algorithm-type';
 export {
     Algorithm,
     calculateScore,
-    updateBaselineHazard,
+    updateBaseline,
     addPredictor,
     INewPredictorTypes,
-    IBaselineHazardObject,
-    getBaselineHazardForData,
+    IBaselineObject,
+    getBaselineForData,
 } from './algorithm';
 export { IGenericAlgorithm } from './generic-algorithm';
