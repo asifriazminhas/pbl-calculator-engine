@@ -1,8 +1,8 @@
 import {
-    GenderCauseImpactRef,
-    getCauseImpactRefForData,
-    getCauseImpactDataForRiskFactors,
-} from './gender-cause-impact-ref';
+    IGenderCauseEffectRef,
+    getCauseEffectRefForData,
+    getCauseEffectDataForRiskFactors,
+} from './gender-cause-effect-ref';
 import { Data, updateDataWithData } from '../data';
 
 export interface IWithDataFunction {
@@ -10,68 +10,71 @@ export interface IWithDataFunction {
 }
 
 function getWithDataFunction(
-    genderCauseImpactRef: GenderCauseImpactRef,
+    genderCauseEffectRef: IGenderCauseEffectRef,
     riskFactors: string[],
     func: (data: Data, ...otherArgs: any[]) => number,
 ): IWithDataFunction {
     return {
         withData: (data, otherArgs) => {
-            const causeImpactRef = getCauseImpactRefForData(
-                genderCauseImpactRef,
+            const causeEffectRef = getCauseEffectRefForData(
+                genderCauseEffectRef,
                 data,
             );
 
-            const causeImpactRefData = getCauseImpactDataForRiskFactors(
+            const causeEffectRefData = getCauseEffectDataForRiskFactors(
                 riskFactors,
-                causeImpactRef,
+                causeEffectRef,
             );
 
             return func(
-                updateDataWithData(data, causeImpactRefData),
+                updateDataWithData(data, causeEffectRefData),
                 otherArgs,
             );
         },
     };
 }
 
-export interface IGetCauseImpactFunction {
-    getCauseImpact: (
+export interface IGetCauseEffectFunction {
+    getCauseEffect: (
         func: (data: Data, ...otherArgs: any[]) => number,
     ) => IWithDataFunction;
 }
 
-function getGetCauseImpactFunction(
-    genderCauseImpactRef: GenderCauseImpactRef,
+function getGetCauseEffectFunction(
+    genderCauseEffectRef: IGenderCauseEffectRef,
     riskFactors: string[],
-): IGetCauseImpactFunction {
+): IGetCauseEffectFunction {
     return {
-        getCauseImpact: func => {
-            return getWithDataFunction(genderCauseImpactRef, riskFactors, func);
+        getCauseEffect: func => {
+            return getWithDataFunction(genderCauseEffectRef, riskFactors, func);
         },
     };
 }
 
 export type ForRiskFactorFunction = (
     riskFactor: string,
-) => IGetCauseImpactFunction;
+) => IGetCauseEffectFunction;
 export type ForRiskFactorsFunction = (
     riskFactors: string[],
-) => IGetCauseImpactFunction;
+) => IGetCauseEffectFunction;
 
 export function getForRiskFactorFunction(
-    genderCauseImpactRef: GenderCauseImpactRef,
+    genderEffectImpactRef: IGenderCauseEffectRef,
 ): {
     withRiskFactor: ForRiskFactorFunction;
     withRiskFactors: ForRiskFactorsFunction;
 } {
     return {
         withRiskFactor: riskFactor => {
-            return getGetCauseImpactFunction(genderCauseImpactRef, [
+            return getGetCauseEffectFunction(genderEffectImpactRef, [
                 riskFactor,
             ]);
         },
         withRiskFactors: riskFactors => {
-            return getGetCauseImpactFunction(genderCauseImpactRef, riskFactors);
+            return getGetCauseEffectFunction(
+                genderEffectImpactRef,
+                riskFactors,
+            );
         },
     };
 }

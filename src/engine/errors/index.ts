@@ -1,4 +1,4 @@
-export { NoCauseImpactRefFound } from './no-cause-impact-ref-found';
+export { NoCauseEffectRefFound } from './no-cause-effect-ref-found';
 export {
     NoBaselineFoundForAge,
     NoBaselineFoundForAlgorithm,
