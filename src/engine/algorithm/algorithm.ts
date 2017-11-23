@@ -30,7 +30,7 @@ export function getBaselineForData(algorithm: Algorithm, data: Data): number {
     if (typeof algorithm.baseline === 'number') {
         return algorithm.baseline;
     } else {
-        const ageDatum = findDatumWithName('name', data);
+        const ageDatum = findDatumWithName('age', data);
 
         return throwErrorIfUndefined(
             algorithm.baseline[Number(ageDatum.coefficent)],
