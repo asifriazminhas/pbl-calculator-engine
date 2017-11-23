@@ -1,5 +1,6 @@
 import { IDatum } from './datum';
 import { throwErrorIfUndefined } from '../undefined/undefined';
+import { NoDatumFoundError } from '../errors';
 
 export type Data = IDatum[];
 
@@ -8,7 +9,7 @@ export function updateDataWithData(data: Data, dataUpdate: Data): Data {
         .filter(datum => {
             return dataUpdate.find((datumForRiskFactor: any) => {
                 return datumForRiskFactor.name === datum.name;
-            }) === undefined
+            })
                 ? false
                 : true;
         })
