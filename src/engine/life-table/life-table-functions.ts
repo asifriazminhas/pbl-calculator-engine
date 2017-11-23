@@ -5,7 +5,8 @@ import {
 } from './life-table';
 import { getLifeExpectancyUsingRefLifeTable } from './life-expectancy';
 import { getSurvivalToAge } from './survival-to-age';
-import { Data, updateDataWithDatum, findDatumWithName } from '../data';
+// @ts-ignore
+import { Data, updateDataWithDatum, findDatumWithName, IDatum } from '../data';
 import { SurvivalModelFunctions } from '../survival-model-builder/survival-model-functions';
 import { NoLifeTableFoundError } from '../errors';
 
@@ -21,13 +22,13 @@ export class LifeTableFunctions {
         this.genderSpecificRefLifeTable = genderSpecificRefLifeTable;
     }
 
-    public getLifeExpectancy(data: Data) {
+    public getLifeExpectancy = (data: Data) => {
         return getLifeExpectancyUsingRefLifeTable(
             data,
             this.getRefLifeTableForData(data),
             this.survivalFunctions.getAlgorithmForData(data),
         );
-    }
+    };
 
     public getSurvivalToAge(data: Data, toAge: number) {
         return getSurvivalToAge(

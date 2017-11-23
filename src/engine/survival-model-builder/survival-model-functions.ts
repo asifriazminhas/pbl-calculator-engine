@@ -5,7 +5,8 @@ import {
     updateBaselineForModel,
     JsonModelTypes,
 } from '../model';
-import { Data } from '../data';
+// @ts-ignore
+import { Data, IDatum } from '../data';
 import { getRiskToTime, getSurvivalToTime, Cox } from '../cox';
 import {
     INewPredictorTypes,
@@ -29,13 +30,13 @@ export class SurvivalModelFunctions {
         return getAlgorithmForModelAndData(this.model, data) as Cox;
     }
 
-    public getRiskToTime(data: Data, time?: Date | moment.Moment) {
+    public getRiskToTime = (data: Data, time?: Date | moment.Moment) => {
         return getRiskToTime(this.getAlgorithmForData(data), data, time);
-    }
+    };
 
-    public getSurvivalToTime(data: Data, time?: Date | moment.Moment) {
+    public getSurvivalToTime = (data: Data, time?: Date | moment.Moment) => {
         return getSurvivalToTime(this.getAlgorithmForData(data), data, time);
-    }
+    };
 
     public addPredictor(
         newPredictor: INewPredictorTypes,
