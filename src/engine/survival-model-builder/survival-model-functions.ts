@@ -59,7 +59,7 @@ export class SurvivalModelFunctions {
         }
     }
 
-    public addCalibration(
+    public reCalibrateOutcome(
         calibrationObjects:
             | CalibrationObjects
             | {
