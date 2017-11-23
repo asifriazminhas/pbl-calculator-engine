@@ -6,12 +6,12 @@ export type BuildFromModelJsonFunction = (
 ) => SurvivalModelFunctions;
 
 export interface IBuildFromModelJson {
-    buildFromAlgorithmJson: BuildFromModelJsonFunction;
+    buildFromModelJson: BuildFromModelJsonFunction;
 }
 
 export function getBuildFromModelJsonFunction(): IBuildFromModelJson {
     return {
-        buildFromAlgorithmJson: modelJson => {
+        buildFromModelJson: modelJson => {
             const model = parseModelJsonToModel(modelJson);
 
             return new SurvivalModelFunctions(model, modelJson);
