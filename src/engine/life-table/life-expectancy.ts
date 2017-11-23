@@ -3,7 +3,7 @@ import {
     getCompleteLifeTableWithStartAge,
     RefLifeTable,
 } from './life-table';
-import { Data } from '../data';
+import { Data, findDatumWithName } from '../data';
 import { Cox, getSurvivalToTime } from '../cox';
 
 /**
@@ -35,10 +35,7 @@ export function getCompleteLifeTableForDataUsingAlgorithm(
     useExFromLifeTableFromAge: number = 99,
 ): CompleteLifeTable {
     // TODO Change this to have an optional parameter called age
-    const ageDatum = data.find(datum => datum.coefficent === 'age');
-    if (!ageDatum) {
-        throw new Error(`No datum object found for coefficent age`);
-    }
+    const ageDatum = findDatumWithName('age', data);
 
     const dataWithoutAgeDatum = data.filter(
         datum => datum.coefficent === 'age',
@@ -76,10 +73,7 @@ export function getLifeExpectancyUsingRefLifeTable(
     ),
 ): number {
     // TODO Change this to have an optional parameter called age
-    const ageDatum = data.find(datum => datum.coefficent === 'age');
-    if (!ageDatum) {
-        throw new Error(`No datum object found for coefficent age`);
-    }
+    const ageDatum = findDatumWithName('age', data);
 
     return getLifeExpectancyForAge(
         ageDatum.coefficent as number,
