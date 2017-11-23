@@ -1,10 +1,9 @@
-import {
-    IGenderCauseEffectRef,
-    IGenderSpecificCauseEffectRef,
-} from '../engine/cause-effect';
+import { IGenderCauseEffectRef } from '../engine/cause-effect';
+import { IDatum } from '../engine/data';
+// tslint:disable-next-line
 var csvParse = require('csv-parse/lib/sync');
 
-export interface CauseEffectCsvRow {
+export interface ICauseEffectCsvRow {
     Algorithm: string;
     RiskFactor: string;
     Sex: 'Male' | 'Female' | 'Both';
@@ -12,22 +11,22 @@ export interface CauseEffectCsvRow {
     EngineRef: string | 'NA';
 }
 
-export type CauseEffectCsv = CauseEffectCsvRow[];
+export type CauseEffectCsv = ICauseEffectCsvRow[];
 
 function isEngineRefColumnNAForCauseEffectCsvRow(
-    causeEffectCsvRow: CauseEffectCsvRow,
+    causeEffectCsvRow: ICauseEffectCsvRow,
 ): boolean {
     return causeEffectCsvRow.EngineRef === 'NA';
 }
 
 function isBothSexesCauseEffectCsvRow(
-    causeEffectCsvRow: CauseEffectCsvRow,
+    causeEffectCsvRow: ICauseEffectCsvRow,
 ): boolean {
     return causeEffectCsvRow.Sex === 'Both';
 }
 
 function isMaleCauseEffectCsvRow(
-    causeEffectCsvRow: CauseEffectCsvRow,
+    causeEffectCsvRow: ICauseEffectCsvRow,
 ): boolean {
     return (
         causeEffectCsvRow.Sex === 'Male' ||
@@ -36,7 +35,7 @@ function isMaleCauseEffectCsvRow(
 }
 
 function isFemaleCauseEffectCsvRow(
-    causeEffectCsvRow: CauseEffectCsvRow,
+    causeEffectCsvRow: ICauseEffectCsvRow,
 ): boolean {
     return (
         causeEffectCsvRow.Sex === 'Female' ||
@@ -46,20 +45,22 @@ function isFemaleCauseEffectCsvRow(
 
 function filterOutRowsNotForAlgorithm(
     algorithm: string,
-): (causeEffectCsvRow: CauseEffectCsvRow) => boolean {
+): (causeEffectCsvRow: ICauseEffectCsvRow) => boolean {
     return causeEffectCsvRow => {
-        //Use indexOf since the Algorithm column can have more than one algorithm in it for example a row can be for both MPoRT and SPoRT
+        /* Use indexOf since the Algorithm column can have more than one
+        algorithm in it for example a row can be for both MPoRT and SPoRT */
         return causeEffectCsvRow.Algorithm.indexOf(algorithm) > -1;
     };
 }
 
 function getCauseEffectRefUpdateObjectForCauseEffectCsvRow(
-    causeEffectCsvRow: CauseEffectCsvRow,
-): IGenderSpecificCauseEffectRef {
+    causeEffectCsvRow: ICauseEffectCsvRow,
+): IDatum | undefined {
     return isEngineRefColumnNAForCauseEffectCsvRow(causeEffectCsvRow)
-        ? {}
+        ? undefined
         : {
-              [causeEffectCsvRow.PredictorName]: causeEffectCsvRow.EngineRef,
+              name: causeEffectCsvRow.PredictorName,
+              coefficent: causeEffectCsvRow.EngineRef,
           };
 }
 
@@ -67,20 +68,20 @@ function updateGenderCauseEffectRef(
     GenderCauseEffectRef: IGenderCauseEffectRef,
     gender: keyof IGenderCauseEffectRef,
     riskFactor: string,
-    update: IGenderSpecificCauseEffectRef,
+    update: IDatum | undefined,
 ): IGenderCauseEffectRef {
-    GenderCauseEffectRef[gender][riskFactor] = Object.assign(
-        {},
-        GenderCauseEffectRef[gender][riskFactor],
-        update,
-    );
+    if (!GenderCauseEffectRef[gender][riskFactor]) {
+        GenderCauseEffectRef[gender][riskFactor] = [];
+    }
+    // tslint:disable-next-line
+    update ? GenderCauseEffectRef[gender][riskFactor].push(update) : undefined;
 
     return GenderCauseEffectRef;
 }
 
 function reduceToGenderCauseEffectRefObject(
     causeEffectRef: IGenderCauseEffectRef,
-    currentCauseEffectCsvRow: CauseEffectCsvRow,
+    currentCauseEffectCsvRow: ICauseEffectCsvRow,
 ): IGenderCauseEffectRef {
     if (isMaleCauseEffectCsvRow(currentCauseEffectCsvRow)) {
         updateGenderCauseEffectRef(
