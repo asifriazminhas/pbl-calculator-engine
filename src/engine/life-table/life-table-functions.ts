@@ -29,7 +29,7 @@ export class LifeTableFunctions {
         );
     }
 
-    public getSurvivalToAge(data: Data, age: number) {
+    public getSurvivalToAge(data: Data, toAge: number) {
         return getSurvivalToAge(
             getCompleteLifeTableWithStartAge(
                 this.getRefLifeTableForData(data),
@@ -43,7 +43,7 @@ export class LifeTableFunctions {
                 },
                 findDatumWithName('age', data).coefficent as number,
             ),
-            age,
+            toAge,
         );
     }
 
