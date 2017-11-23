@@ -14,7 +14,7 @@ export function getBuildFromModelJsonFunction(): IBuildFromModelJson {
         buildFromAlgorithmJson: modelJson => {
             const model = parseModelJsonToModel(modelJson);
 
-            return new SurvivalModelFunctions(model);
+            return new SurvivalModelFunctions(model, modelJson);
         },
     };
 }

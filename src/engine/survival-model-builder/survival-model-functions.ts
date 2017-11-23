@@ -3,6 +3,7 @@ import {
     getAlgorithmForModelAndData,
     ModelType,
     updateBaselineForModel,
+    JsonModelTypes,
 } from '../model';
 import { Data } from '../data';
 import { getRiskToTime, getSurvivalToTime, Cox } from '../cox';
@@ -17,9 +18,11 @@ export type CalibrationObjects = Array<{ age: number; baseline: number }>;
 
 export class SurvivalModelFunctions {
     private model: ModelTypes;
+    private modelJson: JsonModelTypes;
 
-    constructor(model: ModelTypes) {
+    constructor(model: ModelTypes, modelJson: JsonModelTypes) {
         this.model = model;
+        this.modelJson = modelJson;
     }
 
     public getAlgorithmForData(data: Data): Cox {
@@ -42,6 +45,7 @@ export class SurvivalModelFunctions {
                 Object.assign({}, this.model, {
                     algorithm: addPredictor(this.model.algorithm, newPredictor),
                 }),
+                this.modelJson,
             );
         } else {
             return new SurvivalModelFunctions(
@@ -55,6 +59,7 @@ export class SurvivalModelFunctions {
                         });
                     }),
                 }),
+                this.modelJson,
             );
         }
     }
@@ -75,6 +80,7 @@ export class SurvivalModelFunctions {
                         calibrationObjects,
                     ),
                 ),
+                this.modelJson,
             );
         } else {
             return new SurvivalModelFunctions(
@@ -102,12 +108,17 @@ export class SurvivalModelFunctions {
                         ),
                     },
                 ]),
+                this.modelJson,
             );
         }
     }
 
     public getModel(): ModelTypes {
         return this.model;
+    }
+
+    public getModelJson(): JsonModelTypes {
+        return this.modelJson;
     }
 
     private convertCalibrationObjectsToBaselineObject(

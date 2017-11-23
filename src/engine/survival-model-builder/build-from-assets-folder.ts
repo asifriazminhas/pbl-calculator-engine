@@ -210,7 +210,7 @@ export function getBuildFromAssetsFolder(): IBuildFromAssetsFolder {
 
             const model = parseModelJsonToModel(modelJson);
 
-            return new SurvivalModelFunctions(model);
+            return new SurvivalModelFunctions(model, modelJson);
         },
     };
 }
