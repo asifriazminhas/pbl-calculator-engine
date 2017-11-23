@@ -1,4 +1,4 @@
-class NoDatumFoundError extends Error {
+export class NoDatumFoundError extends Error {
     constructor(name: string) {
         super();
 
