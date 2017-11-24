@@ -133,7 +133,7 @@ export function getCompleteLifeTableWithStartAge(
     refLifeTableFromStartAge.forEach(refLifeTableRow => {
         refLifeTableWithQx.push(
             Object.assign({}, refLifeTableRow, {
-                qx: 1 - getPredictedRiskForAge(refLifeTableRow.age),
+                qx: getPredictedRiskForAge(refLifeTableRow.age),
             }),
         );
     });
