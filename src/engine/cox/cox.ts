@@ -47,11 +47,7 @@ export function getSurvivalToTime(
     const score = calculateScore(cox, data);
 
     const oneYearSurvivalProbability =
-        1 -
-        Math.pow(
-            Math.E,
-            -1 * getBaselineForData(cox, data) * Math.pow(Math.E, score),
-        );
+        1 - -1 * getBaselineForData(cox, data) * Math.pow(Math.E, score);
 
     return oneYearSurvivalProbability * getTimeMultiplier(formattedTime);
 }
