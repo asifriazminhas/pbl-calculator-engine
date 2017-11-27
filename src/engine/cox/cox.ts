@@ -13,7 +13,11 @@ export interface Cox extends Algorithm {
 }
 
 export function getTimeMultiplier(time: moment.Moment) {
-    return Math.abs(moment().diff(time, 'years', true));
+    return Math.abs(
+        moment()
+            .startOf('day')
+            .diff(time, 'years', true),
+    );
 }
 
 // By default it's time argument is set to 1 year from now
@@ -24,10 +28,10 @@ export function getSurvivalToTime(
 ): number {
     let formattedTime: moment.Moment;
     if (!time) {
-        formattedTime = moment();
+        formattedTime = moment().startOf('day');
         formattedTime.add(1, 'year');
     } else if (time instanceof Date) {
-        formattedTime = moment(time);
+        formattedTime = moment(time).startOf('day');
     } else {
         formattedTime = time;
     }
