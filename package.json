@@ -4,17 +4,20 @@
     "engines": {
         "node": "~7.x.x"
     },
-    "description": "The engine used to parse PMML files and evaluate algoirithms generated using PMML files",
+    "description":
+        "The engine used to parse PMML files and evaluate algoirithms generated using PMML files",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "scripts": {
         "build-umd": "webpack --config ./webpack/umd.config.js",
         "build-ts": "tsc",
         "build-ts:watch": "tsc -w",
-        "build": "rm -rf ./lib && rm -rf ./dist && npm run build-ts && npm run build-umd",
+        "build":
+            "rm -rf ./lib && rm -rf ./dist && npm run build-ts && npm run build-umd",
         "prepublish": "npm run build",
         "lifetable-csv-to-json": "node ./lib/scripts/lifetable-csv-to-json.js",
-        "test": "tape -r source-map-support/register lib/test/**/*.js | tap-spec"
+        "test":
+            "tape -r source-map-support/register lib/test/**/*.js | tap-spec"
     },
     "repository": {
         "type": "git",
@@ -25,7 +28,8 @@
     "bugs": {
         "url": "https://github.com/Ottawa-mHealth/pbl-calculator-engine/issues"
     },
-    "homepage": "https://github.com/Ottawa-mHealth/pbl-calculator-engine#readme",
+    "homepage":
+        "https://github.com/Ottawa-mHealth/pbl-calculator-engine#readme",
     "devDependencies": {
         "@types/bluebird": "3.0.33",
         "@types/chai": "3.4.34",
@@ -57,7 +61,8 @@
         "webpack": "1.13.3"
     },
     "dependencies": {
-        "@ottawamhealth/pbl-limesurvey-engine": "0.1.2",
+        "@ottawamhealth/pbl-limesurvey-engine":
+            "git+ssh://git@bitbucket.org:ottawamhealth/pbl-limesurvey-engine.git#v0.1.5-dist",
         "ast-types": "0.9.12",
         "bluebird": "3.4.6",
         "common-tags": "1.4.0",
