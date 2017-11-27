@@ -38,7 +38,7 @@ export function getCompleteLifeTableForDataUsingAlgorithm(
     const ageDatum = findDatumWithName('age', data);
 
     const dataWithoutAgeDatum = data.filter(
-        datum => datum.coefficent === 'age',
+        datum => datum.coefficent !== 'age',
     );
 
     return getCompleteLifeTableWithStartAge(
