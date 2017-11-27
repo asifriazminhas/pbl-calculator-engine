@@ -1,5 +1,6 @@
 import { IDataField, ICategoricalDataField } from '../../pmml';
-import { GenericField, GenericCategory, GenericCategoricalOpType } from '../../common/generic-types';
+import { Category, CategoricalOpType } from '../../op-type';
+import { Field } from '../../field';
 
 export function isCategoricalDataField(dataField: IDataField): dataField is ICategoricalDataField {
     return dataField.$.optype === 'categorical';
@@ -7,7 +8,7 @@ export function isCategoricalDataField(dataField: IDataField): dataField is ICat
 
 export function parseCategories(
     categoricalDataFieldNode: ICategoricalDataField
-): Array<GenericCategory> {
+): Array<Category> {
     if (categoricalDataFieldNode.Value instanceof Array) {
         return categoricalDataFieldNode.Value.map(value => {
             return {
@@ -27,10 +28,10 @@ export function parseCategories(
     }
 }
 
-export function addCategoricalFieldsIfCategorical<T extends GenericField>(
+export function addCategoricalFieldsIfCategorical<T extends Field>(
     dataField: T,
     dataFieldNode: IDataField
-): T | T & GenericCategoricalOpType {
+): T | T & CategoricalOpType {
     if (isCategoricalDataField(dataFieldNode)) {
         return Object.assign({}, dataField, {
             opType: dataFieldNode.$.optype,

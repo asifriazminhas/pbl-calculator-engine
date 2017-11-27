@@ -10,7 +10,7 @@ export interface LiteralAST {
     //name of the AST
     type: 'Literal';
     //The value the literal AST represents. eg1: Would be 2 eg2: Would be 'test'
-    value: number | string;
+    value: number | string | null;
     //The string value of the value. eg1: Would be '2' eg2: Would be "'2'"
     raw: string;
 }
@@ -163,6 +163,22 @@ export interface ConditionalExpressionAST {
 export interface ExpressionStatementAst {
     type: 'ExpressionStatement',
     expression: AST
+}
+
+export interface BlockStatementAst {
+    type: 'BlockStatement';
+    body: Array<ReturnStatementAst>;
+}
+
+export interface ReturnStatementAst {
+    type: 'ReturnStatement';
+    argument: AST;
+}
+
+export interface FunctionExpressionAst {
+    type: 'FunctionExpression';
+    params: Array<IdentifierAST>;
+    body: BlockStatementAst;
 }
 
 export type AST = LiteralAST | IdentifierAST | BinaryExpressionAST | LogicalExpressionAST | UnaryExpressionAST | AssignmentExpressionAST | ExpressionStatementAST | IfStatementAST | MemberExpressionAST | CallExpressionAST | ConditionalExpressionAST | ExpressionStatementAst

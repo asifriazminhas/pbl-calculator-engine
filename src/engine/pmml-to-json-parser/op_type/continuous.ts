@@ -1,14 +1,15 @@
-import { GenericField, GenericContinuousOpType } from '../../common/generic-types';
+import { ContinuousOpType } from '../../op-type';
 import { IDataField, IContinuousDataField } from '../../pmml';
+import { Field } from '../../field';
 
 export function isContinuousDataField(dataField: IDataField): dataField is IContinuousDataField {
     return dataField.$.optype === 'continuous';
 }
 
-export function addContinuousFieldsIfContinuous<T extends GenericField>(
+export function addContinuousFieldsIfContinuous<T extends Field>(
     dataField: T,
     dataFieldNode: IDataField
-): T | T & GenericContinuousOpType {
+): T | T & ContinuousOpType {
     if (isContinuousDataField(dataFieldNode) && dataFieldNode.Interval) {
         return Object.assign({}, dataField, {
             opType: dataFieldNode.$.optype,

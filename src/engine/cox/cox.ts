@@ -1,45 +1,47 @@
-import { Covariate, getComponent } from './covariate';
-import { Data } from '../common/datum';
-import { add } from 'lodash';
-import { shouldLogDebugInfo} from '../common/env';
-import { GenericCox } from '../common/generic-types';
+import { Data } from '../data';
+import { shouldLogDebugInfo } from '../env';
 import * as moment from 'moment';
+import {
+    Algorithm,
+    AlgorithmType,
+    calculateScore,
+    getBaselineForData,
+} from '../algorithm';
 
-export type Cox = GenericCox<Covariate>;
-
-function calculateScore(
-    cox: Cox,
-    data: Data
-): number {
-    return cox.covariates
-        .map(covariate => getComponent(covariate, data))
-        .reduce(add);
+export interface Cox extends Algorithm {
+    algorithmType: AlgorithmType.Cox;
 }
 
-//By default it's time argument is set to 1 year from now
+export function getTimeMultiplier(time: moment.Moment) {
+    return Math.abs(
+        moment()
+            .startOf('day')
+            .diff(time, 'years', true),
+    );
+}
+
+// By default it's time argument is set to 1 year from now
 export function getSurvivalToTime(
     cox: Cox,
     data: Data,
-    time?: Date | moment.Moment
+    time?: Date | moment.Moment,
 ): number {
     let formattedTime: moment.Moment;
     if (!time) {
-        formattedTime = moment();
-        formattedTime.add(1, 'year')
-    }
-    else if (time instanceof Date) {
-        formattedTime = moment(time);
-    }
-    else {
+        formattedTime = moment().startOf('day');
+        formattedTime.add(1, 'year');
+    } else if (time instanceof Date) {
+        formattedTime = moment(time).startOf('day');
+    } else {
         formattedTime = time;
     }
 
     if (shouldLogDebugInfo() === true) {
-        console.groupCollapsed(`Predictors`)
+        console.groupCollapsed(`Predictors`);
     }
 
     if (shouldLogDebugInfo()) {
-        console.log(`Baseline Hazard: ${this.baselineHazard}`);
+        console.log(`Baseline: ${this.baseline}`);
     }
 
     if (shouldLogDebugInfo() === true) {
@@ -48,17 +50,16 @@ export function getSurvivalToTime(
 
     const score = calculateScore(cox, data);
 
-    const oneYearSurvivalProbability = 1 - Math.pow(
-        Math.E,
-        -1 * cox.baselineHazard * Math.pow(Math.E, score)
-    );
+    const oneYearSurvivalProbability =
+        1 - getBaselineForData(cox, data) * Math.pow(Math.E, score);
 
-    return oneYearSurvivalProbability * Math.abs((moment().diff(formattedTime, 'years', true)));
+    return oneYearSurvivalProbability * getTimeMultiplier(formattedTime);
 }
 
-export function getRisk(
+export function getRiskToTime(
     cox: Cox,
-    data: Data
+    data: Data,
+    time?: Date | moment.Moment,
 ): number {
-    return 1 - getSurvivalToTime(cox, data);
+    return 1 - getSurvivalToTime(cox, data, time);
 }

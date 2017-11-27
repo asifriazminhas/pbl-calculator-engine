@@ -1,12 +1,12 @@
 import { parseCustomFunction } from './custom_functions/custom_function';
-import { RcsCustomFunctionJson } from '../../common/json-types';
-import { Pmml, IDataField, IParameter, IPCell, IPredictor } from '../../pmml';
-import { CovariateJson } from '../../common/json-types';
+import { CovariateJson } from '../../covariate';
+import { RcsCustomFunctionJson } from '../../custom-function';
+import { Pmml, IDataField, IParameter, IPCell, IPredictor } from '../../pmml';;
 import { parseDataFieldFromDataFieldPmmlNode } from './data_field';
 import { parseExtensions } from '../extensions';
-import { throwErrorIfUndefined } from '../../common/undefined';
+import { throwErrorIfUndefined } from '../../undefined';
 import { NoDataFieldNodeFound, NoParameterNodeFoundWithLabel, NoPCellNodeFoundWithParameterName } from '../errors';
-import { FieldTypes } from '../../common/field-types';
+import { FieldType } from '../../field';
 
 /**
  * 
@@ -24,12 +24,12 @@ function isCovariateWithNameAnInteractionCovariate(covariateName: string): boole
  * @param {string} name 
  * @returns {string} 
  */
-function getCovariateType(name: string): FieldTypes.InteractionCovariate | FieldTypes.NonInteractionCovariate {
+function getCovariateType(name: string): FieldType.InteractionCovariate | FieldType.NonInteractionCovariate {
     if (isCovariateWithNameAnInteractionCovariate(name)) {
-        return FieldTypes.InteractionCovariate
+        return FieldType.InteractionCovariate
     }
     else {
-        return FieldTypes.NonInteractionCovariate;
+        return FieldType.NonInteractionCovariate;
     }
 }
 
@@ -53,7 +53,7 @@ function parseCovariateFromPredictor(
     return Object.assign(
         {},
         parseDataFieldFromDataFieldPmmlNode(dataField), {
-            fieldType: getCovariateType(predictor.$.name) as FieldTypes.NonInteractionCovariate,
+            fieldType: getCovariateType(predictor.$.name) as FieldType.NonInteractionCovariate,
             name: predictor.$.name,
             beta: Number(pCell.$.beta),
             referencePoint: Number(parameter.$.referencePoint),
