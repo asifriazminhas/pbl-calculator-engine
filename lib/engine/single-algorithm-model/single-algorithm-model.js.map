@@ -1,0 +1,1 @@
+{"version":3,"file":"single-algorithm-model.js","sourceRoot":"","sources":["../../../src/engine/single-algorithm-model/single-algorithm-model.ts"],"names":[],"mappings":";;AACA,4CAA0E;AAM1E,gCACI,KAA2B,EAC3B,WAAwB;IAExB,MAAM,CAAC,MAAM,CAAC,MAAM,CAAC,EAAE,EAAE,KAAK,EAAE;QAC5B,SAAS,EAAE,0BAAc,CAAC,KAAK,CAAC,SAAS,EAAE,WAAW,CAAC;KAC1D,CAAC,CAAC;AACP,CAAC;AAPD,wDAOC"}

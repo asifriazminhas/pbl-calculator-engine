@@ -1,4 +1,4 @@
-import { LiteralAST, IdentifierAST, BinaryExpressionASTLeftAndRight, BinaryExpressionAST, LogicalExpressionASTLeftAndRight, LogicalExpressionAST, UnaryExpressionASTArgument, UnaryExpressionAST, AssignmentExpressionAST, AssignmentExpressionASTRight, ExpressionStatementAST, MemberExpressionAST, CallExpressionAST, ConditionalExpressionAST, CallExpressionArgumentAST, ConditionalExpressionTestAST, ConditionalExpressionAlternateAST, ConditionalExpressionConsequentAST } from '../../interfaces/ast';
+import { LiteralAST, IdentifierAST, BinaryExpressionASTLeftAndRight, BinaryExpressionAST, LogicalExpressionASTLeftAndRight, LogicalExpressionAST, UnaryExpressionASTArgument, UnaryExpressionAST, AssignmentExpressionAST, AssignmentExpressionASTRight, ExpressionStatementAST, MemberExpressionAST, CallExpressionAST, ConditionalExpressionAST, CallExpressionArgumentAST, ConditionalExpressionTestAST, ConditionalExpressionAlternateAST, ConditionalExpressionConsequentAST, FunctionExpressionAst, ReturnStatementAst, AST } from '../../interfaces/ast';
 /**
  *
  *
@@ -6,7 +6,7 @@ import { LiteralAST, IdentifierAST, BinaryExpressionASTLeftAndRight, BinaryExpre
  * @param {(number | string)} value
  * @returns {LiteralAST}
  */
-export declare function getLiteralAST(value: number | string): LiteralAST;
+export declare function getLiteralAST(value: number | string | null): LiteralAST;
 /**
  *
  *
@@ -90,3 +90,5 @@ export declare function getCallExpressionAST(callee: MemberExpressionAST, args: 
  * @returns {ConditionalExpressionAST}
  */
 export declare function getConditionalExpressionAST(test: ConditionalExpressionTestAST, consequent: ConditionalExpressionConsequentAST, alternate: ConditionalExpressionAlternateAST): ConditionalExpressionAST;
+export declare function getFunctionExpressionAst(params: Array<string>, returnStatementAst: ReturnStatementAst): FunctionExpressionAst;
+export declare function getReturnStatementAst(argument: AST): ReturnStatementAst;

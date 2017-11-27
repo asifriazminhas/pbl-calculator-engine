@@ -1,3 +1,3 @@
-import { DerivedFieldJson } from '../../../common/json-types';
+import { DerivedFieldJson } from '../../../derived-field';
 import { Pmml } from '../../../pmml';
-export declare function parseDerivedFields(pmml: Pmml): Array<DerivedFieldJson>;
+export declare function parseDerivedFields(pmml: Pmml, userDefinedFunctionNames: Array<string>): Array<DerivedFieldJson>;

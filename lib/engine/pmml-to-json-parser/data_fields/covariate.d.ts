@@ -1,5 +1,5 @@
+import { CovariateJson } from '../../covariate';
 import { Pmml } from '../../pmml';
-import { CovariateJson } from '../../common/json-types';
 /**
  * Returns all the JSON covariate objects in the pmml argument
  *

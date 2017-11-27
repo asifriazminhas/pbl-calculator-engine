@@ -1,2 +1,3 @@
-import { CoxJson } from '../common/json-types';
-export declare function pmmlXmlStringsToJson(pmmlXmlStrings: Array<string>): Promise<CoxJson>;
+import { JsonModelTypes } from '../model';
+import { Predicate } from '../multiple-algorithm-model';
+export declare function pmmlXmlStringsToJson(modelPmmlXmlStrings: string[][], predicates: Predicate[]): Promise<JsonModelTypes>;

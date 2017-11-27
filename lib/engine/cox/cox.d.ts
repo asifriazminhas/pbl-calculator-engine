@@ -1,7 +1,9 @@
-import { Covariate } from './covariate';
-import { Data } from '../common/datum';
-import { GenericCox } from '../common/generic-types';
+import { Data } from '../data';
 import * as moment from 'moment';
-export declare type Cox = GenericCox<Covariate>;
+import { Algorithm, AlgorithmType } from '../algorithm';
+export interface Cox extends Algorithm {
+    algorithmType: AlgorithmType.Cox;
+}
+export declare function getTimeMultiplier(time: moment.Moment): number;
 export declare function getSurvivalToTime(cox: Cox, data: Data, time?: Date | moment.Moment): number;
-export declare function getRisk(cox: Cox, data: Data): number;
+export declare function getRiskToTime(cox: Cox, data: Data, time?: Date | moment.Moment): number;

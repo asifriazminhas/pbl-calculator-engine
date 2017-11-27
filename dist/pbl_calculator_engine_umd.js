@@ -8208,8 +8208,16 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var browser_algorithm_builder_1 = __webpack_require__(299);
-	exports.AlgorithmBuilder = browser_algorithm_builder_1.AlgorithmBuilder;
+	var browser_survival_model_builder_1 = __webpack_require__(299);
+	exports.SurvivalModelBuilder = browser_survival_model_builder_1.SurvivalModelBuilder;
+	var life_table_1 = __webpack_require__(585);
+	exports.LifeTableFunctionsBuilder = life_table_1.LifeTableFunctionsBuilder;
+	var ref_pop_1 = __webpack_require__(591);
+	exports.RefPopFunctionsBuilder = ref_pop_1.RefPopFunctionsBuilder;
+	var cause_effect_1 = __webpack_require__(595);
+	exports.getForRiskFactorFunction = cause_effect_1.getForRiskFactorFunction;
+	var env_1 = __webpack_require__(435);
+	exports.env = env_1.env;
 	//# sourceMappingURL=umd.js.map
 
 /***/ },
@@ -8218,11 +8226,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const browser_build_survival_algorithm_1 = __webpack_require__(300);
-	exports.AlgorithmBuilder = {
-	    buildSurvivalAlgorithm: browser_build_survival_algorithm_1.buildSurvivalAlgorithm
-	};
-	//# sourceMappingURL=browser-algorithm-builder.js.map
+	const build_from_model_json_1 = __webpack_require__(300);
+	exports.SurvivalModelBuilder = Object.assign({}, build_from_model_json_1.getBuildFromModelJsonFunction());
+	//# sourceMappingURL=browser-survival-model-builder.js.map
 
 /***/ },
 /* 300 */
@@ -8230,14 +8236,18 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const build_from_algorithm_json_1 = __webpack_require__(301);
-	function buildSurvivalAlgorithm() {
+	const model_1 = __webpack_require__(301);
+	const survival_model_functions_1 = __webpack_require__(582);
+	function getBuildFromModelJsonFunction() {
 	    return {
-	        buildFromAlgorithmJson: build_from_algorithm_json_1.curryBuildFromAlgorithmJsonFunction()
+	        buildFromModelJson: modelJson => {
+	            const model = model_1.parseModelJsonToModel(modelJson);
+	            return new survival_model_functions_1.SurvivalModelFunctions(model, modelJson);
+	        },
 	    };
 	}
-	exports.buildSurvivalAlgorithm = buildSurvivalAlgorithm;
-	//# sourceMappingURL=browser-build-survival-algorithm.js.map
+	exports.getBuildFromModelJsonFunction = getBuildFromModelJsonFunction;
+	//# sourceMappingURL=build-from-model-json.js.map
 
 /***/ },
 /* 301 */
@@ -8245,30 +8255,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const get_risk_1 = __webpack_require__(302);
-	const get_survival_to_time_1 = __webpack_require__(425);
-	const add_life_table_1 = __webpack_require__(426);
-	const add_ref_pop_1 = __webpack_require__(432);
-	const cox_1 = __webpack_require__(443);
-	const to_json_1 = __webpack_require__(431);
-	const algorithm_evaluator_1 = __webpack_require__(435);
-	const add_algorithm_1 = __webpack_require__(442);
-	function curryBuildFromAlgorithmJsonFunction() {
-	    return (algorithmJson) => {
-	        const cox = cox_1.parseCoxJsonToCox(algorithmJson);
-	        return {
-	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
-	            getRisk: get_risk_1.curryGetRiskFunction(cox),
-	            addLifeTable: add_life_table_1.curryAddLifeTableFunctionWithAddRefPop(cox, algorithmJson),
-	            addRefPop: add_ref_pop_1.curryAddRefPopWithAddLifeTable(cox, algorithmJson),
-	            withData: algorithm_evaluator_1.curryBaseWithDataFunction({}),
-	            toJson: to_json_1.curryToJsonFunction(algorithmJson),
-	            addAlgorithm: add_algorithm_1.curryBaseAddAlgorithmFunction(cox, algorithmJson)
-	        };
-	    };
-	}
-	exports.curryBuildFromAlgorithmJsonFunction = curryBuildFromAlgorithmJsonFunction;
-	//# sourceMappingURL=build-from-algorithm-json.js.map
+	var json_model_types_1 = __webpack_require__(302);
+	exports.getAlgorithmJsonForModelAndData = json_model_types_1.getAlgorithmJsonForModelAndData;
+	exports.parseModelJsonToModel = json_model_types_1.parseModelJsonToModel;
+	var model_type_1 = __webpack_require__(578);
+	exports.ModelType = model_type_1.ModelType;
+	var model_types_1 = __webpack_require__(579);
+	exports.getAlgorithmForModelAndData = model_types_1.getAlgorithmForModelAndData;
+	exports.updateBaselineForModel = model_types_1.updateBaselineForModel;
+	//# sourceMappingURL=index.js.map
 
 /***/ },
 /* 302 */
@@ -8276,14 +8271,37 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const cox_1 = __webpack_require__(303);
-	function curryGetRiskFunction(cox) {
-	    return (data) => {
-	        return cox_1.getRisk(cox, data);
-	    };
+	const multiple_algorithm_model_1 = __webpack_require__(303);
+	const model_type_1 = __webpack_require__(578);
+	const algorithm_1 = __webpack_require__(305);
+	function getAlgorithmJsonForModelAndData(model, data) {
+	    if (model.modelType === model_type_1.ModelType.SingleAlgorithm) {
+	        return model.algorithm;
+	    }
+	    else {
+	        return multiple_algorithm_model_1.getAlgorithmJsonForData(model, data);
+	    }
 	}
-	exports.curryGetRiskFunction = curryGetRiskFunction;
-	//# sourceMappingURL=get-risk.js.map
+	exports.getAlgorithmJsonForModelAndData = getAlgorithmJsonForModelAndData;
+	function parseModelJsonToModel(modelTypeJson) {
+	    if (modelTypeJson.modelType === model_type_1.ModelType.SingleAlgorithm) {
+	        return Object.assign({}, modelTypeJson, {
+	            algorithm: algorithm_1.parseAlgorithmJson(modelTypeJson.algorithm),
+	        });
+	    }
+	    else {
+	        return Object.assign({}, modelTypeJson, {
+	            algorithms: modelTypeJson.algorithms.map(({ algorithm, predicate }) => {
+	                return {
+	                    algorithm: algorithm_1.parseAlgorithmJson(algorithm),
+	                    predicate,
+	                };
+	            }),
+	        });
+	    }
+	}
+	exports.parseModelJsonToModel = parseModelJsonToModel;
+	//# sourceMappingURL=json-model-types.js.map
 
 /***/ },
 /* 303 */
@@ -8291,47 +8309,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const covariate_1 = __webpack_require__(304);
-	const lodash_1 = __webpack_require__(310);
-	const env_1 = __webpack_require__(423);
-	const moment = __webpack_require__(313);
-	function calculateScore(cox, data) {
-	    return cox.covariates
-	        .map(covariate => covariate_1.getComponent(covariate, data))
-	        .reduce(lodash_1.add);
-	}
-	//By default it's time argument is set to 1 year from now
-	function getSurvivalToTime(cox, data, time) {
-	    let formattedTime;
-	    if (!time) {
-	        formattedTime = moment();
-	        formattedTime.add(1, 'year');
-	    }
-	    else if (time instanceof Date) {
-	        formattedTime = moment(time);
-	    }
-	    else {
-	        formattedTime = time;
-	    }
-	    if (env_1.shouldLogDebugInfo() === true) {
-	        console.groupCollapsed(`Predictors`);
-	    }
-	    if (env_1.shouldLogDebugInfo()) {
-	        console.log(`Baseline Hazard: ${this.baselineHazard}`);
-	    }
-	    if (env_1.shouldLogDebugInfo() === true) {
-	        console.groupEnd();
-	    }
-	    const score = calculateScore(cox, data);
-	    const oneYearSurvivalProbability = 1 - Math.pow(Math.E, -1 * cox.baselineHazard * Math.pow(Math.E, score));
-	    return oneYearSurvivalProbability * Math.abs((moment().diff(formattedTime, 'years', true)));
-	}
-	exports.getSurvivalToTime = getSurvivalToTime;
-	function getRisk(cox, data) {
-	    return 1 - getSurvivalToTime(cox, data);
-	}
-	exports.getRisk = getRisk;
-	//# sourceMappingURL=cox.js.map
+	var multiple_algorithm_model_1 = __webpack_require__(304);
+	exports.getAlgorithmForData = multiple_algorithm_model_1.getAlgorithmForData;
+	exports.updateBaselineForModel = multiple_algorithm_model_1.updateBaselineForModel;
+	var multiple_algorithm_model_json_1 = __webpack_require__(577);
+	exports.getAlgorithmJsonForData = multiple_algorithm_model_json_1.getAlgorithmJsonForData;
+	//# sourceMappingURL=index.js.map
 
 /***/ },
 /* 304 */
@@ -8339,240 +8322,305 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const field_types_1 = __webpack_require__(305);
-	const datum_1 = __webpack_require__(306);
-	const rcs_custom_function_1 = __webpack_require__(307);
-	const derived_field_1 = __webpack_require__(309);
-	const interaction_covariate_1 = __webpack_require__(424);
-	const env_1 = __webpack_require__(423);
-	const field_1 = __webpack_require__(308);
-	const moment = __webpack_require__(313);
-	function formatCoefficent(covariate, coefficent) {
-	    if (!coefficent === null || coefficent === undefined) {
-	        return covariate.referencePoint;
+	const algorithm_1 = __webpack_require__(305);
+	const predicate_1 = __webpack_require__(576);
+	const undefined_1 = __webpack_require__(575);
+	const errors_1 = __webpack_require__(316);
+	function getAlgorithmForData(multipleAlgorithmModel, data) {
+	    const matchedAlgorithm = multipleAlgorithmModel.algorithms.find(algorithmWithPredicate => {
+	        return predicate_1.getPredicateResult(data, algorithmWithPredicate.predicate);
+	    });
+	    if (!matchedAlgorithm) {
+	        throw new Error(`No matched algorithm found`);
 	    }
-	    if (coefficent instanceof moment) {
-	        throw new Error(`Coefficent is not a number ${covariate.name}`);
-	    }
-	    else if (coefficent === 'NA') {
-	        return covariate.referencePoint;
-	    }
-	    else if (!isNaN(coefficent)) {
-	        return Number(coefficent);
-	    }
-	    else if (isNaN(coefficent)) {
-	        return covariate.referencePoint;
-	    }
-	    else {
-	        throw new Error(`Coefficent is not a number ${covariate.name}`);
-	    }
+	    return matchedAlgorithm.algorithm;
 	}
-	function calculateComponent(covariate, coefficent) {
-	    var component = coefficent * covariate.beta;
-	    if (env_1.shouldLogDebugInfo()) {
-	        console.log(`Covariate ${covariate.name}`);
-	        console.log(`Input ${coefficent} ${coefficent === covariate.referencePoint ? 'Set to Reference Point' : ''}`);
-	        console.log(`PMML Beta ${covariate.beta}`);
-	        console.log(`Component ${component}`);
-	    }
-	    return component;
+	exports.getAlgorithmForData = getAlgorithmForData;
+	function updateBaselineForModel(model, newBaselines) {
+	    return Object.assign({}, model, {
+	        algorithms: model.algorithms.map(({ predicate, algorithm }) => {
+	            const newBaselineForCurrentAlgorithm = undefined_1.throwErrorIfUndefined(newBaselines.find(({ predicateData }) => {
+	                return predicate_1.getPredicateResult(predicateData, predicate);
+	            }), new errors_1.NoBaselineFoundForAlgorithm(algorithm.name));
+	            return algorithm_1.updateBaseline(algorithm, newBaselineForCurrentAlgorithm);
+	        }),
+	    });
 	}
-	function getComponent(covariate, data) {
-	    if (env_1.shouldLogWarnings()) {
-	        console.groupCollapsed(`${covariate.name}`);
-	    }
-	    const component = calculateComponent(covariate, calculateCoefficent(covariate, data));
-	    if (env_1.shouldLogDebugInfo() === true) {
-	        console.groupEnd();
-	    }
-	    return component;
-	}
-	exports.getComponent = getComponent;
-	function calculateCoefficent(covariate, data) {
-	    const coefficentData = covariate.fieldType === field_types_1.FieldTypes.InteractionCovariate ? interaction_covariate_1.calculateDataToCalculateCoefficent(covariate, data) : calculateDataToCalculateCoefficent(covariate, data);
-	    let coefficent = 0;
-	    if (coefficentData.length === 1 && coefficentData[0].name === covariate.name) {
-	        coefficent = (coefficentData[0].coefficent);
-	    }
-	    else if (covariate.customFunction) {
-	        coefficent = rcs_custom_function_1.calculateCoefficent(covariate.customFunction, coefficentData);
-	    }
-	    else if (covariate.derivedField) {
-	        coefficent = derived_field_1.calculateCoefficent(covariate.derivedField, coefficentData);
-	    }
-	    return formatCoefficent(covariate, coefficent);
-	}
-	exports.calculateCoefficent = calculateCoefficent;
-	function calculateDataToCalculateCoefficent(covariate, data) {
-	    //Try to find a datum with the same name field in the data arg
-	    const datumFound = field_1.getDatumForField(covariate, data);
-	    //If we did not find anything then we need to calculate the coefficent using either a custom function or the coresponding derived field
-	    if (!datumFound) {
-	        //Custom function has higher priority
-	        if (covariate.customFunction) {
-	            return rcs_custom_function_1.calculateDataToCalculateCoefficent(covariate.customFunction, data);
-	        }
-	        else if (covariate.derivedField) {
-	            try {
-	                return derived_field_1.calculateDataToCalculateCoefficent(covariate.derivedField, data);
-	            }
-	            catch (err) {
-	                if (env_1.shouldLogWarnings()) {
-	                    console.warn(`Incomplete data to calculate coefficent for data field ${covariate.name}. Setting it to reference point`);
-	                }
-	                return [
-	                    datum_1.datumFactory(covariate.name, covariate.referencePoint)
-	                ];
-	            }
-	        }
-	        else {
-	            if (env_1.shouldLogWarnings()) {
-	                console.warn(`Incomplete data to calculate coefficent for data field ${covariate.name}. Setting it to reference point`);
-	            }
-	            return [
-	                datum_1.datumFromCovariateReferencePointFactory(covariate)
-	            ];
-	        }
-	    }
-	    else {
-	        return [
-	            datumFound
-	        ];
-	    }
-	}
-	exports.calculateDataToCalculateCoefficent = calculateDataToCalculateCoefficent;
-	//# sourceMappingURL=covariate.js.map
+	exports.updateBaselineForModel = updateBaselineForModel;
+	//# sourceMappingURL=multiple-algorithm-model.js.map
 
 /***/ },
 /* 305 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var FieldTypes;
-	(function (FieldTypes) {
-	    FieldTypes[FieldTypes["DataField"] = 0] = "DataField";
-	    FieldTypes[FieldTypes["DerivedField"] = 1] = "DerivedField";
-	    FieldTypes[FieldTypes["NonInteractionCovariate"] = 2] = "NonInteractionCovariate";
-	    FieldTypes[FieldTypes["InteractionCovariate"] = 3] = "InteractionCovariate";
-	})(FieldTypes = exports.FieldTypes || (exports.FieldTypes = {}));
-	//# sourceMappingURL=field-types.js.map
+	var algorithm_json_1 = __webpack_require__(306);
+	exports.parseAlgorithmJson = algorithm_json_1.parseAlgorithmJson;
+	var algorithm_type_1 = __webpack_require__(571);
+	exports.AlgorithmType = algorithm_type_1.AlgorithmType;
+	var algorithm_1 = __webpack_require__(572);
+	exports.calculateScore = algorithm_1.calculateScore;
+	exports.updateBaseline = algorithm_1.updateBaseline;
+	exports.addPredictor = algorithm_1.addPredictor;
+	exports.getBaselineForData = algorithm_1.getBaselineForData;
+	//# sourceMappingURL=index.js.map
 
 /***/ },
 /* 306 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	function datumFactory(name, coefficent) {
-	    return {
-	        name,
-	        coefficent
-	    };
+	const tslib_1 = __webpack_require__(307);
+	const covariate_1 = __webpack_require__(308);
+	function parseUserFunctions(userFunctionsJson) {
+	    // tslint:disable-next-line
+	    let userFunctions = {};
+	    Object.keys(userFunctionsJson).forEach(userFunctionJsonKey => {
+	        eval(userFunctionsJson[userFunctionJsonKey]);
+	    });
+	    return userFunctions;
 	}
-	exports.datumFactory = datumFactory;
-	function datumFromCovariateReferencePointFactory(covariate) {
-	    return {
-	        name: covariate.name,
-	        coefficent: covariate.referencePoint
-	    };
+	exports.parseUserFunctions = parseUserFunctions;
+	function parseAlgorithmJson(coxJson) {
+	    const { derivedFields } = coxJson, coxJsonWithoutDerivedFields = tslib_1.__rest(coxJson, ["derivedFields"]);
+	    return Object.assign({}, coxJsonWithoutDerivedFields, { covariates: coxJson.covariates.map(covariateJson => {
+	            return covariate_1.parseCovariateJsonToCovariate(covariateJson, coxJson.covariates, derivedFields);
+	        }), userFunctions: parseUserFunctions(coxJson.userFunctions) });
 	}
-	exports.datumFromCovariateReferencePointFactory = datumFromCovariateReferencePointFactory;
-	//# sourceMappingURL=datum.js.map
+	exports.parseAlgorithmJson = parseAlgorithmJson;
+	//# sourceMappingURL=algorithm-json.js.map
 
 /***/ },
 /* 307 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
-	Object.defineProperty(exports, "__esModule", { value: true });
-	const covariate_1 = __webpack_require__(304);
-	const field_1 = __webpack_require__(308);
-	//Calculates the first term in the spline equation
-	function getFirstTerm(rcsCustomFunction, firstVariableValue) {
-	    const numerator = firstVariableValue - rcsCustomFunction.knots[rcsCustomFunction.variableNumber - 2];
-	    const denominator = Math.pow(rcsCustomFunction.knots[rcsCustomFunction.knots.length - 1] - rcsCustomFunction.knots[0], (2 / 3));
-	    return Math.pow(Math.max(numerator / denominator, 0), 3);
-	}
-	//Calculates the second term in the spline equation
-	function getSecondTerm(rcsCustomFunction, firstVariableValue) {
-	    const coefficentNumerator = rcsCustomFunction.knots[rcsCustomFunction.knots.length - 1] - rcsCustomFunction.knots[rcsCustomFunction.variableNumber - 2];
-	    const coefficentDenominator = rcsCustomFunction.knots[rcsCustomFunction.knots.length - 1] - rcsCustomFunction.knots[rcsCustomFunction.knots.length - 2];
-	    const coefficent = coefficentNumerator / coefficentDenominator;
-	    const numerator = firstVariableValue - rcsCustomFunction.knots[rcsCustomFunction.knots.length - 2];
-	    const denominator = Math.pow(rcsCustomFunction.knots[rcsCustomFunction.knots.length - 1] - rcsCustomFunction.knots[0], (2 / 3));
-	    return coefficent * Math.pow(Math.max(numerator / denominator, 0), 3);
-	}
-	//Calculates the third term inthe spline equation
-	function getThirdTerm(rcsCustomFunction, firstVariableValue) {
-	    const coefficentNumerator = rcsCustomFunction.knots[rcsCustomFunction.knots.length - 2] - rcsCustomFunction.knots[rcsCustomFunction.variableNumber - 2];
-	    const coefficentDenominator = rcsCustomFunction.knots[rcsCustomFunction.knots.length - 1] - rcsCustomFunction.knots[rcsCustomFunction.knots.length - 2];
-	    const coefficent = coefficentNumerator / coefficentDenominator;
-	    const numerator = firstVariableValue - rcsCustomFunction.knots[rcsCustomFunction.knots.length - 1];
-	    const denominator = Math.pow(rcsCustomFunction.knots[rcsCustomFunction.knots.length - 1] - rcsCustomFunction.knots[0], (2 / 3));
-	    return coefficent * Math.pow(Math.max(numerator / denominator, 0), 3);
-	}
-	/**
-	 * Evaluates this custom function
-	 *
-	 * @param {EvaluateArgs} args
-	 * @returns {number}
-	 *
-	 * @memberOf Spline
-	 */
-	function calculateCoefficent(rcsCustomFunction, data) {
-	    const datumValue = getDataToCalculateCoefficent(rcsCustomFunction, data).coefficent;
-	    return getFirstTerm(rcsCustomFunction, datumValue) -
-	        getSecondTerm(rcsCustomFunction, datumValue) +
-	        getThirdTerm(rcsCustomFunction, datumValue);
-	}
-	exports.calculateCoefficent = calculateCoefficent;
-	/**
-	 * Returns the Datum object which is used in coefficent calculation
-	 *
-	 * @param {Array<Datum>} data
-	 * @returns {Datum}
-	 *
-	 * @memberOf RCSSpline
-	 */
-	function getDataToCalculateCoefficent(rcsCustomFunction, data) {
-	    //get the datum object for the first variable predictor
-	    const datumFound = data
-	        .find(datum => field_1.isFieldWithName(rcsCustomFunction.firstVariableCovariate, datum.name));
-	    //if we found one then we are good otherwise throw an error
-	    if (datumFound) {
-	        return datumFound;
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(global) {/*! *****************************************************************************
+	Copyright (c) Microsoft Corporation. All rights reserved.
+	Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+	this file except in compliance with the License. You may obtain a copy of the
+	License at http://www.apache.org/licenses/LICENSE-2.0
+	
+	THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+	KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+	WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+	MERCHANTABLITY OR NON-INFRINGEMENT.
+	
+	See the Apache Version 2.0 License for specific language governing permissions
+	and limitations under the License.
+	***************************************************************************** */
+	/* global global, define, System, Reflect, Promise */
+	var __extends;
+	var __assign;
+	var __rest;
+	var __decorate;
+	var __param;
+	var __metadata;
+	var __awaiter;
+	var __generator;
+	var __exportStar;
+	var __values;
+	var __read;
+	var __spread;
+	var __await;
+	var __asyncGenerator;
+	var __asyncDelegator;
+	var __asyncValues;
+	(function (factory) {
+	    var root = typeof global === "object" ? global : typeof self === "object" ? self : typeof this === "object" ? this : {};
+	    if (true) {
+	        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [exports], __WEBPACK_AMD_DEFINE_RESULT__ = function (exports) { factory(createExporter(root, createExporter(exports))); }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    }
+	    else if (typeof module === "object" && typeof module.exports === "object") {
+	        factory(createExporter(root, createExporter(module.exports)));
 	    }
 	    else {
-	        throw new Error(`No Datum found for Predictor with name ${rcsCustomFunction.firstVariableCovariate.name}`);
+	        factory(createExporter(root));
 	    }
-	}
-	function calculateDataToCalculateCoefficent(rcsCustomFunction, data) {
-	    return [
-	        {
-	            name: rcsCustomFunction.firstVariableCovariate.name,
-	            coefficent: covariate_1.calculateCoefficent(rcsCustomFunction.firstVariableCovariate, data)
+	    function createExporter(exports, previous) {
+	        return function (id, v) { return exports[id] = previous ? previous(id, v) : v; };
+	    }
+	})
+	(function (exporter) {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	
+	    __extends = function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	
+	    __assign = Object.assign || function (t) {
+	        for (var s, i = 1, n = arguments.length; i < n; i++) {
+	            s = arguments[i];
+	            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
 	        }
-	    ];
-	}
-	exports.calculateDataToCalculateCoefficent = calculateDataToCalculateCoefficent;
-	//# sourceMappingURL=rcs-custom-function.js.map
+	        return t;
+	    };
+	
+	    __rest = function (s, e) {
+	        var t = {};
+	        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+	            t[p] = s[p];
+	        if (s != null && typeof Object.getOwnPropertySymbols === "function")
+	            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+	                t[p[i]] = s[p[i]];
+	        return t;
+	    };
+	
+	    __decorate = function (decorators, target, key, desc) {
+	        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	        return c > 3 && r && Object.defineProperty(target, key, r), r;
+	    };
+	
+	    __param = function (paramIndex, decorator) {
+	        return function (target, key) { decorator(target, key, paramIndex); }
+	    };
+	
+	    __metadata = function (metadataKey, metadataValue) {
+	        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
+	    };
+	
+	    __awaiter = function (thisArg, _arguments, P, generator) {
+	        return new (P || (P = Promise))(function (resolve, reject) {
+	            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+	            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+	            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+	            step((generator = generator.apply(thisArg, _arguments || [])).next());
+	        });
+	    };
+	
+	    __generator = function (thisArg, body) {
+	        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+	        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+	        function verb(n) { return function (v) { return step([n, v]); }; }
+	        function step(op) {
+	            if (f) throw new TypeError("Generator is already executing.");
+	            while (_) try {
+	                if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+	                if (y = 0, t) op = [0, t.value];
+	                switch (op[0]) {
+	                    case 0: case 1: t = op; break;
+	                    case 4: _.label++; return { value: op[1], done: false };
+	                    case 5: _.label++; y = op[1]; op = [0]; continue;
+	                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
+	                    default:
+	                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+	                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+	                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+	                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+	                        if (t[2]) _.ops.pop();
+	                        _.trys.pop(); continue;
+	                }
+	                op = body.call(thisArg, _);
+	            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+	            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+	        }
+	    };
+	
+	    __exportStar = function (m, exports) {
+	        for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+	    };
+	
+	    __values = function (o) {
+	        var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+	        if (m) return m.call(o);
+	        return {
+	            next: function () {
+	                if (o && i >= o.length) o = void 0;
+	                return { value: o && o[i++], done: !o };
+	            }
+	        };
+	    };
+	
+	    __read = function (o, n) {
+	        var m = typeof Symbol === "function" && o[Symbol.iterator];
+	        if (!m) return o;
+	        var i = m.call(o), r, ar = [], e;
+	        try {
+	            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+	        }
+	        catch (error) { e = { error: error }; }
+	        finally {
+	            try {
+	                if (r && !r.done && (m = i["return"])) m.call(i);
+	            }
+	            finally { if (e) throw e.error; }
+	        }
+	        return ar;
+	    };
+	
+	    __spread = function () {
+	        for (var ar = [], i = 0; i < arguments.length; i++)
+	            ar = ar.concat(__read(arguments[i]));
+	        return ar;
+	    };
+	
+	    __await = function (v) {
+	        return this instanceof __await ? (this.v = v, this) : new __await(v);
+	    };
+	
+	    __asyncGenerator = function (thisArg, _arguments, generator) {
+	        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+	        var g = generator.apply(thisArg, _arguments || []), i, q = [];
+	        return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i;
+	        function verb(n) { if (g[n]) i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }
+	        function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
+	        function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r);  }
+	        function fulfill(value) { resume("next", value); }
+	        function reject(value) { resume("throw", value); }
+	        function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
+	    };
+	
+	    __asyncDelegator = function (o) {
+	        var i, p;
+	        return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
+	        function verb(n, f) { if (o[n]) i[n] = function (v) { return (p = !p) ? { value: __await(o[n](v)), done: n === "return" } : f ? f(v) : v; }; }
+	    };
+	
+	    __asyncValues = function (o) {
+	        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+	        var m = o[Symbol.asyncIterator];
+	        return m ? m.call(o) : typeof __values === "function" ? __values(o) : o[Symbol.iterator]();
+	    };
+	
+	    exporter("__extends", __extends);
+	    exporter("__assign", __assign);
+	    exporter("__rest", __rest);
+	    exporter("__decorate", __decorate);
+	    exporter("__param", __param);
+	    exporter("__metadata", __metadata);
+	    exporter("__awaiter", __awaiter);
+	    exporter("__generator", __generator);
+	    exporter("__exportStar", __exportStar);
+	    exporter("__values", __values);
+	    exporter("__read", __read);
+	    exporter("__spread", __spread);
+	    exporter("__await", __await);
+	    exporter("__asyncGenerator", __asyncGenerator);
+	    exporter("__asyncDelegator", __asyncDelegator);
+	    exporter("__asyncValues", __asyncValues);
+	});
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 308 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	function getDatumForField(field, data) {
-	    return data.find(datum => datum.name === field.name);
-	}
-	exports.getDatumForField = getDatumForField;
-	function isFieldWithName(field, name) {
-	    return field.name === name;
-	}
-	exports.isFieldWithName = isFieldWithName;
-	//# sourceMappingURL=field.js.map
+	var covariate_1 = __webpack_require__(309);
+	exports.getComponent = covariate_1.getComponent;
+	exports.calculateCoefficent = covariate_1.calculateCoefficent;
+	var json_covariate_1 = __webpack_require__(569);
+	exports.parseCovariateJsonToCovariate = json_covariate_1.parseCovariateJsonToCovariate;
+	exports.findCovariateJsonWithName = json_covariate_1.findCovariateJsonWithName;
+	//# sourceMappingURL=index.js.map
 
 /***/ },
 /* 309 */
@@ -8580,82 +8628,170 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const field_1 = __webpack_require__(308);
-	const field_types_1 = __webpack_require__(305);
-	const _ = __webpack_require__(310);
-	const datum_1 = __webpack_require__(306);
-	const covariate_1 = __webpack_require__(304);
-	const pmml_functions_1 = __webpack_require__(312);
-	const env_1 = __webpack_require__(423);
-	function evaluateEquation(derivedField, obj) {
-	    obj;
-	    let derived = undefined;
-	    let func = pmml_functions_1.default;
-	    func;
-	    eval(derivedField.equation);
-	    return derived;
+	const interaction_covariate_1 = __webpack_require__(310);
+	const base_covariate_1 = __webpack_require__(434);
+	const env_1 = __webpack_require__(435);
+	const data_1 = __webpack_require__(311);
+	const field_1 = __webpack_require__(437);
+	// tslint:disable-next-line
+	const custom_function_1 = __webpack_require__(440);
+	const derived_field_1 = __webpack_require__(446);
+	function calculateComponent(covariate, coefficent) {
+	    const component = coefficent * covariate.beta;
+	    if (env_1.shouldLogDebugInfo()) {
+	        console.log(`Covariate ${covariate.name}`);
+	        console.log(`Input ${coefficent} ${coefficent === covariate.referencePoint
+	            ? 'Set to Reference Point'
+	            : ''}`);
+	        console.log(`PMML Beta ${covariate.beta}`);
+	        console.log(`Component ${component}`);
+	    }
+	    return component;
 	}
-	function calculateCoefficent(derivedField, data) {
-	    //Check if there is a datum for this intermediate predictor. If there is then we don't need to go further
-	    const datumForCurrentDerivedField = field_1.getDatumForField(derivedField, data);
-	    if (datumForCurrentDerivedField) {
-	        return datumForCurrentDerivedField.coefficent;
+	function getComponent(covariate, data, userFunctions) {
+	    if (env_1.shouldLogWarnings()) {
+	        console.groupCollapsed(`${covariate.name}`);
 	    }
-	    else {
-	        //Filter out all the datum which are not needed for the equation evaluation
-	        let dataForEvaluation = data
-	            .filter(datum => derivedField.derivedFrom
-	            .find(derivedFromItem => derivedFromItem.name === datum.name) ? true : false);
-	        //If we don't have all the data for evaluation when calculate it
-	        if (dataForEvaluation.length !== derivedField.derivedFrom.length) {
-	            dataForEvaluation = calculateDataToCalculateCoefficent(derivedField, data);
-	        }
-	        if (env_1.shouldLogDebugInfo() === true) {
-	            console.groupCollapsed(`Derived Field: ${derivedField.name}`);
-	            console.log(`Name: ${derivedField.name}`);
-	            console.log(`Derived Field: ${derivedField.equation}`);
-	            console.log(`Derived Field Data`);
-	            console.table(dataForEvaluation);
-	        }
-	        //make the object with the all the data needed for the equation evaluation
-	        const obj = {};
-	        dataForEvaluation.forEach(datum => obj[datum.name] = datum.coefficent);
-	        const evaluatedValue = evaluateEquation(derivedField, obj);
-	        if (env_1.shouldLogDebugInfo()) {
-	            console.log(`Evaluated value: ${evaluatedValue}`);
-	            console.groupEnd();
-	        }
-	        return evaluatedValue;
+	    const component = calculateComponent(covariate, calculateCoefficent(covariate, data, userFunctions));
+	    if (env_1.shouldLogDebugInfo() === true) {
+	        console.groupEnd();
 	    }
+	    return component;
+	}
+	exports.getComponent = getComponent;
+	function calculateCoefficent(covariate, data, userDefinedFunctions) {
+	    const coefficentData = covariate.fieldType === field_1.FieldType.InteractionCovariate
+	        ? interaction_covariate_1.calculateDataToCalculateCoefficent(covariate, data, userDefinedFunctions)
+	        : base_covariate_1.calculateDataToCalculateCoefficent(covariate, data, userDefinedFunctions);
+	    let coefficent = 0;
+	    if (coefficentData.length === 1 &&
+	        coefficentData[0].name === covariate.name) {
+	        coefficent = coefficentData[0].coefficent;
+	    }
+	    else if (covariate.customFunction) {
+	        coefficent = custom_function_1.calculateCoefficent(covariate.customFunction, coefficentData);
+	    }
+	    else if (covariate.derivedField) {
+	        coefficent = derived_field_1.calculateCoefficent(covariate.derivedField, coefficentData, userDefinedFunctions);
+	    }
+	    return data_1.formatCoefficentForComponent(coefficent, covariate);
 	}
 	exports.calculateCoefficent = calculateCoefficent;
-	function calculateDataToCalculateCoefficent(derivedField, data) {
-	    //Go through each explanatory predictor and calculate the coefficent for each which will be used for the evaluation
-	    return _.flatten(derivedField.derivedFrom
-	        .map((derivedFromItem) => {
-	        const fieldName = derivedFromItem.name;
-	        if (derivedFromItem.fieldType === field_types_1.FieldTypes.InteractionCovariate || derivedFromItem.fieldType === field_types_1.FieldTypes.NonInteractionCovariate) {
-	            return datum_1.datumFactory(fieldName, covariate_1.calculateCoefficent(derivedFromItem, data));
-	        }
-	        else if (derivedFromItem.fieldType === field_types_1.FieldTypes.DerivedField) {
-	            return datum_1.datumFactory(fieldName, calculateCoefficent(derivedFromItem, data));
-	        }
-	        else {
-	            const datumFound = field_1.getDatumForField(derivedFromItem, data);
-	            if (!datumFound) {
-	                throw new Error(``);
-	            }
-	            else {
-	                return datumFound;
-	            }
-	        }
-	    }));
-	}
-	exports.calculateDataToCalculateCoefficent = calculateDataToCalculateCoefficent;
-	//# sourceMappingURL=derived-field.js.map
+	//# sourceMappingURL=covariate.js.map
 
 /***/ },
 /* 310 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const data_1 = __webpack_require__(311);
+	const base_covariate_1 = __webpack_require__(434);
+	function isCoefficentDatumSetToReferencePoint(interactionCovariate, datum) {
+	    const derivedFieldForDatum = interactionCovariate.derivedField.derivedFrom.find(derivedFromItem => derivedFromItem.name === datum.name);
+	    if (!derivedFieldForDatum) {
+	        throw new Error(`No derived field found for datum ${datum.name}`);
+	    }
+	    return (derivedFieldForDatum.referencePoint ===
+	        datum.coefficent);
+	}
+	function calculateDataToCalculateCoefficent(interactionCovariate, data, userDefinedFunctions) {
+	    const coefficentData = base_covariate_1.calculateDataToCalculateCoefficent(interactionCovariate, data, userDefinedFunctions);
+	    if (isCoefficentDatumSetToReferencePoint(interactionCovariate, coefficentData[0]) ||
+	        isCoefficentDatumSetToReferencePoint(interactionCovariate, coefficentData[1])) {
+	        return [data_1.datumFromCovariateReferencePointFactory(interactionCovariate)];
+	    }
+	    else {
+	        return coefficentData;
+	    }
+	}
+	exports.calculateDataToCalculateCoefficent = calculateDataToCalculateCoefficent;
+	//# sourceMappingURL=interaction-covariate.js.map
+
+/***/ },
+/* 311 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var data_1 = __webpack_require__(312);
+	exports.updateDataWithData = data_1.updateDataWithData;
+	exports.updateDataWithDatum = data_1.updateDataWithDatum;
+	exports.findDatumWithName = data_1.findDatumWithName;
+	var datum_1 = __webpack_require__(322);
+	exports.datumFactory = datum_1.datumFactory;
+	exports.datumFromCovariateReferencePointFactory = datum_1.datumFromCovariateReferencePointFactory;
+	var coefficent_1 = __webpack_require__(323);
+	exports.formatCoefficentForComponent = coefficent_1.formatCoefficentForComponent;
+	//# sourceMappingURL=index.js.map
+
+/***/ },
+/* 312 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const undefined_1 = __webpack_require__(313);
+	const errors_1 = __webpack_require__(316);
+	function updateDataWithData(data, dataUpdate) {
+	    return data
+	        .filter(datum => {
+	        return dataUpdate.find((datumForRiskFactor) => {
+	            return datumForRiskFactor.name === datum.name;
+	        })
+	            ? false
+	            : true;
+	    })
+	        .concat(dataUpdate);
+	}
+	exports.updateDataWithData = updateDataWithData;
+	/**
+	 * Returns the IDatum object whose name field is the same as the name argument.
+	 * Throws a NoDatumFoundError if no IDatum object is found
+	 *
+	 * @export
+	 * @param {string} name
+	 * @param {Data} data
+	 * @returns {IDatum}
+	 */
+	function findDatumWithName(name, data) {
+	    return undefined_1.throwErrorIfUndefined(data.find(datum => datum.name === name), new errors_1.NoDatumFoundError(name));
+	}
+	exports.findDatumWithName = findDatumWithName;
+	function updateDataWithDatum(data, datumUpdate) {
+	    return updateDataWithData(data, [datumUpdate]);
+	}
+	exports.updateDataWithDatum = updateDataWithDatum;
+	//# sourceMappingURL=data.js.map
+
+/***/ },
+/* 313 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const lodash_1 = __webpack_require__(314);
+	function throwErrorIfUndefined(field, errorToThrow) {
+	    if (lodash_1.isUndefined(field)) {
+	        throw errorToThrow;
+	    }
+	    else {
+	        return field;
+	    }
+	}
+	exports.throwErrorIfUndefined = throwErrorIfUndefined;
+	function returnEmptyObjectIfUndefined(field) {
+	    return field ? field : {};
+	}
+	exports.returnEmptyObjectIfUndefined = returnEmptyObjectIfUndefined;
+	function returnEmptyArrayIfUndefined(field) {
+	    return field ? field : [];
+	}
+	exports.returnEmptyArrayIfUndefined = returnEmptyArrayIfUndefined;
+	//# sourceMappingURL=undefined.js.map
+
+/***/ },
+/* 314 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(global, module) {/**
@@ -25743,10 +25879,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	}.call(this));
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(311)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(315)(module)))
 
 /***/ },
-/* 311 */
+/* 315 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -25762,48 +25898,156 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 312 */
+/* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const moment = __webpack_require__(313);
-	exports.default = {
-	    exp: function (value) {
-	        return Math.exp(value);
-	    },
-	    ln: function (value) {
-	        return Math.log(value);
-	    },
-	    'is.na': function (value) {
-	        return value === 'NA';
-	    },
-	    not: function (value) {
-	        return !value;
-	    },
-	    notEqual: function (valueOne, valueTwo) {
-	        return valueOne !== valueTwo;
-	    },
-	    formatDatetime: function (date, format) {
-	        const momentFormatString = format
-	            .replace(/%y/gi, 'YYYY')
-	            .replace(/%d/gi, 'DD')
-	            .replace(/%m/gi, 'MM');
-	        return moment(date).format(momentFormatString);
-	    },
-	    max: function (num1, num2) {
-	        return Math.max(num1, num2);
-	    },
-	    sum: function (...args) {
-	        return args.reduce((currentSum, currentArg) => {
-	            return currentSum + currentArg;
-	        }, 0);
-	    }
-	};
-	//# sourceMappingURL=pmml-functions.js.map
+	var no_cause_effect_ref_found_1 = __webpack_require__(317);
+	exports.NoCauseEffectRefFound = no_cause_effect_ref_found_1.NoCauseEffectRefFound;
+	var no_baseline_hazard_found_1 = __webpack_require__(318);
+	exports.NoBaselineFoundForAge = no_baseline_hazard_found_1.NoBaselineFoundForAge;
+	exports.NoBaselineFoundForAlgorithm = no_baseline_hazard_found_1.NoBaselineFoundForAlgorithm;
+	var unknown_regression_type_1 = __webpack_require__(319);
+	exports.UnknownRegressionType = unknown_regression_type_1.UnknownRegressionType;
+	var no_life_table_found_error_1 = __webpack_require__(320);
+	exports.NoLifeTableFoundError = no_life_table_found_error_1.NoLifeTableFoundError;
+	var no_datum_found_error_1 = __webpack_require__(321);
+	exports.NoDatumFoundError = no_datum_found_error_1.NoDatumFoundError;
+	//# sourceMappingURL=index.js.map
 
 /***/ },
-/* 313 */
+/* 317 */
+/***/ function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	class NoCauseEffectRefFound extends Error {
+	    constructor(sex) {
+	        super();
+	        this.message = `No CauseEffectRef found for sex ${sex}`;
+	    }
+	}
+	exports.NoCauseEffectRefFound = NoCauseEffectRefFound;
+	//# sourceMappingURL=no-cause-effect-ref-found.js.map
+
+/***/ },
+/* 318 */
+/***/ function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	// tslint:disable:max-classes-per-file
+	class NoBaselineFoundForAge extends Error {
+	    constructor(age) {
+	        super();
+	        this.message = `No baseline hazard object found for age ${age}`;
+	    }
+	}
+	exports.NoBaselineFoundForAge = NoBaselineFoundForAge;
+	class NoBaselineFoundForAlgorithm extends Error {
+	    constructor(algorithmName) {
+	        super();
+	        this.message = `No baseline hazard found for algorithm ${algorithmName}`;
+	    }
+	}
+	exports.NoBaselineFoundForAlgorithm = NoBaselineFoundForAlgorithm;
+	//# sourceMappingURL=no-baseline-hazard-found.js.map
+
+/***/ },
+/* 319 */
+/***/ function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	class UnknownRegressionType extends Error {
+	    constructor(regressionType) {
+	        super();
+	        this.message = `Unknown regression type ${regressionType}`;
+	    }
+	}
+	exports.UnknownRegressionType = UnknownRegressionType;
+	//# sourceMappingURL=unknown-regression-type.js.map
+
+/***/ },
+/* 320 */
+/***/ function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	class NoLifeTableFoundError extends Error {
+	    constructor(sex) {
+	        super();
+	        this.message = `No life table found for sex ${sex}`;
+	    }
+	}
+	exports.NoLifeTableFoundError = NoLifeTableFoundError;
+	//# sourceMappingURL=no-life-table-found-error.js.map
+
+/***/ },
+/* 321 */
+/***/ function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	class NoDatumFoundError extends Error {
+	    constructor(name) {
+	        super();
+	        this.message = `No Datum object found with name ${name}`;
+	    }
+	}
+	exports.NoDatumFoundError = NoDatumFoundError;
+	//# sourceMappingURL=no-datum-found-error.js.map
+
+/***/ },
+/* 322 */
+/***/ function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	function datumFactory(name, coefficent) {
+	    return {
+	        coefficent,
+	        name,
+	    };
+	}
+	exports.datumFactory = datumFactory;
+	function datumFromCovariateReferencePointFactory(covariate) {
+	    return {
+	        coefficent: covariate.referencePoint,
+	        name: covariate.name,
+	    };
+	}
+	exports.datumFromCovariateReferencePointFactory = datumFromCovariateReferencePointFactory;
+	//# sourceMappingURL=datum.js.map
+
+/***/ },
+/* 323 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const moment = __webpack_require__(324);
+	function formatCoefficentForComponent(coefficent, covariate) {
+	    if (coefficent === null ||
+	        coefficent === undefined ||
+	        coefficent === 'NA') {
+	        return covariate.referencePoint;
+	    }
+	    else if (coefficent instanceof moment ||
+	        coefficent instanceof Date ||
+	        isNaN(Number(coefficent))) {
+	        throw new Error(`Coefficent is not a number ${covariate.name}`);
+	    }
+	    else {
+	        return Number(coefficent);
+	    }
+	}
+	exports.formatCoefficentForComponent = formatCoefficentForComponent;
+	//# sourceMappingURL=coefficent.js.map
+
+/***/ },
+/* 324 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module) {//! moment.js
@@ -27620,7 +27864,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            module && module.exports) {
 	        try {
 	            oldLocale = globalLocale._abbr;
-	            __webpack_require__(314)("./" + name);
+	            __webpack_require__(325)("./" + name);
 	            // because defineLocale currently also sets the global locale, we
 	            // want to undo that for lazy loaded locales
 	            getSetGlobalLocale(oldLocale);
@@ -30108,229 +30352,229 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	})));
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(311)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(315)(module)))
 
 /***/ },
-/* 314 */
+/* 325 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var map = {
-		"./af": 315,
-		"./af.js": 315,
-		"./ar": 316,
-		"./ar-dz": 317,
-		"./ar-dz.js": 317,
-		"./ar-ly": 318,
-		"./ar-ly.js": 318,
-		"./ar-ma": 319,
-		"./ar-ma.js": 319,
-		"./ar-sa": 320,
-		"./ar-sa.js": 320,
-		"./ar-tn": 321,
-		"./ar-tn.js": 321,
-		"./ar.js": 316,
-		"./az": 322,
-		"./az.js": 322,
-		"./be": 323,
-		"./be.js": 323,
-		"./bg": 324,
-		"./bg.js": 324,
-		"./bn": 325,
-		"./bn.js": 325,
-		"./bo": 326,
-		"./bo.js": 326,
-		"./br": 327,
-		"./br.js": 327,
-		"./bs": 328,
-		"./bs.js": 328,
-		"./ca": 329,
-		"./ca.js": 329,
-		"./cs": 330,
-		"./cs.js": 330,
-		"./cv": 331,
-		"./cv.js": 331,
-		"./cy": 332,
-		"./cy.js": 332,
-		"./da": 333,
-		"./da.js": 333,
-		"./de": 334,
-		"./de-at": 335,
-		"./de-at.js": 335,
-		"./de.js": 334,
-		"./dv": 336,
-		"./dv.js": 336,
-		"./el": 337,
-		"./el.js": 337,
-		"./en-au": 338,
-		"./en-au.js": 338,
-		"./en-ca": 339,
-		"./en-ca.js": 339,
-		"./en-gb": 340,
-		"./en-gb.js": 340,
-		"./en-ie": 341,
-		"./en-ie.js": 341,
-		"./en-nz": 342,
-		"./en-nz.js": 342,
-		"./eo": 343,
-		"./eo.js": 343,
-		"./es": 344,
-		"./es-do": 345,
-		"./es-do.js": 345,
-		"./es.js": 344,
-		"./et": 346,
-		"./et.js": 346,
-		"./eu": 347,
-		"./eu.js": 347,
-		"./fa": 348,
-		"./fa.js": 348,
-		"./fi": 349,
-		"./fi.js": 349,
-		"./fo": 350,
-		"./fo.js": 350,
-		"./fr": 351,
-		"./fr-ca": 352,
-		"./fr-ca.js": 352,
-		"./fr-ch": 353,
-		"./fr-ch.js": 353,
-		"./fr.js": 351,
-		"./fy": 354,
-		"./fy.js": 354,
-		"./gd": 355,
-		"./gd.js": 355,
-		"./gl": 356,
-		"./gl.js": 356,
-		"./he": 357,
-		"./he.js": 357,
-		"./hi": 358,
-		"./hi.js": 358,
-		"./hr": 359,
-		"./hr.js": 359,
-		"./hu": 360,
-		"./hu.js": 360,
-		"./hy-am": 361,
-		"./hy-am.js": 361,
-		"./id": 362,
-		"./id.js": 362,
-		"./is": 363,
-		"./is.js": 363,
-		"./it": 364,
-		"./it.js": 364,
-		"./ja": 365,
-		"./ja.js": 365,
-		"./jv": 366,
-		"./jv.js": 366,
-		"./ka": 367,
-		"./ka.js": 367,
-		"./kk": 368,
-		"./kk.js": 368,
-		"./km": 369,
-		"./km.js": 369,
-		"./ko": 370,
-		"./ko.js": 370,
-		"./ky": 371,
-		"./ky.js": 371,
-		"./lb": 372,
-		"./lb.js": 372,
-		"./lo": 373,
-		"./lo.js": 373,
-		"./lt": 374,
-		"./lt.js": 374,
-		"./lv": 375,
-		"./lv.js": 375,
-		"./me": 376,
-		"./me.js": 376,
-		"./mi": 377,
-		"./mi.js": 377,
-		"./mk": 378,
-		"./mk.js": 378,
-		"./ml": 379,
-		"./ml.js": 379,
-		"./mr": 380,
-		"./mr.js": 380,
-		"./ms": 381,
-		"./ms-my": 382,
-		"./ms-my.js": 382,
-		"./ms.js": 381,
-		"./my": 383,
-		"./my.js": 383,
-		"./nb": 384,
-		"./nb.js": 384,
-		"./ne": 385,
-		"./ne.js": 385,
-		"./nl": 386,
-		"./nl-be": 387,
-		"./nl-be.js": 387,
-		"./nl.js": 386,
-		"./nn": 388,
-		"./nn.js": 388,
-		"./pa-in": 389,
-		"./pa-in.js": 389,
-		"./pl": 390,
-		"./pl.js": 390,
-		"./pt": 391,
-		"./pt-br": 392,
-		"./pt-br.js": 392,
-		"./pt.js": 391,
-		"./ro": 393,
-		"./ro.js": 393,
-		"./ru": 394,
-		"./ru.js": 394,
-		"./se": 395,
-		"./se.js": 395,
-		"./si": 396,
-		"./si.js": 396,
-		"./sk": 397,
-		"./sk.js": 397,
-		"./sl": 398,
-		"./sl.js": 398,
-		"./sq": 399,
-		"./sq.js": 399,
-		"./sr": 400,
-		"./sr-cyrl": 401,
-		"./sr-cyrl.js": 401,
-		"./sr.js": 400,
-		"./ss": 402,
-		"./ss.js": 402,
-		"./sv": 403,
-		"./sv.js": 403,
-		"./sw": 404,
-		"./sw.js": 404,
-		"./ta": 405,
-		"./ta.js": 405,
-		"./te": 406,
-		"./te.js": 406,
-		"./tet": 407,
-		"./tet.js": 407,
-		"./th": 408,
-		"./th.js": 408,
-		"./tl-ph": 409,
-		"./tl-ph.js": 409,
-		"./tlh": 410,
-		"./tlh.js": 410,
-		"./tr": 411,
-		"./tr.js": 411,
-		"./tzl": 412,
-		"./tzl.js": 412,
-		"./tzm": 413,
-		"./tzm-latn": 414,
-		"./tzm-latn.js": 414,
-		"./tzm.js": 413,
-		"./uk": 415,
-		"./uk.js": 415,
-		"./uz": 416,
-		"./uz.js": 416,
-		"./vi": 417,
-		"./vi.js": 417,
-		"./x-pseudo": 418,
-		"./x-pseudo.js": 418,
-		"./yo": 419,
-		"./yo.js": 419,
-		"./zh-cn": 420,
-		"./zh-cn.js": 420,
-		"./zh-hk": 421,
-		"./zh-hk.js": 421,
-		"./zh-tw": 422,
-		"./zh-tw.js": 422
+		"./af": 326,
+		"./af.js": 326,
+		"./ar": 327,
+		"./ar-dz": 328,
+		"./ar-dz.js": 328,
+		"./ar-ly": 329,
+		"./ar-ly.js": 329,
+		"./ar-ma": 330,
+		"./ar-ma.js": 330,
+		"./ar-sa": 331,
+		"./ar-sa.js": 331,
+		"./ar-tn": 332,
+		"./ar-tn.js": 332,
+		"./ar.js": 327,
+		"./az": 333,
+		"./az.js": 333,
+		"./be": 334,
+		"./be.js": 334,
+		"./bg": 335,
+		"./bg.js": 335,
+		"./bn": 336,
+		"./bn.js": 336,
+		"./bo": 337,
+		"./bo.js": 337,
+		"./br": 338,
+		"./br.js": 338,
+		"./bs": 339,
+		"./bs.js": 339,
+		"./ca": 340,
+		"./ca.js": 340,
+		"./cs": 341,
+		"./cs.js": 341,
+		"./cv": 342,
+		"./cv.js": 342,
+		"./cy": 343,
+		"./cy.js": 343,
+		"./da": 344,
+		"./da.js": 344,
+		"./de": 345,
+		"./de-at": 346,
+		"./de-at.js": 346,
+		"./de.js": 345,
+		"./dv": 347,
+		"./dv.js": 347,
+		"./el": 348,
+		"./el.js": 348,
+		"./en-au": 349,
+		"./en-au.js": 349,
+		"./en-ca": 350,
+		"./en-ca.js": 350,
+		"./en-gb": 351,
+		"./en-gb.js": 351,
+		"./en-ie": 352,
+		"./en-ie.js": 352,
+		"./en-nz": 353,
+		"./en-nz.js": 353,
+		"./eo": 354,
+		"./eo.js": 354,
+		"./es": 355,
+		"./es-do": 356,
+		"./es-do.js": 356,
+		"./es.js": 355,
+		"./et": 357,
+		"./et.js": 357,
+		"./eu": 358,
+		"./eu.js": 358,
+		"./fa": 359,
+		"./fa.js": 359,
+		"./fi": 360,
+		"./fi.js": 360,
+		"./fo": 361,
+		"./fo.js": 361,
+		"./fr": 362,
+		"./fr-ca": 363,
+		"./fr-ca.js": 363,
+		"./fr-ch": 364,
+		"./fr-ch.js": 364,
+		"./fr.js": 362,
+		"./fy": 365,
+		"./fy.js": 365,
+		"./gd": 366,
+		"./gd.js": 366,
+		"./gl": 367,
+		"./gl.js": 367,
+		"./he": 368,
+		"./he.js": 368,
+		"./hi": 369,
+		"./hi.js": 369,
+		"./hr": 370,
+		"./hr.js": 370,
+		"./hu": 371,
+		"./hu.js": 371,
+		"./hy-am": 372,
+		"./hy-am.js": 372,
+		"./id": 373,
+		"./id.js": 373,
+		"./is": 374,
+		"./is.js": 374,
+		"./it": 375,
+		"./it.js": 375,
+		"./ja": 376,
+		"./ja.js": 376,
+		"./jv": 377,
+		"./jv.js": 377,
+		"./ka": 378,
+		"./ka.js": 378,
+		"./kk": 379,
+		"./kk.js": 379,
+		"./km": 380,
+		"./km.js": 380,
+		"./ko": 381,
+		"./ko.js": 381,
+		"./ky": 382,
+		"./ky.js": 382,
+		"./lb": 383,
+		"./lb.js": 383,
+		"./lo": 384,
+		"./lo.js": 384,
+		"./lt": 385,
+		"./lt.js": 385,
+		"./lv": 386,
+		"./lv.js": 386,
+		"./me": 387,
+		"./me.js": 387,
+		"./mi": 388,
+		"./mi.js": 388,
+		"./mk": 389,
+		"./mk.js": 389,
+		"./ml": 390,
+		"./ml.js": 390,
+		"./mr": 391,
+		"./mr.js": 391,
+		"./ms": 392,
+		"./ms-my": 393,
+		"./ms-my.js": 393,
+		"./ms.js": 392,
+		"./my": 394,
+		"./my.js": 394,
+		"./nb": 395,
+		"./nb.js": 395,
+		"./ne": 396,
+		"./ne.js": 396,
+		"./nl": 397,
+		"./nl-be": 398,
+		"./nl-be.js": 398,
+		"./nl.js": 397,
+		"./nn": 399,
+		"./nn.js": 399,
+		"./pa-in": 400,
+		"./pa-in.js": 400,
+		"./pl": 401,
+		"./pl.js": 401,
+		"./pt": 402,
+		"./pt-br": 403,
+		"./pt-br.js": 403,
+		"./pt.js": 402,
+		"./ro": 404,
+		"./ro.js": 404,
+		"./ru": 405,
+		"./ru.js": 405,
+		"./se": 406,
+		"./se.js": 406,
+		"./si": 407,
+		"./si.js": 407,
+		"./sk": 408,
+		"./sk.js": 408,
+		"./sl": 409,
+		"./sl.js": 409,
+		"./sq": 410,
+		"./sq.js": 410,
+		"./sr": 411,
+		"./sr-cyrl": 412,
+		"./sr-cyrl.js": 412,
+		"./sr.js": 411,
+		"./ss": 413,
+		"./ss.js": 413,
+		"./sv": 414,
+		"./sv.js": 414,
+		"./sw": 415,
+		"./sw.js": 415,
+		"./ta": 416,
+		"./ta.js": 416,
+		"./te": 417,
+		"./te.js": 417,
+		"./tet": 418,
+		"./tet.js": 418,
+		"./th": 419,
+		"./th.js": 419,
+		"./tl-ph": 420,
+		"./tl-ph.js": 420,
+		"./tlh": 421,
+		"./tlh.js": 421,
+		"./tr": 422,
+		"./tr.js": 422,
+		"./tzl": 423,
+		"./tzl.js": 423,
+		"./tzm": 424,
+		"./tzm-latn": 425,
+		"./tzm-latn.js": 425,
+		"./tzm.js": 424,
+		"./uk": 426,
+		"./uk.js": 426,
+		"./uz": 427,
+		"./uz.js": 427,
+		"./vi": 428,
+		"./vi.js": 428,
+		"./x-pseudo": 429,
+		"./x-pseudo.js": 429,
+		"./yo": 430,
+		"./yo.js": 430,
+		"./zh-cn": 431,
+		"./zh-cn.js": 431,
+		"./zh-hk": 432,
+		"./zh-hk.js": 432,
+		"./zh-tw": 433,
+		"./zh-tw.js": 433
 	};
 	function webpackContext(req) {
 		return __webpack_require__(webpackContextResolve(req));
@@ -30343,11 +30587,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	webpackContext.resolve = webpackContextResolve;
 	module.exports = webpackContext;
-	webpackContext.id = 314;
+	webpackContext.id = 325;
 
 
 /***/ },
-/* 315 */
+/* 326 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -30355,7 +30599,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Werner Mollentze : https://github.com/wernerm
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -30425,7 +30669,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 316 */
+/* 327 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -30435,7 +30679,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : forabi https://github.com/forabi
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -30572,7 +30816,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 317 */
+/* 328 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -30580,7 +30824,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Noureddine LOUAHEDJ : https://github.com/noureddineme
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -30636,7 +30880,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 318 */
+/* 329 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -30644,7 +30888,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Ali Hmer: https://github.com/kikoanis
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -30767,7 +31011,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 319 */
+/* 330 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -30776,7 +31020,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Abdel Said : https://github.com/abdelsaid
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -30832,7 +31076,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 320 */
+/* 331 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -30840,7 +31084,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Suhail Alkowaileet : https://github.com/xsoh
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -30942,7 +31186,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 321 */
+/* 332 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -30950,7 +31194,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Nader Toukabri : https://github.com/naderio
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -31006,7 +31250,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 322 */
+/* 333 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -31014,7 +31258,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : topchiyev : https://github.com/topchiyev
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -31116,7 +31360,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 323 */
+/* 334 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -31126,7 +31370,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! Author : Menelion Elensúle : https://github.com/Oire
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -31255,7 +31499,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 324 */
+/* 335 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -31263,7 +31507,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Krasen Borisov : https://github.com/kraz
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -31350,7 +31594,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 325 */
+/* 336 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -31358,7 +31602,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Kaushik Gandhi : https://github.com/kaushikgandhi
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -31474,7 +31718,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 326 */
+/* 337 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -31482,7 +31726,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Thupten N. Chakrishar : https://github.com/vajradog
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -31598,7 +31842,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 327 */
+/* 338 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -31606,7 +31850,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Jean-Baptiste Le Duigou : https://github.com/jbleduigou
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -31711,7 +31955,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 328 */
+/* 339 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -31720,7 +31964,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! based on (hr) translation by Bojan Marković
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -31859,7 +32103,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 329 */
+/* 340 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -31867,7 +32111,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Juan G. Hurtado : https://github.com/juanghurtado
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -31945,7 +32189,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 330 */
+/* 341 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -31953,7 +32197,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : petrbela : https://github.com/petrbela
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -32122,7 +32366,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 331 */
+/* 342 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -32130,7 +32374,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Anatoly Mironov : https://github.com/mirontoli
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -32190,7 +32434,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 332 */
+/* 343 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -32199,7 +32443,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : https://github.com/ryangreaves
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -32276,7 +32520,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 333 */
+/* 344 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -32284,7 +32528,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Ulrik Nielsen : https://github.com/mrbase
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -32341,7 +32585,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 334 */
+/* 345 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -32351,7 +32595,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Mikolaj Dadela : https://github.com/mik01aj
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -32424,7 +32668,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 335 */
+/* 346 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -32435,7 +32679,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Mikolaj Dadela : https://github.com/mik01aj
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -32508,7 +32752,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 336 */
+/* 347 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -32516,7 +32760,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Jawish Hameed : https://github.com/jawish
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -32613,7 +32857,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 337 */
+/* 348 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -32621,7 +32865,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Aggelos Karalias : https://github.com/mehiel
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -32716,7 +32960,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 338 */
+/* 349 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -32724,7 +32968,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Jared Morse : https://github.com/jarcoal
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -32788,7 +33032,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 339 */
+/* 350 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -32796,7 +33040,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Jonathan Abourbih : https://github.com/jonbca
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -32856,7 +33100,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 340 */
+/* 351 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -32864,7 +33108,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Chris Gedrim : https://github.com/chrisgedrim
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -32928,7 +33172,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 341 */
+/* 352 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -32936,7 +33180,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Chris Cartlidge : https://github.com/chriscartlidge
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -33000,7 +33244,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 342 */
+/* 353 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -33008,7 +33252,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Luke McGregor : https://github.com/lukemcgregor
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -33072,7 +33316,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 343 */
+/* 354 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -33082,7 +33326,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//!          Se ne, bonvolu korekti kaj avizi min por ke mi povas lerni!
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -33150,7 +33394,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 344 */
+/* 355 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -33158,7 +33402,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Julio Napurí : https://github.com/julionc
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -33236,14 +33480,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 345 */
+/* 356 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
 	//! locale : Spanish (Dominican Republic) [es-do]
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -33321,7 +33565,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 346 */
+/* 357 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -33330,7 +33574,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! improvements : Illimar Tambek : https://github.com/ragulka
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -33406,7 +33650,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 347 */
+/* 358 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -33414,7 +33658,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Eneko Illarramendi : https://github.com/eillarra
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -33477,7 +33721,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 348 */
+/* 359 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -33485,7 +33729,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Ebrahim Byagowi : https://github.com/ebraminio
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -33589,7 +33833,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 349 */
+/* 360 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -33597,7 +33841,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Tarmo Aidantausta : https://github.com/bleadof
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -33701,7 +33945,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 350 */
+/* 361 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -33709,7 +33953,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Ragnar Johannesen : https://github.com/ragnar123
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -33766,7 +34010,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 351 */
+/* 362 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -33774,7 +34018,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : John Fischer : https://github.com/jfroffice
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -33835,7 +34079,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 352 */
+/* 363 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -33843,7 +34087,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Jonathan Abourbih : https://github.com/jonbca
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -33900,7 +34144,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 353 */
+/* 364 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -33908,7 +34152,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Gaspard Bucher : https://github.com/gaspard
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -33969,7 +34213,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 354 */
+/* 365 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -33977,7 +34221,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Robin van der Vliet : https://github.com/robin0van0der0v
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -34047,7 +34291,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 355 */
+/* 366 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -34055,7 +34299,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Jon Ashdown : https://github.com/jonashdown
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -34128,7 +34372,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 356 */
+/* 367 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -34136,7 +34380,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Juan G. Hurtado : https://github.com/juanghurtado
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -34210,7 +34454,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 357 */
+/* 368 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -34220,7 +34464,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Tal Ater : https://github.com/TalAter
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -34314,7 +34558,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 358 */
+/* 369 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -34322,7 +34566,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Mayank Singhal : https://github.com/mayanksinghal
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -34443,7 +34687,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 359 */
+/* 370 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -34451,7 +34695,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Bojan Marković : https://github.com/bmarkovic
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -34593,7 +34837,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 360 */
+/* 371 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -34601,7 +34845,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Adam Brunner : https://github.com/adambrunner
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -34707,7 +34951,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 361 */
+/* 372 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -34715,7 +34959,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Armendarabyan : https://github.com/armendarabyan
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -34807,7 +35051,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 362 */
+/* 373 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -34816,7 +35060,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! reference: http://id.wikisource.org/wiki/Pedoman_Umum_Ejaan_Bahasa_Indonesia_yang_Disempurnakan
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -34895,7 +35139,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 363 */
+/* 374 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -34903,7 +35147,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Hinrik Örn Sigurðsson : https://github.com/hinrik
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -35027,7 +35271,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 364 */
+/* 375 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -35036,7 +35280,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author: Mattia Larentis: https://github.com/nostalgiaz
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -35102,7 +35346,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 365 */
+/* 376 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -35110,7 +35354,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : LI Long : https://github.com/baryon
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -35183,7 +35427,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 366 */
+/* 377 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -35192,7 +35436,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! reference: http://jv.wikipedia.org/wiki/Basa_Jawa
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -35271,7 +35515,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 367 */
+/* 378 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -35279,7 +35523,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Irakli Janiashvili : https://github.com/irakli-janiashvili
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -35365,7 +35609,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 368 */
+/* 379 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -35373,7 +35617,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! authors : Nurlan Rakhimzhanov : https://github.com/nurlan
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -35457,7 +35701,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 369 */
+/* 380 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -35465,7 +35709,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Kruy Vanna : https://github.com/kruyvanna
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -35520,7 +35764,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 370 */
+/* 381 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -35529,7 +35773,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Jeeeyul Lee <jeeeyul@gmail.com>
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -35590,7 +35834,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 371 */
+/* 382 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -35598,7 +35842,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Chyngyz Arystan uulu : https://github.com/chyngyz
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -35683,7 +35927,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 372 */
+/* 383 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -35692,7 +35936,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : David Raison : https://github.com/kwisatz
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -35825,7 +36069,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 373 */
+/* 384 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -35833,7 +36077,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Ryan Hart : https://github.com/ryanhart2
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -35900,7 +36144,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 374 */
+/* 385 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -35908,7 +36152,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Mindaugas Mozūras : https://github.com/mmozuras
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -36022,7 +36266,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 375 */
+/* 386 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -36031,7 +36275,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Jānis Elmeris : https://github.com/JanisE
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -36124,7 +36368,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 376 */
+/* 387 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -36132,7 +36376,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Miodrag Nikač <miodrag@restartit.me> : https://github.com/miodragnikac
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -36240,7 +36484,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 377 */
+/* 388 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -36248,7 +36492,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : John Corrigan <robbiecloset@gmail.com> : https://github.com/johnideal
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -36309,7 +36553,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 378 */
+/* 389 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -36317,7 +36561,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Borislav Mickov : https://github.com/B0k0
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -36404,7 +36648,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 379 */
+/* 390 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -36412,7 +36656,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Floyd Pink : https://github.com/floydpink
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -36490,7 +36734,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 380 */
+/* 391 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -36499,7 +36743,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Vivek Athalye : https://github.com/vnathalye
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -36654,7 +36898,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 381 */
+/* 392 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -36662,7 +36906,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Weldan Jamili : https://github.com/weldan
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -36741,7 +36985,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 382 */
+/* 393 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -36750,7 +36994,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Weldan Jamili : https://github.com/weldan
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -36829,7 +37073,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 383 */
+/* 394 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -36839,7 +37083,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Tin Aung Lin : https://github.com/thanyawzinmin
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -36930,7 +37174,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 384 */
+/* 395 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -36939,7 +37183,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//!           Sigurd Gartmann : https://github.com/sigurdga
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -36998,7 +37242,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 385 */
+/* 396 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -37006,7 +37250,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : suvash : https://github.com/suvash
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -37126,7 +37370,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 386 */
+/* 397 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -37135,7 +37379,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Jacob Middag : https://github.com/middagj
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -37217,7 +37461,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 387 */
+/* 398 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -37226,7 +37470,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Jacob Middag : https://github.com/middagj
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -37308,7 +37552,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 388 */
+/* 399 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -37316,7 +37560,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : https://github.com/mechuwind
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -37373,7 +37617,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 389 */
+/* 400 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -37381,7 +37625,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Harpreet Singh : https://github.com/harpreetkhalsagtbit
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -37502,7 +37746,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 390 */
+/* 401 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -37510,7 +37754,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Rafal Hirsz : https://github.com/evoL
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -37612,7 +37856,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 391 */
+/* 402 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -37620,7 +37864,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Jefferson : https://github.com/jalex79
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -37682,7 +37926,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 392 */
+/* 403 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -37690,7 +37934,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Caio Ribeiro Pereira : https://github.com/caio-ribeiro-pereira
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -37748,7 +37992,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 393 */
+/* 404 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -37757,7 +38001,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Valentin Agachi : https://github.com/avaly
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -37828,7 +38072,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 394 */
+/* 405 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -37838,7 +38082,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Коренберг Марк : https://github.com/socketpair
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -38016,7 +38260,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 395 */
+/* 406 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -38024,7 +38268,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! authors : Bård Rolstad Henriksen : https://github.com/karamell
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -38082,7 +38326,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 396 */
+/* 407 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -38090,7 +38334,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Sampath Sitinamaluwa : https://github.com/sampathsris
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -38158,7 +38402,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 397 */
+/* 408 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -38167,7 +38411,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! based on work of petrbela : https://github.com/petrbela
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -38313,7 +38557,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 398 */
+/* 409 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -38321,7 +38565,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Robert Sedovšek : https://github.com/sedovsek
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -38480,7 +38724,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 399 */
+/* 410 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -38490,7 +38734,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Oerd Cukalla : https://github.com/oerd
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -38555,7 +38799,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 400 */
+/* 411 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -38563,7 +38807,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Milan Janačković<milanjanackovic@gmail.com> : https://github.com/milan-j
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -38670,7 +38914,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 401 */
+/* 412 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -38678,7 +38922,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Milan Janačković<milanjanackovic@gmail.com> : https://github.com/milan-j
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -38785,7 +39029,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 402 */
+/* 413 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -38793,7 +39037,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Nicolai Davies<mail@nicolai.io> : https://github.com/nicolaidavies
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -38879,7 +39123,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 403 */
+/* 414 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -38887,7 +39131,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Jens Alm : https://github.com/ulmus
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -38953,7 +39197,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 404 */
+/* 415 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -38961,7 +39205,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Fahad Kassim : https://github.com/fadsel
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -39017,7 +39261,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 405 */
+/* 416 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -39025,7 +39269,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Arjunkumar Krishnamoorthy : https://github.com/tk120404
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -39152,7 +39396,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 406 */
+/* 417 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -39160,7 +39404,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Krishna Chaitanya Thota : https://github.com/kcthota
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -39246,7 +39490,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 407 */
+/* 418 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -39255,7 +39499,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Onorio De J. Afonso : https://github.com/marobo
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -39319,7 +39563,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 408 */
+/* 419 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -39327,7 +39571,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Kridsada Thanabulpong : https://github.com/sirn
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -39391,7 +39635,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 409 */
+/* 420 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -39399,7 +39643,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Dan Hagman : https://github.com/hagmandan
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -39458,7 +39702,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 410 */
+/* 421 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -39466,7 +39710,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Dominika Kruk : https://github.com/amaranthrose
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -39583,7 +39827,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 411 */
+/* 422 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -39592,7 +39836,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//!           Burak Yiğit Kaya: https://github.com/BYK
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -39678,7 +39922,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 412 */
+/* 423 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -39687,7 +39931,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Iustì Canun
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -39774,7 +40018,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 413 */
+/* 424 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -39782,7 +40026,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Abdel Said : https://github.com/abdelsaid
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -39837,7 +40081,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 414 */
+/* 425 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -39845,7 +40089,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Abdel Said : https://github.com/abdelsaid
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -39900,7 +40144,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 415 */
+/* 426 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -39909,7 +40153,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! Author : Menelion Elensúle : https://github.com/Oire
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -40051,7 +40295,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 416 */
+/* 427 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -40059,7 +40303,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Sardor Muminov : https://github.com/muminoff
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -40114,7 +40358,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 417 */
+/* 428 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -40122,7 +40366,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Bang Nguyen : https://github.com/bangnk
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -40198,7 +40442,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 418 */
+/* 429 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -40206,7 +40450,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Andrew Hood : https://github.com/andrewhood125
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -40271,7 +40515,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 419 */
+/* 430 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -40279,7 +40523,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Atolagbe Abisoye : https://github.com/andela-batolagbe
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -40336,7 +40580,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 420 */
+/* 431 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -40345,7 +40589,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Zeno Zeng : https://github.com/zenozeng
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -40468,7 +40712,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 421 */
+/* 432 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -40478,7 +40722,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Konstantin : https://github.com/skfd
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -40578,7 +40822,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 422 */
+/* 433 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -40587,7 +40831,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//! author : Chris Lam : https://github.com/hehachris
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(313)) :
+	    true ? factory(__webpack_require__(324)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -40687,7 +40931,73 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 423 */
+/* 434 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const env_1 = __webpack_require__(435);
+	const data_1 = __webpack_require__(311);
+	const field_1 = __webpack_require__(437);
+	// tslint:disable-next-line
+	const custom_function_1 = __webpack_require__(440);
+	// tslint:disable-next-line
+	const derived_field_1 = __webpack_require__(446);
+	const common_tags_1 = __webpack_require__(451);
+	function calculateDataToCalculateCoefficent(covariate, data, userDefinedFunctions) {
+	    // Try to find a datum with the same name field in the data arg
+	    const datumFound = field_1.getDatumForField(covariate, data);
+	    /* If we did not find anything then we need to calculate the coefficent
+	    using either a custom function or the coresponding derived field */
+	    if (!datumFound) {
+	        // Custom function has higher priority
+	        if (covariate.customFunction) {
+	            return custom_function_1.calculateDataToCalculateCoefficent(covariate.customFunction, data, userDefinedFunctions);
+	        }
+	        else if (covariate.derivedField) {
+	            // Fall back to derived field
+	            try {
+	                return derived_field_1.calculateDataToCalculateCoefficent(covariate.derivedField, data, userDefinedFunctions);
+	            }
+	            catch (err) {
+	                if (env_1.shouldLogWarnings()) {
+	                    console.warn(common_tags_1.oneLine `Incomplete data to calculate coefficent for
+	                        data field ${covariate.name}. Setting it to reference
+	                        point`);
+	                }
+	                return [data_1.datumFactory(covariate.name, covariate.referencePoint)];
+	            }
+	        }
+	        else {
+	            // Fall back to setting it to reference point
+	            if (env_1.shouldLogWarnings()) {
+	                console.warn(common_tags_1.oneLine `Incomplete data to calculate coefficent for
+	                    datafield ${covariate.name}. Setting it to reference point`);
+	            }
+	            return [data_1.datumFromCovariateReferencePointFactory(covariate)];
+	        }
+	    }
+	    else {
+	        return [datumFound];
+	    }
+	}
+	exports.calculateDataToCalculateCoefficent = calculateDataToCalculateCoefficent;
+	//# sourceMappingURL=base-covariate.js.map
+
+/***/ },
+/* 435 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var env_1 = __webpack_require__(436);
+	exports.shouldLogDebugInfo = env_1.shouldLogDebugInfo;
+	exports.shouldLogWarnings = env_1.shouldLogWarnings;
+	exports.env = env_1.env;
+	//# sourceMappingURL=index.js.map
+
+/***/ },
+/* 436 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -40728,156 +41038,3724 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return isEnvironmentDebugging();
 	}
 	exports.shouldLogDebugInfo = shouldLogDebugInfo;
+	exports.env = {
+	    setEnvironmentToProduction,
+	    setEnvironmentToDevelopment,
+	    setEnvironmentToDebugging,
+	    isEnvironmentProduction,
+	    isEnvironmentDevelopment,
+	    isEnvironmentDebugging,
+	};
 	//# sourceMappingURL=env.js.map
 
 /***/ },
-/* 424 */
+/* 437 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const datum_1 = __webpack_require__(306);
-	const covariate_1 = __webpack_require__(304);
-	function isCoefficentDatumSetToReferencePoint(interactionCovariate, datum) {
-	    const derivedFieldForDatum = interactionCovariate.derivedField
-	        .derivedFrom
-	        .find(derivedFromItem => derivedFromItem.name === datum.name);
-	    if (!derivedFieldForDatum) {
-	        throw new Error(`No derived field found for datum ${datum.name}`);
-	    }
-	    return derivedFieldForDatum.referencePoint === datum.coefficent;
+	var field_type_1 = __webpack_require__(438);
+	exports.FieldType = field_type_1.FieldType;
+	var field_1 = __webpack_require__(439);
+	exports.getDatumForField = field_1.getDatumForField;
+	exports.isFieldWithName = field_1.isFieldWithName;
+	//# sourceMappingURL=index.js.map
+
+/***/ },
+/* 438 */
+/***/ function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var FieldType;
+	(function (FieldType) {
+	    FieldType[FieldType["DataField"] = 0] = "DataField";
+	    FieldType[FieldType["DerivedField"] = 1] = "DerivedField";
+	    FieldType[FieldType["NonInteractionCovariate"] = 2] = "NonInteractionCovariate";
+	    FieldType[FieldType["InteractionCovariate"] = 3] = "InteractionCovariate";
+	})(FieldType = exports.FieldType || (exports.FieldType = {}));
+	//# sourceMappingURL=field-type.js.map
+
+/***/ },
+/* 439 */
+/***/ function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	function getDatumForField(field, data) {
+	    return data.find(datum => datum.name === field.name);
 	}
-	function calculateDataToCalculateCoefficent(interactionCovariate, data) {
-	    const coefficentData = covariate_1.calculateDataToCalculateCoefficent(interactionCovariate, data);
-	    if (isCoefficentDatumSetToReferencePoint(interactionCovariate, coefficentData[0]) || isCoefficentDatumSetToReferencePoint(interactionCovariate, coefficentData[1])) {
-	        return [
-	            datum_1.datumFromCovariateReferencePointFactory(interactionCovariate)
-	        ];
+	exports.getDatumForField = getDatumForField;
+	function isFieldWithName(field, name) {
+	    return field.name === name;
+	}
+	exports.isFieldWithName = isFieldWithName;
+	//# sourceMappingURL=field.js.map
+
+/***/ },
+/* 440 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var custom_function_type_1 = __webpack_require__(441);
+	exports.CustomFunctionType = custom_function_type_1.CustomFunctionType;
+	var json_custom_function_1 = __webpack_require__(442);
+	exports.parseCustomFunctionJsonToCustomFunction = json_custom_function_1.parseCustomFunctionJsonToCustomFunction;
+	var rcs_custom_function_1 = __webpack_require__(445);
+	exports.calculateDataToCalculateCoefficent = rcs_custom_function_1.calculateDataToCalculateCoefficent;
+	exports.calculateCoefficent = rcs_custom_function_1.calculateCoefficent;
+	//# sourceMappingURL=index.js.map
+
+/***/ },
+/* 441 */
+/***/ function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var CustomFunctionType;
+	(function (CustomFunctionType) {
+	    CustomFunctionType[CustomFunctionType["RcsCustomFunction"] = 0] = "RcsCustomFunction";
+	})(CustomFunctionType = exports.CustomFunctionType || (exports.CustomFunctionType = {}));
+	//# sourceMappingURL=custom-function-type.js.map
+
+/***/ },
+/* 442 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var json_custom_function_1 = __webpack_require__(443);
+	exports.parseCustomFunctionJsonToCustomFunction = json_custom_function_1.parseCustomFunctionJsonToCustomFunction;
+	//# sourceMappingURL=index.js.map
+
+/***/ },
+/* 443 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const json_rcs_custom_function_1 = __webpack_require__(444);
+	const custom_function_1 = __webpack_require__(440);
+	function parseCustomFunctionJsonToCustomFunction(customFunctionJson, covariateJsons, derivedFieldJsons) {
+	    if (customFunctionJson.customFunctionType ===
+	        custom_function_1.CustomFunctionType.RcsCustomFunction) {
+	        return json_rcs_custom_function_1.parseRcsCustomFunctionJsonToRcsCustomFunction(customFunctionJson, covariateJsons, derivedFieldJsons);
 	    }
 	    else {
-	        return coefficentData;
+	        throw new Error(`Unknown custom function type`);
 	    }
 	}
+	exports.parseCustomFunctionJsonToCustomFunction = parseCustomFunctionJsonToCustomFunction;
+	//# sourceMappingURL=json-custom-function.js.map
+
+/***/ },
+/* 444 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const covariate_1 = __webpack_require__(308);
+	function parseRcsCustomFunctionJsonToRcsCustomFunction(rcsCustomFunctionJson, covariateJsons, derivedFieldJsons) {
+	    const firstVariableCovariate = covariate_1.findCovariateJsonWithName(covariateJsons, rcsCustomFunctionJson.firstVariableCovariate);
+	    if (!firstVariableCovariate) {
+	        throw new Error(``);
+	    }
+	    return Object.assign({}, rcsCustomFunctionJson, {
+	        firstVariableCovariate: covariate_1.parseCovariateJsonToCovariate(firstVariableCovariate, covariateJsons, derivedFieldJsons),
+	    });
+	}
+	exports.parseRcsCustomFunctionJsonToRcsCustomFunction = parseRcsCustomFunctionJsonToRcsCustomFunction;
+	//# sourceMappingURL=json-rcs-custom-function.js.map
+
+/***/ },
+/* 445 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const covariate_1 = __webpack_require__(308);
+	const field_1 = __webpack_require__(437);
+	// Calculates the first term in the spline equation
+	function getFirstTerm(rcsCustomFunction, firstVariableValue) {
+	    const numerator = firstVariableValue -
+	        rcsCustomFunction.knots[rcsCustomFunction.variableNumber - 2];
+	    const denominator = Math.pow(rcsCustomFunction.knots[rcsCustomFunction.knots.length - 1] -
+	        rcsCustomFunction.knots[0], 2 / 3);
+	    return Math.pow(Math.max(numerator / denominator, 0), 3);
+	}
+	//Calculates the second term in the spline equation
+	function getSecondTerm(rcsCustomFunction, firstVariableValue) {
+	    const coefficentNumerator = rcsCustomFunction.knots[rcsCustomFunction.knots.length - 1] -
+	        rcsCustomFunction.knots[rcsCustomFunction.variableNumber - 2];
+	    const coefficentDenominator = rcsCustomFunction.knots[rcsCustomFunction.knots.length - 1] -
+	        rcsCustomFunction.knots[rcsCustomFunction.knots.length - 2];
+	    const coefficent = coefficentNumerator / coefficentDenominator;
+	    const numerator = firstVariableValue -
+	        rcsCustomFunction.knots[rcsCustomFunction.knots.length - 2];
+	    const denominator = Math.pow(rcsCustomFunction.knots[rcsCustomFunction.knots.length - 1] -
+	        rcsCustomFunction.knots[0], 2 / 3);
+	    return coefficent * Math.pow(Math.max(numerator / denominator, 0), 3);
+	}
+	//Calculates the third term inthe spline equation
+	function getThirdTerm(rcsCustomFunction, firstVariableValue) {
+	    const coefficentNumerator = rcsCustomFunction.knots[rcsCustomFunction.knots.length - 2] -
+	        rcsCustomFunction.knots[rcsCustomFunction.variableNumber - 2];
+	    const coefficentDenominator = rcsCustomFunction.knots[rcsCustomFunction.knots.length - 1] -
+	        rcsCustomFunction.knots[rcsCustomFunction.knots.length - 2];
+	    const coefficent = coefficentNumerator / coefficentDenominator;
+	    const numerator = firstVariableValue -
+	        rcsCustomFunction.knots[rcsCustomFunction.knots.length - 1];
+	    const denominator = Math.pow(rcsCustomFunction.knots[rcsCustomFunction.knots.length - 1] -
+	        rcsCustomFunction.knots[0], 2 / 3);
+	    return coefficent * Math.pow(Math.max(numerator / denominator, 0), 3);
+	}
+	/**
+	 * Evaluates this custom function
+	 *
+	 * @param {EvaluateArgs} args
+	 * @returns {number}
+	 *
+	 * @memberOf Spline
+	 */
+	function calculateCoefficent(rcsCustomFunction, data) {
+	    const datumValue = getDataToCalculateCoefficent(rcsCustomFunction, data)
+	        .coefficent;
+	    return (getFirstTerm(rcsCustomFunction, datumValue) -
+	        getSecondTerm(rcsCustomFunction, datumValue) +
+	        getThirdTerm(rcsCustomFunction, datumValue));
+	}
+	exports.calculateCoefficent = calculateCoefficent;
+	/**
+	 * Returns the Datum object which is used in coefficent calculation
+	 *
+	 * @param {Array<IDatum>} data
+	 * @returns {IDatum}
+	 *
+	 * @memberOf RCSSpline
+	 */
+	function getDataToCalculateCoefficent(rcsCustomFunction, data) {
+	    //get the datum object for the first variable predictor
+	    const datumFound = data.find(datum => field_1.isFieldWithName(rcsCustomFunction.firstVariableCovariate, datum.name));
+	    //if we found one then we are good otherwise throw an error
+	    if (datumFound) {
+	        return datumFound;
+	    }
+	    else {
+	        throw new Error(`No Datum found for Predictor with name ${rcsCustomFunction
+	            .firstVariableCovariate.name}`);
+	    }
+	}
+	function calculateDataToCalculateCoefficent(rcsCustomFunction, data, userDefinedFunctions) {
+	    return [
+	        {
+	            name: rcsCustomFunction.firstVariableCovariate.name,
+	            coefficent: covariate_1.calculateCoefficent(rcsCustomFunction.firstVariableCovariate, data, userDefinedFunctions),
+	        },
+	    ];
+	}
 	exports.calculateDataToCalculateCoefficent = calculateDataToCalculateCoefficent;
-	//# sourceMappingURL=interaction-covariate.js.map
+	//# sourceMappingURL=rcs-custom-function.js.map
 
 /***/ },
-/* 425 */
+/* 446 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const cox_1 = __webpack_require__(303);
-	function curryGetSurvivalToTimeFunction(cox) {
-	    return (data, time) => {
-	        return cox_1.getSurvivalToTime(cox, data, time);
-	    };
-	}
-	exports.curryGetSurvivalToTimeFunction = curryGetSurvivalToTimeFunction;
-	//# sourceMappingURL=get-survival-to-time.js.map
+	var json_derived_field_1 = __webpack_require__(447);
+	exports.findDerivedFieldJsonWithName = json_derived_field_1.findDerivedFieldJsonWithName;
+	exports.parseDerivedFieldJsonToDerivedField = json_derived_field_1.parseDerivedFieldJsonToDerivedField;
+	var derived_field_1 = __webpack_require__(449);
+	exports.calculateCoefficent = derived_field_1.calculateCoefficent;
+	exports.calculateDataToCalculateCoefficent = derived_field_1.calculateDataToCalculateCoefficent;
+	//# sourceMappingURL=index.js.map
 
 /***/ },
-/* 426 */
+/* 447 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const get_risk_1 = __webpack_require__(302);
-	const get_survival_to_time_1 = __webpack_require__(425);
-	const get_life_expectancy_1 = __webpack_require__(427);
-	const get_life_years_lost_1 = __webpack_require__(429);
-	const to_json_1 = __webpack_require__(431);
-	const add_ref_pop_1 = __webpack_require__(432);
-	const get_health_age_1 = __webpack_require__(433);
-	const algorithm_evaluator_1 = __webpack_require__(435);
-	const add_algorithm_1 = __webpack_require__(442);
-	function curryAddLifeTableFunctionWithAddRefPop(cox, coxJson) {
-	    return (lifeTable) => {
-	        return {
-	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
-	            getRisk: get_risk_1.curryGetRiskFunction(cox),
-	            getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyFunction(cox, lifeTable),
-	            getLifeYearsLost: get_life_years_lost_1.curryGetLifeYearsLostFunction(coxJson.causeDeletedRef, lifeTable),
-	            toJson: to_json_1.curryToJsonFunction(coxJson),
-	            withData: algorithm_evaluator_1.curryWithDataAndLifeTableFunctionsFunction({}),
-	            addRefPop: add_ref_pop_1.curryAddRefPopWithGetLifeExpectancy(cox, coxJson, lifeTable),
-	            addAlgorithm: add_algorithm_1.curryAddAlgorithmWithLifeTableFunctionsFunction(cox, lifeTable, coxJson)
-	        };
-	    };
-	}
-	exports.curryAddLifeTableFunctionWithAddRefPop = curryAddLifeTableFunctionWithAddRefPop;
-	function curryAddLifeTableFunctionWithGetHealthAge(cox, coxJson, refPop) {
-	    return (lifeTable) => {
-	        return {
-	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
-	            getRisk: get_risk_1.curryGetRiskFunction(cox),
-	            getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyFunction(cox, lifeTable),
-	            getHealthAge: get_health_age_1.curryGetHeathAgeFunction(refPop),
-	            getLifeYearsLost: get_life_years_lost_1.curryGetLifeYearsLostFunction(coxJson.causeDeletedRef, lifeTable),
-	            withData: algorithm_evaluator_1.curryFullWithDataFunction({}),
-	            toJson: to_json_1.curryToJsonFunction(coxJson),
-	            addAlgorithm: add_algorithm_1.curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(cox, coxJson, refPop, lifeTable)
-	        };
-	    };
-	}
-	exports.curryAddLifeTableFunctionWithGetHealthAge = curryAddLifeTableFunctionWithGetHealthAge;
-	//# sourceMappingURL=add-life-table.js.map
+	var json_derived_field_1 = __webpack_require__(448);
+	exports.findDerivedFieldJsonWithName = json_derived_field_1.findDerivedFieldJsonWithName;
+	exports.parseDerivedFieldJsonToDerivedField = json_derived_field_1.parseDerivedFieldJsonToDerivedField;
+	//# sourceMappingURL=index.js.map
 
 /***/ },
-/* 427 */
+/* 448 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const cox_1 = __webpack_require__(303);
-	const life_expectancy_1 = __webpack_require__(428);
-	function curryGetLifeExpectancyFunction(coxAlgorithm, baseLifeTable, useExFromLifeTableFromAge = 99) {
-	    return (data, time) => {
-	        const ageInputIndex = data
-	            .findIndex((datum) => {
-	            return datum.name === 'age';
+	const covariate_1 = __webpack_require__(308);
+	function findDerivedFieldJsonWithName(derivedFieldJsons, name) {
+	    return derivedFieldJsons.find(derivedFieldJson => derivedFieldJson.name === name);
+	}
+	exports.findDerivedFieldJsonWithName = findDerivedFieldJsonWithName;
+	function parseDerivedFromJsonToDerivedFrom(derivedFromJson, derivedFieldJsons, covariatesJson) {
+	    return derivedFromJson.map(derivedFromJsonItem => {
+	        if (typeof derivedFromJsonItem === 'string') {
+	            const covariateJsonForCurrentDerivedFromItem = covariate_1.findCovariateJsonWithName(covariatesJson, derivedFromJsonItem);
+	            const derivedFieldJsonForCurrentDerivedFromItem = findDerivedFieldJsonWithName(derivedFieldJsons, derivedFromJsonItem);
+	            if (covariateJsonForCurrentDerivedFromItem) {
+	                return covariate_1.parseCovariateJsonToCovariate(covariateJsonForCurrentDerivedFromItem, covariatesJson, derivedFieldJsons);
+	            }
+	            else if (derivedFieldJsonForCurrentDerivedFromItem) {
+	                return parseDerivedFieldJsonToDerivedField(derivedFieldJsonForCurrentDerivedFromItem, derivedFieldJsons, covariatesJson);
+	            }
+	            else {
+	                throw new Error();
+	            }
+	        }
+	        else {
+	            return derivedFromJsonItem;
+	        }
+	    });
+	}
+	exports.parseDerivedFromJsonToDerivedFrom = parseDerivedFromJsonToDerivedFrom;
+	function parseDerivedFieldJsonToDerivedField(derivedFieldJson, derivedFieldJsons, covariateJsons) {
+	    return Object.assign({}, derivedFieldJson, {
+	        derivedFrom: parseDerivedFromJsonToDerivedFrom(derivedFieldJson.derivedFrom, derivedFieldJsons, covariateJsons),
+	    });
+	}
+	exports.parseDerivedFieldJsonToDerivedField = parseDerivedFieldJsonToDerivedField;
+	//# sourceMappingURL=json-derived-field.js.map
+
+/***/ },
+/* 449 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const field_1 = __webpack_require__(437);
+	const field_2 = __webpack_require__(437);
+	const lodash_1 = __webpack_require__(314);
+	const data_1 = __webpack_require__(311);
+	const covariate_1 = __webpack_require__(308);
+	const pmml_functions_1 = __webpack_require__(450);
+	const env_1 = __webpack_require__(435);
+	function evaluateEquation(derivedField, obj, userFunctions) {
+	    // tslint:disable-next-line
+	    obj;
+	    // tslint:disable-next-line
+	    userFunctions;
+	    // tslint:disable-next-line
+	    let derived = undefined;
+	    // tslint:disable-next-line
+	    let func = pmml_functions_1.default;
+	    // tslint:disable-next-line
+	    func;
+	    eval(derivedField.equation);
+	    return derived;
+	}
+	function calculateCoefficent(derivedField, data, userDefinedFunctions) {
+	    /*Check if there is a datum for this intermediate predictor. If there is then we don't need to go further*/
+	    const datumForCurrentDerivedField = field_1.getDatumForField(derivedField, data);
+	    if (datumForCurrentDerivedField) {
+	        return datumForCurrentDerivedField.coefficent;
+	    }
+	    else {
+	        /*Filter out all the datum which are not needed for the equation evaluation*/
+	        let dataForEvaluation = data.filter(datum => derivedField.derivedFrom.find(derivedFromItem => derivedFromItem.name === datum.name)
+	            ? true
+	            : false);
+	        /*If we don't have all the data for evaluation when calculate it*/
+	        if (dataForEvaluation.length !== derivedField.derivedFrom.length) {
+	            dataForEvaluation = calculateDataToCalculateCoefficent(derivedField, data, userDefinedFunctions);
+	        }
+	        if (env_1.shouldLogDebugInfo() === true) {
+	            console.groupCollapsed(`Derived Field: ${derivedField.name}`);
+	            console.log(`Name: ${derivedField.name}`);
+	            console.log(`Derived Field: ${derivedField.equation}`);
+	            console.log(`Derived Field Data`);
+	            console.table(dataForEvaluation);
+	        }
+	        /*make the object with the all the data needed for the equation evaluation*/
+	        const obj = {};
+	        dataForEvaluation.forEach(datum => (obj[datum.name] = datum.coefficent));
+	        const evaluatedValue = evaluateEquation(derivedField, obj, userDefinedFunctions);
+	        if (env_1.shouldLogDebugInfo()) {
+	            console.log(`Evaluated value: ${evaluatedValue}`);
+	            console.groupEnd();
+	        }
+	        return evaluatedValue;
+	    }
+	}
+	exports.calculateCoefficent = calculateCoefficent;
+	function calculateDataToCalculateCoefficent(derivedField, data, userDefinedFunctions) {
+	    /*Go through each explanatory predictor and calculate the coefficent for
+	    each which will be used for the evaluation*/
+	    return lodash_1.flatten(derivedField.derivedFrom.map(derivedFromItem => {
+	        const fieldName = derivedFromItem.name;
+	        if (derivedFromItem.fieldType === field_2.FieldType.InteractionCovariate ||
+	            derivedFromItem.fieldType === field_2.FieldType.NonInteractionCovariate) {
+	            return data_1.datumFactory(fieldName, covariate_1.calculateCoefficent(derivedFromItem, data, userDefinedFunctions));
+	        }
+	        else if (derivedFromItem.fieldType === field_2.FieldType.DerivedField) {
+	            return data_1.datumFactory(fieldName, calculateCoefficent(derivedFromItem, data, userDefinedFunctions));
+	        }
+	        else {
+	            const datumFound = field_1.getDatumForField(derivedFromItem, data);
+	            if (!datumFound) {
+	                return {
+	                    name: derivedField.name,
+	                    coefficent: null,
+	                };
+	            }
+	            else {
+	                return datumFound;
+	            }
+	        }
+	    }));
+	}
+	exports.calculateDataToCalculateCoefficent = calculateDataToCalculateCoefficent;
+	function getLeafFieldsForDerivedField(derivedField) {
+	    if (derivedField.derivedFrom.length === 0) {
+	        return [derivedField];
+	    }
+	    else {
+	        return lodash_1.flatten(derivedField.derivedFrom.map(derivedFromItem => {
+	            if (derivedFromItem.fieldType === field_2.FieldType.DataField) {
+	                return derivedFromItem;
+	            }
+	            else if (derivedFromItem.fieldType === field_2.FieldType.DerivedField) {
+	                return getLeafFieldsForDerivedField(derivedFromItem);
+	            }
+	            else {
+	                if (derivedFromItem.derivedField) {
+	                    return getLeafFieldsForDerivedField(derivedFromItem.derivedField);
+	                }
+	                else {
+	                    return derivedFromItem;
+	                }
+	            }
+	        }));
+	    }
+	}
+	exports.getLeafFieldsForDerivedField = getLeafFieldsForDerivedField;
+	//# sourceMappingURL=derived-field.js.map
+
+/***/ },
+/* 450 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const moment = __webpack_require__(324);
+	exports.default = {
+	    exp: function (value) {
+	        return Math.exp(value);
+	    },
+	    ln: function (value) {
+	        return Math.log(value);
+	    },
+	    'is.na': function (value) {
+	        return value === null;
+	    },
+	    not: function (value) {
+	        return !value;
+	    },
+	    notEqual: function (valueOne, valueTwo) {
+	        return valueOne !== valueTwo;
+	    },
+	    formatDatetime: function (date, format) {
+	        const momentFormatString = format
+	            .replace(/%y/gi, 'YYYY')
+	            .replace(/%d/gi, 'DD')
+	            .replace(/%m/gi, 'MM');
+	        return moment(date).format(momentFormatString);
+	    },
+	    max: function (num1, num2) {
+	        return Math.max(num1, num2);
+	    },
+	    sum: function (...args) {
+	        return args.reduce((currentSum, currentArg) => {
+	            return currentSum + currentArg;
+	        }, 0);
+	    },
+	    isIn: function (...args) {
+	        return args.slice(1).indexOf(args[0]) > -1;
+	    },
+	    log: function (num) {
+	        return Math.log10(num);
+	    },
+	    ifelse: function (booleanOne, whenTrue, whenFalse) {
+	        return booleanOne ? whenTrue : whenFalse;
+	    },
+	};
+	//# sourceMappingURL=pmml-functions.js.map
+
+/***/ },
+/* 451 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	// core
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.stripIndents = exports.stripIndent = exports.oneLineInlineLists = exports.inlineLists = exports.oneLineCommaListsAnd = exports.oneLineCommaListsOr = exports.oneLineCommaLists = exports.oneLineTrim = exports.oneLine = exports.safeHtml = exports.source = exports.codeBlock = exports.html = exports.commaListsOr = exports.commaListsAnd = exports.commaLists = exports.removeNonPrintingValuesTransformer = exports.splitStringTransformer = exports.inlineArrayTransformer = exports.replaceSubstitutionTransformer = exports.replaceResultTransformer = exports.stripIndentTransformer = exports.trimResultTransformer = exports.TemplateTag = undefined;
+	
+	var _TemplateTag2 = __webpack_require__(452);
+	
+	var _TemplateTag3 = _interopRequireDefault(_TemplateTag2);
+	
+	var _trimResultTransformer2 = __webpack_require__(499);
+	
+	var _trimResultTransformer3 = _interopRequireDefault(_trimResultTransformer2);
+	
+	var _stripIndentTransformer2 = __webpack_require__(501);
+	
+	var _stripIndentTransformer3 = _interopRequireDefault(_stripIndentTransformer2);
+	
+	var _replaceResultTransformer2 = __webpack_require__(526);
+	
+	var _replaceResultTransformer3 = _interopRequireDefault(_replaceResultTransformer2);
+	
+	var _replaceSubstitutionTransformer2 = __webpack_require__(528);
+	
+	var _replaceSubstitutionTransformer3 = _interopRequireDefault(_replaceSubstitutionTransformer2);
+	
+	var _inlineArrayTransformer2 = __webpack_require__(530);
+	
+	var _inlineArrayTransformer3 = _interopRequireDefault(_inlineArrayTransformer2);
+	
+	var _splitStringTransformer2 = __webpack_require__(532);
+	
+	var _splitStringTransformer3 = _interopRequireDefault(_splitStringTransformer2);
+	
+	var _removeNonPrintingValuesTransformer2 = __webpack_require__(534);
+	
+	var _removeNonPrintingValuesTransformer3 = _interopRequireDefault(_removeNonPrintingValuesTransformer2);
+	
+	var _commaLists2 = __webpack_require__(539);
+	
+	var _commaLists3 = _interopRequireDefault(_commaLists2);
+	
+	var _commaListsAnd2 = __webpack_require__(541);
+	
+	var _commaListsAnd3 = _interopRequireDefault(_commaListsAnd2);
+	
+	var _commaListsOr2 = __webpack_require__(543);
+	
+	var _commaListsOr3 = _interopRequireDefault(_commaListsOr2);
+	
+	var _html2 = __webpack_require__(545);
+	
+	var _html3 = _interopRequireDefault(_html2);
+	
+	var _codeBlock2 = __webpack_require__(547);
+	
+	var _codeBlock3 = _interopRequireDefault(_codeBlock2);
+	
+	var _source2 = __webpack_require__(548);
+	
+	var _source3 = _interopRequireDefault(_source2);
+	
+	var _safeHtml2 = __webpack_require__(549);
+	
+	var _safeHtml3 = _interopRequireDefault(_safeHtml2);
+	
+	var _oneLine2 = __webpack_require__(551);
+	
+	var _oneLine3 = _interopRequireDefault(_oneLine2);
+	
+	var _oneLineTrim2 = __webpack_require__(553);
+	
+	var _oneLineTrim3 = _interopRequireDefault(_oneLineTrim2);
+	
+	var _oneLineCommaLists2 = __webpack_require__(555);
+	
+	var _oneLineCommaLists3 = _interopRequireDefault(_oneLineCommaLists2);
+	
+	var _oneLineCommaListsOr2 = __webpack_require__(557);
+	
+	var _oneLineCommaListsOr3 = _interopRequireDefault(_oneLineCommaListsOr2);
+	
+	var _oneLineCommaListsAnd2 = __webpack_require__(559);
+	
+	var _oneLineCommaListsAnd3 = _interopRequireDefault(_oneLineCommaListsAnd2);
+	
+	var _inlineLists2 = __webpack_require__(561);
+	
+	var _inlineLists3 = _interopRequireDefault(_inlineLists2);
+	
+	var _oneLineInlineLists2 = __webpack_require__(563);
+	
+	var _oneLineInlineLists3 = _interopRequireDefault(_oneLineInlineLists2);
+	
+	var _stripIndent2 = __webpack_require__(565);
+	
+	var _stripIndent3 = _interopRequireDefault(_stripIndent2);
+	
+	var _stripIndents2 = __webpack_require__(567);
+	
+	var _stripIndents3 = _interopRequireDefault(_stripIndents2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.TemplateTag = _TemplateTag3.default;
+	
+	// transformers
+	
+	exports.trimResultTransformer = _trimResultTransformer3.default;
+	exports.stripIndentTransformer = _stripIndentTransformer3.default;
+	exports.replaceResultTransformer = _replaceResultTransformer3.default;
+	exports.replaceSubstitutionTransformer = _replaceSubstitutionTransformer3.default;
+	exports.inlineArrayTransformer = _inlineArrayTransformer3.default;
+	exports.splitStringTransformer = _splitStringTransformer3.default;
+	exports.removeNonPrintingValuesTransformer = _removeNonPrintingValuesTransformer3.default;
+	
+	// tags
+	
+	exports.commaLists = _commaLists3.default;
+	exports.commaListsAnd = _commaListsAnd3.default;
+	exports.commaListsOr = _commaListsOr3.default;
+	exports.html = _html3.default;
+	exports.codeBlock = _codeBlock3.default;
+	exports.source = _source3.default;
+	exports.safeHtml = _safeHtml3.default;
+	exports.oneLine = _oneLine3.default;
+	exports.oneLineTrim = _oneLineTrim3.default;
+	exports.oneLineCommaLists = _oneLineCommaLists3.default;
+	exports.oneLineCommaListsOr = _oneLineCommaListsOr3.default;
+	exports.oneLineCommaListsAnd = _oneLineCommaListsAnd3.default;
+	exports.inlineLists = _inlineLists3.default;
+	exports.oneLineInlineLists = _oneLineInlineLists3.default;
+	exports.stripIndent = _stripIndent3.default;
+	exports.stripIndents = _stripIndents3.default;
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uL3NyYy9pbmRleC5qcyJdLCJuYW1lcyI6WyJUZW1wbGF0ZVRhZyIsInRyaW1SZXN1bHRUcmFuc2Zvcm1lciIsInN0cmlwSW5kZW50VHJhbnNmb3JtZXIiLCJyZXBsYWNlUmVzdWx0VHJhbnNmb3JtZXIiLCJyZXBsYWNlU3Vic3RpdHV0aW9uVHJhbnNmb3JtZXIiLCJpbmxpbmVBcnJheVRyYW5zZm9ybWVyIiwic3BsaXRTdHJpbmdUcmFuc2Zvcm1lciIsInJlbW92ZU5vblByaW50aW5nVmFsdWVzVHJhbnNmb3JtZXIiLCJjb21tYUxpc3RzIiwiY29tbWFMaXN0c0FuZCIsImNvbW1hTGlzdHNPciIsImh0bWwiLCJjb2RlQmxvY2siLCJzb3VyY2UiLCJzYWZlSHRtbCIsIm9uZUxpbmUiLCJvbmVMaW5lVHJpbSIsIm9uZUxpbmVDb21tYUxpc3RzIiwib25lTGluZUNvbW1hTGlzdHNPciIsIm9uZUxpbmVDb21tYUxpc3RzQW5kIiwiaW5saW5lTGlzdHMiLCJvbmVMaW5lSW5saW5lTGlzdHMiLCJzdHJpcEluZGVudCIsInN0cmlwSW5kZW50cyJdLCJtYXBwaW5ncyI6IkFBQUE7O0FBRUE7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztRQUNPQSxXOztBQUVQOztRQUNPQyxxQjtRQUNBQyxzQjtRQUNBQyx3QjtRQUNBQyw4QjtRQUNBQyxzQjtRQUNBQyxzQjtRQUNBQyxrQzs7QUFFUDs7UUFDT0MsVTtRQUNBQyxhO1FBQ0FDLFk7UUFDQUMsSTtRQUNBQyxTO1FBQ0FDLE07UUFDQUMsUTtRQUNBQyxPO1FBQ0FDLFc7UUFDQUMsaUI7UUFDQUMsbUI7UUFDQUMsb0I7UUFDQUMsVztRQUNBQyxrQjtRQUNBQyxXO1FBQ0FDLFkiLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuLy8gY29yZVxuZXhwb3J0IFRlbXBsYXRlVGFnIGZyb20gJy4vVGVtcGxhdGVUYWcnXG5cbi8vIHRyYW5zZm9ybWVyc1xuZXhwb3J0IHRyaW1SZXN1bHRUcmFuc2Zvcm1lciBmcm9tICcuL3RyaW1SZXN1bHRUcmFuc2Zvcm1lcidcbmV4cG9ydCBzdHJpcEluZGVudFRyYW5zZm9ybWVyIGZyb20gJy4vc3RyaXBJbmRlbnRUcmFuc2Zvcm1lcidcbmV4cG9ydCByZXBsYWNlUmVzdWx0VHJhbnNmb3JtZXIgZnJvbSAnLi9yZXBsYWNlUmVzdWx0VHJhbnNmb3JtZXInXG5leHBvcnQgcmVwbGFjZVN1YnN0aXR1dGlvblRyYW5zZm9ybWVyIGZyb20gJy4vcmVwbGFjZVN1YnN0aXR1dGlvblRyYW5zZm9ybWVyJ1xuZXhwb3J0IGlubGluZUFycmF5VHJhbnNmb3JtZXIgZnJvbSAnLi9pbmxpbmVBcnJheVRyYW5zZm9ybWVyJ1xuZXhwb3J0IHNwbGl0U3RyaW5nVHJhbnNmb3JtZXIgZnJvbSAnLi9zcGxpdFN0cmluZ1RyYW5zZm9ybWVyJ1xuZXhwb3J0IHJlbW92ZU5vblByaW50aW5nVmFsdWVzVHJhbnNmb3JtZXIgZnJvbSAnLi9yZW1vdmVOb25QcmludGluZ1ZhbHVlc1RyYW5zZm9ybWVyJ1xuXG4vLyB0YWdzXG5leHBvcnQgY29tbWFMaXN0cyBmcm9tICcuL2NvbW1hTGlzdHMnXG5leHBvcnQgY29tbWFMaXN0c0FuZCBmcm9tICcuL2NvbW1hTGlzdHNBbmQnXG5leHBvcnQgY29tbWFMaXN0c09yIGZyb20gJy4vY29tbWFMaXN0c09yJ1xuZXhwb3J0IGh0bWwgZnJvbSAnLi9odG1sJ1xuZXhwb3J0IGNvZGVCbG9jayBmcm9tICcuL2NvZGVCbG9jaydcbmV4cG9ydCBzb3VyY2UgZnJvbSAnLi9zb3VyY2UnXG5leHBvcnQgc2FmZUh0bWwgZnJvbSAnLi9zYWZlSHRtbCdcbmV4cG9ydCBvbmVMaW5lIGZyb20gJy4vb25lTGluZSdcbmV4cG9ydCBvbmVMaW5lVHJpbSBmcm9tICcuL29uZUxpbmVUcmltJ1xuZXhwb3J0IG9uZUxpbmVDb21tYUxpc3RzIGZyb20gJy4vb25lTGluZUNvbW1hTGlzdHMnXG5leHBvcnQgb25lTGluZUNvbW1hTGlzdHNPciBmcm9tICcuL29uZUxpbmVDb21tYUxpc3RzT3InXG5leHBvcnQgb25lTGluZUNvbW1hTGlzdHNBbmQgZnJvbSAnLi9vbmVMaW5lQ29tbWFMaXN0c0FuZCdcbmV4cG9ydCBpbmxpbmVMaXN0cyBmcm9tICcuL2lubGluZUxpc3RzJ1xuZXhwb3J0IG9uZUxpbmVJbmxpbmVMaXN0cyBmcm9tICcuL29uZUxpbmVJbmxpbmVMaXN0cydcbmV4cG9ydCBzdHJpcEluZGVudCBmcm9tICcuL3N0cmlwSW5kZW50J1xuZXhwb3J0IHN0cmlwSW5kZW50cyBmcm9tICcuL3N0cmlwSW5kZW50cydcbiJdfQ==
+
+/***/ },
+/* 452 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _TemplateTag = __webpack_require__(453);
+	
+	var _TemplateTag2 = _interopRequireDefault(_TemplateTag);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _TemplateTag2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9UZW1wbGF0ZVRhZy9pbmRleC5qcyJdLCJuYW1lcyI6WyJkZWZhdWx0Il0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7Ozs7Ozs7OztRQUVPQSxPIiwiZmlsZSI6ImluZGV4LmpzIiwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBzdHJpY3QnXG5cbmV4cG9ydCBkZWZhdWx0IGZyb20gJy4vVGVtcGxhdGVUYWcnXG4iXX0=
+
+/***/ },
+/* 453 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	/**
+	 * @class TemplateTag
+	 * @classdesc Consumes a pipeline of composeable transformer plugins and produces a template tag.
+	 */
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _taggedTemplateLiteral2 = __webpack_require__(454);
+	
+	var _taggedTemplateLiteral3 = _interopRequireDefault(_taggedTemplateLiteral2);
+	
+	var _classCallCheck2 = __webpack_require__(494);
+	
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+	
+	var _createClass2 = __webpack_require__(495);
+	
+	var _createClass3 = _interopRequireDefault(_createClass2);
+	
+	var _templateObject = (0, _taggedTemplateLiteral3.default)(['', ''], ['', '']);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var TemplateTag = function () {
+	  /**
+	   * constructs a template tag
+	   * @constructs TemplateTag
+	   * @param  {...Object} [...transformers] - an array or arguments list of transformers
+	   * @return {Function}                    - a template tag
+	   */
+	  function TemplateTag() {
+	    for (var _len = arguments.length, transformers = Array(_len), _key = 0; _key < _len; _key++) {
+	      transformers[_key] = arguments[_key];
+	    }
+	
+	    (0, _classCallCheck3.default)(this, TemplateTag);
+	
+	    // if first argument is an array, extrude it as a list of transformers
+	    if (transformers.length && Array.isArray(transformers[0])) {
+	      transformers = transformers[0];
+	    }
+	
+	    // if any transformers are functions, this means they are not initiated - automatically initiate them
+	    this.transformers = transformers.map(function (transformer) {
+	      return typeof transformer === 'function' ? transformer() : transformer;
+	    });
+	
+	    // return an ES2015 template tag
+	    return this.tag.bind(this);
+	  }
+	
+	  /**
+	   * Applies all transformers to a template literal tagged with this method.
+	   * If a function is passed as the first argument, assumes the function is a template tag
+	   * and applies it to the template, returning a template tag.
+	   * @param  {(Function|Array<String>)} args[0] - Either a template tag or an array containing template strings separated by identifier
+	   * @param  {...*} [args[1]]                   - Optional list of substitution values.
+	   * @return {(String|Function)}                - Either an intermediary tag function or the results of processing the template.
+	   */
+	
+	
+	  (0, _createClass3.default)(TemplateTag, [{
+	    key: 'tag',
+	    value: function tag() {
+	      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+	        args[_key2] = arguments[_key2];
+	      }
+	
+	      // if the first argument passed is a function, assume it is a template tag and return
+	      // an intermediary tag that processes the template using the aforementioned tag, passing the
+	      // result to our tag
+	      if (typeof args[0] === 'function') {
+	        return this.interimTag.bind(this, args.shift());
+	      }
+	
+	      // else, return a transformed end result of processing the template with our tag
+	      return this.transformEndResult(args.shift().reduce(this.processSubstitutions.bind(this, args)));
+	    }
+	
+	    /**
+	     * An intermediary template tag that receives a template tag and passes the result of calling the template with the received
+	     * template tag to our own template tag.
+	     * @param  {Function}        nextTag          - the received template tag
+	     * @param  {Array<String>}   template         - the template to process
+	     * @param  {...*}            ...substitutions - `substitutions` is an array of all substitutions in the template
+	     * @return {*}                                - the final processed value
+	     */
+	
+	  }, {
+	    key: 'interimTag',
+	    value: function interimTag(previousTag, template) {
+	      for (var _len3 = arguments.length, substitutions = Array(_len3 > 2 ? _len3 - 2 : 0), _key3 = 2; _key3 < _len3; _key3++) {
+	        substitutions[_key3 - 2] = arguments[_key3];
+	      }
+	
+	      return this.tag(_templateObject, previousTag.apply(undefined, [template].concat(substitutions)));
+	    }
+	
+	    /**
+	     * Performs bulk processing on the tagged template, transforming each substitution and then
+	     * concatenating the resulting values into a string.
+	     * @param  {Array<*>} substitutions - an array of all remaining substitutions present in this template
+	     * @param  {String}   resultSoFar   - this iteration's result string so far
+	     * @param  {String}   remainingPart - the template chunk after the current substitution
+	     * @return {String}                 - the result of joining this iteration's processed substitution with the result
+	     */
+	
+	  }, {
+	    key: 'processSubstitutions',
+	    value: function processSubstitutions(substitutions, resultSoFar, remainingPart) {
+	      var substitution = this.transformSubstitution(substitutions.shift(), resultSoFar);
+	      return resultSoFar + substitution + remainingPart;
+	    }
+	
+	    /**
+	     * When a substitution is encountered, iterates through each transformer and applies the transformer's
+	     * `onSubstitution` method to the substitution.
+	     * @param  {*}      substitution - The current substitution
+	     * @param  {String} resultSoFar  - The result up to and excluding this substitution.
+	     * @return {*}                   - The final result of applying all substitution transformations.
+	     */
+	
+	  }, {
+	    key: 'transformSubstitution',
+	    value: function transformSubstitution(substitution, resultSoFar) {
+	      var cb = function cb(res, transform) {
+	        return transform.onSubstitution ? transform.onSubstitution(res, resultSoFar) : res;
+	      };
+	      return this.transformers.reduce(cb, substitution);
+	    }
+	
+	    /**
+	     * Iterates through each transformer, applying the transformer's `onEndResult` method to the
+	     * template literal after all substitutions have finished processing.
+	     * @param  {String} endResult - The processed template, just before it is returned from the tag
+	     * @return {String}           - The final results of processing each transformer
+	     */
+	
+	  }, {
+	    key: 'transformEndResult',
+	    value: function transformEndResult(endResult) {
+	      var cb = function cb(res, transform) {
+	        return transform.onEndResult ? transform.onEndResult(res) : res;
+	      };
+	      return this.transformers.reduce(cb, endResult);
+	    }
+	  }]);
+	  return TemplateTag;
+	}();
+	
+	exports.default = TemplateTag;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9UZW1wbGF0ZVRhZy9UZW1wbGF0ZVRhZy5qcyJdLCJuYW1lcyI6WyJUZW1wbGF0ZVRhZyIsInRyYW5zZm9ybWVycyIsImxlbmd0aCIsIkFycmF5IiwiaXNBcnJheSIsIm1hcCIsInRyYW5zZm9ybWVyIiwidGFnIiwiYXJncyIsImludGVyaW1UYWciLCJiaW5kIiwic2hpZnQiLCJ0cmFuc2Zvcm1FbmRSZXN1bHQiLCJyZWR1Y2UiLCJwcm9jZXNzU3Vic3RpdHV0aW9ucyIsInByZXZpb3VzVGFnIiwidGVtcGxhdGUiLCJzdWJzdGl0dXRpb25zIiwicmVzdWx0U29GYXIiLCJyZW1haW5pbmdQYXJ0Iiwic3Vic3RpdHV0aW9uIiwidHJhbnNmb3JtU3Vic3RpdHV0aW9uIiwiY2IiLCJyZXMiLCJ0cmFuc2Zvcm0iLCJvblN1YnN0aXR1dGlvbiIsImVuZFJlc3VsdCIsIm9uRW5kUmVzdWx0Il0sIm1hcHBpbmdzIjoiQUFBQTs7QUFFQTs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztJQUlxQkEsVztBQUNuQjs7Ozs7O0FBTUEseUJBQThCO0FBQUEsc0NBQWRDLFlBQWM7QUFBZEEsa0JBQWM7QUFBQTs7QUFBQTs7QUFDNUI7QUFDQSxRQUFJQSxhQUFhQyxNQUFiLElBQXVCQyxNQUFNQyxPQUFOLENBQWNILGFBQWEsQ0FBYixDQUFkLENBQTNCLEVBQTJEO0FBQ3pEQSxxQkFBZUEsYUFBYSxDQUFiLENBQWY7QUFDRDs7QUFFRDtBQUNBLFNBQUtBLFlBQUwsR0FBb0JBLGFBQWFJLEdBQWIsQ0FBaUIsVUFBQ0MsV0FBRCxFQUFpQjtBQUNwRCxhQUFPLE9BQU9BLFdBQVAsS0FBdUIsVUFBdkIsR0FDSEEsYUFERyxHQUVIQSxXQUZKO0FBR0QsS0FKbUIsQ0FBcEI7O0FBTUE7QUFDQSxXQUFTLEtBQUtDLEdBQWQsTUFBUyxJQUFUO0FBQ0Q7O0FBRUQ7Ozs7Ozs7Ozs7OzswQkFRYztBQUFBLHlDQUFOQyxJQUFNO0FBQU5BLFlBQU07QUFBQTs7QUFDWjtBQUNBO0FBQ0E7QUFDQSxVQUFJLE9BQU9BLEtBQUssQ0FBTCxDQUFQLEtBQW1CLFVBQXZCLEVBQW1DO0FBQ2pDLGVBQU8sS0FBS0MsVUFBTCxDQUFnQkMsSUFBaEIsQ0FBcUIsSUFBckIsRUFBMkJGLEtBQUtHLEtBQUwsRUFBM0IsQ0FBUDtBQUNEOztBQUVEO0FBQ0EsYUFBTyxLQUFLQyxrQkFBTCxDQUNMSixLQUFLRyxLQUFMLEdBQWFFLE1BQWIsQ0FBb0IsS0FBS0Msb0JBQUwsQ0FBMEJKLElBQTFCLENBQStCLElBQS9CLEVBQXFDRixJQUFyQyxDQUFwQixDQURLLENBQVA7QUFHRDs7QUFFRDs7Ozs7Ozs7Ozs7K0JBUVlPLFcsRUFBYUMsUSxFQUE0QjtBQUFBLHlDQUFmQyxhQUFlO0FBQWZBLHFCQUFlO0FBQUE7O0FBQ25ELGFBQU8sS0FBS1YsR0FBWixrQkFBa0JRLDhCQUFZQyxRQUFaLFNBQXlCQyxhQUF6QixFQUFsQjtBQUNEOztBQUVEOzs7Ozs7Ozs7Ozt5Q0FRc0JBLGEsRUFBZUMsVyxFQUFhQyxhLEVBQWU7QUFDL0QsVUFBTUMsZUFBZSxLQUFLQyxxQkFBTCxDQUNuQkosY0FBY04sS0FBZCxFQURtQixFQUVuQk8sV0FGbUIsQ0FBckI7QUFJQSxhQUFPQSxjQUFjRSxZQUFkLEdBQTZCRCxhQUFwQztBQUNEOztBQUVEOzs7Ozs7Ozs7OzBDQU91QkMsWSxFQUFjRixXLEVBQWE7QUFDaEQsVUFBTUksS0FBSyxTQUFMQSxFQUFLLENBQUNDLEdBQUQsRUFBTUMsU0FBTjtBQUFBLGVBQW9CQSxVQUFVQyxjQUFWLEdBQzNCRCxVQUFVQyxjQUFWLENBQXlCRixHQUF6QixFQUE4QkwsV0FBOUIsQ0FEMkIsR0FFM0JLLEdBRk87QUFBQSxPQUFYO0FBR0EsYUFBTyxLQUFLdEIsWUFBTCxDQUFrQlksTUFBbEIsQ0FBeUJTLEVBQXpCLEVBQTZCRixZQUE3QixDQUFQO0FBQ0Q7O0FBRUQ7Ozs7Ozs7Ozt1Q0FNb0JNLFMsRUFBVztBQUM3QixVQUFNSixLQUFLLFNBQUxBLEVBQUssQ0FBQ0MsR0FBRCxFQUFNQyxTQUFOO0FBQUEsZUFBb0JBLFVBQVVHLFdBQVYsR0FDM0JILFVBQVVHLFdBQVYsQ0FBc0JKLEdBQXRCLENBRDJCLEdBRTNCQSxHQUZPO0FBQUEsT0FBWDtBQUdBLGFBQU8sS0FBS3RCLFlBQUwsQ0FBa0JZLE1BQWxCLENBQXlCUyxFQUF6QixFQUE2QkksU0FBN0IsQ0FBUDtBQUNEOzs7OztrQkFuR2tCMUIsVyIsImZpbGUiOiJUZW1wbGF0ZVRhZy5qcyIsInNvdXJjZXNDb250ZW50IjpbIid1c2Ugc3RyaWN0J1xuXG4vKipcbiAqIEBjbGFzcyBUZW1wbGF0ZVRhZ1xuICogQGNsYXNzZGVzYyBDb25zdW1lcyBhIHBpcGVsaW5lIG9mIGNvbXBvc2VhYmxlIHRyYW5zZm9ybWVyIHBsdWdpbnMgYW5kIHByb2R1Y2VzIGEgdGVtcGxhdGUgdGFnLlxuICovXG5leHBvcnQgZGVmYXVsdCBjbGFzcyBUZW1wbGF0ZVRhZyB7XG4gIC8qKlxuICAgKiBjb25zdHJ1Y3RzIGEgdGVtcGxhdGUgdGFnXG4gICAqIEBjb25zdHJ1Y3RzIFRlbXBsYXRlVGFnXG4gICAqIEBwYXJhbSAgey4uLk9iamVjdH0gWy4uLnRyYW5zZm9ybWVyc10gLSBhbiBhcnJheSBvciBhcmd1bWVudHMgbGlzdCBvZiB0cmFuc2Zvcm1lcnNcbiAgICogQHJldHVybiB7RnVuY3Rpb259ICAgICAgICAgICAgICAgICAgICAtIGEgdGVtcGxhdGUgdGFnXG4gICAqL1xuICBjb25zdHJ1Y3RvciAoLi4udHJhbnNmb3JtZXJzKSB7XG4gICAgLy8gaWYgZmlyc3QgYXJndW1lbnQgaXMgYW4gYXJyYXksIGV4dHJ1ZGUgaXQgYXMgYSBsaXN0IG9mIHRyYW5zZm9ybWVyc1xuICAgIGlmICh0cmFuc2Zvcm1lcnMubGVuZ3RoICYmIEFycmF5LmlzQXJyYXkodHJhbnNmb3JtZXJzWzBdKSkge1xuICAgICAgdHJhbnNmb3JtZXJzID0gdHJhbnNmb3JtZXJzWzBdXG4gICAgfVxuXG4gICAgLy8gaWYgYW55IHRyYW5zZm9ybWVycyBhcmUgZnVuY3Rpb25zLCB0aGlzIG1lYW5zIHRoZXkgYXJlIG5vdCBpbml0aWF0ZWQgLSBhdXRvbWF0aWNhbGx5IGluaXRpYXRlIHRoZW1cbiAgICB0aGlzLnRyYW5zZm9ybWVycyA9IHRyYW5zZm9ybWVycy5tYXAoKHRyYW5zZm9ybWVyKSA9PiB7XG4gICAgICByZXR1cm4gdHlwZW9mIHRyYW5zZm9ybWVyID09PSAnZnVuY3Rpb24nXG4gICAgICAgID8gdHJhbnNmb3JtZXIoKVxuICAgICAgICA6IHRyYW5zZm9ybWVyXG4gICAgfSlcblxuICAgIC8vIHJldHVybiBhbiBFUzIwMTUgdGVtcGxhdGUgdGFnXG4gICAgcmV0dXJuIDo6dGhpcy50YWdcbiAgfVxuXG4gIC8qKlxuICAgKiBBcHBsaWVzIGFsbCB0cmFuc2Zvcm1lcnMgdG8gYSB0ZW1wbGF0ZSBsaXRlcmFsIHRhZ2dlZCB3aXRoIHRoaXMgbWV0aG9kLlxuICAgKiBJZiBhIGZ1bmN0aW9uIGlzIHBhc3NlZCBhcyB0aGUgZmlyc3QgYXJndW1lbnQsIGFzc3VtZXMgdGhlIGZ1bmN0aW9uIGlzIGEgdGVtcGxhdGUgdGFnXG4gICAqIGFuZCBhcHBsaWVzIGl0IHRvIHRoZSB0ZW1wbGF0ZSwgcmV0dXJuaW5nIGEgdGVtcGxhdGUgdGFnLlxuICAgKiBAcGFyYW0gIHsoRnVuY3Rpb258QXJyYXk8U3RyaW5nPil9IGFyZ3NbMF0gLSBFaXRoZXIgYSB0ZW1wbGF0ZSB0YWcgb3IgYW4gYXJyYXkgY29udGFpbmluZyB0ZW1wbGF0ZSBzdHJpbmdzIHNlcGFyYXRlZCBieSBpZGVudGlmaWVyXG4gICAqIEBwYXJhbSAgey4uLip9IFthcmdzWzFdXSAgICAgICAgICAgICAgICAgICAtIE9wdGlvbmFsIGxpc3Qgb2Ygc3Vic3RpdHV0aW9uIHZhbHVlcy5cbiAgICogQHJldHVybiB7KFN0cmluZ3xGdW5jdGlvbil9ICAgICAgICAgICAgICAgIC0gRWl0aGVyIGFuIGludGVybWVkaWFyeSB0YWcgZnVuY3Rpb24gb3IgdGhlIHJlc3VsdHMgb2YgcHJvY2Vzc2luZyB0aGUgdGVtcGxhdGUuXG4gICAqL1xuICB0YWcgKC4uLmFyZ3MpIHtcbiAgICAvLyBpZiB0aGUgZmlyc3QgYXJndW1lbnQgcGFzc2VkIGlzIGEgZnVuY3Rpb24sIGFzc3VtZSBpdCBpcyBhIHRlbXBsYXRlIHRhZyBhbmQgcmV0dXJuXG4gICAgLy8gYW4gaW50ZXJtZWRpYXJ5IHRhZyB0aGF0IHByb2Nlc3NlcyB0aGUgdGVtcGxhdGUgdXNpbmcgdGhlIGFmb3JlbWVudGlvbmVkIHRhZywgcGFzc2luZyB0aGVcbiAgICAvLyByZXN1bHQgdG8gb3VyIHRhZ1xuICAgIGlmICh0eXBlb2YgYXJnc1swXSA9PT0gJ2Z1bmN0aW9uJykge1xuICAgICAgcmV0dXJuIHRoaXMuaW50ZXJpbVRhZy5iaW5kKHRoaXMsIGFyZ3Muc2hpZnQoKSlcbiAgICB9XG5cbiAgICAvLyBlbHNlLCByZXR1cm4gYSB0cmFuc2Zvcm1lZCBlbmQgcmVzdWx0IG9mIHByb2Nlc3NpbmcgdGhlIHRlbXBsYXRlIHdpdGggb3VyIHRhZ1xuICAgIHJldHVybiB0aGlzLnRyYW5zZm9ybUVuZFJlc3VsdChcbiAgICAgIGFyZ3Muc2hpZnQoKS5yZWR1Y2UodGhpcy5wcm9jZXNzU3Vic3RpdHV0aW9ucy5iaW5kKHRoaXMsIGFyZ3MpKVxuICAgIClcbiAgfVxuXG4gIC8qKlxuICAgKiBBbiBpbnRlcm1lZGlhcnkgdGVtcGxhdGUgdGFnIHRoYXQgcmVjZWl2ZXMgYSB0ZW1wbGF0ZSB0YWcgYW5kIHBhc3NlcyB0aGUgcmVzdWx0IG9mIGNhbGxpbmcgdGhlIHRlbXBsYXRlIHdpdGggdGhlIHJlY2VpdmVkXG4gICAqIHRlbXBsYXRlIHRhZyB0byBvdXIgb3duIHRlbXBsYXRlIHRhZy5cbiAgICogQHBhcmFtICB7RnVuY3Rpb259ICAgICAgICBuZXh0VGFnICAgICAgICAgIC0gdGhlIHJlY2VpdmVkIHRlbXBsYXRlIHRhZ1xuICAgKiBAcGFyYW0gIHtBcnJheTxTdHJpbmc+fSAgIHRlbXBsYXRlICAgICAgICAgLSB0aGUgdGVtcGxhdGUgdG8gcHJvY2Vzc1xuICAgKiBAcGFyYW0gIHsuLi4qfSAgICAgICAgICAgIC4uLnN1YnN0aXR1dGlvbnMgLSBgc3Vic3RpdHV0aW9uc2AgaXMgYW4gYXJyYXkgb2YgYWxsIHN1YnN0aXR1dGlvbnMgaW4gdGhlIHRlbXBsYXRlXG4gICAqIEByZXR1cm4geyp9ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAtIHRoZSBmaW5hbCBwcm9jZXNzZWQgdmFsdWVcbiAgICovXG4gIGludGVyaW1UYWcgKHByZXZpb3VzVGFnLCB0ZW1wbGF0ZSwgLi4uc3Vic3RpdHV0aW9ucykge1xuICAgIHJldHVybiB0aGlzLnRhZ2Ake3ByZXZpb3VzVGFnKHRlbXBsYXRlLCAuLi5zdWJzdGl0dXRpb25zKX1gXG4gIH1cblxuICAvKipcbiAgICogUGVyZm9ybXMgYnVsayBwcm9jZXNzaW5nIG9uIHRoZSB0YWdnZWQgdGVtcGxhdGUsIHRyYW5zZm9ybWluZyBlYWNoIHN1YnN0aXR1dGlvbiBhbmQgdGhlblxuICAgKiBjb25jYXRlbmF0aW5nIHRoZSByZXN1bHRpbmcgdmFsdWVzIGludG8gYSBzdHJpbmcuXG4gICAqIEBwYXJhbSAge0FycmF5PCo+fSBzdWJzdGl0dXRpb25zIC0gYW4gYXJyYXkgb2YgYWxsIHJlbWFpbmluZyBzdWJzdGl0dXRpb25zIHByZXNlbnQgaW4gdGhpcyB0ZW1wbGF0ZVxuICAgKiBAcGFyYW0gIHtTdHJpbmd9ICAgcmVzdWx0U29GYXIgICAtIHRoaXMgaXRlcmF0aW9uJ3MgcmVzdWx0IHN0cmluZyBzbyBmYXJcbiAgICogQHBhcmFtICB7U3RyaW5nfSAgIHJlbWFpbmluZ1BhcnQgLSB0aGUgdGVtcGxhdGUgY2h1bmsgYWZ0ZXIgdGhlIGN1cnJlbnQgc3Vic3RpdHV0aW9uXG4gICAqIEByZXR1cm4ge1N0cmluZ30gICAgICAgICAgICAgICAgIC0gdGhlIHJlc3VsdCBvZiBqb2luaW5nIHRoaXMgaXRlcmF0aW9uJ3MgcHJvY2Vzc2VkIHN1YnN0aXR1dGlvbiB3aXRoIHRoZSByZXN1bHRcbiAgICovXG4gIHByb2Nlc3NTdWJzdGl0dXRpb25zIChzdWJzdGl0dXRpb25zLCByZXN1bHRTb0ZhciwgcmVtYWluaW5nUGFydCkge1xuICAgIGNvbnN0IHN1YnN0aXR1dGlvbiA9IHRoaXMudHJhbnNmb3JtU3Vic3RpdHV0aW9uKFxuICAgICAgc3Vic3RpdHV0aW9ucy5zaGlmdCgpLFxuICAgICAgcmVzdWx0U29GYXJcbiAgICApXG4gICAgcmV0dXJuIHJlc3VsdFNvRmFyICsgc3Vic3RpdHV0aW9uICsgcmVtYWluaW5nUGFydFxuICB9XG5cbiAgLyoqXG4gICAqIFdoZW4gYSBzdWJzdGl0dXRpb24gaXMgZW5jb3VudGVyZWQsIGl0ZXJhdGVzIHRocm91Z2ggZWFjaCB0cmFuc2Zvcm1lciBhbmQgYXBwbGllcyB0aGUgdHJhbnNmb3JtZXInc1xuICAgKiBgb25TdWJzdGl0dXRpb25gIG1ldGhvZCB0byB0aGUgc3Vic3RpdHV0aW9uLlxuICAgKiBAcGFyYW0gIHsqfSAgICAgIHN1YnN0aXR1dGlvbiAtIFRoZSBjdXJyZW50IHN1YnN0aXR1dGlvblxuICAgKiBAcGFyYW0gIHtTdHJpbmd9IHJlc3VsdFNvRmFyICAtIFRoZSByZXN1bHQgdXAgdG8gYW5kIGV4Y2x1ZGluZyB0aGlzIHN1YnN0aXR1dGlvbi5cbiAgICogQHJldHVybiB7Kn0gICAgICAgICAgICAgICAgICAgLSBUaGUgZmluYWwgcmVzdWx0IG9mIGFwcGx5aW5nIGFsbCBzdWJzdGl0dXRpb24gdHJhbnNmb3JtYXRpb25zLlxuICAgKi9cbiAgdHJhbnNmb3JtU3Vic3RpdHV0aW9uIChzdWJzdGl0dXRpb24sIHJlc3VsdFNvRmFyKSB7XG4gICAgY29uc3QgY2IgPSAocmVzLCB0cmFuc2Zvcm0pID0+IHRyYW5zZm9ybS5vblN1YnN0aXR1dGlvblxuICAgICAgPyB0cmFuc2Zvcm0ub25TdWJzdGl0dXRpb24ocmVzLCByZXN1bHRTb0ZhcilcbiAgICAgIDogcmVzXG4gICAgcmV0dXJuIHRoaXMudHJhbnNmb3JtZXJzLnJlZHVjZShjYiwgc3Vic3RpdHV0aW9uKVxuICB9XG5cbiAgLyoqXG4gICAqIEl0ZXJhdGVzIHRocm91Z2ggZWFjaCB0cmFuc2Zvcm1lciwgYXBwbHlpbmcgdGhlIHRyYW5zZm9ybWVyJ3MgYG9uRW5kUmVzdWx0YCBtZXRob2QgdG8gdGhlXG4gICAqIHRlbXBsYXRlIGxpdGVyYWwgYWZ0ZXIgYWxsIHN1YnN0aXR1dGlvbnMgaGF2ZSBmaW5pc2hlZCBwcm9jZXNzaW5nLlxuICAgKiBAcGFyYW0gIHtTdHJpbmd9IGVuZFJlc3VsdCAtIFRoZSBwcm9jZXNzZWQgdGVtcGxhdGUsIGp1c3QgYmVmb3JlIGl0IGlzIHJldHVybmVkIGZyb20gdGhlIHRhZ1xuICAgKiBAcmV0dXJuIHtTdHJpbmd9ICAgICAgICAgICAtIFRoZSBmaW5hbCByZXN1bHRzIG9mIHByb2Nlc3NpbmcgZWFjaCB0cmFuc2Zvcm1lclxuICAgKi9cbiAgdHJhbnNmb3JtRW5kUmVzdWx0IChlbmRSZXN1bHQpIHtcbiAgICBjb25zdCBjYiA9IChyZXMsIHRyYW5zZm9ybSkgPT4gdHJhbnNmb3JtLm9uRW5kUmVzdWx0XG4gICAgICA/IHRyYW5zZm9ybS5vbkVuZFJlc3VsdChyZXMpXG4gICAgICA6IHJlc1xuICAgIHJldHVybiB0aGlzLnRyYW5zZm9ybWVycy5yZWR1Y2UoY2IsIGVuZFJlc3VsdClcbiAgfVxufVxuIl19
+
+/***/ },
+/* 454 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	exports.__esModule = true;
+	
+	var _defineProperties = __webpack_require__(455);
+	
+	var _defineProperties2 = _interopRequireDefault(_defineProperties);
+	
+	var _freeze = __webpack_require__(489);
+	
+	var _freeze2 = _interopRequireDefault(_freeze);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = function (strings, raw) {
+	  return (0, _freeze2.default)((0, _defineProperties2.default)(strings, {
+	    raw: {
+	      value: (0, _freeze2.default)(raw)
+	    }
+	  }));
+	};
+
+/***/ },
+/* 455 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = { "default": __webpack_require__(456), __esModule: true };
+
+/***/ },
+/* 456 */
+/***/ function(module, exports, __webpack_require__) {
+
+	__webpack_require__(457);
+	var $Object = __webpack_require__(460).Object;
+	module.exports = function defineProperties(T, D) {
+	  return $Object.defineProperties(T, D);
+	};
+
+
+/***/ },
+/* 457 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var $export = __webpack_require__(458);
+	// 19.1.2.3 / 15.2.3.7 Object.defineProperties(O, Properties)
+	$export($export.S + $export.F * !__webpack_require__(468), 'Object', { defineProperties: __webpack_require__(473) });
+
+
+/***/ },
+/* 458 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var global = __webpack_require__(459);
+	var core = __webpack_require__(460);
+	var ctx = __webpack_require__(461);
+	var hide = __webpack_require__(463);
+	var PROTOTYPE = 'prototype';
+	
+	var $export = function (type, name, source) {
+	  var IS_FORCED = type & $export.F;
+	  var IS_GLOBAL = type & $export.G;
+	  var IS_STATIC = type & $export.S;
+	  var IS_PROTO = type & $export.P;
+	  var IS_BIND = type & $export.B;
+	  var IS_WRAP = type & $export.W;
+	  var exports = IS_GLOBAL ? core : core[name] || (core[name] = {});
+	  var expProto = exports[PROTOTYPE];
+	  var target = IS_GLOBAL ? global : IS_STATIC ? global[name] : (global[name] || {})[PROTOTYPE];
+	  var key, own, out;
+	  if (IS_GLOBAL) source = name;
+	  for (key in source) {
+	    // contains in native
+	    own = !IS_FORCED && target && target[key] !== undefined;
+	    if (own && key in exports) continue;
+	    // export native or passed
+	    out = own ? target[key] : source[key];
+	    // prevent global pollution for namespaces
+	    exports[key] = IS_GLOBAL && typeof target[key] != 'function' ? source[key]
+	    // bind timers to global for call from export context
+	    : IS_BIND && own ? ctx(out, global)
+	    // wrap global constructors for prevent change them in library
+	    : IS_WRAP && target[key] == out ? (function (C) {
+	      var F = function (a, b, c) {
+	        if (this instanceof C) {
+	          switch (arguments.length) {
+	            case 0: return new C();
+	            case 1: return new C(a);
+	            case 2: return new C(a, b);
+	          } return new C(a, b, c);
+	        } return C.apply(this, arguments);
+	      };
+	      F[PROTOTYPE] = C[PROTOTYPE];
+	      return F;
+	    // make static versions for prototype methods
+	    })(out) : IS_PROTO && typeof out == 'function' ? ctx(Function.call, out) : out;
+	    // export proto methods to core.%CONSTRUCTOR%.methods.%NAME%
+	    if (IS_PROTO) {
+	      (exports.virtual || (exports.virtual = {}))[key] = out;
+	      // export proto methods to core.%CONSTRUCTOR%.prototype.%NAME%
+	      if (type & $export.R && expProto && !expProto[key]) hide(expProto, key, out);
+	    }
+	  }
+	};
+	// type bitmap
+	$export.F = 1;   // forced
+	$export.G = 2;   // global
+	$export.S = 4;   // static
+	$export.P = 8;   // proto
+	$export.B = 16;  // bind
+	$export.W = 32;  // wrap
+	$export.U = 64;  // safe
+	$export.R = 128; // real proto method for `library`
+	module.exports = $export;
+
+
+/***/ },
+/* 459 */
+/***/ function(module, exports) {
+
+	// https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
+	var global = module.exports = typeof window != 'undefined' && window.Math == Math
+	  ? window : typeof self != 'undefined' && self.Math == Math ? self
+	  // eslint-disable-next-line no-new-func
+	  : Function('return this')();
+	if (typeof __g == 'number') __g = global; // eslint-disable-line no-undef
+
+
+/***/ },
+/* 460 */
+/***/ function(module, exports) {
+
+	var core = module.exports = { version: '2.5.1' };
+	if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
+
+
+/***/ },
+/* 461 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// optional / simple context binding
+	var aFunction = __webpack_require__(462);
+	module.exports = function (fn, that, length) {
+	  aFunction(fn);
+	  if (that === undefined) return fn;
+	  switch (length) {
+	    case 1: return function (a) {
+	      return fn.call(that, a);
+	    };
+	    case 2: return function (a, b) {
+	      return fn.call(that, a, b);
+	    };
+	    case 3: return function (a, b, c) {
+	      return fn.call(that, a, b, c);
+	    };
+	  }
+	  return function (/* ...args */) {
+	    return fn.apply(that, arguments);
+	  };
+	};
+
+
+/***/ },
+/* 462 */
+/***/ function(module, exports) {
+
+	module.exports = function (it) {
+	  if (typeof it != 'function') throw TypeError(it + ' is not a function!');
+	  return it;
+	};
+
+
+/***/ },
+/* 463 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var dP = __webpack_require__(464);
+	var createDesc = __webpack_require__(472);
+	module.exports = __webpack_require__(468) ? function (object, key, value) {
+	  return dP.f(object, key, createDesc(1, value));
+	} : function (object, key, value) {
+	  object[key] = value;
+	  return object;
+	};
+
+
+/***/ },
+/* 464 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var anObject = __webpack_require__(465);
+	var IE8_DOM_DEFINE = __webpack_require__(467);
+	var toPrimitive = __webpack_require__(471);
+	var dP = Object.defineProperty;
+	
+	exports.f = __webpack_require__(468) ? Object.defineProperty : function defineProperty(O, P, Attributes) {
+	  anObject(O);
+	  P = toPrimitive(P, true);
+	  anObject(Attributes);
+	  if (IE8_DOM_DEFINE) try {
+	    return dP(O, P, Attributes);
+	  } catch (e) { /* empty */ }
+	  if ('get' in Attributes || 'set' in Attributes) throw TypeError('Accessors not supported!');
+	  if ('value' in Attributes) O[P] = Attributes.value;
+	  return O;
+	};
+
+
+/***/ },
+/* 465 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var isObject = __webpack_require__(466);
+	module.exports = function (it) {
+	  if (!isObject(it)) throw TypeError(it + ' is not an object!');
+	  return it;
+	};
+
+
+/***/ },
+/* 466 */
+/***/ function(module, exports) {
+
+	module.exports = function (it) {
+	  return typeof it === 'object' ? it !== null : typeof it === 'function';
+	};
+
+
+/***/ },
+/* 467 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = !__webpack_require__(468) && !__webpack_require__(469)(function () {
+	  return Object.defineProperty(__webpack_require__(470)('div'), 'a', { get: function () { return 7; } }).a != 7;
+	});
+
+
+/***/ },
+/* 468 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// Thank's IE8 for his funny defineProperty
+	module.exports = !__webpack_require__(469)(function () {
+	  return Object.defineProperty({}, 'a', { get: function () { return 7; } }).a != 7;
+	});
+
+
+/***/ },
+/* 469 */
+/***/ function(module, exports) {
+
+	module.exports = function (exec) {
+	  try {
+	    return !!exec();
+	  } catch (e) {
+	    return true;
+	  }
+	};
+
+
+/***/ },
+/* 470 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var isObject = __webpack_require__(466);
+	var document = __webpack_require__(459).document;
+	// typeof document.createElement is 'object' in old IE
+	var is = isObject(document) && isObject(document.createElement);
+	module.exports = function (it) {
+	  return is ? document.createElement(it) : {};
+	};
+
+
+/***/ },
+/* 471 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// 7.1.1 ToPrimitive(input [, PreferredType])
+	var isObject = __webpack_require__(466);
+	// instead of the ES6 spec version, we didn't implement @@toPrimitive case
+	// and the second argument - flag - preferred type is a string
+	module.exports = function (it, S) {
+	  if (!isObject(it)) return it;
+	  var fn, val;
+	  if (S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it))) return val;
+	  if (typeof (fn = it.valueOf) == 'function' && !isObject(val = fn.call(it))) return val;
+	  if (!S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it))) return val;
+	  throw TypeError("Can't convert object to primitive value");
+	};
+
+
+/***/ },
+/* 472 */
+/***/ function(module, exports) {
+
+	module.exports = function (bitmap, value) {
+	  return {
+	    enumerable: !(bitmap & 1),
+	    configurable: !(bitmap & 2),
+	    writable: !(bitmap & 4),
+	    value: value
+	  };
+	};
+
+
+/***/ },
+/* 473 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var dP = __webpack_require__(464);
+	var anObject = __webpack_require__(465);
+	var getKeys = __webpack_require__(474);
+	
+	module.exports = __webpack_require__(468) ? Object.defineProperties : function defineProperties(O, Properties) {
+	  anObject(O);
+	  var keys = getKeys(Properties);
+	  var length = keys.length;
+	  var i = 0;
+	  var P;
+	  while (length > i) dP.f(O, P = keys[i++], Properties[P]);
+	  return O;
+	};
+
+
+/***/ },
+/* 474 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// 19.1.2.14 / 15.2.3.14 Object.keys(O)
+	var $keys = __webpack_require__(475);
+	var enumBugKeys = __webpack_require__(488);
+	
+	module.exports = Object.keys || function keys(O) {
+	  return $keys(O, enumBugKeys);
+	};
+
+
+/***/ },
+/* 475 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var has = __webpack_require__(476);
+	var toIObject = __webpack_require__(477);
+	var arrayIndexOf = __webpack_require__(481)(false);
+	var IE_PROTO = __webpack_require__(485)('IE_PROTO');
+	
+	module.exports = function (object, names) {
+	  var O = toIObject(object);
+	  var i = 0;
+	  var result = [];
+	  var key;
+	  for (key in O) if (key != IE_PROTO) has(O, key) && result.push(key);
+	  // Don't enum bug & hidden keys
+	  while (names.length > i) if (has(O, key = names[i++])) {
+	    ~arrayIndexOf(result, key) || result.push(key);
+	  }
+	  return result;
+	};
+
+
+/***/ },
+/* 476 */
+/***/ function(module, exports) {
+
+	var hasOwnProperty = {}.hasOwnProperty;
+	module.exports = function (it, key) {
+	  return hasOwnProperty.call(it, key);
+	};
+
+
+/***/ },
+/* 477 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// to indexed object, toObject with fallback for non-array-like ES3 strings
+	var IObject = __webpack_require__(478);
+	var defined = __webpack_require__(480);
+	module.exports = function (it) {
+	  return IObject(defined(it));
+	};
+
+
+/***/ },
+/* 478 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// fallback for non-array-like ES3 and non-enumerable old V8 strings
+	var cof = __webpack_require__(479);
+	// eslint-disable-next-line no-prototype-builtins
+	module.exports = Object('z').propertyIsEnumerable(0) ? Object : function (it) {
+	  return cof(it) == 'String' ? it.split('') : Object(it);
+	};
+
+
+/***/ },
+/* 479 */
+/***/ function(module, exports) {
+
+	var toString = {}.toString;
+	
+	module.exports = function (it) {
+	  return toString.call(it).slice(8, -1);
+	};
+
+
+/***/ },
+/* 480 */
+/***/ function(module, exports) {
+
+	// 7.2.1 RequireObjectCoercible(argument)
+	module.exports = function (it) {
+	  if (it == undefined) throw TypeError("Can't call method on  " + it);
+	  return it;
+	};
+
+
+/***/ },
+/* 481 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// false -> Array#indexOf
+	// true  -> Array#includes
+	var toIObject = __webpack_require__(477);
+	var toLength = __webpack_require__(482);
+	var toAbsoluteIndex = __webpack_require__(484);
+	module.exports = function (IS_INCLUDES) {
+	  return function ($this, el, fromIndex) {
+	    var O = toIObject($this);
+	    var length = toLength(O.length);
+	    var index = toAbsoluteIndex(fromIndex, length);
+	    var value;
+	    // Array#includes uses SameValueZero equality algorithm
+	    // eslint-disable-next-line no-self-compare
+	    if (IS_INCLUDES && el != el) while (length > index) {
+	      value = O[index++];
+	      // eslint-disable-next-line no-self-compare
+	      if (value != value) return true;
+	    // Array#indexOf ignores holes, Array#includes - not
+	    } else for (;length > index; index++) if (IS_INCLUDES || index in O) {
+	      if (O[index] === el) return IS_INCLUDES || index || 0;
+	    } return !IS_INCLUDES && -1;
+	  };
+	};
+
+
+/***/ },
+/* 482 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// 7.1.15 ToLength
+	var toInteger = __webpack_require__(483);
+	var min = Math.min;
+	module.exports = function (it) {
+	  return it > 0 ? min(toInteger(it), 0x1fffffffffffff) : 0; // pow(2, 53) - 1 == 9007199254740991
+	};
+
+
+/***/ },
+/* 483 */
+/***/ function(module, exports) {
+
+	// 7.1.4 ToInteger
+	var ceil = Math.ceil;
+	var floor = Math.floor;
+	module.exports = function (it) {
+	  return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
+	};
+
+
+/***/ },
+/* 484 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var toInteger = __webpack_require__(483);
+	var max = Math.max;
+	var min = Math.min;
+	module.exports = function (index, length) {
+	  index = toInteger(index);
+	  return index < 0 ? max(index + length, 0) : min(index, length);
+	};
+
+
+/***/ },
+/* 485 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var shared = __webpack_require__(486)('keys');
+	var uid = __webpack_require__(487);
+	module.exports = function (key) {
+	  return shared[key] || (shared[key] = uid(key));
+	};
+
+
+/***/ },
+/* 486 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var global = __webpack_require__(459);
+	var SHARED = '__core-js_shared__';
+	var store = global[SHARED] || (global[SHARED] = {});
+	module.exports = function (key) {
+	  return store[key] || (store[key] = {});
+	};
+
+
+/***/ },
+/* 487 */
+/***/ function(module, exports) {
+
+	var id = 0;
+	var px = Math.random();
+	module.exports = function (key) {
+	  return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
+	};
+
+
+/***/ },
+/* 488 */
+/***/ function(module, exports) {
+
+	// IE 8- don't enum bug keys
+	module.exports = (
+	  'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
+	).split(',');
+
+
+/***/ },
+/* 489 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = { "default": __webpack_require__(490), __esModule: true };
+
+/***/ },
+/* 490 */
+/***/ function(module, exports, __webpack_require__) {
+
+	__webpack_require__(491);
+	module.exports = __webpack_require__(460).Object.freeze;
+
+
+/***/ },
+/* 491 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// 19.1.2.5 Object.freeze(O)
+	var isObject = __webpack_require__(466);
+	var meta = __webpack_require__(492).onFreeze;
+	
+	__webpack_require__(493)('freeze', function ($freeze) {
+	  return function freeze(it) {
+	    return $freeze && isObject(it) ? $freeze(meta(it)) : it;
+	  };
+	});
+
+
+/***/ },
+/* 492 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var META = __webpack_require__(487)('meta');
+	var isObject = __webpack_require__(466);
+	var has = __webpack_require__(476);
+	var setDesc = __webpack_require__(464).f;
+	var id = 0;
+	var isExtensible = Object.isExtensible || function () {
+	  return true;
+	};
+	var FREEZE = !__webpack_require__(469)(function () {
+	  return isExtensible(Object.preventExtensions({}));
+	});
+	var setMeta = function (it) {
+	  setDesc(it, META, { value: {
+	    i: 'O' + ++id, // object ID
+	    w: {}          // weak collections IDs
+	  } });
+	};
+	var fastKey = function (it, create) {
+	  // return primitive with prefix
+	  if (!isObject(it)) return typeof it == 'symbol' ? it : (typeof it == 'string' ? 'S' : 'P') + it;
+	  if (!has(it, META)) {
+	    // can't set metadata to uncaught frozen object
+	    if (!isExtensible(it)) return 'F';
+	    // not necessary to add metadata
+	    if (!create) return 'E';
+	    // add missing metadata
+	    setMeta(it);
+	  // return object ID
+	  } return it[META].i;
+	};
+	var getWeak = function (it, create) {
+	  if (!has(it, META)) {
+	    // can't set metadata to uncaught frozen object
+	    if (!isExtensible(it)) return true;
+	    // not necessary to add metadata
+	    if (!create) return false;
+	    // add missing metadata
+	    setMeta(it);
+	  // return hash weak collections IDs
+	  } return it[META].w;
+	};
+	// add metadata on freeze-family methods calling
+	var onFreeze = function (it) {
+	  if (FREEZE && meta.NEED && isExtensible(it) && !has(it, META)) setMeta(it);
+	  return it;
+	};
+	var meta = module.exports = {
+	  KEY: META,
+	  NEED: false,
+	  fastKey: fastKey,
+	  getWeak: getWeak,
+	  onFreeze: onFreeze
+	};
+
+
+/***/ },
+/* 493 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// most Object methods by ES6 should accept primitives
+	var $export = __webpack_require__(458);
+	var core = __webpack_require__(460);
+	var fails = __webpack_require__(469);
+	module.exports = function (KEY, exec) {
+	  var fn = (core.Object || {})[KEY] || Object[KEY];
+	  var exp = {};
+	  exp[KEY] = exec(fn);
+	  $export($export.S + $export.F * fails(function () { fn(1); }), 'Object', exp);
+	};
+
+
+/***/ },
+/* 494 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	exports.__esModule = true;
+	
+	exports.default = function (instance, Constructor) {
+	  if (!(instance instanceof Constructor)) {
+	    throw new TypeError("Cannot call a class as a function");
+	  }
+	};
+
+/***/ },
+/* 495 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	exports.__esModule = true;
+	
+	var _defineProperty = __webpack_require__(496);
+	
+	var _defineProperty2 = _interopRequireDefault(_defineProperty);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = function () {
+	  function defineProperties(target, props) {
+	    for (var i = 0; i < props.length; i++) {
+	      var descriptor = props[i];
+	      descriptor.enumerable = descriptor.enumerable || false;
+	      descriptor.configurable = true;
+	      if ("value" in descriptor) descriptor.writable = true;
+	      (0, _defineProperty2.default)(target, descriptor.key, descriptor);
+	    }
+	  }
+	
+	  return function (Constructor, protoProps, staticProps) {
+	    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+	    if (staticProps) defineProperties(Constructor, staticProps);
+	    return Constructor;
+	  };
+	}();
+
+/***/ },
+/* 496 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = { "default": __webpack_require__(497), __esModule: true };
+
+/***/ },
+/* 497 */
+/***/ function(module, exports, __webpack_require__) {
+
+	__webpack_require__(498);
+	var $Object = __webpack_require__(460).Object;
+	module.exports = function defineProperty(it, key, desc) {
+	  return $Object.defineProperty(it, key, desc);
+	};
+
+
+/***/ },
+/* 498 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var $export = __webpack_require__(458);
+	// 19.1.2.4 / 15.2.3.6 Object.defineProperty(O, P, Attributes)
+	$export($export.S + $export.F * !__webpack_require__(468), 'Object', { defineProperty: __webpack_require__(464).f });
+
+
+/***/ },
+/* 499 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _trimResultTransformer = __webpack_require__(500);
+	
+	var _trimResultTransformer2 = _interopRequireDefault(_trimResultTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _trimResultTransformer2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy90cmltUmVzdWx0VHJhbnNmb3JtZXIvaW5kZXguanMiXSwibmFtZXMiOlsiZGVmYXVsdCJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7Ozs7Ozs7Ozs7UUFFT0EsTyIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbIid1c2Ugc3RyaWN0J1xuXG5leHBvcnQgZGVmYXVsdCBmcm9tICcuL3RyaW1SZXN1bHRUcmFuc2Zvcm1lcidcbiJdfQ==
+
+/***/ },
+/* 500 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	/**
+	 * TemplateTag transformer that trims whitespace on the end result of a tagged template
+	 * @param  {String} side = '' - The side of the string to trim. Can be 'left' or 'right'
+	 * @return {Object}           - a TemplateTag transformer
+	 */
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var trimResultTransformer = function trimResultTransformer() {
+	  var side = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+	  return {
+	    onEndResult: function onEndResult(endResult) {
+	      side = side.toLowerCase();
+	      // uppercase the first letter of side value
+	      if (side === 'left' || side === 'right') {
+	        side = side.charAt(0).toUpperCase() + side.slice(1);
+	      } else if (side !== '') {
+	        throw new Error('Side not supported: ' + side);
+	      }
+	      return endResult['trim' + side]();
+	    }
+	  };
+	};
+	
+	exports.default = trimResultTransformer;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy90cmltUmVzdWx0VHJhbnNmb3JtZXIvdHJpbVJlc3VsdFRyYW5zZm9ybWVyLmpzIl0sIm5hbWVzIjpbInRyaW1SZXN1bHRUcmFuc2Zvcm1lciIsInNpZGUiLCJvbkVuZFJlc3VsdCIsImVuZFJlc3VsdCIsInRvTG93ZXJDYXNlIiwiY2hhckF0IiwidG9VcHBlckNhc2UiLCJzbGljZSIsIkVycm9yIl0sIm1hcHBpbmdzIjoiQUFBQTs7QUFFQTs7Ozs7Ozs7O0FBS0EsSUFBTUEsd0JBQXdCLFNBQXhCQSxxQkFBd0I7QUFBQSxNQUFDQyxJQUFELHVFQUFRLEVBQVI7QUFBQSxTQUFnQjtBQUM1Q0MsZUFENEMsdUJBQy9CQyxTQUQrQixFQUNwQjtBQUN0QkYsYUFBT0EsS0FBS0csV0FBTCxFQUFQO0FBQ0E7QUFDQSxVQUFJSCxTQUFTLE1BQVQsSUFBbUJBLFNBQVMsT0FBaEMsRUFBeUM7QUFDdkNBLGVBQU9BLEtBQUtJLE1BQUwsQ0FBWSxDQUFaLEVBQWVDLFdBQWYsS0FBK0JMLEtBQUtNLEtBQUwsQ0FBVyxDQUFYLENBQXRDO0FBQ0QsT0FGRCxNQUVPLElBQUlOLFNBQVMsRUFBYixFQUFpQjtBQUN0QixjQUFNLElBQUlPLEtBQUosMEJBQWlDUCxJQUFqQyxDQUFOO0FBQ0Q7QUFDRCxhQUFPRSxtQkFBaUJGLElBQWpCLEdBQVA7QUFDRDtBQVYyQyxHQUFoQjtBQUFBLENBQTlCOztrQkFhZUQscUIiLCJmaWxlIjoidHJpbVJlc3VsdFRyYW5zZm9ybWVyLmpzIiwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBzdHJpY3QnXG5cbi8qKlxuICogVGVtcGxhdGVUYWcgdHJhbnNmb3JtZXIgdGhhdCB0cmltcyB3aGl0ZXNwYWNlIG9uIHRoZSBlbmQgcmVzdWx0IG9mIGEgdGFnZ2VkIHRlbXBsYXRlXG4gKiBAcGFyYW0gIHtTdHJpbmd9IHNpZGUgPSAnJyAtIFRoZSBzaWRlIG9mIHRoZSBzdHJpbmcgdG8gdHJpbS4gQ2FuIGJlICdsZWZ0JyBvciAncmlnaHQnXG4gKiBAcmV0dXJuIHtPYmplY3R9ICAgICAgICAgICAtIGEgVGVtcGxhdGVUYWcgdHJhbnNmb3JtZXJcbiAqL1xuY29uc3QgdHJpbVJlc3VsdFRyYW5zZm9ybWVyID0gKHNpZGUgPSAnJykgPT4gKHtcbiAgb25FbmRSZXN1bHQgKGVuZFJlc3VsdCkge1xuICAgIHNpZGUgPSBzaWRlLnRvTG93ZXJDYXNlKClcbiAgICAvLyB1cHBlcmNhc2UgdGhlIGZpcnN0IGxldHRlciBvZiBzaWRlIHZhbHVlXG4gICAgaWYgKHNpZGUgPT09ICdsZWZ0JyB8fCBzaWRlID09PSAncmlnaHQnKSB7XG4gICAgICBzaWRlID0gc2lkZS5jaGFyQXQoMCkudG9VcHBlckNhc2UoKSArIHNpZGUuc2xpY2UoMSlcbiAgICB9IGVsc2UgaWYgKHNpZGUgIT09ICcnKSB7XG4gICAgICB0aHJvdyBuZXcgRXJyb3IoYFNpZGUgbm90IHN1cHBvcnRlZDogJHtzaWRlfWApXG4gICAgfVxuICAgIHJldHVybiBlbmRSZXN1bHRbYHRyaW0ke3NpZGV9YF0oKVxuICB9XG59KVxuXG5leHBvcnQgZGVmYXVsdCB0cmltUmVzdWx0VHJhbnNmb3JtZXJcbiJdfQ==
+
+/***/ },
+/* 501 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _stripIndentTransformer = __webpack_require__(502);
+	
+	var _stripIndentTransformer2 = _interopRequireDefault(_stripIndentTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _stripIndentTransformer2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9zdHJpcEluZGVudFRyYW5zZm9ybWVyL2luZGV4LmpzIl0sIm5hbWVzIjpbImRlZmF1bHQiXSwibWFwcGluZ3MiOiJBQUFBOzs7Ozs7Ozs7Ozs7O1FBRU9BLE8iLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuZXhwb3J0IGRlZmF1bHQgZnJvbSAnLi9zdHJpcEluZGVudFRyYW5zZm9ybWVyJ1xuIl19
+
+/***/ },
+/* 502 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	/**
+	 * strips indentation from a template literal
+	 * @param  {String} type = 'initial' - whether to remove all indentation or just leading indentation. can be 'all' or 'initial'
+	 * @return {Object}                  - a TemplateTag transformer
+	 */
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _toConsumableArray2 = __webpack_require__(503);
+	
+	var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var stripIndentTransformer = function stripIndentTransformer() {
+	  var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'initial';
+	  return {
+	    onEndResult: function onEndResult(endResult) {
+	      if (type === 'initial') {
+	        // remove the shortest leading indentation from each line
+	        var match = endResult.match(/^[ \t]*(?=\S)/gm);
+	        // return early if there's nothing to strip
+	        if (match === null) {
+	          return endResult;
+	        }
+	        var indent = Math.min.apply(Math, (0, _toConsumableArray3.default)(match.map(function (el) {
+	          return el.length;
+	        })));
+	        var regexp = new RegExp('^[ \\t]{' + indent + '}', 'gm');
+	        endResult = indent > 0 ? endResult.replace(regexp, '') : endResult;
+	      } else if (type === 'all') {
+	        // remove all indentation from each line
+	        endResult = endResult.split('\n').map(function (line) {
+	          return line.trimLeft();
+	        }).join('\n');
+	      } else {
+	        throw new Error('Unknown type: ' + type);
+	      }
+	      return endResult;
+	    }
+	  };
+	};
+	
+	exports.default = stripIndentTransformer;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9zdHJpcEluZGVudFRyYW5zZm9ybWVyL3N0cmlwSW5kZW50VHJhbnNmb3JtZXIuanMiXSwibmFtZXMiOlsic3RyaXBJbmRlbnRUcmFuc2Zvcm1lciIsInR5cGUiLCJvbkVuZFJlc3VsdCIsImVuZFJlc3VsdCIsIm1hdGNoIiwiaW5kZW50IiwiTWF0aCIsIm1pbiIsIm1hcCIsImVsIiwibGVuZ3RoIiwicmVnZXhwIiwiUmVnRXhwIiwicmVwbGFjZSIsInNwbGl0IiwibGluZSIsInRyaW1MZWZ0Iiwiam9pbiIsIkVycm9yIl0sIm1hcHBpbmdzIjoiQUFBQTs7QUFFQTs7Ozs7Ozs7Ozs7Ozs7OztBQUtBLElBQU1BLHlCQUF5QixTQUF6QkEsc0JBQXlCO0FBQUEsTUFBQ0MsSUFBRCx1RUFBUSxTQUFSO0FBQUEsU0FBdUI7QUFDcERDLGVBRG9ELHVCQUN2Q0MsU0FEdUMsRUFDNUI7QUFDdEIsVUFBSUYsU0FBUyxTQUFiLEVBQXdCO0FBQ3RCO0FBQ0EsWUFBTUcsUUFBUUQsVUFBVUMsS0FBVixDQUFnQixpQkFBaEIsQ0FBZDtBQUNBO0FBQ0EsWUFBSUEsVUFBVSxJQUFkLEVBQW9CO0FBQ2xCLGlCQUFPRCxTQUFQO0FBQ0Q7QUFDRCxZQUFNRSxTQUFTQyxLQUFLQyxHQUFMLDhDQUFZSCxNQUFNSSxHQUFOLENBQVU7QUFBQSxpQkFBTUMsR0FBR0MsTUFBVDtBQUFBLFNBQVYsQ0FBWixFQUFmO0FBQ0EsWUFBTUMsU0FBUyxJQUFJQyxNQUFKLENBQVcsYUFBYVAsTUFBYixHQUFzQixHQUFqQyxFQUFzQyxJQUF0QyxDQUFmO0FBQ0FGLG9CQUFZRSxTQUFTLENBQVQsR0FBYUYsVUFBVVUsT0FBVixDQUFrQkYsTUFBbEIsRUFBMEIsRUFBMUIsQ0FBYixHQUE2Q1IsU0FBekQ7QUFDRCxPQVZELE1BVU8sSUFBSUYsU0FBUyxLQUFiLEVBQW9CO0FBQ3pCO0FBQ0FFLG9CQUFZQSxVQUFVVyxLQUFWLENBQWdCLElBQWhCLEVBQXNCTixHQUF0QixDQUEwQjtBQUFBLGlCQUFRTyxLQUFLQyxRQUFMLEVBQVI7QUFBQSxTQUExQixFQUFtREMsSUFBbkQsQ0FBd0QsSUFBeEQsQ0FBWjtBQUNELE9BSE0sTUFHQTtBQUNMLGNBQU0sSUFBSUMsS0FBSixvQkFBMkJqQixJQUEzQixDQUFOO0FBQ0Q7QUFDRCxhQUFPRSxTQUFQO0FBQ0Q7QUFuQm1ELEdBQXZCO0FBQUEsQ0FBL0I7O2tCQXNCZUgsc0IiLCJmaWxlIjoic3RyaXBJbmRlbnRUcmFuc2Zvcm1lci5qcyIsInNvdXJjZXNDb250ZW50IjpbIid1c2Ugc3RyaWN0J1xuXG4vKipcbiAqIHN0cmlwcyBpbmRlbnRhdGlvbiBmcm9tIGEgdGVtcGxhdGUgbGl0ZXJhbFxuICogQHBhcmFtICB7U3RyaW5nfSB0eXBlID0gJ2luaXRpYWwnIC0gd2hldGhlciB0byByZW1vdmUgYWxsIGluZGVudGF0aW9uIG9yIGp1c3QgbGVhZGluZyBpbmRlbnRhdGlvbi4gY2FuIGJlICdhbGwnIG9yICdpbml0aWFsJ1xuICogQHJldHVybiB7T2JqZWN0fSAgICAgICAgICAgICAgICAgIC0gYSBUZW1wbGF0ZVRhZyB0cmFuc2Zvcm1lclxuICovXG5jb25zdCBzdHJpcEluZGVudFRyYW5zZm9ybWVyID0gKHR5cGUgPSAnaW5pdGlhbCcpID0+ICh7XG4gIG9uRW5kUmVzdWx0IChlbmRSZXN1bHQpIHtcbiAgICBpZiAodHlwZSA9PT0gJ2luaXRpYWwnKSB7XG4gICAgICAvLyByZW1vdmUgdGhlIHNob3J0ZXN0IGxlYWRpbmcgaW5kZW50YXRpb24gZnJvbSBlYWNoIGxpbmVcbiAgICAgIGNvbnN0IG1hdGNoID0gZW5kUmVzdWx0Lm1hdGNoKC9eWyBcXHRdKig/PVxcUykvZ20pXG4gICAgICAvLyByZXR1cm4gZWFybHkgaWYgdGhlcmUncyBub3RoaW5nIHRvIHN0cmlwXG4gICAgICBpZiAobWF0Y2ggPT09IG51bGwpIHtcbiAgICAgICAgcmV0dXJuIGVuZFJlc3VsdFxuICAgICAgfVxuICAgICAgY29uc3QgaW5kZW50ID0gTWF0aC5taW4oLi4ubWF0Y2gubWFwKGVsID0+IGVsLmxlbmd0aCkpXG4gICAgICBjb25zdCByZWdleHAgPSBuZXcgUmVnRXhwKCdeWyBcXFxcdF17JyArIGluZGVudCArICd9JywgJ2dtJylcbiAgICAgIGVuZFJlc3VsdCA9IGluZGVudCA+IDAgPyBlbmRSZXN1bHQucmVwbGFjZShyZWdleHAsICcnKSA6IGVuZFJlc3VsdFxuICAgIH0gZWxzZSBpZiAodHlwZSA9PT0gJ2FsbCcpIHtcbiAgICAgIC8vIHJlbW92ZSBhbGwgaW5kZW50YXRpb24gZnJvbSBlYWNoIGxpbmVcbiAgICAgIGVuZFJlc3VsdCA9IGVuZFJlc3VsdC5zcGxpdCgnXFxuJykubWFwKGxpbmUgPT4gbGluZS50cmltTGVmdCgpKS5qb2luKCdcXG4nKVxuICAgIH0gZWxzZSB7XG4gICAgICB0aHJvdyBuZXcgRXJyb3IoYFVua25vd24gdHlwZTogJHt0eXBlfWApXG4gICAgfVxuICAgIHJldHVybiBlbmRSZXN1bHRcbiAgfVxufSlcblxuZXhwb3J0IGRlZmF1bHQgc3RyaXBJbmRlbnRUcmFuc2Zvcm1lclxuIl19
+
+/***/ },
+/* 503 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	exports.__esModule = true;
+	
+	var _from = __webpack_require__(504);
+	
+	var _from2 = _interopRequireDefault(_from);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = function (arr) {
+	  if (Array.isArray(arr)) {
+	    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+	      arr2[i] = arr[i];
+	    }
+	
+	    return arr2;
+	  } else {
+	    return (0, _from2.default)(arr);
+	  }
+	};
+
+/***/ },
+/* 504 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = { "default": __webpack_require__(505), __esModule: true };
+
+/***/ },
+/* 505 */
+/***/ function(module, exports, __webpack_require__) {
+
+	__webpack_require__(506);
+	__webpack_require__(519);
+	module.exports = __webpack_require__(460).Array.from;
+
+
+/***/ },
+/* 506 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	var $at = __webpack_require__(507)(true);
+	
+	// 21.1.3.27 String.prototype[@@iterator]()
+	__webpack_require__(508)(String, 'String', function (iterated) {
+	  this._t = String(iterated); // target
+	  this._i = 0;                // next index
+	// 21.1.5.2.1 %StringIteratorPrototype%.next()
+	}, function () {
+	  var O = this._t;
+	  var index = this._i;
+	  var point;
+	  if (index >= O.length) return { value: undefined, done: true };
+	  point = $at(O, index);
+	  this._i += point.length;
+	  return { value: point, done: false };
+	});
+
+
+/***/ },
+/* 507 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var toInteger = __webpack_require__(483);
+	var defined = __webpack_require__(480);
+	// true  -> String#at
+	// false -> String#codePointAt
+	module.exports = function (TO_STRING) {
+	  return function (that, pos) {
+	    var s = String(defined(that));
+	    var i = toInteger(pos);
+	    var l = s.length;
+	    var a, b;
+	    if (i < 0 || i >= l) return TO_STRING ? '' : undefined;
+	    a = s.charCodeAt(i);
+	    return a < 0xd800 || a > 0xdbff || i + 1 === l || (b = s.charCodeAt(i + 1)) < 0xdc00 || b > 0xdfff
+	      ? TO_STRING ? s.charAt(i) : a
+	      : TO_STRING ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
+	  };
+	};
+
+
+/***/ },
+/* 508 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	var LIBRARY = __webpack_require__(509);
+	var $export = __webpack_require__(458);
+	var redefine = __webpack_require__(510);
+	var hide = __webpack_require__(463);
+	var has = __webpack_require__(476);
+	var Iterators = __webpack_require__(511);
+	var $iterCreate = __webpack_require__(512);
+	var setToStringTag = __webpack_require__(515);
+	var getPrototypeOf = __webpack_require__(517);
+	var ITERATOR = __webpack_require__(516)('iterator');
+	var BUGGY = !([].keys && 'next' in [].keys()); // Safari has buggy iterators w/o `next`
+	var FF_ITERATOR = '@@iterator';
+	var KEYS = 'keys';
+	var VALUES = 'values';
+	
+	var returnThis = function () { return this; };
+	
+	module.exports = function (Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCED) {
+	  $iterCreate(Constructor, NAME, next);
+	  var getMethod = function (kind) {
+	    if (!BUGGY && kind in proto) return proto[kind];
+	    switch (kind) {
+	      case KEYS: return function keys() { return new Constructor(this, kind); };
+	      case VALUES: return function values() { return new Constructor(this, kind); };
+	    } return function entries() { return new Constructor(this, kind); };
+	  };
+	  var TAG = NAME + ' Iterator';
+	  var DEF_VALUES = DEFAULT == VALUES;
+	  var VALUES_BUG = false;
+	  var proto = Base.prototype;
+	  var $native = proto[ITERATOR] || proto[FF_ITERATOR] || DEFAULT && proto[DEFAULT];
+	  var $default = $native || getMethod(DEFAULT);
+	  var $entries = DEFAULT ? !DEF_VALUES ? $default : getMethod('entries') : undefined;
+	  var $anyNative = NAME == 'Array' ? proto.entries || $native : $native;
+	  var methods, key, IteratorPrototype;
+	  // Fix native
+	  if ($anyNative) {
+	    IteratorPrototype = getPrototypeOf($anyNative.call(new Base()));
+	    if (IteratorPrototype !== Object.prototype && IteratorPrototype.next) {
+	      // Set @@toStringTag to native iterators
+	      setToStringTag(IteratorPrototype, TAG, true);
+	      // fix for some old engines
+	      if (!LIBRARY && !has(IteratorPrototype, ITERATOR)) hide(IteratorPrototype, ITERATOR, returnThis);
+	    }
+	  }
+	  // fix Array#{values, @@iterator}.name in V8 / FF
+	  if (DEF_VALUES && $native && $native.name !== VALUES) {
+	    VALUES_BUG = true;
+	    $default = function values() { return $native.call(this); };
+	  }
+	  // Define iterator
+	  if ((!LIBRARY || FORCED) && (BUGGY || VALUES_BUG || !proto[ITERATOR])) {
+	    hide(proto, ITERATOR, $default);
+	  }
+	  // Plug for library
+	  Iterators[NAME] = $default;
+	  Iterators[TAG] = returnThis;
+	  if (DEFAULT) {
+	    methods = {
+	      values: DEF_VALUES ? $default : getMethod(VALUES),
+	      keys: IS_SET ? $default : getMethod(KEYS),
+	      entries: $entries
+	    };
+	    if (FORCED) for (key in methods) {
+	      if (!(key in proto)) redefine(proto, key, methods[key]);
+	    } else $export($export.P + $export.F * (BUGGY || VALUES_BUG), NAME, methods);
+	  }
+	  return methods;
+	};
+
+
+/***/ },
+/* 509 */
+/***/ function(module, exports) {
+
+	module.exports = true;
+
+
+/***/ },
+/* 510 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(463);
+
+
+/***/ },
+/* 511 */
+/***/ function(module, exports) {
+
+	module.exports = {};
+
+
+/***/ },
+/* 512 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	var create = __webpack_require__(513);
+	var descriptor = __webpack_require__(472);
+	var setToStringTag = __webpack_require__(515);
+	var IteratorPrototype = {};
+	
+	// 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
+	__webpack_require__(463)(IteratorPrototype, __webpack_require__(516)('iterator'), function () { return this; });
+	
+	module.exports = function (Constructor, NAME, next) {
+	  Constructor.prototype = create(IteratorPrototype, { next: descriptor(1, next) });
+	  setToStringTag(Constructor, NAME + ' Iterator');
+	};
+
+
+/***/ },
+/* 513 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
+	var anObject = __webpack_require__(465);
+	var dPs = __webpack_require__(473);
+	var enumBugKeys = __webpack_require__(488);
+	var IE_PROTO = __webpack_require__(485)('IE_PROTO');
+	var Empty = function () { /* empty */ };
+	var PROTOTYPE = 'prototype';
+	
+	// Create object with fake `null` prototype: use iframe Object with cleared prototype
+	var createDict = function () {
+	  // Thrash, waste and sodomy: IE GC bug
+	  var iframe = __webpack_require__(470)('iframe');
+	  var i = enumBugKeys.length;
+	  var lt = '<';
+	  var gt = '>';
+	  var iframeDocument;
+	  iframe.style.display = 'none';
+	  __webpack_require__(514).appendChild(iframe);
+	  iframe.src = 'javascript:'; // eslint-disable-line no-script-url
+	  // createDict = iframe.contentWindow.Object;
+	  // html.removeChild(iframe);
+	  iframeDocument = iframe.contentWindow.document;
+	  iframeDocument.open();
+	  iframeDocument.write(lt + 'script' + gt + 'document.F=Object' + lt + '/script' + gt);
+	  iframeDocument.close();
+	  createDict = iframeDocument.F;
+	  while (i--) delete createDict[PROTOTYPE][enumBugKeys[i]];
+	  return createDict();
+	};
+	
+	module.exports = Object.create || function create(O, Properties) {
+	  var result;
+	  if (O !== null) {
+	    Empty[PROTOTYPE] = anObject(O);
+	    result = new Empty();
+	    Empty[PROTOTYPE] = null;
+	    // add "__proto__" for Object.getPrototypeOf polyfill
+	    result[IE_PROTO] = O;
+	  } else result = createDict();
+	  return Properties === undefined ? result : dPs(result, Properties);
+	};
+
+
+/***/ },
+/* 514 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var document = __webpack_require__(459).document;
+	module.exports = document && document.documentElement;
+
+
+/***/ },
+/* 515 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var def = __webpack_require__(464).f;
+	var has = __webpack_require__(476);
+	var TAG = __webpack_require__(516)('toStringTag');
+	
+	module.exports = function (it, tag, stat) {
+	  if (it && !has(it = stat ? it : it.prototype, TAG)) def(it, TAG, { configurable: true, value: tag });
+	};
+
+
+/***/ },
+/* 516 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var store = __webpack_require__(486)('wks');
+	var uid = __webpack_require__(487);
+	var Symbol = __webpack_require__(459).Symbol;
+	var USE_SYMBOL = typeof Symbol == 'function';
+	
+	var $exports = module.exports = function (name) {
+	  return store[name] || (store[name] =
+	    USE_SYMBOL && Symbol[name] || (USE_SYMBOL ? Symbol : uid)('Symbol.' + name));
+	};
+	
+	$exports.store = store;
+
+
+/***/ },
+/* 517 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
+	var has = __webpack_require__(476);
+	var toObject = __webpack_require__(518);
+	var IE_PROTO = __webpack_require__(485)('IE_PROTO');
+	var ObjectProto = Object.prototype;
+	
+	module.exports = Object.getPrototypeOf || function (O) {
+	  O = toObject(O);
+	  if (has(O, IE_PROTO)) return O[IE_PROTO];
+	  if (typeof O.constructor == 'function' && O instanceof O.constructor) {
+	    return O.constructor.prototype;
+	  } return O instanceof Object ? ObjectProto : null;
+	};
+
+
+/***/ },
+/* 518 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// 7.1.13 ToObject(argument)
+	var defined = __webpack_require__(480);
+	module.exports = function (it) {
+	  return Object(defined(it));
+	};
+
+
+/***/ },
+/* 519 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	var ctx = __webpack_require__(461);
+	var $export = __webpack_require__(458);
+	var toObject = __webpack_require__(518);
+	var call = __webpack_require__(520);
+	var isArrayIter = __webpack_require__(521);
+	var toLength = __webpack_require__(482);
+	var createProperty = __webpack_require__(522);
+	var getIterFn = __webpack_require__(523);
+	
+	$export($export.S + $export.F * !__webpack_require__(525)(function (iter) { Array.from(iter); }), 'Array', {
+	  // 22.1.2.1 Array.from(arrayLike, mapfn = undefined, thisArg = undefined)
+	  from: function from(arrayLike /* , mapfn = undefined, thisArg = undefined */) {
+	    var O = toObject(arrayLike);
+	    var C = typeof this == 'function' ? this : Array;
+	    var aLen = arguments.length;
+	    var mapfn = aLen > 1 ? arguments[1] : undefined;
+	    var mapping = mapfn !== undefined;
+	    var index = 0;
+	    var iterFn = getIterFn(O);
+	    var length, result, step, iterator;
+	    if (mapping) mapfn = ctx(mapfn, aLen > 2 ? arguments[2] : undefined, 2);
+	    // if object isn't iterable or it's array with default iterator - use simple case
+	    if (iterFn != undefined && !(C == Array && isArrayIter(iterFn))) {
+	      for (iterator = iterFn.call(O), result = new C(); !(step = iterator.next()).done; index++) {
+	        createProperty(result, index, mapping ? call(iterator, mapfn, [step.value, index], true) : step.value);
+	      }
+	    } else {
+	      length = toLength(O.length);
+	      for (result = new C(length); length > index; index++) {
+	        createProperty(result, index, mapping ? mapfn(O[index], index) : O[index]);
+	      }
+	    }
+	    result.length = index;
+	    return result;
+	  }
+	});
+
+
+/***/ },
+/* 520 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// call something on iterator step with safe closing on error
+	var anObject = __webpack_require__(465);
+	module.exports = function (iterator, fn, value, entries) {
+	  try {
+	    return entries ? fn(anObject(value)[0], value[1]) : fn(value);
+	  // 7.4.6 IteratorClose(iterator, completion)
+	  } catch (e) {
+	    var ret = iterator['return'];
+	    if (ret !== undefined) anObject(ret.call(iterator));
+	    throw e;
+	  }
+	};
+
+
+/***/ },
+/* 521 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// check on default Array iterator
+	var Iterators = __webpack_require__(511);
+	var ITERATOR = __webpack_require__(516)('iterator');
+	var ArrayProto = Array.prototype;
+	
+	module.exports = function (it) {
+	  return it !== undefined && (Iterators.Array === it || ArrayProto[ITERATOR] === it);
+	};
+
+
+/***/ },
+/* 522 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	var $defineProperty = __webpack_require__(464);
+	var createDesc = __webpack_require__(472);
+	
+	module.exports = function (object, index, value) {
+	  if (index in object) $defineProperty.f(object, index, createDesc(0, value));
+	  else object[index] = value;
+	};
+
+
+/***/ },
+/* 523 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var classof = __webpack_require__(524);
+	var ITERATOR = __webpack_require__(516)('iterator');
+	var Iterators = __webpack_require__(511);
+	module.exports = __webpack_require__(460).getIteratorMethod = function (it) {
+	  if (it != undefined) return it[ITERATOR]
+	    || it['@@iterator']
+	    || Iterators[classof(it)];
+	};
+
+
+/***/ },
+/* 524 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// getting tag from 19.1.3.6 Object.prototype.toString()
+	var cof = __webpack_require__(479);
+	var TAG = __webpack_require__(516)('toStringTag');
+	// ES3 wrong here
+	var ARG = cof(function () { return arguments; }()) == 'Arguments';
+	
+	// fallback for IE11 Script Access Denied error
+	var tryGet = function (it, key) {
+	  try {
+	    return it[key];
+	  } catch (e) { /* empty */ }
+	};
+	
+	module.exports = function (it) {
+	  var O, T, B;
+	  return it === undefined ? 'Undefined' : it === null ? 'Null'
+	    // @@toStringTag case
+	    : typeof (T = tryGet(O = Object(it), TAG)) == 'string' ? T
+	    // builtinTag case
+	    : ARG ? cof(O)
+	    // ES3 arguments fallback
+	    : (B = cof(O)) == 'Object' && typeof O.callee == 'function' ? 'Arguments' : B;
+	};
+
+
+/***/ },
+/* 525 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var ITERATOR = __webpack_require__(516)('iterator');
+	var SAFE_CLOSING = false;
+	
+	try {
+	  var riter = [7][ITERATOR]();
+	  riter['return'] = function () { SAFE_CLOSING = true; };
+	  // eslint-disable-next-line no-throw-literal
+	  Array.from(riter, function () { throw 2; });
+	} catch (e) { /* empty */ }
+	
+	module.exports = function (exec, skipClosing) {
+	  if (!skipClosing && !SAFE_CLOSING) return false;
+	  var safe = false;
+	  try {
+	    var arr = [7];
+	    var iter = arr[ITERATOR]();
+	    iter.next = function () { return { done: safe = true }; };
+	    arr[ITERATOR] = function () { return iter; };
+	    exec(arr);
+	  } catch (e) { /* empty */ }
+	  return safe;
+	};
+
+
+/***/ },
+/* 526 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _replaceResultTransformer = __webpack_require__(527);
+	
+	var _replaceResultTransformer2 = _interopRequireDefault(_replaceResultTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _replaceResultTransformer2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9yZXBsYWNlUmVzdWx0VHJhbnNmb3JtZXIvaW5kZXguanMiXSwibmFtZXMiOlsiZGVmYXVsdCJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7Ozs7Ozs7Ozs7UUFFT0EsTyIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbIid1c2Ugc3RyaWN0J1xuXG5leHBvcnQgZGVmYXVsdCBmcm9tICcuL3JlcGxhY2VSZXN1bHRUcmFuc2Zvcm1lcidcbiJdfQ==
+
+/***/ },
+/* 527 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	/**
+	 * Replaces tabs, newlines and spaces with the chosen value when they occur in sequences
+	 * @param  {(String|RegExp)} replaceWhat - the value or pattern that should be replaced
+	 * @param  {*}               replaceWith - the replacement value
+	 * @return {Object}                      - a TemplateTag transformer
+	 */
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var replaceResultTransformer = function replaceResultTransformer(replaceWhat, replaceWith) {
+	  return {
+	    onEndResult: function onEndResult(endResult) {
+	      if (replaceWhat == null || replaceWith == null) {
+	        throw new Error('replaceResultTransformer requires at least 2 arguments.');
+	      }
+	      return endResult.replace(replaceWhat, replaceWith);
+	    }
+	  };
+	};
+	
+	exports.default = replaceResultTransformer;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9yZXBsYWNlUmVzdWx0VHJhbnNmb3JtZXIvcmVwbGFjZVJlc3VsdFRyYW5zZm9ybWVyLmpzIl0sIm5hbWVzIjpbInJlcGxhY2VSZXN1bHRUcmFuc2Zvcm1lciIsInJlcGxhY2VXaGF0IiwicmVwbGFjZVdpdGgiLCJvbkVuZFJlc3VsdCIsImVuZFJlc3VsdCIsIkVycm9yIiwicmVwbGFjZSJdLCJtYXBwaW5ncyI6IkFBQUE7O0FBRUE7Ozs7Ozs7Ozs7QUFNQSxJQUFNQSwyQkFBMkIsU0FBM0JBLHdCQUEyQixDQUFDQyxXQUFELEVBQWNDLFdBQWQ7QUFBQSxTQUErQjtBQUM5REMsZUFEOEQsdUJBQ2pEQyxTQURpRCxFQUN0QztBQUN0QixVQUFJSCxlQUFlLElBQWYsSUFBdUJDLGVBQWUsSUFBMUMsRUFBZ0Q7QUFDOUMsY0FBTSxJQUFJRyxLQUFKLENBQVUseURBQVYsQ0FBTjtBQUNEO0FBQ0QsYUFBT0QsVUFBVUUsT0FBVixDQUFrQkwsV0FBbEIsRUFBK0JDLFdBQS9CLENBQVA7QUFDRDtBQU42RCxHQUEvQjtBQUFBLENBQWpDOztrQkFTZUYsd0IiLCJmaWxlIjoicmVwbGFjZVJlc3VsdFRyYW5zZm9ybWVyLmpzIiwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBzdHJpY3QnXG5cbi8qKlxuICogUmVwbGFjZXMgdGFicywgbmV3bGluZXMgYW5kIHNwYWNlcyB3aXRoIHRoZSBjaG9zZW4gdmFsdWUgd2hlbiB0aGV5IG9jY3VyIGluIHNlcXVlbmNlc1xuICogQHBhcmFtICB7KFN0cmluZ3xSZWdFeHApfSByZXBsYWNlV2hhdCAtIHRoZSB2YWx1ZSBvciBwYXR0ZXJuIHRoYXQgc2hvdWxkIGJlIHJlcGxhY2VkXG4gKiBAcGFyYW0gIHsqfSAgICAgICAgICAgICAgIHJlcGxhY2VXaXRoIC0gdGhlIHJlcGxhY2VtZW50IHZhbHVlXG4gKiBAcmV0dXJuIHtPYmplY3R9ICAgICAgICAgICAgICAgICAgICAgIC0gYSBUZW1wbGF0ZVRhZyB0cmFuc2Zvcm1lclxuICovXG5jb25zdCByZXBsYWNlUmVzdWx0VHJhbnNmb3JtZXIgPSAocmVwbGFjZVdoYXQsIHJlcGxhY2VXaXRoKSA9PiAoe1xuICBvbkVuZFJlc3VsdCAoZW5kUmVzdWx0KSB7XG4gICAgaWYgKHJlcGxhY2VXaGF0ID09IG51bGwgfHwgcmVwbGFjZVdpdGggPT0gbnVsbCkge1xuICAgICAgdGhyb3cgbmV3IEVycm9yKCdyZXBsYWNlUmVzdWx0VHJhbnNmb3JtZXIgcmVxdWlyZXMgYXQgbGVhc3QgMiBhcmd1bWVudHMuJylcbiAgICB9XG4gICAgcmV0dXJuIGVuZFJlc3VsdC5yZXBsYWNlKHJlcGxhY2VXaGF0LCByZXBsYWNlV2l0aClcbiAgfVxufSlcblxuZXhwb3J0IGRlZmF1bHQgcmVwbGFjZVJlc3VsdFRyYW5zZm9ybWVyXG4iXX0=
+
+/***/ },
+/* 528 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _replaceSubstitutionTransformer = __webpack_require__(529);
+	
+	var _replaceSubstitutionTransformer2 = _interopRequireDefault(_replaceSubstitutionTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _replaceSubstitutionTransformer2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9yZXBsYWNlU3Vic3RpdHV0aW9uVHJhbnNmb3JtZXIvaW5kZXguanMiXSwibmFtZXMiOlsiZGVmYXVsdCJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7Ozs7Ozs7Ozs7UUFFT0EsTyIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbIid1c2Ugc3RyaWN0J1xuXG5leHBvcnQgZGVmYXVsdCBmcm9tICcuL3JlcGxhY2VTdWJzdGl0dXRpb25UcmFuc2Zvcm1lcidcbiJdfQ==
+
+/***/ },
+/* 529 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var replaceSubstitutionTransformer = function replaceSubstitutionTransformer(replaceWhat, replaceWith) {
+	  return {
+	    onSubstitution: function onSubstitution(substitution, resultSoFar) {
+	      if (replaceWhat == null || replaceWith == null) {
+	        throw new Error('replaceSubstitutionTransformer requires at least 2 arguments.');
+	      }
+	
+	      // Do not touch if null or undefined
+	      if (substitution == null) {
+	        return substitution;
+	      } else {
+	        return substitution.toString().replace(replaceWhat, replaceWith);
+	      }
+	    }
+	  };
+	};
+	
+	exports.default = replaceSubstitutionTransformer;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9yZXBsYWNlU3Vic3RpdHV0aW9uVHJhbnNmb3JtZXIvcmVwbGFjZVN1YnN0aXR1dGlvblRyYW5zZm9ybWVyLmpzIl0sIm5hbWVzIjpbInJlcGxhY2VTdWJzdGl0dXRpb25UcmFuc2Zvcm1lciIsInJlcGxhY2VXaGF0IiwicmVwbGFjZVdpdGgiLCJvblN1YnN0aXR1dGlvbiIsInN1YnN0aXR1dGlvbiIsInJlc3VsdFNvRmFyIiwiRXJyb3IiLCJ0b1N0cmluZyIsInJlcGxhY2UiXSwibWFwcGluZ3MiOiJBQUFBOzs7OztBQUVBLElBQU1BLGlDQUFpQyxTQUFqQ0EsOEJBQWlDLENBQUNDLFdBQUQsRUFBY0MsV0FBZDtBQUFBLFNBQStCO0FBQ3BFQyxrQkFEb0UsMEJBQ3BEQyxZQURvRCxFQUN0Q0MsV0FEc0MsRUFDekI7QUFDekMsVUFBSUosZUFBZSxJQUFmLElBQXVCQyxlQUFlLElBQTFDLEVBQWdEO0FBQzlDLGNBQU0sSUFBSUksS0FBSixDQUFVLCtEQUFWLENBQU47QUFDRDs7QUFFRDtBQUNBLFVBQUlGLGdCQUFnQixJQUFwQixFQUEwQjtBQUN4QixlQUFPQSxZQUFQO0FBQ0QsT0FGRCxNQUVPO0FBQ0wsZUFBT0EsYUFBYUcsUUFBYixHQUF3QkMsT0FBeEIsQ0FBZ0NQLFdBQWhDLEVBQTZDQyxXQUE3QyxDQUFQO0FBQ0Q7QUFDRjtBQVptRSxHQUEvQjtBQUFBLENBQXZDOztrQkFlZUYsOEIiLCJmaWxlIjoicmVwbGFjZVN1YnN0aXR1dGlvblRyYW5zZm9ybWVyLmpzIiwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBzdHJpY3QnXG5cbmNvbnN0IHJlcGxhY2VTdWJzdGl0dXRpb25UcmFuc2Zvcm1lciA9IChyZXBsYWNlV2hhdCwgcmVwbGFjZVdpdGgpID0+ICh7XG4gIG9uU3Vic3RpdHV0aW9uIChzdWJzdGl0dXRpb24sIHJlc3VsdFNvRmFyKSB7XG4gICAgaWYgKHJlcGxhY2VXaGF0ID09IG51bGwgfHwgcmVwbGFjZVdpdGggPT0gbnVsbCkge1xuICAgICAgdGhyb3cgbmV3IEVycm9yKCdyZXBsYWNlU3Vic3RpdHV0aW9uVHJhbnNmb3JtZXIgcmVxdWlyZXMgYXQgbGVhc3QgMiBhcmd1bWVudHMuJylcbiAgICB9XG5cbiAgICAvLyBEbyBub3QgdG91Y2ggaWYgbnVsbCBvciB1bmRlZmluZWRcbiAgICBpZiAoc3Vic3RpdHV0aW9uID09IG51bGwpIHtcbiAgICAgIHJldHVybiBzdWJzdGl0dXRpb25cbiAgICB9IGVsc2Uge1xuICAgICAgcmV0dXJuIHN1YnN0aXR1dGlvbi50b1N0cmluZygpLnJlcGxhY2UocmVwbGFjZVdoYXQsIHJlcGxhY2VXaXRoKVxuICAgIH1cbiAgfVxufSlcblxuZXhwb3J0IGRlZmF1bHQgcmVwbGFjZVN1YnN0aXR1dGlvblRyYW5zZm9ybWVyXG4iXX0=
+
+/***/ },
+/* 530 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _inlineArrayTransformer = __webpack_require__(531);
+	
+	var _inlineArrayTransformer2 = _interopRequireDefault(_inlineArrayTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _inlineArrayTransformer2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9pbmxpbmVBcnJheVRyYW5zZm9ybWVyL2luZGV4LmpzIl0sIm5hbWVzIjpbImRlZmF1bHQiXSwibWFwcGluZ3MiOiJBQUFBOzs7Ozs7Ozs7Ozs7O1FBRU9BLE8iLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuZXhwb3J0IGRlZmF1bHQgZnJvbSAnLi9pbmxpbmVBcnJheVRyYW5zZm9ybWVyJ1xuIl19
+
+/***/ },
+/* 531 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var defaults = {
+	  separator: '',
+	  conjunction: '',
+	  serial: false
+	};
+	
+	/**
+	 * Converts an array substitution to a string containing a list
+	 * @param  {String} [opts.separator = ''] - the character that separates each item
+	 * @param  {String} [opts.conjunction = '']  - replace the last separator with this
+	 * @param  {Boolean} [opts.serial = false] - include the separator before the conjunction? (Oxford comma use-case)
+	 *
+	 * @return {Object}                     - a TemplateTag transformer
+	 */
+	var inlineArrayTransformer = function inlineArrayTransformer() {
+	  var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaults;
+	  return {
+	    onSubstitution: function onSubstitution(substitution, resultSoFar) {
+	      // only operate on arrays
+	      if (Array.isArray(substitution)) {
+	        var separator = opts.separator;
+	        var conjunction = opts.conjunction;
+	        var serial = opts.serial;
+	        // join each item in the array into a string where each item is separated by separator
+	        // be sure to maintain indentation
+	        var indent = resultSoFar.match(/(\s+)$/);
+	        if (indent) {
+	          substitution = substitution.join(separator + indent[1]);
+	        } else {
+	          substitution = substitution.join(separator + ' ');
+	        }
+	        // if conjunction is set, replace the last separator with conjunction
+	        if (conjunction) {
+	          var separatorIndex = substitution.lastIndexOf(separator);
+	          substitution = substitution.substr(0, separatorIndex) + (serial ? separator : '') + ' ' + conjunction + substitution.substr(separatorIndex + 1);
+	        }
+	      }
+	      return substitution;
+	    }
+	  };
+	};
+	
+	exports.default = inlineArrayTransformer;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9pbmxpbmVBcnJheVRyYW5zZm9ybWVyL2lubGluZUFycmF5VHJhbnNmb3JtZXIuanMiXSwibmFtZXMiOlsiZGVmYXVsdHMiLCJzZXBhcmF0b3IiLCJjb25qdW5jdGlvbiIsInNlcmlhbCIsImlubGluZUFycmF5VHJhbnNmb3JtZXIiLCJvcHRzIiwib25TdWJzdGl0dXRpb24iLCJzdWJzdGl0dXRpb24iLCJyZXN1bHRTb0ZhciIsIkFycmF5IiwiaXNBcnJheSIsImluZGVudCIsIm1hdGNoIiwiam9pbiIsInNlcGFyYXRvckluZGV4IiwibGFzdEluZGV4T2YiLCJzdWJzdHIiXSwibWFwcGluZ3MiOiJBQUFBOzs7OztBQUVBLElBQU1BLFdBQVc7QUFDZkMsYUFBVyxFQURJO0FBRWZDLGVBQWEsRUFGRTtBQUdmQyxVQUFRO0FBSE8sQ0FBakI7O0FBTUE7Ozs7Ozs7O0FBUUEsSUFBTUMseUJBQXlCLFNBQXpCQSxzQkFBeUI7QUFBQSxNQUFDQyxJQUFELHVFQUFRTCxRQUFSO0FBQUEsU0FBc0I7QUFDbkRNLGtCQURtRCwwQkFDbkNDLFlBRG1DLEVBQ3JCQyxXQURxQixFQUNSO0FBQ3pDO0FBQ0EsVUFBSUMsTUFBTUMsT0FBTixDQUFjSCxZQUFkLENBQUosRUFBaUM7QUFDL0IsWUFBTU4sWUFBWUksS0FBS0osU0FBdkI7QUFDQSxZQUFNQyxjQUFjRyxLQUFLSCxXQUF6QjtBQUNBLFlBQU1DLFNBQVNFLEtBQUtGLE1BQXBCO0FBQ0E7QUFDQTtBQUNBLFlBQU1RLFNBQVNILFlBQVlJLEtBQVosQ0FBa0IsUUFBbEIsQ0FBZjtBQUNBLFlBQUlELE1BQUosRUFBWTtBQUNWSix5QkFBZUEsYUFBYU0sSUFBYixDQUFrQlosWUFBWVUsT0FBTyxDQUFQLENBQTlCLENBQWY7QUFDRCxTQUZELE1BRU87QUFDTEoseUJBQWVBLGFBQWFNLElBQWIsQ0FBa0JaLFlBQVksR0FBOUIsQ0FBZjtBQUNEO0FBQ0Q7QUFDQSxZQUFJQyxXQUFKLEVBQWlCO0FBQ2YsY0FBTVksaUJBQWlCUCxhQUFhUSxXQUFiLENBQXlCZCxTQUF6QixDQUF2QjtBQUNBTSx5QkFBZUEsYUFDWlMsTUFEWSxDQUNMLENBREssRUFDRkYsY0FERSxLQUNpQlgsU0FBU0YsU0FBVCxHQUFxQixFQUR0QyxJQUM0QyxHQUQ1QyxHQUVYQyxXQUZXLEdBRUdLLGFBQWFTLE1BQWIsQ0FBb0JGLGlCQUFpQixDQUFyQyxDQUZsQjtBQUdEO0FBQ0Y7QUFDRCxhQUFPUCxZQUFQO0FBQ0Q7QUF4QmtELEdBQXRCO0FBQUEsQ0FBL0I7O2tCQTJCZUgsc0IiLCJmaWxlIjoiaW5saW5lQXJyYXlUcmFuc2Zvcm1lci5qcyIsInNvdXJjZXNDb250ZW50IjpbIid1c2Ugc3RyaWN0J1xuXG5jb25zdCBkZWZhdWx0cyA9IHtcbiAgc2VwYXJhdG9yOiAnJyxcbiAgY29uanVuY3Rpb246ICcnLFxuICBzZXJpYWw6IGZhbHNlXG59XG5cbi8qKlxuICogQ29udmVydHMgYW4gYXJyYXkgc3Vic3RpdHV0aW9uIHRvIGEgc3RyaW5nIGNvbnRhaW5pbmcgYSBsaXN0XG4gKiBAcGFyYW0gIHtTdHJpbmd9IFtvcHRzLnNlcGFyYXRvciA9ICcnXSAtIHRoZSBjaGFyYWN0ZXIgdGhhdCBzZXBhcmF0ZXMgZWFjaCBpdGVtXG4gKiBAcGFyYW0gIHtTdHJpbmd9IFtvcHRzLmNvbmp1bmN0aW9uID0gJyddICAtIHJlcGxhY2UgdGhlIGxhc3Qgc2VwYXJhdG9yIHdpdGggdGhpc1xuICogQHBhcmFtICB7Qm9vbGVhbn0gW29wdHMuc2VyaWFsID0gZmFsc2VdIC0gaW5jbHVkZSB0aGUgc2VwYXJhdG9yIGJlZm9yZSB0aGUgY29uanVuY3Rpb24/IChPeGZvcmQgY29tbWEgdXNlLWNhc2UpXG4gKlxuICogQHJldHVybiB7T2JqZWN0fSAgICAgICAgICAgICAgICAgICAgIC0gYSBUZW1wbGF0ZVRhZyB0cmFuc2Zvcm1lclxuICovXG5jb25zdCBpbmxpbmVBcnJheVRyYW5zZm9ybWVyID0gKG9wdHMgPSBkZWZhdWx0cykgPT4gKHtcbiAgb25TdWJzdGl0dXRpb24gKHN1YnN0aXR1dGlvbiwgcmVzdWx0U29GYXIpIHtcbiAgICAvLyBvbmx5IG9wZXJhdGUgb24gYXJyYXlzXG4gICAgaWYgKEFycmF5LmlzQXJyYXkoc3Vic3RpdHV0aW9uKSkge1xuICAgICAgY29uc3Qgc2VwYXJhdG9yID0gb3B0cy5zZXBhcmF0b3JcbiAgICAgIGNvbnN0IGNvbmp1bmN0aW9uID0gb3B0cy5jb25qdW5jdGlvblxuICAgICAgY29uc3Qgc2VyaWFsID0gb3B0cy5zZXJpYWxcbiAgICAgIC8vIGpvaW4gZWFjaCBpdGVtIGluIHRoZSBhcnJheSBpbnRvIGEgc3RyaW5nIHdoZXJlIGVhY2ggaXRlbSBpcyBzZXBhcmF0ZWQgYnkgc2VwYXJhdG9yXG4gICAgICAvLyBiZSBzdXJlIHRvIG1haW50YWluIGluZGVudGF0aW9uXG4gICAgICBjb25zdCBpbmRlbnQgPSByZXN1bHRTb0Zhci5tYXRjaCgvKFxccyspJC8pXG4gICAgICBpZiAoaW5kZW50KSB7XG4gICAgICAgIHN1YnN0aXR1dGlvbiA9IHN1YnN0aXR1dGlvbi5qb2luKHNlcGFyYXRvciArIGluZGVudFsxXSlcbiAgICAgIH0gZWxzZSB7XG4gICAgICAgIHN1YnN0aXR1dGlvbiA9IHN1YnN0aXR1dGlvbi5qb2luKHNlcGFyYXRvciArICcgJylcbiAgICAgIH1cbiAgICAgIC8vIGlmIGNvbmp1bmN0aW9uIGlzIHNldCwgcmVwbGFjZSB0aGUgbGFzdCBzZXBhcmF0b3Igd2l0aCBjb25qdW5jdGlvblxuICAgICAgaWYgKGNvbmp1bmN0aW9uKSB7XG4gICAgICAgIGNvbnN0IHNlcGFyYXRvckluZGV4ID0gc3Vic3RpdHV0aW9uLmxhc3RJbmRleE9mKHNlcGFyYXRvcilcbiAgICAgICAgc3Vic3RpdHV0aW9uID0gc3Vic3RpdHV0aW9uXG4gICAgICAgICAgLnN1YnN0cigwLCBzZXBhcmF0b3JJbmRleCkgKyAoc2VyaWFsID8gc2VwYXJhdG9yIDogJycpICsgJyAnICtcbiAgICAgICAgICAgIGNvbmp1bmN0aW9uICsgc3Vic3RpdHV0aW9uLnN1YnN0cihzZXBhcmF0b3JJbmRleCArIDEpXG4gICAgICB9XG4gICAgfVxuICAgIHJldHVybiBzdWJzdGl0dXRpb25cbiAgfVxufSlcblxuZXhwb3J0IGRlZmF1bHQgaW5saW5lQXJyYXlUcmFuc2Zvcm1lclxuIl19
+
+/***/ },
+/* 532 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _splitStringTransformer = __webpack_require__(533);
+	
+	var _splitStringTransformer2 = _interopRequireDefault(_splitStringTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _splitStringTransformer2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9zcGxpdFN0cmluZ1RyYW5zZm9ybWVyL2luZGV4LmpzIl0sIm5hbWVzIjpbImRlZmF1bHQiXSwibWFwcGluZ3MiOiJBQUFBOzs7Ozs7Ozs7Ozs7O1FBRU9BLE8iLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuZXhwb3J0IGRlZmF1bHQgZnJvbSAnLi9zcGxpdFN0cmluZ1RyYW5zZm9ybWVyJ1xuIl19
+
+/***/ },
+/* 533 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var splitStringTransformer = function splitStringTransformer(splitBy) {
+	  return {
+	    onSubstitution: function onSubstitution(substitution, resultSoFar) {
+	      if (splitBy != null && typeof splitBy === 'string') {
+	        if (typeof substitution === 'string' && substitution.includes(splitBy)) {
+	          substitution = substitution.split(splitBy);
+	        }
+	      } else {
+	        throw new Error('You need to specify a string character to split by.');
+	      }
+	      return substitution;
+	    }
+	  };
+	};
+	
+	exports.default = splitStringTransformer;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9zcGxpdFN0cmluZ1RyYW5zZm9ybWVyL3NwbGl0U3RyaW5nVHJhbnNmb3JtZXIuanMiXSwibmFtZXMiOlsic3BsaXRTdHJpbmdUcmFuc2Zvcm1lciIsInNwbGl0QnkiLCJvblN1YnN0aXR1dGlvbiIsInN1YnN0aXR1dGlvbiIsInJlc3VsdFNvRmFyIiwiaW5jbHVkZXMiLCJzcGxpdCIsIkVycm9yIl0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7QUFFQSxJQUFNQSx5QkFBeUIsU0FBekJBLHNCQUF5QixDQUFDQyxPQUFEO0FBQUEsU0FBYztBQUMzQ0Msa0JBRDJDLDBCQUMzQkMsWUFEMkIsRUFDYkMsV0FEYSxFQUNBO0FBQ3pDLFVBQUlILFdBQVcsSUFBWCxJQUFtQixPQUFPQSxPQUFQLEtBQW1CLFFBQTFDLEVBQW9EO0FBQ2xELFlBQUksT0FBT0UsWUFBUCxLQUF3QixRQUF4QixJQUFvQ0EsYUFBYUUsUUFBYixDQUFzQkosT0FBdEIsQ0FBeEMsRUFBd0U7QUFDdEVFLHlCQUFlQSxhQUFhRyxLQUFiLENBQW1CTCxPQUFuQixDQUFmO0FBQ0Q7QUFDRixPQUpELE1BSU87QUFDTCxjQUFNLElBQUlNLEtBQUosQ0FBVSxxREFBVixDQUFOO0FBQ0Q7QUFDRCxhQUFPSixZQUFQO0FBQ0Q7QUFWMEMsR0FBZDtBQUFBLENBQS9COztrQkFhZUgsc0IiLCJmaWxlIjoic3BsaXRTdHJpbmdUcmFuc2Zvcm1lci5qcyIsInNvdXJjZXNDb250ZW50IjpbIid1c2Ugc3RyaWN0J1xuXG5jb25zdCBzcGxpdFN0cmluZ1RyYW5zZm9ybWVyID0gKHNwbGl0QnkpID0+ICh7XG4gIG9uU3Vic3RpdHV0aW9uIChzdWJzdGl0dXRpb24sIHJlc3VsdFNvRmFyKSB7XG4gICAgaWYgKHNwbGl0QnkgIT0gbnVsbCAmJiB0eXBlb2Ygc3BsaXRCeSA9PT0gJ3N0cmluZycpIHtcbiAgICAgIGlmICh0eXBlb2Ygc3Vic3RpdHV0aW9uID09PSAnc3RyaW5nJyAmJiBzdWJzdGl0dXRpb24uaW5jbHVkZXMoc3BsaXRCeSkpIHtcbiAgICAgICAgc3Vic3RpdHV0aW9uID0gc3Vic3RpdHV0aW9uLnNwbGl0KHNwbGl0QnkpXG4gICAgICB9XG4gICAgfSBlbHNlIHtcbiAgICAgIHRocm93IG5ldyBFcnJvcignWW91IG5lZWQgdG8gc3BlY2lmeSBhIHN0cmluZyBjaGFyYWN0ZXIgdG8gc3BsaXQgYnkuJylcbiAgICB9XG4gICAgcmV0dXJuIHN1YnN0aXR1dGlvblxuICB9XG59KVxuXG5leHBvcnQgZGVmYXVsdCBzcGxpdFN0cmluZ1RyYW5zZm9ybWVyXG4iXX0=
+
+/***/ },
+/* 534 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _removeNonPrintingValuesTransformer = __webpack_require__(535);
+	
+	var _removeNonPrintingValuesTransformer2 = _interopRequireDefault(_removeNonPrintingValuesTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _removeNonPrintingValuesTransformer2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9yZW1vdmVOb25QcmludGluZ1ZhbHVlc1RyYW5zZm9ybWVyL2luZGV4LmpzIl0sIm5hbWVzIjpbImRlZmF1bHQiXSwibWFwcGluZ3MiOiJBQUFBOzs7Ozs7Ozs7Ozs7O1FBRU9BLE8iLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuZXhwb3J0IGRlZmF1bHQgZnJvbSAnLi9yZW1vdmVOb25QcmludGluZ1ZhbHVlc1RyYW5zZm9ybWVyJ1xuIl19
+
+/***/ },
+/* 535 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _isNan = __webpack_require__(536);
+	
+	var _isNan2 = _interopRequireDefault(_isNan);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var isValidValue = function isValidValue(x) {
+	  return x != null && !(0, _isNan2.default)(x) && typeof x !== 'boolean';
+	};
+	
+	var removeNonPrintingValuesTransformer = function removeNonPrintingValuesTransformer() {
+	  return {
+	    onSubstitution: function onSubstitution(substitution) {
+	      if (Array.isArray(substitution)) {
+	        return substitution.filter(isValidValue);
+	      }
+	      if (isValidValue(substitution)) {
+	        return substitution;
+	      }
+	      return '';
+	    }
+	  };
+	};
+	
+	exports.default = removeNonPrintingValuesTransformer;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9yZW1vdmVOb25QcmludGluZ1ZhbHVlc1RyYW5zZm9ybWVyL3JlbW92ZU5vblByaW50aW5nVmFsdWVzVHJhbnNmb3JtZXIuanMiXSwibmFtZXMiOlsiaXNWYWxpZFZhbHVlIiwieCIsInJlbW92ZU5vblByaW50aW5nVmFsdWVzVHJhbnNmb3JtZXIiLCJvblN1YnN0aXR1dGlvbiIsInN1YnN0aXR1dGlvbiIsIkFycmF5IiwiaXNBcnJheSIsImZpbHRlciJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7Ozs7Ozs7OztBQUVBLElBQU1BLGVBQWUsU0FBZkEsWUFBZSxDQUFDQyxDQUFEO0FBQUEsU0FDbkJBLEtBQUssSUFBTCxJQUNBLENBQUMscUJBQWFBLENBQWIsQ0FERCxJQUVBLE9BQU9BLENBQVAsS0FBYSxTQUhNO0FBQUEsQ0FBckI7O0FBS0EsSUFBTUMscUNBQXFDLFNBQXJDQSxrQ0FBcUM7QUFBQSxTQUFPO0FBQ2hEQyxrQkFEZ0QsMEJBQ2hDQyxZQURnQyxFQUNsQjtBQUM1QixVQUFJQyxNQUFNQyxPQUFOLENBQWNGLFlBQWQsQ0FBSixFQUFpQztBQUMvQixlQUFPQSxhQUFhRyxNQUFiLENBQW9CUCxZQUFwQixDQUFQO0FBQ0Q7QUFDRCxVQUFJQSxhQUFhSSxZQUFiLENBQUosRUFBZ0M7QUFDOUIsZUFBT0EsWUFBUDtBQUNEO0FBQ0QsYUFBTyxFQUFQO0FBQ0Q7QUFUK0MsR0FBUDtBQUFBLENBQTNDOztrQkFZZUYsa0MiLCJmaWxlIjoicmVtb3ZlTm9uUHJpbnRpbmdWYWx1ZXNUcmFuc2Zvcm1lci5qcyIsInNvdXJjZXNDb250ZW50IjpbIid1c2Ugc3RyaWN0J1xuXG5jb25zdCBpc1ZhbGlkVmFsdWUgPSAoeCkgPT5cbiAgeCAhPSBudWxsICYmXG4gICFOdW1iZXIuaXNOYU4oeCkgJiZcbiAgdHlwZW9mIHggIT09ICdib29sZWFuJ1xuXG5jb25zdCByZW1vdmVOb25QcmludGluZ1ZhbHVlc1RyYW5zZm9ybWVyID0gKCkgPT4gKHtcbiAgb25TdWJzdGl0dXRpb24gKHN1YnN0aXR1dGlvbikge1xuICAgIGlmIChBcnJheS5pc0FycmF5KHN1YnN0aXR1dGlvbikpIHtcbiAgICAgIHJldHVybiBzdWJzdGl0dXRpb24uZmlsdGVyKGlzVmFsaWRWYWx1ZSlcbiAgICB9XG4gICAgaWYgKGlzVmFsaWRWYWx1ZShzdWJzdGl0dXRpb24pKSB7XG4gICAgICByZXR1cm4gc3Vic3RpdHV0aW9uXG4gICAgfVxuICAgIHJldHVybiAnJ1xuICB9XG59KVxuXG5leHBvcnQgZGVmYXVsdCByZW1vdmVOb25QcmludGluZ1ZhbHVlc1RyYW5zZm9ybWVyXG4iXX0=
+
+/***/ },
+/* 536 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = { "default": __webpack_require__(537), __esModule: true };
+
+/***/ },
+/* 537 */
+/***/ function(module, exports, __webpack_require__) {
+
+	__webpack_require__(538);
+	module.exports = __webpack_require__(460).Number.isNaN;
+
+
+/***/ },
+/* 538 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// 20.1.2.4 Number.isNaN(number)
+	var $export = __webpack_require__(458);
+	
+	$export($export.S, 'Number', {
+	  isNaN: function isNaN(number) {
+	    // eslint-disable-next-line no-self-compare
+	    return number != number;
+	  }
+	});
+
+
+/***/ },
+/* 539 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _commaLists = __webpack_require__(540);
+	
+	var _commaLists2 = _interopRequireDefault(_commaLists);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _commaLists2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9jb21tYUxpc3RzL2luZGV4LmpzIl0sIm5hbWVzIjpbImRlZmF1bHQiXSwibWFwcGluZ3MiOiJBQUFBOzs7Ozs7Ozs7Ozs7O1FBRU9BLE8iLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuZXhwb3J0IGRlZmF1bHQgZnJvbSAnLi9jb21tYUxpc3RzJ1xuIl19
+
+/***/ },
+/* 540 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _TemplateTag = __webpack_require__(452);
+	
+	var _TemplateTag2 = _interopRequireDefault(_TemplateTag);
+	
+	var _stripIndentTransformer = __webpack_require__(501);
+	
+	var _stripIndentTransformer2 = _interopRequireDefault(_stripIndentTransformer);
+	
+	var _inlineArrayTransformer = __webpack_require__(530);
+	
+	var _inlineArrayTransformer2 = _interopRequireDefault(_inlineArrayTransformer);
+	
+	var _trimResultTransformer = __webpack_require__(499);
+	
+	var _trimResultTransformer2 = _interopRequireDefault(_trimResultTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var commaLists = new _TemplateTag2.default((0, _inlineArrayTransformer2.default)({ separator: ',' }), _stripIndentTransformer2.default, _trimResultTransformer2.default);
+	
+	exports.default = commaLists;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9jb21tYUxpc3RzL2NvbW1hTGlzdHMuanMiXSwibmFtZXMiOlsiY29tbWFMaXN0cyIsInNlcGFyYXRvciJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7OztBQUVBOzs7O0FBQ0E7Ozs7QUFDQTs7OztBQUNBOzs7Ozs7QUFFQSxJQUFNQSxhQUFhLDBCQUNqQixzQ0FBdUIsRUFBRUMsV0FBVyxHQUFiLEVBQXZCLENBRGlCLG9FQUFuQjs7a0JBTWVELFUiLCJmaWxlIjoiY29tbWFMaXN0cy5qcyIsInNvdXJjZXNDb250ZW50IjpbIid1c2Ugc3RyaWN0J1xuXG5pbXBvcnQgVGVtcGxhdGVUYWcgZnJvbSAnLi4vVGVtcGxhdGVUYWcnXG5pbXBvcnQgc3RyaXBJbmRlbnRUcmFuc2Zvcm1lciBmcm9tICcuLi9zdHJpcEluZGVudFRyYW5zZm9ybWVyJ1xuaW1wb3J0IGlubGluZUFycmF5VHJhbnNmb3JtZXIgZnJvbSAnLi4vaW5saW5lQXJyYXlUcmFuc2Zvcm1lcidcbmltcG9ydCB0cmltUmVzdWx0VHJhbnNmb3JtZXIgZnJvbSAnLi4vdHJpbVJlc3VsdFRyYW5zZm9ybWVyJ1xuXG5jb25zdCBjb21tYUxpc3RzID0gbmV3IFRlbXBsYXRlVGFnKFxuICBpbmxpbmVBcnJheVRyYW5zZm9ybWVyKHsgc2VwYXJhdG9yOiAnLCcgfSksXG4gIHN0cmlwSW5kZW50VHJhbnNmb3JtZXIsXG4gIHRyaW1SZXN1bHRUcmFuc2Zvcm1lclxuKVxuXG5leHBvcnQgZGVmYXVsdCBjb21tYUxpc3RzXG4iXX0=
+
+/***/ },
+/* 541 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _commaListsAnd = __webpack_require__(542);
+	
+	var _commaListsAnd2 = _interopRequireDefault(_commaListsAnd);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _commaListsAnd2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9jb21tYUxpc3RzQW5kL2luZGV4LmpzIl0sIm5hbWVzIjpbImRlZmF1bHQiXSwibWFwcGluZ3MiOiJBQUFBOzs7Ozs7Ozs7Ozs7O1FBRU9BLE8iLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuZXhwb3J0IGRlZmF1bHQgZnJvbSAnLi9jb21tYUxpc3RzQW5kJ1xuIl19
+
+/***/ },
+/* 542 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _TemplateTag = __webpack_require__(452);
+	
+	var _TemplateTag2 = _interopRequireDefault(_TemplateTag);
+	
+	var _stripIndentTransformer = __webpack_require__(501);
+	
+	var _stripIndentTransformer2 = _interopRequireDefault(_stripIndentTransformer);
+	
+	var _inlineArrayTransformer = __webpack_require__(530);
+	
+	var _inlineArrayTransformer2 = _interopRequireDefault(_inlineArrayTransformer);
+	
+	var _trimResultTransformer = __webpack_require__(499);
+	
+	var _trimResultTransformer2 = _interopRequireDefault(_trimResultTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var commaListsAnd = new _TemplateTag2.default((0, _inlineArrayTransformer2.default)({ separator: ',', conjunction: 'and' }), _stripIndentTransformer2.default, _trimResultTransformer2.default);
+	
+	exports.default = commaListsAnd;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9jb21tYUxpc3RzQW5kL2NvbW1hTGlzdHNBbmQuanMiXSwibmFtZXMiOlsiY29tbWFMaXN0c0FuZCIsInNlcGFyYXRvciIsImNvbmp1bmN0aW9uIl0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7O0FBRUE7Ozs7QUFDQTs7OztBQUNBOzs7O0FBQ0E7Ozs7OztBQUVBLElBQU1BLGdCQUFnQiwwQkFDcEIsc0NBQXVCLEVBQUVDLFdBQVcsR0FBYixFQUFrQkMsYUFBYSxLQUEvQixFQUF2QixDQURvQixvRUFBdEI7O2tCQU1lRixhIiwiZmlsZSI6ImNvbW1hTGlzdHNBbmQuanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuaW1wb3J0IFRlbXBsYXRlVGFnIGZyb20gJy4uL1RlbXBsYXRlVGFnJ1xuaW1wb3J0IHN0cmlwSW5kZW50VHJhbnNmb3JtZXIgZnJvbSAnLi4vc3RyaXBJbmRlbnRUcmFuc2Zvcm1lcidcbmltcG9ydCBpbmxpbmVBcnJheVRyYW5zZm9ybWVyIGZyb20gJy4uL2lubGluZUFycmF5VHJhbnNmb3JtZXInXG5pbXBvcnQgdHJpbVJlc3VsdFRyYW5zZm9ybWVyIGZyb20gJy4uL3RyaW1SZXN1bHRUcmFuc2Zvcm1lcidcblxuY29uc3QgY29tbWFMaXN0c0FuZCA9IG5ldyBUZW1wbGF0ZVRhZyhcbiAgaW5saW5lQXJyYXlUcmFuc2Zvcm1lcih7IHNlcGFyYXRvcjogJywnLCBjb25qdW5jdGlvbjogJ2FuZCcgfSksXG4gIHN0cmlwSW5kZW50VHJhbnNmb3JtZXIsXG4gIHRyaW1SZXN1bHRUcmFuc2Zvcm1lclxuKVxuXG5leHBvcnQgZGVmYXVsdCBjb21tYUxpc3RzQW5kXG4iXX0=
+
+/***/ },
+/* 543 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _commaListsOr = __webpack_require__(544);
+	
+	var _commaListsOr2 = _interopRequireDefault(_commaListsOr);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _commaListsOr2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9jb21tYUxpc3RzT3IvaW5kZXguanMiXSwibmFtZXMiOlsiZGVmYXVsdCJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7Ozs7Ozs7Ozs7UUFFT0EsTyIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbIid1c2Ugc3RyaWN0J1xuXG5leHBvcnQgZGVmYXVsdCBmcm9tICcuL2NvbW1hTGlzdHNPcidcbiJdfQ==
+
+/***/ },
+/* 544 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _TemplateTag = __webpack_require__(452);
+	
+	var _TemplateTag2 = _interopRequireDefault(_TemplateTag);
+	
+	var _stripIndentTransformer = __webpack_require__(501);
+	
+	var _stripIndentTransformer2 = _interopRequireDefault(_stripIndentTransformer);
+	
+	var _inlineArrayTransformer = __webpack_require__(530);
+	
+	var _inlineArrayTransformer2 = _interopRequireDefault(_inlineArrayTransformer);
+	
+	var _trimResultTransformer = __webpack_require__(499);
+	
+	var _trimResultTransformer2 = _interopRequireDefault(_trimResultTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var commaListsOr = new _TemplateTag2.default((0, _inlineArrayTransformer2.default)({ separator: ',', conjunction: 'or' }), _stripIndentTransformer2.default, _trimResultTransformer2.default);
+	
+	exports.default = commaListsOr;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9jb21tYUxpc3RzT3IvY29tbWFMaXN0c09yLmpzIl0sIm5hbWVzIjpbImNvbW1hTGlzdHNPciIsInNlcGFyYXRvciIsImNvbmp1bmN0aW9uIl0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7O0FBRUE7Ozs7QUFDQTs7OztBQUNBOzs7O0FBQ0E7Ozs7OztBQUVBLElBQU1BLGVBQWUsMEJBQ25CLHNDQUF1QixFQUFFQyxXQUFXLEdBQWIsRUFBa0JDLGFBQWEsSUFBL0IsRUFBdkIsQ0FEbUIsb0VBQXJCOztrQkFNZUYsWSIsImZpbGUiOiJjb21tYUxpc3RzT3IuanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuaW1wb3J0IFRlbXBsYXRlVGFnIGZyb20gJy4uL1RlbXBsYXRlVGFnJ1xuaW1wb3J0IHN0cmlwSW5kZW50VHJhbnNmb3JtZXIgZnJvbSAnLi4vc3RyaXBJbmRlbnRUcmFuc2Zvcm1lcidcbmltcG9ydCBpbmxpbmVBcnJheVRyYW5zZm9ybWVyIGZyb20gJy4uL2lubGluZUFycmF5VHJhbnNmb3JtZXInXG5pbXBvcnQgdHJpbVJlc3VsdFRyYW5zZm9ybWVyIGZyb20gJy4uL3RyaW1SZXN1bHRUcmFuc2Zvcm1lcidcblxuY29uc3QgY29tbWFMaXN0c09yID0gbmV3IFRlbXBsYXRlVGFnKFxuICBpbmxpbmVBcnJheVRyYW5zZm9ybWVyKHsgc2VwYXJhdG9yOiAnLCcsIGNvbmp1bmN0aW9uOiAnb3InIH0pLFxuICBzdHJpcEluZGVudFRyYW5zZm9ybWVyLFxuICB0cmltUmVzdWx0VHJhbnNmb3JtZXJcbilcblxuZXhwb3J0IGRlZmF1bHQgY29tbWFMaXN0c09yXG4iXX0=
+
+/***/ },
+/* 545 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _html = __webpack_require__(546);
+	
+	var _html2 = _interopRequireDefault(_html);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _html2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9odG1sL2luZGV4LmpzIl0sIm5hbWVzIjpbImRlZmF1bHQiXSwibWFwcGluZ3MiOiJBQUFBOzs7Ozs7Ozs7Ozs7O1FBRU9BLE8iLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuZXhwb3J0IGRlZmF1bHQgZnJvbSAnLi9odG1sJ1xuIl19
+
+/***/ },
+/* 546 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _TemplateTag = __webpack_require__(452);
+	
+	var _TemplateTag2 = _interopRequireDefault(_TemplateTag);
+	
+	var _stripIndentTransformer = __webpack_require__(501);
+	
+	var _stripIndentTransformer2 = _interopRequireDefault(_stripIndentTransformer);
+	
+	var _inlineArrayTransformer = __webpack_require__(530);
+	
+	var _inlineArrayTransformer2 = _interopRequireDefault(_inlineArrayTransformer);
+	
+	var _trimResultTransformer = __webpack_require__(499);
+	
+	var _trimResultTransformer2 = _interopRequireDefault(_trimResultTransformer);
+	
+	var _splitStringTransformer = __webpack_require__(532);
+	
+	var _splitStringTransformer2 = _interopRequireDefault(_splitStringTransformer);
+	
+	var _removeNonPrintingValuesTransformer = __webpack_require__(534);
+	
+	var _removeNonPrintingValuesTransformer2 = _interopRequireDefault(_removeNonPrintingValuesTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var html = new _TemplateTag2.default((0, _splitStringTransformer2.default)('\n'), _removeNonPrintingValuesTransformer2.default, _inlineArrayTransformer2.default, _stripIndentTransformer2.default, _trimResultTransformer2.default);
+	
+	exports.default = html;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9odG1sL2h0bWwuanMiXSwibmFtZXMiOlsiaHRtbCJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7OztBQUVBOzs7O0FBQ0E7Ozs7QUFDQTs7OztBQUNBOzs7O0FBQ0E7Ozs7QUFDQTs7Ozs7O0FBRUEsSUFBTUEsT0FBTywwQkFDWCxzQ0FBdUIsSUFBdkIsQ0FEVyxvSkFBYjs7a0JBUWVBLEkiLCJmaWxlIjoiaHRtbC5qcyIsInNvdXJjZXNDb250ZW50IjpbIid1c2Ugc3RyaWN0J1xuXG5pbXBvcnQgVGVtcGxhdGVUYWcgZnJvbSAnLi4vVGVtcGxhdGVUYWcnXG5pbXBvcnQgc3RyaXBJbmRlbnRUcmFuc2Zvcm1lciBmcm9tICcuLi9zdHJpcEluZGVudFRyYW5zZm9ybWVyJ1xuaW1wb3J0IGlubGluZUFycmF5VHJhbnNmb3JtZXIgZnJvbSAnLi4vaW5saW5lQXJyYXlUcmFuc2Zvcm1lcidcbmltcG9ydCB0cmltUmVzdWx0VHJhbnNmb3JtZXIgZnJvbSAnLi4vdHJpbVJlc3VsdFRyYW5zZm9ybWVyJ1xuaW1wb3J0IHNwbGl0U3RyaW5nVHJhbnNmb3JtZXIgZnJvbSAnLi4vc3BsaXRTdHJpbmdUcmFuc2Zvcm1lcidcbmltcG9ydCByZW1vdmVOb25QcmludGluZ1ZhbHVlc1RyYW5zZm9ybWVyIGZyb20gJy4uL3JlbW92ZU5vblByaW50aW5nVmFsdWVzVHJhbnNmb3JtZXInXG5cbmNvbnN0IGh0bWwgPSBuZXcgVGVtcGxhdGVUYWcoXG4gIHNwbGl0U3RyaW5nVHJhbnNmb3JtZXIoJ1xcbicpLFxuICByZW1vdmVOb25QcmludGluZ1ZhbHVlc1RyYW5zZm9ybWVyLFxuICBpbmxpbmVBcnJheVRyYW5zZm9ybWVyLFxuICBzdHJpcEluZGVudFRyYW5zZm9ybWVyLFxuICB0cmltUmVzdWx0VHJhbnNmb3JtZXJcbilcblxuZXhwb3J0IGRlZmF1bHQgaHRtbFxuIl19
+
+/***/ },
+/* 547 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _html = __webpack_require__(545);
+	
+	var _html2 = _interopRequireDefault(_html);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _html2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9jb2RlQmxvY2svaW5kZXguanMiXSwibmFtZXMiOlsiZGVmYXVsdCJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7OztRQUFPQSxPIiwiZmlsZSI6ImluZGV4LmpzIiwic291cmNlc0NvbnRlbnQiOlsiZXhwb3J0IGRlZmF1bHQgZnJvbSAnLi4vaHRtbCdcbiJdfQ==
+
+/***/ },
+/* 548 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _html = __webpack_require__(545);
+	
+	var _html2 = _interopRequireDefault(_html);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _html2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9zb3VyY2UvaW5kZXguanMiXSwibmFtZXMiOlsiZGVmYXVsdCJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7OztRQUFPQSxPIiwiZmlsZSI6ImluZGV4LmpzIiwic291cmNlc0NvbnRlbnQiOlsiZXhwb3J0IGRlZmF1bHQgZnJvbSAnLi4vaHRtbCdcbiJdfQ==
+
+/***/ },
+/* 549 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _safeHtml = __webpack_require__(550);
+	
+	var _safeHtml2 = _interopRequireDefault(_safeHtml);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _safeHtml2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9zYWZlSHRtbC9pbmRleC5qcyJdLCJuYW1lcyI6WyJkZWZhdWx0Il0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7Ozs7Ozs7OztRQUVPQSxPIiwiZmlsZSI6ImluZGV4LmpzIiwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBzdHJpY3QnXG5cbmV4cG9ydCBkZWZhdWx0IGZyb20gJy4vc2FmZUh0bWwnXG4iXX0=
+
+/***/ },
+/* 550 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _TemplateTag = __webpack_require__(452);
+	
+	var _TemplateTag2 = _interopRequireDefault(_TemplateTag);
+	
+	var _stripIndentTransformer = __webpack_require__(501);
+	
+	var _stripIndentTransformer2 = _interopRequireDefault(_stripIndentTransformer);
+	
+	var _inlineArrayTransformer = __webpack_require__(530);
+	
+	var _inlineArrayTransformer2 = _interopRequireDefault(_inlineArrayTransformer);
+	
+	var _trimResultTransformer = __webpack_require__(499);
+	
+	var _trimResultTransformer2 = _interopRequireDefault(_trimResultTransformer);
+	
+	var _splitStringTransformer = __webpack_require__(532);
+	
+	var _splitStringTransformer2 = _interopRequireDefault(_splitStringTransformer);
+	
+	var _replaceSubstitutionTransformer = __webpack_require__(528);
+	
+	var _replaceSubstitutionTransformer2 = _interopRequireDefault(_replaceSubstitutionTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var safeHtml = new _TemplateTag2.default((0, _splitStringTransformer2.default)('\n'), _inlineArrayTransformer2.default, _stripIndentTransformer2.default, _trimResultTransformer2.default, (0, _replaceSubstitutionTransformer2.default)(/&/g, '&amp;'), (0, _replaceSubstitutionTransformer2.default)(/</g, '&lt;'), (0, _replaceSubstitutionTransformer2.default)(/>/g, '&gt;'), (0, _replaceSubstitutionTransformer2.default)(/"/g, '&quot;'), (0, _replaceSubstitutionTransformer2.default)(/'/g, '&#x27;'), (0, _replaceSubstitutionTransformer2.default)(/`/g, '&#x60;'));
+	
+	exports.default = safeHtml;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9zYWZlSHRtbC9zYWZlSHRtbC5qcyJdLCJuYW1lcyI6WyJzYWZlSHRtbCJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7OztBQUVBOzs7O0FBQ0E7Ozs7QUFDQTs7OztBQUNBOzs7O0FBQ0E7Ozs7QUFDQTs7Ozs7O0FBRUEsSUFBTUEsV0FBVywwQkFDZixzQ0FBdUIsSUFBdkIsQ0FEZSx1R0FLZiw4Q0FBK0IsSUFBL0IsRUFBcUMsT0FBckMsQ0FMZSxFQU1mLDhDQUErQixJQUEvQixFQUFxQyxNQUFyQyxDQU5lLEVBT2YsOENBQStCLElBQS9CLEVBQXFDLE1BQXJDLENBUGUsRUFRZiw4Q0FBK0IsSUFBL0IsRUFBcUMsUUFBckMsQ0FSZSxFQVNmLDhDQUErQixJQUEvQixFQUFxQyxRQUFyQyxDQVRlLEVBVWYsOENBQStCLElBQS9CLEVBQXFDLFFBQXJDLENBVmUsQ0FBakI7O2tCQWFlQSxRIiwiZmlsZSI6InNhZmVIdG1sLmpzIiwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBzdHJpY3QnXG5cbmltcG9ydCBUZW1wbGF0ZVRhZyBmcm9tICcuLi9UZW1wbGF0ZVRhZydcbmltcG9ydCBzdHJpcEluZGVudFRyYW5zZm9ybWVyIGZyb20gJy4uL3N0cmlwSW5kZW50VHJhbnNmb3JtZXInXG5pbXBvcnQgaW5saW5lQXJyYXlUcmFuc2Zvcm1lciBmcm9tICcuLi9pbmxpbmVBcnJheVRyYW5zZm9ybWVyJ1xuaW1wb3J0IHRyaW1SZXN1bHRUcmFuc2Zvcm1lciBmcm9tICcuLi90cmltUmVzdWx0VHJhbnNmb3JtZXInXG5pbXBvcnQgc3BsaXRTdHJpbmdUcmFuc2Zvcm1lciBmcm9tICcuLi9zcGxpdFN0cmluZ1RyYW5zZm9ybWVyJ1xuaW1wb3J0IHJlcGxhY2VTdWJzdGl0dXRpb25UcmFuc2Zvcm1lciBmcm9tICcuLi9yZXBsYWNlU3Vic3RpdHV0aW9uVHJhbnNmb3JtZXInXG5cbmNvbnN0IHNhZmVIdG1sID0gbmV3IFRlbXBsYXRlVGFnKFxuICBzcGxpdFN0cmluZ1RyYW5zZm9ybWVyKCdcXG4nKSxcbiAgaW5saW5lQXJyYXlUcmFuc2Zvcm1lcixcbiAgc3RyaXBJbmRlbnRUcmFuc2Zvcm1lcixcbiAgdHJpbVJlc3VsdFRyYW5zZm9ybWVyLFxuICByZXBsYWNlU3Vic3RpdHV0aW9uVHJhbnNmb3JtZXIoLyYvZywgJyZhbXA7JyksXG4gIHJlcGxhY2VTdWJzdGl0dXRpb25UcmFuc2Zvcm1lcigvPC9nLCAnJmx0OycpLFxuICByZXBsYWNlU3Vic3RpdHV0aW9uVHJhbnNmb3JtZXIoLz4vZywgJyZndDsnKSxcbiAgcmVwbGFjZVN1YnN0aXR1dGlvblRyYW5zZm9ybWVyKC9cIi9nLCAnJnF1b3Q7JyksXG4gIHJlcGxhY2VTdWJzdGl0dXRpb25UcmFuc2Zvcm1lcigvJy9nLCAnJiN4Mjc7JyksXG4gIHJlcGxhY2VTdWJzdGl0dXRpb25UcmFuc2Zvcm1lcigvYC9nLCAnJiN4NjA7JylcbilcblxuZXhwb3J0IGRlZmF1bHQgc2FmZUh0bWxcbiJdfQ==
+
+/***/ },
+/* 551 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _oneLine = __webpack_require__(552);
+	
+	var _oneLine2 = _interopRequireDefault(_oneLine);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _oneLine2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9vbmVMaW5lL2luZGV4LmpzIl0sIm5hbWVzIjpbImRlZmF1bHQiXSwibWFwcGluZ3MiOiJBQUFBOzs7Ozs7Ozs7Ozs7O1FBRU9BLE8iLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuZXhwb3J0IGRlZmF1bHQgZnJvbSAnLi9vbmVMaW5lJ1xuIl19
+
+/***/ },
+/* 552 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _TemplateTag = __webpack_require__(452);
+	
+	var _TemplateTag2 = _interopRequireDefault(_TemplateTag);
+	
+	var _trimResultTransformer = __webpack_require__(499);
+	
+	var _trimResultTransformer2 = _interopRequireDefault(_trimResultTransformer);
+	
+	var _replaceResultTransformer = __webpack_require__(526);
+	
+	var _replaceResultTransformer2 = _interopRequireDefault(_replaceResultTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var oneLine = new _TemplateTag2.default((0, _replaceResultTransformer2.default)(/(?:\s+)/g, ' '), _trimResultTransformer2.default);
+	
+	exports.default = oneLine;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9vbmVMaW5lL29uZUxpbmUuanMiXSwibmFtZXMiOlsib25lTGluZSJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7OztBQUVBOzs7O0FBQ0E7Ozs7QUFDQTs7Ozs7O0FBRUEsSUFBTUEsVUFBVSwwQkFDZCx3Q0FBeUIsVUFBekIsRUFBcUMsR0FBckMsQ0FEYyxrQ0FBaEI7O2tCQUtlQSxPIiwiZmlsZSI6Im9uZUxpbmUuanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuaW1wb3J0IFRlbXBsYXRlVGFnIGZyb20gJy4uL1RlbXBsYXRlVGFnJ1xuaW1wb3J0IHRyaW1SZXN1bHRUcmFuc2Zvcm1lciBmcm9tICcuLi90cmltUmVzdWx0VHJhbnNmb3JtZXInXG5pbXBvcnQgcmVwbGFjZVJlc3VsdFRyYW5zZm9ybWVyIGZyb20gJy4uL3JlcGxhY2VSZXN1bHRUcmFuc2Zvcm1lcidcblxuY29uc3Qgb25lTGluZSA9IG5ldyBUZW1wbGF0ZVRhZyhcbiAgcmVwbGFjZVJlc3VsdFRyYW5zZm9ybWVyKC8oPzpcXHMrKS9nLCAnICcpLFxuICB0cmltUmVzdWx0VHJhbnNmb3JtZXJcbilcblxuZXhwb3J0IGRlZmF1bHQgb25lTGluZVxuIl19
+
+/***/ },
+/* 553 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _oneLineTrim = __webpack_require__(554);
+	
+	var _oneLineTrim2 = _interopRequireDefault(_oneLineTrim);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _oneLineTrim2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9vbmVMaW5lVHJpbS9pbmRleC5qcyJdLCJuYW1lcyI6WyJkZWZhdWx0Il0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7Ozs7Ozs7OztRQUVPQSxPIiwiZmlsZSI6ImluZGV4LmpzIiwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBzdHJpY3QnXG5cbmV4cG9ydCBkZWZhdWx0IGZyb20gJy4vb25lTGluZVRyaW0nXG4iXX0=
+
+/***/ },
+/* 554 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _TemplateTag = __webpack_require__(452);
+	
+	var _TemplateTag2 = _interopRequireDefault(_TemplateTag);
+	
+	var _trimResultTransformer = __webpack_require__(499);
+	
+	var _trimResultTransformer2 = _interopRequireDefault(_trimResultTransformer);
+	
+	var _replaceResultTransformer = __webpack_require__(526);
+	
+	var _replaceResultTransformer2 = _interopRequireDefault(_replaceResultTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var oneLineTrim = new _TemplateTag2.default((0, _replaceResultTransformer2.default)(/(?:\n\s+)/g, ''), _trimResultTransformer2.default);
+	
+	exports.default = oneLineTrim;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9vbmVMaW5lVHJpbS9vbmVMaW5lVHJpbS5qcyJdLCJuYW1lcyI6WyJvbmVMaW5lVHJpbSJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7OztBQUVBOzs7O0FBQ0E7Ozs7QUFDQTs7Ozs7O0FBRUEsSUFBTUEsY0FBYywwQkFDbEIsd0NBQXlCLFlBQXpCLEVBQXVDLEVBQXZDLENBRGtCLGtDQUFwQjs7a0JBS2VBLFciLCJmaWxlIjoib25lTGluZVRyaW0uanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuaW1wb3J0IFRlbXBsYXRlVGFnIGZyb20gJy4uL1RlbXBsYXRlVGFnJ1xuaW1wb3J0IHRyaW1SZXN1bHRUcmFuc2Zvcm1lciBmcm9tICcuLi90cmltUmVzdWx0VHJhbnNmb3JtZXInXG5pbXBvcnQgcmVwbGFjZVJlc3VsdFRyYW5zZm9ybWVyIGZyb20gJy4uL3JlcGxhY2VSZXN1bHRUcmFuc2Zvcm1lcidcblxuY29uc3Qgb25lTGluZVRyaW0gPSBuZXcgVGVtcGxhdGVUYWcoXG4gIHJlcGxhY2VSZXN1bHRUcmFuc2Zvcm1lcigvKD86XFxuXFxzKykvZywgJycpLFxuICB0cmltUmVzdWx0VHJhbnNmb3JtZXJcbilcblxuZXhwb3J0IGRlZmF1bHQgb25lTGluZVRyaW1cbiJdfQ==
+
+/***/ },
+/* 555 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _oneLineCommaLists = __webpack_require__(556);
+	
+	var _oneLineCommaLists2 = _interopRequireDefault(_oneLineCommaLists);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _oneLineCommaLists2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9vbmVMaW5lQ29tbWFMaXN0cy9pbmRleC5qcyJdLCJuYW1lcyI6WyJkZWZhdWx0Il0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7Ozs7Ozs7OztRQUVPQSxPIiwiZmlsZSI6ImluZGV4LmpzIiwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBzdHJpY3QnXG5cbmV4cG9ydCBkZWZhdWx0IGZyb20gJy4vb25lTGluZUNvbW1hTGlzdHMnXG4iXX0=
+
+/***/ },
+/* 556 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _TemplateTag = __webpack_require__(452);
+	
+	var _TemplateTag2 = _interopRequireDefault(_TemplateTag);
+	
+	var _inlineArrayTransformer = __webpack_require__(530);
+	
+	var _inlineArrayTransformer2 = _interopRequireDefault(_inlineArrayTransformer);
+	
+	var _trimResultTransformer = __webpack_require__(499);
+	
+	var _trimResultTransformer2 = _interopRequireDefault(_trimResultTransformer);
+	
+	var _replaceResultTransformer = __webpack_require__(526);
+	
+	var _replaceResultTransformer2 = _interopRequireDefault(_replaceResultTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var oneLineCommaLists = new _TemplateTag2.default((0, _inlineArrayTransformer2.default)({ separator: ',' }), (0, _replaceResultTransformer2.default)(/(?:\s+)/g, ' '), _trimResultTransformer2.default);
+	
+	exports.default = oneLineCommaLists;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9vbmVMaW5lQ29tbWFMaXN0cy9vbmVMaW5lQ29tbWFMaXN0cy5qcyJdLCJuYW1lcyI6WyJvbmVMaW5lQ29tbWFMaXN0cyIsInNlcGFyYXRvciJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7OztBQUVBOzs7O0FBQ0E7Ozs7QUFDQTs7OztBQUNBOzs7Ozs7QUFFQSxJQUFNQSxvQkFBb0IsMEJBQ3hCLHNDQUF1QixFQUFFQyxXQUFXLEdBQWIsRUFBdkIsQ0FEd0IsRUFFeEIsd0NBQXlCLFVBQXpCLEVBQXFDLEdBQXJDLENBRndCLGtDQUExQjs7a0JBTWVELGlCIiwiZmlsZSI6Im9uZUxpbmVDb21tYUxpc3RzLmpzIiwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBzdHJpY3QnXG5cbmltcG9ydCBUZW1wbGF0ZVRhZyBmcm9tICcuLi9UZW1wbGF0ZVRhZydcbmltcG9ydCBpbmxpbmVBcnJheVRyYW5zZm9ybWVyIGZyb20gJy4uL2lubGluZUFycmF5VHJhbnNmb3JtZXInXG5pbXBvcnQgdHJpbVJlc3VsdFRyYW5zZm9ybWVyIGZyb20gJy4uL3RyaW1SZXN1bHRUcmFuc2Zvcm1lcidcbmltcG9ydCByZXBsYWNlUmVzdWx0VHJhbnNmb3JtZXIgZnJvbSAnLi4vcmVwbGFjZVJlc3VsdFRyYW5zZm9ybWVyJ1xuXG5jb25zdCBvbmVMaW5lQ29tbWFMaXN0cyA9IG5ldyBUZW1wbGF0ZVRhZyhcbiAgaW5saW5lQXJyYXlUcmFuc2Zvcm1lcih7IHNlcGFyYXRvcjogJywnIH0pLFxuICByZXBsYWNlUmVzdWx0VHJhbnNmb3JtZXIoLyg/OlxccyspL2csICcgJyksXG4gIHRyaW1SZXN1bHRUcmFuc2Zvcm1lclxuKVxuXG5leHBvcnQgZGVmYXVsdCBvbmVMaW5lQ29tbWFMaXN0c1xuIl19
+
+/***/ },
+/* 557 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _oneLineCommaListsOr = __webpack_require__(558);
+	
+	var _oneLineCommaListsOr2 = _interopRequireDefault(_oneLineCommaListsOr);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _oneLineCommaListsOr2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9vbmVMaW5lQ29tbWFMaXN0c09yL2luZGV4LmpzIl0sIm5hbWVzIjpbImRlZmF1bHQiXSwibWFwcGluZ3MiOiJBQUFBOzs7Ozs7Ozs7Ozs7O1FBRU9BLE8iLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuZXhwb3J0IGRlZmF1bHQgZnJvbSAnLi9vbmVMaW5lQ29tbWFMaXN0c09yJ1xuIl19
+
+/***/ },
+/* 558 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _TemplateTag = __webpack_require__(452);
+	
+	var _TemplateTag2 = _interopRequireDefault(_TemplateTag);
+	
+	var _inlineArrayTransformer = __webpack_require__(530);
+	
+	var _inlineArrayTransformer2 = _interopRequireDefault(_inlineArrayTransformer);
+	
+	var _trimResultTransformer = __webpack_require__(499);
+	
+	var _trimResultTransformer2 = _interopRequireDefault(_trimResultTransformer);
+	
+	var _replaceResultTransformer = __webpack_require__(526);
+	
+	var _replaceResultTransformer2 = _interopRequireDefault(_replaceResultTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var oneLineCommaListsOr = new _TemplateTag2.default((0, _inlineArrayTransformer2.default)({ separator: ',', conjunction: 'or' }), (0, _replaceResultTransformer2.default)(/(?:\s+)/g, ' '), _trimResultTransformer2.default);
+	
+	exports.default = oneLineCommaListsOr;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9vbmVMaW5lQ29tbWFMaXN0c09yL29uZUxpbmVDb21tYUxpc3RzT3IuanMiXSwibmFtZXMiOlsib25lTGluZUNvbW1hTGlzdHNPciIsInNlcGFyYXRvciIsImNvbmp1bmN0aW9uIl0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7O0FBRUE7Ozs7QUFDQTs7OztBQUNBOzs7O0FBQ0E7Ozs7OztBQUVBLElBQU1BLHNCQUFzQiwwQkFDMUIsc0NBQXVCLEVBQUVDLFdBQVcsR0FBYixFQUFrQkMsYUFBYSxJQUEvQixFQUF2QixDQUQwQixFQUUxQix3Q0FBeUIsVUFBekIsRUFBcUMsR0FBckMsQ0FGMEIsa0NBQTVCOztrQkFNZUYsbUIiLCJmaWxlIjoib25lTGluZUNvbW1hTGlzdHNPci5qcyIsInNvdXJjZXNDb250ZW50IjpbIid1c2Ugc3RyaWN0J1xuXG5pbXBvcnQgVGVtcGxhdGVUYWcgZnJvbSAnLi4vVGVtcGxhdGVUYWcnXG5pbXBvcnQgaW5saW5lQXJyYXlUcmFuc2Zvcm1lciBmcm9tICcuLi9pbmxpbmVBcnJheVRyYW5zZm9ybWVyJ1xuaW1wb3J0IHRyaW1SZXN1bHRUcmFuc2Zvcm1lciBmcm9tICcuLi90cmltUmVzdWx0VHJhbnNmb3JtZXInXG5pbXBvcnQgcmVwbGFjZVJlc3VsdFRyYW5zZm9ybWVyIGZyb20gJy4uL3JlcGxhY2VSZXN1bHRUcmFuc2Zvcm1lcidcblxuY29uc3Qgb25lTGluZUNvbW1hTGlzdHNPciA9IG5ldyBUZW1wbGF0ZVRhZyhcbiAgaW5saW5lQXJyYXlUcmFuc2Zvcm1lcih7IHNlcGFyYXRvcjogJywnLCBjb25qdW5jdGlvbjogJ29yJyB9KSxcbiAgcmVwbGFjZVJlc3VsdFRyYW5zZm9ybWVyKC8oPzpcXHMrKS9nLCAnICcpLFxuICB0cmltUmVzdWx0VHJhbnNmb3JtZXJcbilcblxuZXhwb3J0IGRlZmF1bHQgb25lTGluZUNvbW1hTGlzdHNPclxuIl19
+
+/***/ },
+/* 559 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _oneLineCommaListsAnd = __webpack_require__(560);
+	
+	var _oneLineCommaListsAnd2 = _interopRequireDefault(_oneLineCommaListsAnd);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _oneLineCommaListsAnd2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9vbmVMaW5lQ29tbWFMaXN0c0FuZC9pbmRleC5qcyJdLCJuYW1lcyI6WyJkZWZhdWx0Il0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7Ozs7Ozs7OztRQUVPQSxPIiwiZmlsZSI6ImluZGV4LmpzIiwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBzdHJpY3QnXG5cbmV4cG9ydCBkZWZhdWx0IGZyb20gJy4vb25lTGluZUNvbW1hTGlzdHNBbmQnXG4iXX0=
+
+/***/ },
+/* 560 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _TemplateTag = __webpack_require__(452);
+	
+	var _TemplateTag2 = _interopRequireDefault(_TemplateTag);
+	
+	var _inlineArrayTransformer = __webpack_require__(530);
+	
+	var _inlineArrayTransformer2 = _interopRequireDefault(_inlineArrayTransformer);
+	
+	var _trimResultTransformer = __webpack_require__(499);
+	
+	var _trimResultTransformer2 = _interopRequireDefault(_trimResultTransformer);
+	
+	var _replaceResultTransformer = __webpack_require__(526);
+	
+	var _replaceResultTransformer2 = _interopRequireDefault(_replaceResultTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var oneLineCommaListsAnd = new _TemplateTag2.default((0, _inlineArrayTransformer2.default)({ separator: ',', conjunction: 'and' }), (0, _replaceResultTransformer2.default)(/(?:\s+)/g, ' '), _trimResultTransformer2.default);
+	
+	exports.default = oneLineCommaListsAnd;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9vbmVMaW5lQ29tbWFMaXN0c0FuZC9vbmVMaW5lQ29tbWFMaXN0c0FuZC5qcyJdLCJuYW1lcyI6WyJvbmVMaW5lQ29tbWFMaXN0c0FuZCIsInNlcGFyYXRvciIsImNvbmp1bmN0aW9uIl0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7O0FBRUE7Ozs7QUFDQTs7OztBQUNBOzs7O0FBQ0E7Ozs7OztBQUVBLElBQU1BLHVCQUF1QiwwQkFDM0Isc0NBQXVCLEVBQUVDLFdBQVcsR0FBYixFQUFrQkMsYUFBYSxLQUEvQixFQUF2QixDQUQyQixFQUUzQix3Q0FBeUIsVUFBekIsRUFBcUMsR0FBckMsQ0FGMkIsa0NBQTdCOztrQkFNZUYsb0IiLCJmaWxlIjoib25lTGluZUNvbW1hTGlzdHNBbmQuanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuaW1wb3J0IFRlbXBsYXRlVGFnIGZyb20gJy4uL1RlbXBsYXRlVGFnJ1xuaW1wb3J0IGlubGluZUFycmF5VHJhbnNmb3JtZXIgZnJvbSAnLi4vaW5saW5lQXJyYXlUcmFuc2Zvcm1lcidcbmltcG9ydCB0cmltUmVzdWx0VHJhbnNmb3JtZXIgZnJvbSAnLi4vdHJpbVJlc3VsdFRyYW5zZm9ybWVyJ1xuaW1wb3J0IHJlcGxhY2VSZXN1bHRUcmFuc2Zvcm1lciBmcm9tICcuLi9yZXBsYWNlUmVzdWx0VHJhbnNmb3JtZXInXG5cbmNvbnN0IG9uZUxpbmVDb21tYUxpc3RzQW5kID0gbmV3IFRlbXBsYXRlVGFnKFxuICBpbmxpbmVBcnJheVRyYW5zZm9ybWVyKHsgc2VwYXJhdG9yOiAnLCcsIGNvbmp1bmN0aW9uOiAnYW5kJyB9KSxcbiAgcmVwbGFjZVJlc3VsdFRyYW5zZm9ybWVyKC8oPzpcXHMrKS9nLCAnICcpLFxuICB0cmltUmVzdWx0VHJhbnNmb3JtZXJcbilcblxuZXhwb3J0IGRlZmF1bHQgb25lTGluZUNvbW1hTGlzdHNBbmRcbiJdfQ==
+
+/***/ },
+/* 561 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _inlineLists = __webpack_require__(562);
+	
+	var _inlineLists2 = _interopRequireDefault(_inlineLists);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _inlineLists2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9pbmxpbmVMaXN0cy9pbmRleC5qcyJdLCJuYW1lcyI6WyJkZWZhdWx0Il0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7Ozs7Ozs7OztRQUVPQSxPIiwiZmlsZSI6ImluZGV4LmpzIiwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBzdHJpY3QnXG5cbmV4cG9ydCBkZWZhdWx0IGZyb20gJy4vaW5saW5lTGlzdHMnXG4iXX0=
+
+/***/ },
+/* 562 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _TemplateTag = __webpack_require__(452);
+	
+	var _TemplateTag2 = _interopRequireDefault(_TemplateTag);
+	
+	var _stripIndentTransformer = __webpack_require__(501);
+	
+	var _stripIndentTransformer2 = _interopRequireDefault(_stripIndentTransformer);
+	
+	var _inlineArrayTransformer = __webpack_require__(530);
+	
+	var _inlineArrayTransformer2 = _interopRequireDefault(_inlineArrayTransformer);
+	
+	var _trimResultTransformer = __webpack_require__(499);
+	
+	var _trimResultTransformer2 = _interopRequireDefault(_trimResultTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var inlineLists = new _TemplateTag2.default(_inlineArrayTransformer2.default, _stripIndentTransformer2.default, _trimResultTransformer2.default);
+	
+	exports.default = inlineLists;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9pbmxpbmVMaXN0cy9pbmxpbmVMaXN0cy5qcyJdLCJuYW1lcyI6WyJpbmxpbmVMaXN0cyJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7OztBQUVBOzs7O0FBQ0E7Ozs7QUFDQTs7OztBQUNBOzs7Ozs7QUFFQSxJQUFNQSxjQUFjLDhIQUFwQjs7a0JBTWVBLFciLCJmaWxlIjoiaW5saW5lTGlzdHMuanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuaW1wb3J0IFRlbXBsYXRlVGFnIGZyb20gJy4uL1RlbXBsYXRlVGFnJ1xuaW1wb3J0IHN0cmlwSW5kZW50VHJhbnNmb3JtZXIgZnJvbSAnLi4vc3RyaXBJbmRlbnRUcmFuc2Zvcm1lcidcbmltcG9ydCBpbmxpbmVBcnJheVRyYW5zZm9ybWVyIGZyb20gJy4uL2lubGluZUFycmF5VHJhbnNmb3JtZXInXG5pbXBvcnQgdHJpbVJlc3VsdFRyYW5zZm9ybWVyIGZyb20gJy4uL3RyaW1SZXN1bHRUcmFuc2Zvcm1lcidcblxuY29uc3QgaW5saW5lTGlzdHMgPSBuZXcgVGVtcGxhdGVUYWcoXG4gIGlubGluZUFycmF5VHJhbnNmb3JtZXIsXG4gIHN0cmlwSW5kZW50VHJhbnNmb3JtZXIsXG4gIHRyaW1SZXN1bHRUcmFuc2Zvcm1lclxuKVxuXG5leHBvcnQgZGVmYXVsdCBpbmxpbmVMaXN0c1xuIl19
+
+/***/ },
+/* 563 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _oneLineInlineLists = __webpack_require__(564);
+	
+	var _oneLineInlineLists2 = _interopRequireDefault(_oneLineInlineLists);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _oneLineInlineLists2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9vbmVMaW5lSW5saW5lTGlzdHMvaW5kZXguanMiXSwibmFtZXMiOlsiZGVmYXVsdCJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7Ozs7Ozs7Ozs7UUFFT0EsTyIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbIid1c2Ugc3RyaWN0J1xuXG5leHBvcnQgZGVmYXVsdCBmcm9tICcuL29uZUxpbmVJbmxpbmVMaXN0cydcbiJdfQ==
+
+/***/ },
+/* 564 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _TemplateTag = __webpack_require__(452);
+	
+	var _TemplateTag2 = _interopRequireDefault(_TemplateTag);
+	
+	var _inlineArrayTransformer = __webpack_require__(530);
+	
+	var _inlineArrayTransformer2 = _interopRequireDefault(_inlineArrayTransformer);
+	
+	var _trimResultTransformer = __webpack_require__(499);
+	
+	var _trimResultTransformer2 = _interopRequireDefault(_trimResultTransformer);
+	
+	var _replaceResultTransformer = __webpack_require__(526);
+	
+	var _replaceResultTransformer2 = _interopRequireDefault(_replaceResultTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var oneLineInlineLists = new _TemplateTag2.default(_inlineArrayTransformer2.default, (0, _replaceResultTransformer2.default)(/(?:\s+)/g, ' '), _trimResultTransformer2.default);
+	
+	exports.default = oneLineInlineLists;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9vbmVMaW5lSW5saW5lTGlzdHMvb25lTGluZUlubGluZUxpc3RzLmpzIl0sIm5hbWVzIjpbIm9uZUxpbmVJbmxpbmVMaXN0cyJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7OztBQUVBOzs7O0FBQ0E7Ozs7QUFDQTs7OztBQUNBOzs7Ozs7QUFFQSxJQUFNQSxxQkFBcUIsNERBRXpCLHdDQUF5QixVQUF6QixFQUFxQyxHQUFyQyxDQUZ5QixrQ0FBM0I7O2tCQU1lQSxrQiIsImZpbGUiOiJvbmVMaW5lSW5saW5lTGlzdHMuanMiLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHN0cmljdCdcblxuaW1wb3J0IFRlbXBsYXRlVGFnIGZyb20gJy4uL1RlbXBsYXRlVGFnJ1xuaW1wb3J0IGlubGluZUFycmF5VHJhbnNmb3JtZXIgZnJvbSAnLi4vaW5saW5lQXJyYXlUcmFuc2Zvcm1lcidcbmltcG9ydCB0cmltUmVzdWx0VHJhbnNmb3JtZXIgZnJvbSAnLi4vdHJpbVJlc3VsdFRyYW5zZm9ybWVyJ1xuaW1wb3J0IHJlcGxhY2VSZXN1bHRUcmFuc2Zvcm1lciBmcm9tICcuLi9yZXBsYWNlUmVzdWx0VHJhbnNmb3JtZXInXG5cbmNvbnN0IG9uZUxpbmVJbmxpbmVMaXN0cyA9IG5ldyBUZW1wbGF0ZVRhZyhcbiAgaW5saW5lQXJyYXlUcmFuc2Zvcm1lcixcbiAgcmVwbGFjZVJlc3VsdFRyYW5zZm9ybWVyKC8oPzpcXHMrKS9nLCAnICcpLFxuICB0cmltUmVzdWx0VHJhbnNmb3JtZXJcbilcblxuZXhwb3J0IGRlZmF1bHQgb25lTGluZUlubGluZUxpc3RzXG4iXX0=
+
+/***/ },
+/* 565 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _stripIndent = __webpack_require__(566);
+	
+	var _stripIndent2 = _interopRequireDefault(_stripIndent);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _stripIndent2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9zdHJpcEluZGVudC9pbmRleC5qcyJdLCJuYW1lcyI6WyJkZWZhdWx0Il0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7Ozs7Ozs7OztRQUVPQSxPIiwiZmlsZSI6ImluZGV4LmpzIiwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBzdHJpY3QnXG5cbmV4cG9ydCBkZWZhdWx0IGZyb20gJy4vc3RyaXBJbmRlbnQnXG4iXX0=
+
+/***/ },
+/* 566 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _TemplateTag = __webpack_require__(452);
+	
+	var _TemplateTag2 = _interopRequireDefault(_TemplateTag);
+	
+	var _stripIndentTransformer = __webpack_require__(501);
+	
+	var _stripIndentTransformer2 = _interopRequireDefault(_stripIndentTransformer);
+	
+	var _trimResultTransformer = __webpack_require__(499);
+	
+	var _trimResultTransformer2 = _interopRequireDefault(_trimResultTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var stripIndent = new _TemplateTag2.default(_stripIndentTransformer2.default, _trimResultTransformer2.default);
+	
+	exports.default = stripIndent;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9zdHJpcEluZGVudC9zdHJpcEluZGVudC5qcyJdLCJuYW1lcyI6WyJzdHJpcEluZGVudCJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7OztBQUVBOzs7O0FBQ0E7Ozs7QUFDQTs7Ozs7O0FBRUEsSUFBTUEsY0FBYyw0RkFBcEI7O2tCQUtlQSxXIiwiZmlsZSI6InN0cmlwSW5kZW50LmpzIiwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBzdHJpY3QnXG5cbmltcG9ydCBUZW1wbGF0ZVRhZyBmcm9tICcuLi9UZW1wbGF0ZVRhZydcbmltcG9ydCBzdHJpcEluZGVudFRyYW5zZm9ybWVyIGZyb20gJy4uL3N0cmlwSW5kZW50VHJhbnNmb3JtZXInXG5pbXBvcnQgdHJpbVJlc3VsdFRyYW5zZm9ybWVyIGZyb20gJy4uL3RyaW1SZXN1bHRUcmFuc2Zvcm1lcidcblxuY29uc3Qgc3RyaXBJbmRlbnQgPSBuZXcgVGVtcGxhdGVUYWcoXG4gIHN0cmlwSW5kZW50VHJhbnNmb3JtZXIsXG4gIHRyaW1SZXN1bHRUcmFuc2Zvcm1lclxuKVxuXG5leHBvcnQgZGVmYXVsdCBzdHJpcEluZGVudFxuIl19
+
+/***/ },
+/* 567 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+	
+	var _stripIndents = __webpack_require__(568);
+	
+	var _stripIndents2 = _interopRequireDefault(_stripIndents);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = _stripIndents2.default;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9zdHJpcEluZGVudHMvaW5kZXguanMiXSwibmFtZXMiOlsiZGVmYXVsdCJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7Ozs7Ozs7Ozs7UUFFT0EsTyIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbIid1c2Ugc3RyaWN0J1xuXG5leHBvcnQgZGVmYXVsdCBmcm9tICcuL3N0cmlwSW5kZW50cydcbiJdfQ==
+
+/***/ },
+/* 568 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _TemplateTag = __webpack_require__(452);
+	
+	var _TemplateTag2 = _interopRequireDefault(_TemplateTag);
+	
+	var _stripIndentTransformer = __webpack_require__(501);
+	
+	var _stripIndentTransformer2 = _interopRequireDefault(_stripIndentTransformer);
+	
+	var _trimResultTransformer = __webpack_require__(499);
+	
+	var _trimResultTransformer2 = _interopRequireDefault(_trimResultTransformer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var stripIndents = new _TemplateTag2.default((0, _stripIndentTransformer2.default)('all'), _trimResultTransformer2.default);
+	
+	exports.default = stripIndents;
+	module.exports = exports['default'];
+	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9zdHJpcEluZGVudHMvc3RyaXBJbmRlbnRzLmpzIl0sIm5hbWVzIjpbInN0cmlwSW5kZW50cyJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7OztBQUVBOzs7O0FBQ0E7Ozs7QUFDQTs7Ozs7O0FBRUEsSUFBTUEsZUFBZSwwQkFDbkIsc0NBQXVCLEtBQXZCLENBRG1CLGtDQUFyQjs7a0JBS2VBLFkiLCJmaWxlIjoic3RyaXBJbmRlbnRzLmpzIiwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBzdHJpY3QnXG5cbmltcG9ydCBUZW1wbGF0ZVRhZyBmcm9tICcuLi9UZW1wbGF0ZVRhZydcbmltcG9ydCBzdHJpcEluZGVudFRyYW5zZm9ybWVyIGZyb20gJy4uL3N0cmlwSW5kZW50VHJhbnNmb3JtZXInXG5pbXBvcnQgdHJpbVJlc3VsdFRyYW5zZm9ybWVyIGZyb20gJy4uL3RyaW1SZXN1bHRUcmFuc2Zvcm1lcidcblxuY29uc3Qgc3RyaXBJbmRlbnRzID0gbmV3IFRlbXBsYXRlVGFnKFxuICBzdHJpcEluZGVudFRyYW5zZm9ybWVyKCdhbGwnKSxcbiAgdHJpbVJlc3VsdFRyYW5zZm9ybWVyXG4pXG5cbmV4cG9ydCBkZWZhdWx0IHN0cmlwSW5kZW50c1xuIl19
+
+/***/ },
+/* 569 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var json_covariate_1 = __webpack_require__(570);
+	exports.findCovariateJsonWithName = json_covariate_1.findCovariateJsonWithName;
+	exports.parseCovariateJsonToCovariate = json_covariate_1.parseCovariateJsonToCovariate;
+	//# sourceMappingURL=index.js.map
+
+/***/ },
+/* 570 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const derived_field_1 = __webpack_require__(446);
+	const field_1 = __webpack_require__(437);
+	const custom_function_1 = __webpack_require__(440);
+	function findCovariateJsonWithName(covariateJsons, name) {
+	    return covariateJsons.find(covariateJson => covariateJson.name === name);
+	}
+	exports.findCovariateJsonWithName = findCovariateJsonWithName;
+	function parseCovariateJsonToCovariate(covariateJson, covariateJsons, derivedFieldJsons) {
+	    const derivedFieldJsonForCovariateJson = derived_field_1.findDerivedFieldJsonWithName(derivedFieldJsons, covariateJson.name);
+	    const parsedDerivedField = derivedFieldJsonForCovariateJson
+	        ? derived_field_1.parseDerivedFieldJsonToDerivedField(derivedFieldJsonForCovariateJson, derivedFieldJsons, covariateJsons)
+	        : undefined;
+	    const parsedCustomFunction = covariateJson.customFunction
+	        ? custom_function_1.parseCustomFunctionJsonToCustomFunction(covariateJson.customFunction, covariateJsons, derivedFieldJsons)
+	        : undefined;
+	    if (covariateJson.fieldType === field_1.FieldType.InteractionCovariate) {
+	        if (!parsedDerivedField) {
+	            throw new Error();
+	        }
+	        else {
+	            return Object.assign({}, covariateJson, {
+	                derivedField: parsedDerivedField,
+	                customFunction: parsedCustomFunction,
+	            });
+	        }
+	    }
+	    else {
+	        return Object.assign({}, covariateJson, {
+	            derivedField: parsedDerivedField,
+	            customFunction: parsedCustomFunction,
 	        });
-	        const dataWithoutAgeInput = [
-	            ...data.slice(0, ageInputIndex),
-	            ...data.slice(ageInputIndex + 1)
-	        ];
-	        return life_expectancy_1.getLifeExpectancy(data[ageInputIndex].coefficent, (age) => {
-	            return 1 - cox_1.getSurvivalToTime(coxAlgorithm, dataWithoutAgeInput.concat({
-	                name: 'age',
-	                coefficent: age
-	            }), time);
-	        }, baseLifeTable, useExFromLifeTableFromAge);
-	    };
+	    }
 	}
-	exports.curryGetLifeExpectancyFunction = curryGetLifeExpectancyFunction;
-	//# sourceMappingURL=get-life-expectancy.js.map
+	exports.parseCovariateJsonToCovariate = parseCovariateJsonToCovariate;
+	//# sourceMappingURL=json-covariate.js.map
 
 /***/ },
-/* 428 */
+/* 571 */
+/***/ function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var AlgorithmType;
+	(function (AlgorithmType) {
+	    AlgorithmType[AlgorithmType["Cox"] = 0] = "Cox";
+	    AlgorithmType[AlgorithmType["LogisticRegression"] = 1] = "LogisticRegression";
+	})(AlgorithmType = exports.AlgorithmType || (exports.AlgorithmType = {}));
+	//# sourceMappingURL=algorithm-type.js.map
+
+/***/ },
+/* 572 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const data_1 = __webpack_require__(311);
+	const covariate_1 = __webpack_require__(308);
+	const lodash_1 = __webpack_require__(314);
+	const field_1 = __webpack_require__(437);
+	const op_type_1 = __webpack_require__(573);
+	const undefined_1 = __webpack_require__(575);
+	const errors_1 = __webpack_require__(316);
+	function calculateScore(algorithm, data) {
+	    return algorithm.covariates
+	        .map(covariate => covariate_1.getComponent(covariate, data, algorithm.userFunctions))
+	        .reduce(lodash_1.add);
+	}
+	exports.calculateScore = calculateScore;
+	function getBaselineForData(algorithm, data) {
+	    if (typeof algorithm.baseline === 'number') {
+	        return algorithm.baseline;
+	    }
+	    else {
+	        const ageDatum = data_1.findDatumWithName('age', data);
+	        return undefined_1.throwErrorIfUndefined(algorithm.baseline[Number(ageDatum.coefficent)], new errors_1.NoBaselineFoundForAge(ageDatum.coefficent));
+	    }
+	}
+	exports.getBaselineForData = getBaselineForData;
+	function addPredictor(algorithm, predictor) {
+	    let newCovariate = Object.assign({}, predictor, {
+	        fieldType: field_1.FieldType.NonInteractionCovariate,
+	        beta: predictor.betaCoefficent,
+	        referencePoint: predictor.referencePoint ? predictor.referencePoint : 0,
+	        customFunction: undefined,
+	        name: predictor.name,
+	        displayName: '',
+	        extensions: {},
+	        derivedField: undefined,
+	    });
+	    if (predictor.type === 'continuous') {
+	        newCovariate = Object.assign({}, newCovariate, {
+	            opType: op_type_1.OpType.Continuous,
+	            min: predictor.min,
+	            max: predictor.max,
+	        });
+	    }
+	    else {
+	        newCovariate = Object.assign({}, newCovariate, {
+	            opType: op_type_1.OpType.Categorical,
+	            categories: predictor.categories,
+	        });
+	    }
+	    return Object.assign({}, algorithm, {
+	        covariates: algorithm.covariates.concat([newCovariate]),
+	    });
+	}
+	exports.addPredictor = addPredictor;
+	function updateBaseline(algorithm, newBaseline) {
+	    return Object.assign({}, algorithm, {
+	        baseline: newBaseline,
+	    });
+	}
+	exports.updateBaseline = updateBaseline;
+	//# sourceMappingURL=algorithm.js.map
+
+/***/ },
+/* 573 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var op_type_1 = __webpack_require__(574);
+	exports.OpType = op_type_1.OpType;
+	//# sourceMappingURL=index.js.map
+
+/***/ },
+/* 574 */
+/***/ function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var OpType;
+	(function (OpType) {
+	    OpType[OpType["Categorical"] = 0] = "Categorical";
+	    OpType[OpType["Continuous"] = 1] = "Continuous";
+	})(OpType = exports.OpType || (exports.OpType = {}));
+	//# sourceMappingURL=op-type.js.map
+
+/***/ },
+/* 575 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var undefined_1 = __webpack_require__(313);
+	exports.throwErrorIfUndefined = undefined_1.throwErrorIfUndefined;
+	exports.returnEmptyArrayIfUndefined = undefined_1.returnEmptyArrayIfUndefined;
+	//# sourceMappingURL=index.js.map
+
+/***/ },
+/* 576 */
+/***/ function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	function getPredicateResult(data, predicate) {
+	    const obj = data
+	        .filter(datum => predicate.variables.indexOf(datum.name) > -1)
+	        .reduce((currentObj, currentDatum) => {
+	        return Object.assign({}, currentObj, {
+	            [currentDatum.name]: currentDatum.coefficent,
+	        });
+	    }, {});
+	    // tslint:disable-next-line
+	    obj;
+	    // tslint:disable-next-line
+	    let predicateResult = false;
+	    eval(predicate.equation);
+	    return predicateResult;
+	}
+	exports.getPredicateResult = getPredicateResult;
+	//# sourceMappingURL=predicate.js.map
+
+/***/ },
+/* 577 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const predicate_1 = __webpack_require__(576);
+	function getAlgorithmJsonForData(multipleAlgorithmModel, data) {
+	    const matchedAlgorithm = multipleAlgorithmModel.algorithms.find(algorithmWithPredicate => {
+	        return predicate_1.getPredicateResult(data, algorithmWithPredicate.predicate);
+	    });
+	    if (!matchedAlgorithm) {
+	        throw new Error(`No matched algorithm found`);
+	    }
+	    return matchedAlgorithm.algorithm;
+	}
+	exports.getAlgorithmJsonForData = getAlgorithmJsonForData;
+	//# sourceMappingURL=multiple-algorithm-model-json.js.map
+
+/***/ },
+/* 578 */
+/***/ function(module, exports) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var ModelType;
+	(function (ModelType) {
+	    ModelType[ModelType["SingleAlgorithm"] = 0] = "SingleAlgorithm";
+	    ModelType[ModelType["MultipleAlgorithm"] = 1] = "MultipleAlgorithm";
+	})(ModelType = exports.ModelType || (exports.ModelType = {}));
+	//# sourceMappingURL=model-type.js.map
+
+/***/ },
+/* 579 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const single_algorithm_model_1 = __webpack_require__(580);
+	const multiple_algorithm_model_1 = __webpack_require__(303);
+	const model_type_1 = __webpack_require__(578);
+	function getAlgorithmForModelAndData(model, data) {
+	    if (model.modelType === model_type_1.ModelType.SingleAlgorithm) {
+	        return model.algorithm;
+	    }
+	    else {
+	        return multiple_algorithm_model_1.getAlgorithmForData(model, data);
+	    }
+	}
+	exports.getAlgorithmForModelAndData = getAlgorithmForModelAndData;
+	function updateBaselineForModel(model, newBaseline) {
+	    if (model.modelType === model_type_1.ModelType.SingleAlgorithm) {
+	        return single_algorithm_model_1.updateBaselineForModel(model, newBaseline);
+	    }
+	    else {
+	        return multiple_algorithm_model_1.updateBaselineForModel(model, newBaseline);
+	    }
+	}
+	exports.updateBaselineForModel = updateBaselineForModel;
+	//# sourceMappingURL=model-types.js.map
+
+/***/ },
+/* 580 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var single_algorithm_model_1 = __webpack_require__(581);
+	exports.updateBaselineForModel = single_algorithm_model_1.updateBaselineForModel;
+	//# sourceMappingURL=index.js.map
+
+/***/ },
+/* 581 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const algorithm_1 = __webpack_require__(305);
+	function updateBaselineForModel(model, newBaseline) {
+	    return Object.assign({}, model, {
+	        algorithm: algorithm_1.updateBaseline(model.algorithm, newBaseline),
+	    });
+	}
+	exports.updateBaselineForModel = updateBaselineForModel;
+	//# sourceMappingURL=single-algorithm-model.js.map
+
+/***/ },
+/* 582 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const model_1 = __webpack_require__(301);
+	const cox_1 = __webpack_require__(583);
+	const algorithm_1 = __webpack_require__(305);
+	class SurvivalModelFunctions {
+	    constructor(model, modelJson) {
+	        this.getRiskToTime = (data, time) => {
+	            return cox_1.getRiskToTime(this.getAlgorithmForData(data), data, time);
+	        };
+	        this.getSurvivalToTime = (data, time) => {
+	            return cox_1.getSurvivalToTime(this.getAlgorithmForData(data), data, time);
+	        };
+	        this.model = model;
+	        this.modelJson = modelJson;
+	    }
+	    getAlgorithmForData(data) {
+	        return model_1.getAlgorithmForModelAndData(this.model, data);
+	    }
+	    addPredictor(newPredictor) {
+	        if (this.model.modelType === model_1.ModelType.SingleAlgorithm) {
+	            return new SurvivalModelFunctions(Object.assign({}, this.model, {
+	                algorithm: algorithm_1.addPredictor(this.model.algorithm, newPredictor),
+	            }), this.modelJson);
+	        }
+	        else {
+	            return new SurvivalModelFunctions(Object.assign({}, this.model, {
+	                algorithms: this.model.algorithms.map(algorithm => {
+	                    return Object.assign({}, algorithm, {
+	                        algorithms: algorithm_1.addPredictor(algorithm.algorithm, newPredictor),
+	                    });
+	                }),
+	            }), this.modelJson);
+	        }
+	    }
+	    reCalibrateOutcome(calibrationObjects) {
+	        if (calibrationObjects instanceof Array) {
+	            return new SurvivalModelFunctions(model_1.updateBaselineForModel(this.model, this.convertCalibrationObjectsToBaselineObject(calibrationObjects)), this.modelJson);
+	        }
+	        else {
+	            return new SurvivalModelFunctions(model_1.updateBaselineForModel(this.model, [
+	                {
+	                    predicateData: [
+	                        {
+	                            name: 'sex',
+	                            coefficent: 'male',
+	                        },
+	                    ],
+	                    newBaseline: this.convertCalibrationObjectsToBaselineObject(calibrationObjects.male),
+	                },
+	                {
+	                    predicateData: [
+	                        {
+	                            name: 'sex',
+	                            coefficent: 'female',
+	                        },
+	                    ],
+	                    newBaseline: this.convertCalibrationObjectsToBaselineObject(calibrationObjects.female),
+	                },
+	            ]), this.modelJson);
+	        }
+	    }
+	    getModel() {
+	        return this.model;
+	    }
+	    getModelJson() {
+	        return this.modelJson;
+	    }
+	    convertCalibrationObjectsToBaselineObject(calibrationObjects) {
+	        return calibrationObjects.reduce((baselineObject, currentCalibrationObject) => {
+	            return Object.assign({}, baselineObject, {
+	                [currentCalibrationObject.age]: currentCalibrationObject.baseline,
+	            });
+	        }, {});
+	    }
+	}
+	exports.SurvivalModelFunctions = SurvivalModelFunctions;
+	//# sourceMappingURL=survival-model-functions.js.map
+
+/***/ },
+/* 583 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var cox_1 = __webpack_require__(584);
+	exports.getSurvivalToTime = cox_1.getSurvivalToTime;
+	exports.getRiskToTime = cox_1.getRiskToTime;
+	exports.getTimeMultiplier = cox_1.getTimeMultiplier;
+	//# sourceMappingURL=index.js.map
+
+/***/ },
+/* 584 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const env_1 = __webpack_require__(435);
+	const moment = __webpack_require__(324);
+	const algorithm_1 = __webpack_require__(305);
+	function getTimeMultiplier(time) {
+	    return Math.abs(moment()
+	        .startOf('day')
+	        .diff(time, 'years', true));
+	}
+	exports.getTimeMultiplier = getTimeMultiplier;
+	// By default it's time argument is set to 1 year from now
+	function getSurvivalToTime(cox, data, time) {
+	    let formattedTime;
+	    if (!time) {
+	        formattedTime = moment().startOf('day');
+	        formattedTime.add(1, 'year');
+	    }
+	    else if (time instanceof Date) {
+	        formattedTime = moment(time).startOf('day');
+	    }
+	    else {
+	        formattedTime = time;
+	    }
+	    if (env_1.shouldLogDebugInfo() === true) {
+	        console.groupCollapsed(`Predictors`);
+	    }
+	    if (env_1.shouldLogDebugInfo()) {
+	        console.log(`Baseline: ${this.baseline}`);
+	    }
+	    if (env_1.shouldLogDebugInfo() === true) {
+	        console.groupEnd();
+	    }
+	    const score = algorithm_1.calculateScore(cox, data);
+	    const oneYearSurvivalProbability = 1 - algorithm_1.getBaselineForData(cox, data) * Math.pow(Math.E, score);
+	    return oneYearSurvivalProbability * getTimeMultiplier(formattedTime);
+	}
+	exports.getSurvivalToTime = getSurvivalToTime;
+	function getRiskToTime(cox, data, time) {
+	    return 1 - getSurvivalToTime(cox, data, time);
+	}
+	exports.getRiskToTime = getRiskToTime;
+	//# sourceMappingURL=cox.js.map
+
+/***/ },
+/* 585 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var life_table_functions_builder_1 = __webpack_require__(586);
+	exports.LifeTableFunctionsBuilder = life_table_functions_builder_1.LifeTableFunctionsBuilder;
+	//# sourceMappingURL=index.js.map
+
+/***/ },
+/* 586 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const life_table_functions_1 = __webpack_require__(587);
+	exports.LifeTableFunctionsBuilder = {
+	    withSurvivalModel: (survivalModel) => {
+	        return {
+	            withRefLifeTable: (genderSpecificRefLifeTable) => {
+	                return new life_table_functions_1.LifeTableFunctions(survivalModel, genderSpecificRefLifeTable);
+	            },
+	        };
+	    },
+	};
+	//# sourceMappingURL=life-table-functions-builder.js.map
+
+/***/ },
+/* 587 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const life_table_1 = __webpack_require__(588);
+	const life_expectancy_1 = __webpack_require__(589);
+	const survival_to_age_1 = __webpack_require__(590);
+	// @ts-ignore
+	const data_1 = __webpack_require__(311);
+	const errors_1 = __webpack_require__(316);
+	class LifeTableFunctions {
+	    constructor(survivalFunctions, genderSpecificRefLifeTable) {
+	        this.getLifeExpectancy = (data) => {
+	            return life_expectancy_1.getLifeExpectancyUsingRefLifeTable(data, this.getRefLifeTableForData(data), this.survivalFunctions.getAlgorithmForData(data));
+	        };
+	        this.survivalFunctions = survivalFunctions;
+	        this.genderSpecificRefLifeTable = genderSpecificRefLifeTable;
+	    }
+	    getSurvivalToAge(data, toAge) {
+	        return survival_to_age_1.getSurvivalToAge(life_table_1.getCompleteLifeTableWithStartAge(this.getRefLifeTableForData(data), ageForRiskToTime => {
+	            return this.survivalFunctions.getRiskToTime(data_1.updateDataWithDatum(data, {
+	                name: 'age',
+	                coefficent: ageForRiskToTime,
+	            }));
+	        }, data_1.findDatumWithName('age', data).coefficent), toAge);
+	    }
+	    getRefLifeTableForData(data) {
+	        const sexDatum = data_1.findDatumWithName('sex', data);
+	        if (sexDatum.coefficent === 'male') {
+	            return this.genderSpecificRefLifeTable.male;
+	        }
+	        else if (sexDatum.coefficent === 'female') {
+	            return this.genderSpecificRefLifeTable.female;
+	        }
+	        throw new errors_1.NoLifeTableFoundError(sexDatum.coefficent);
+	    }
+	}
+	exports.LifeTableFunctions = LifeTableFunctions;
+	//# sourceMappingURL=life-table-functions.js.map
+
+/***/ },
+/* 588 */
 /***/ function(module, exports) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
 	/**
-	 * Returns a new array of life table rows whose qx is filled with it's right value
-	 *
-	 * @param {Array<BaseLifeTableRow>} baseLifeTable
-	 * @param {GetPredictedRiskForAge} getPredictedRiskForAge
-	 * @returns {Array<BaseLifeTableWithQxRow>}
-	 */
-	function getBaseLifeTableWithQx(baseLifeTable, getPredictedRiskForAge) {
-	    let baseLifeTableWithQx = [];
-	    baseLifeTable.forEach((baseLifeTableRow) => {
-	        baseLifeTableWithQx.push(Object.assign({}, baseLifeTableRow, {
-	            qx: 1 - getPredictedRiskForAge(baseLifeTableRow.age)
-	        }));
-	    });
-	    return baseLifeTableWithQx;
-	}
-	/**
 	 * Returns lx for the passed life table row
 	 *
-	 * @param {(LifeTableRow | undefined)} lifeTableRow If undefined then it means the function should return the lx for the first life table row which is by default 100000
+	 * @param {(LifeTableRow | undefined)} lifeTableRow If undefined then it means
+	 * the function should return the lx for the first life table row which is by
+	 * default 100000
 	 * @returns {number}
 	 */
 	function getlxForLifeTableRow(lifeTableRow) {
@@ -40907,7 +44785,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns
 	 */
 	function getLx(lx, dx, ax) {
-	    return (lx - dx) + (dx * ax);
+	    return lx - dx + dx * ax;
 	}
 	/**
 	 * Returns calculated value of Tx
@@ -40936,7 +44814,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return lifeTableRow.ax;
 	    }
 	    else {
-	        //Do this to avoid returning NaN
+	        // Do this to avoid returning NaN
 	        if (lifeTableRow.lx === 0) {
 	            return 0;
 	        }
@@ -40946,14 +44824,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	}
 	/**
-	 * Creates a new life table from the baseLifeTableWithQx which has only age, qx and ax terms and completes it by adding lx, dx, Lx, Tx and ex terms
+	 * Creates a new life table from the baseLifeTableWithQx which has only age, qx
+	 * and ax terms and completes it by adding lx, dx, Lx, Tx and ex terms
 	 *
 	 * @param {Array<BaseLifeTableWithQxRow>} baseLifeTableWithQx
 	 * @returns {Array<LifeTableRow>}
 	 */
-	function getCompleteLifeTable(baseLifeTableWithQx, useLifeTableForExFromAge) {
-	    let lifeTable = [];
-	    baseLifeTableWithQx.forEach((baseLifeTableRow, index) => {
+	function getCompleteLifeTableWithStartAge(refLifeTable, getPredictedRiskForAge, startAge, useLifeTableForExFromAge = 99) {
+	    const lifeTable = [];
+	    const refLifeTableWithQx = [];
+	    const refLifeTableFromStartAge = refLifeTable.filter(refLifeTableRow => refLifeTableRow.age >= startAge);
+	    refLifeTableFromStartAge.forEach(refLifeTableRow => {
+	        refLifeTableWithQx.push(Object.assign({}, refLifeTableRow, {
+	            qx: getPredictedRiskForAge(refLifeTableRow.age),
+	        }));
+	    });
+	    refLifeTableWithQx.forEach((baseLifeTableRow, index) => {
 	        const lx = getlxForLifeTableRow(lifeTable[index - 1]);
 	        const dx = getdx(lx, baseLifeTableRow.qx);
 	        const Lx = getLx(lx, dx, baseLifeTableRow.ax);
@@ -40962,18 +44848,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	            dx,
 	            Lx,
 	            Tx: 0,
-	            ex: 0
+	            ex: 0,
 	        }));
 	    });
-	    //Reverse the lifetable since for Tx and ex we need the current row and next row
+	    const reversedLifeTable = refLifeTable.reverse();
+	    /* Reverse the lifetable since for Tx and ex we need the current row and next row */
 	    lifeTable.reverse().forEach((lifeTableRow, index) => {
 	        lifeTableRow.Tx = getTx(lifeTableRow, lifeTable[index - 1]);
-	        lifeTableRow.ex = lifeTableRow.age < useLifeTableForExFromAge ? (getex(lifeTableRow, lifeTable[index - 1])) : (lifeTableRow.ex);
+	        lifeTableRow.ex =
+	            Number(lifeTableRow.age) < useLifeTableForExFromAge
+	                ? getex(lifeTableRow, lifeTable[index - 1])
+	                : reversedLifeTable[index].ex;
 	    });
-	    //Reverse the life table again since reverse is a mutable operation
+	    refLifeTable.reverse();
+	    // Reverse the life table again since reverse is a mutable operation
 	    lifeTable.reverse();
 	    return lifeTable;
 	}
+	exports.getCompleteLifeTableWithStartAge = getCompleteLifeTableWithStartAge;
+	//# sourceMappingURL=life-table.js.map
+
+/***/ },
+/* 589 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const life_table_1 = __webpack_require__(588);
+	const data_1 = __webpack_require__(311);
+	const cox_1 = __webpack_require__(583);
 	/**
 	 * Returns the life expectancy at the age argument using the passed lifeTable argument
 	 *
@@ -40982,7 +44885,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns {number}
 	 */
 	function getLifeExpectancyForAge(age, lifeTable) {
-	    const lifeTableRowForPassedAge = lifeTable.find((lifeTableRow) => {
+	    const lifeTableRowForPassedAge = lifeTable.find(lifeTableRow => {
 	        return lifeTableRow.age === age;
 	    });
 	    if (!lifeTableRowForPassedAge) {
@@ -40992,616 +44895,189 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return lifeTableRowForPassedAge.ex + age;
 	    }
 	}
-	/**
-	 * Returns the life expectancy at the age argument using the getPredictedRiskForAge argument to generate the lifetable from the baseLifeTable
-	 *
-	 * @export
-	 * @param {number} age
-	 * @param {GetPredictedRiskForAge} getPredictedRiskForAge Function which takes age and returns the calculated risk. Used to set the qx field in the generated life table
-	 * @param {Array<BaseLifeTableRow>} baseLifeTable
-	 * @returns {number}
-	 */
-	function getLifeExpectancy(age, getPredictedRiskForAge, baseLifeTable, useExFromLifeTableFromAge) {
-	    const baseLifeTableWithQx = getBaseLifeTableWithQx(baseLifeTable, getPredictedRiskForAge);
-	    const lifeTable = getCompleteLifeTable(baseLifeTableWithQx, useExFromLifeTableFromAge);
-	    return getLifeExpectancyForAge(age, lifeTable);
+	exports.getLifeExpectancyForAge = getLifeExpectancyForAge;
+	function getCompleteLifeTableForDataUsingAlgorithm(refLifeTable, data, cox, useExFromLifeTableFromAge = 99) {
+	    // TODO Change this to have an optional parameter called age
+	    const ageDatum = data_1.findDatumWithName('age', data);
+	    const dataWithoutAgeDatum = data.filter(datum => datum.coefficent !== 'age');
+	    return life_table_1.getCompleteLifeTableWithStartAge(refLifeTable, age => {
+	        return (1 -
+	            cox_1.getSurvivalToTime(cox, dataWithoutAgeDatum.concat({
+	                name: 'age',
+	                coefficent: age,
+	            })));
+	    }, ageDatum.coefficent, useExFromLifeTableFromAge);
 	}
-	exports.getLifeExpectancy = getLifeExpectancy;
+	exports.getCompleteLifeTableForDataUsingAlgorithm = getCompleteLifeTableForDataUsingAlgorithm;
+	function getLifeExpectancyUsingRefLifeTable(data, refLifeTable, coxAlgorithm, useExFromLifeTableFromAge = 99, completeLifeTable = getCompleteLifeTableForDataUsingAlgorithm(refLifeTable, data, coxAlgorithm, useExFromLifeTableFromAge)) {
+	    // TODO Change this to have an optional parameter called age
+	    const ageDatum = data_1.findDatumWithName('age', data);
+	    return getLifeExpectancyForAge(ageDatum.coefficent, completeLifeTable);
+	}
+	exports.getLifeExpectancyUsingRefLifeTable = getLifeExpectancyUsingRefLifeTable;
 	//# sourceMappingURL=life-expectancy.js.map
 
 /***/ },
-/* 429 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	Object.defineProperty(exports, "__esModule", { value: true });
-	const life_years_lost_1 = __webpack_require__(430);
-	//TODO Fix this
-	function curryGetLifeYearsLostFunction(causeDeletedRef, refLifeTable) {
-	    return (data, riskFactor) => {
-	        return life_years_lost_1.getLifeYearsLost(causeDeletedRef, refLifeTable, data, riskFactor);
-	    };
-	}
-	exports.curryGetLifeYearsLostFunction = curryGetLifeYearsLostFunction;
-	//# sourceMappingURL=get-life-years-lost.js.map
-
-/***/ },
-/* 430 */
+/* 590 */
 /***/ function(module, exports) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	//TODO Implement this
-	function getLifeYearsLost(causeDeletedRef, refLifeTable, data, riskFactor) {
-	    riskFactor;
-	    data;
-	    causeDeletedRef;
-	    refLifeTable;
-	    return Math.random();
+	function getSurvivalToAge(lifeTable, toAge) {
+	    const startAgelx = lifeTable[0].lx;
+	    const endAgeLifeTableRow = lifeTable.find(lifeTableRow => lifeTableRow.age === toAge);
+	    if (!endAgeLifeTableRow) {
+	        throw new Error(`No life table row found for age ${toAge}`);
+	    }
+	    return endAgeLifeTableRow.lx / startAgelx;
 	}
-	exports.getLifeYearsLost = getLifeYearsLost;
-	//# sourceMappingURL=life-years-lost.js.map
+	exports.getSurvivalToAge = getSurvivalToAge;
+	//# sourceMappingURL=survival-to-age.js.map
 
 /***/ },
-/* 431 */
-/***/ function(module, exports) {
-
-	"use strict";
-	Object.defineProperty(exports, "__esModule", { value: true });
-	function curryToJsonFunction(coxJson) {
-	    return () => {
-	        return coxJson;
-	    };
-	}
-	exports.curryToJsonFunction = curryToJsonFunction;
-	//# sourceMappingURL=to-json.js.map
-
-/***/ },
-/* 432 */
+/* 591 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const get_survival_to_time_1 = __webpack_require__(425);
-	const get_risk_1 = __webpack_require__(302);
-	const add_life_table_1 = __webpack_require__(426);
-	const get_life_years_lost_1 = __webpack_require__(429);
-	const get_life_expectancy_1 = __webpack_require__(427);
-	const to_json_1 = __webpack_require__(431);
-	const get_health_age_1 = __webpack_require__(433);
-	const algorithm_evaluator_1 = __webpack_require__(435);
-	const add_algorithm_1 = __webpack_require__(442);
-	function curryAddRefPopWithAddLifeTable(cox, coxJson) {
-	    return (refPop) => {
+	var ref_pop_functions_builder_1 = __webpack_require__(592);
+	exports.RefPopFunctionsBuilder = ref_pop_functions_builder_1.RefPopFunctionsBuilder;
+	//# sourceMappingURL=index.js.map
+
+/***/ },
+/* 592 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	const ref_pop_functions_1 = __webpack_require__(593);
+	exports.RefPopFunctionsBuilder = {
+	    withModel: model => {
 	        return {
-	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
-	            getRisk: get_risk_1.curryGetRiskFunction(cox),
-	            toJson: to_json_1.curryToJsonFunction(coxJson),
-	            getHealthAge: get_health_age_1.curryGetHeathAgeFunction(refPop),
-	            withData: algorithm_evaluator_1.curryWithDataAndGetHealthAgeFunction({}),
-	            addLifeTable: add_life_table_1.curryAddLifeTableFunctionWithGetHealthAge(cox, coxJson, refPop),
-	            addAlgorithm: add_algorithm_1.curryAddAlgorithmReturnsGetHealthAgeFunction(cox, coxJson, refPop)
+	            withRefPop: refPop => {
+	                return new ref_pop_functions_1.RefPopFunctions(model, refPop);
+	            },
 	        };
-	    };
-	}
-	exports.curryAddRefPopWithAddLifeTable = curryAddRefPopWithAddLifeTable;
-	function curryAddRefPopWithGetLifeExpectancy(cox, coxJson, refLifeTable) {
-	    return (refPop) => {
-	        return {
-	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
-	            getRisk: get_risk_1.curryGetRiskFunction(cox),
-	            toJson: to_json_1.curryToJsonFunction(coxJson),
-	            getHealthAge: get_health_age_1.curryGetHeathAgeFunction(refPop),
-	            getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyFunction(cox, refLifeTable),
-	            withData: algorithm_evaluator_1.curryFullWithDataFunction({}),
-	            getLifeYearsLost: get_life_years_lost_1.curryGetLifeYearsLostFunction(coxJson.causeDeletedRef, refLifeTable),
-	            addAlgorithm: add_algorithm_1.curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(cox, coxJson, refPop, refLifeTable)
-	        };
-	    };
-	}
-	exports.curryAddRefPopWithGetLifeExpectancy = curryAddRefPopWithGetLifeExpectancy;
-	//# sourceMappingURL=add-ref-pop.js.map
+	    },
+	};
+	//# sourceMappingURL=ref-pop-functions-builder.js.map
 
 /***/ },
-/* 433 */
+/* 593 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const health_age_1 = __webpack_require__(434);
-	function curryGetHeathAgeFunction(refPop) {
-	    return (data) => {
-	        return health_age_1.getHealthAge(refPop, data);
-	    };
+	const model_1 = __webpack_require__(301);
+	const health_age_1 = __webpack_require__(594);
+	class RefPopFunctions {
+	    constructor(model, refPop) {
+	        this.model = model;
+	        this.refPop = refPop;
+	    }
+	    getHealthAge(data) {
+	        return health_age_1.getHealthAge(this.refPop, data, model_1.getAlgorithmForModelAndData(this.model, data));
+	    }
 	}
-	exports.curryGetHeathAgeFunction = curryGetHeathAgeFunction;
-	//# sourceMappingURL=get-health-age.js.map
+	exports.RefPopFunctions = RefPopFunctions;
+	//# sourceMappingURL=ref-pop-functions.js.map
 
 /***/ },
-/* 434 */
-/***/ function(module, exports) {
+/* 594 */
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	//TODO Implement this
-	function getHealthAge(refPop, data) {
-	    data;
-	    refPop;
-	    return Math.random();
+	const cox_1 = __webpack_require__(583);
+	function getHealthAge(refPop, data, cox, oneYearRisk = cox_1.getRiskToTime(cox, data)) {
+	    return refPop.reduce((currentRefPopRow, refPopRow) => {
+	        if (Math.abs(refPopRow.outcomeRisk - oneYearRisk) <
+	            Math.abs(currentRefPopRow.outcomeRisk - oneYearRisk)) {
+	            return refPopRow;
+	        }
+	        return currentRefPopRow;
+	    }, refPop[0]).age;
 	}
 	exports.getHealthAge = getHealthAge;
 	//# sourceMappingURL=health-age.js.map
 
 /***/ },
-/* 435 */
+/* 595 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var with_data_1 = __webpack_require__(436);
-	exports.curryBaseWithDataFunction = with_data_1.curryBaseWithDataFunction;
-	exports.curryWithDataAndLifeTableFunctionsFunction = with_data_1.curryWithDataAndLifeTableFunctionsFunction;
-	exports.curryFullWithDataFunction = with_data_1.curryFullWithDataFunction;
-	exports.curryWithDataAndGetHealthAgeFunction = with_data_1.curryWithDataAndGetHealthAgeFunction;
+	var cause_effect_1 = __webpack_require__(596);
+	exports.getForRiskFactorFunction = cause_effect_1.getForRiskFactorFunction;
 	//# sourceMappingURL=index.js.map
 
 /***/ },
-/* 436 */
+/* 596 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const get_survival_to_time_1 = __webpack_require__(437);
-	const get_risk_to_time_1 = __webpack_require__(438);
-	const get_life_expectancy_1 = __webpack_require__(439);
-	const get_health_age_1 = __webpack_require__(440);
-	const get_life_years_lost_1 = __webpack_require__(441);
-	function getBaseWithDataFunctionReturn(currentResult) {
+	const gender_cause_effect_ref_1 = __webpack_require__(597);
+	const data_1 = __webpack_require__(311);
+	function getWithDataFunction(genderCauseEffectRef, riskFactors, func) {
 	    return {
-	        getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeReturnsBaseWithDataFunction(currentResult),
-	        getRiskToTime: get_risk_to_time_1.curryGetRiskToTimeReturnsBaseWithDataFunction(currentResult),
-	        end: () => {
-	            return currentResult;
-	        }
+	        withData: (data, otherArgs) => {
+	            const causeEffectRef = gender_cause_effect_ref_1.getCauseEffectRefForData(genderCauseEffectRef, data);
+	            const causeEffectRefData = gender_cause_effect_ref_1.getCauseEffectDataForRiskFactors(riskFactors, causeEffectRef);
+	            return func(data_1.updateDataWithData(data, causeEffectRefData), otherArgs);
+	        },
 	    };
 	}
-	exports.getBaseWithDataFunctionReturn = getBaseWithDataFunctionReturn;
-	function curryBaseWithDataFunction(currentResult) {
-	    return () => {
-	        return getBaseWithDataFunctionReturn(currentResult);
-	    };
-	}
-	exports.curryBaseWithDataFunction = curryBaseWithDataFunction;
-	function getWithDataAndLifeTableFunctionsFunctionReturn(currentResult) {
+	function getGetCauseEffectFunction(genderCauseEffectRef, riskFactors) {
 	    return {
-	        getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeReturnsWithDataAndGetLifeExpectancy(currentResult),
-	        getRiskToTime: get_risk_to_time_1.curryGetRiskToTimeReturnsWithDataAndGetLifeExpectancy(currentResult),
-	        getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyReturnsWithDataAndLifeTablFunctions(currentResult),
-	        getLifeYearsLost: get_life_years_lost_1.curryGetLifeYearsLostReturnsWithDataAndLifeTableFunction(currentResult),
-	        end: () => {
-	            return currentResult;
-	        }
+	        getCauseEffect: func => {
+	            return getWithDataFunction(genderCauseEffectRef, riskFactors, func);
+	        },
 	    };
 	}
-	exports.getWithDataAndLifeTableFunctionsFunctionReturn = getWithDataAndLifeTableFunctionsFunctionReturn;
-	function curryWithDataAndLifeTableFunctionsFunction(currentResult) {
-	    return () => {
-	        return getWithDataAndLifeTableFunctionsFunctionReturn(currentResult);
-	    };
-	}
-	exports.curryWithDataAndLifeTableFunctionsFunction = curryWithDataAndLifeTableFunctionsFunction;
-	function getWithDataAndGetHealthAgeFunctionReturn(currentResult) {
+	function getForRiskFactorFunction(genderEffectImpactRef) {
 	    return {
-	        getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeReturnsWithDataAndGetHealthAge(currentResult),
-	        getRiskToTime: get_risk_to_time_1.curryGetRiskToTimeReturnsWithDataAndGetHealthAge(currentResult),
-	        getHealthAge: get_health_age_1.curryGetHealthAgeReturnsWithDataAndGetHealthAgeFunction(currentResult),
-	        end: () => {
-	            return currentResult;
-	        }
+	        withRiskFactor: riskFactor => {
+	            return getGetCauseEffectFunction(genderEffectImpactRef, [
+	                riskFactor,
+	            ]);
+	        },
+	        withRiskFactors: riskFactors => {
+	            return getGetCauseEffectFunction(genderEffectImpactRef, riskFactors);
+	        },
 	    };
 	}
-	exports.getWithDataAndGetHealthAgeFunctionReturn = getWithDataAndGetHealthAgeFunctionReturn;
-	function curryWithDataAndGetHealthAgeFunction(currentResult) {
-	    return () => {
-	        return getWithDataAndGetHealthAgeFunctionReturn(currentResult);
-	    };
-	}
-	exports.curryWithDataAndGetHealthAgeFunction = curryWithDataAndGetHealthAgeFunction;
-	function getFullWithDataFunctionReturn(currentResult) {
-	    return {
-	        getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeReturnsFullWithData(currentResult),
-	        getRiskToTime: get_risk_to_time_1.curryGetRiskToTimeReturnsFullWithData(currentResult),
-	        getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyReturnsFullWithDataFunction(currentResult),
-	        getLifeYearsLost: get_life_years_lost_1.curryGetLifeYearsLostReturnsFullWithDataFunction(currentResult),
-	        getHealthAge: get_health_age_1.curryGetHealthAgeReturnsFullWithDataFunction(currentResult),
-	        end: () => {
-	            return currentResult;
-	        }
-	    };
-	}
-	exports.getFullWithDataFunctionReturn = getFullWithDataFunctionReturn;
-	function curryFullWithDataFunction(currentResult) {
-	    return () => {
-	        return getFullWithDataFunctionReturn(currentResult);
-	    };
-	}
-	exports.curryFullWithDataFunction = curryFullWithDataFunction;
-	//# sourceMappingURL=with-data.js.map
+	exports.getForRiskFactorFunction = getForRiskFactorFunction;
+	//# sourceMappingURL=cause-effect.js.map
 
 /***/ },
-/* 437 */
+/* 597 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const with_data_1 = __webpack_require__(436);
-	function curryGetSurvivalToTimeReturnsBaseWithDataFunction(currentResult) {
-	    return (time) => {
-	        time;
-	        const survivalToTime = Math.random();
-	        return with_data_1.getBaseWithDataFunctionReturn(Object.assign({}, currentResult, { survivalToTime }));
-	    };
-	}
-	exports.curryGetSurvivalToTimeReturnsBaseWithDataFunction = curryGetSurvivalToTimeReturnsBaseWithDataFunction;
-	function curryGetSurvivalToTimeReturnsWithDataAndGetHealthAge(currentResult) {
-	    return (time) => {
-	        time;
-	        const survivalToTime = Math.random();
-	        return with_data_1.getWithDataAndGetHealthAgeFunctionReturn(Object.assign({}, currentResult, { survivalToTime }));
-	    };
-	}
-	exports.curryGetSurvivalToTimeReturnsWithDataAndGetHealthAge = curryGetSurvivalToTimeReturnsWithDataAndGetHealthAge;
-	function curryGetSurvivalToTimeReturnsWithDataAndGetLifeExpectancy(currentResult) {
-	    return (time) => {
-	        time;
-	        const survivalToTime = Math.random();
-	        return with_data_1.getWithDataAndLifeTableFunctionsFunctionReturn(Object.assign({}, currentResult, { survivalToTime }));
-	    };
-	}
-	exports.curryGetSurvivalToTimeReturnsWithDataAndGetLifeExpectancy = curryGetSurvivalToTimeReturnsWithDataAndGetLifeExpectancy;
-	function curryGetSurvivalToTimeReturnsFullWithData(currentResult) {
-	    return (time) => {
-	        time;
-	        const survivalToTime = Math.random();
-	        return with_data_1.getFullWithDataFunctionReturn(Object.assign({}, currentResult, { survivalToTime }));
-	    };
-	}
-	exports.curryGetSurvivalToTimeReturnsFullWithData = curryGetSurvivalToTimeReturnsFullWithData;
-	//# sourceMappingURL=get-survival-to-time.js.map
-
-/***/ },
-/* 438 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	Object.defineProperty(exports, "__esModule", { value: true });
-	const with_data_1 = __webpack_require__(436);
-	function curryGetRiskToTimeReturnsBaseWithDataFunction(currentResult) {
-	    return (time) => {
-	        time;
-	        const riskToTime = Math.random();
-	        return with_data_1.getBaseWithDataFunctionReturn(Object.assign({}, currentResult, { riskToTime }));
-	    };
-	}
-	exports.curryGetRiskToTimeReturnsBaseWithDataFunction = curryGetRiskToTimeReturnsBaseWithDataFunction;
-	function curryGetRiskToTimeReturnsWithDataAndGetHealthAge(currentResult) {
-	    return (time) => {
-	        time;
-	        const riskToTime = Math.random();
-	        return with_data_1.getWithDataAndGetHealthAgeFunctionReturn(Object.assign({}, currentResult, { riskToTime }));
-	    };
-	}
-	exports.curryGetRiskToTimeReturnsWithDataAndGetHealthAge = curryGetRiskToTimeReturnsWithDataAndGetHealthAge;
-	function curryGetRiskToTimeReturnsWithDataAndGetLifeExpectancy(currentResult) {
-	    return (time) => {
-	        time;
-	        const riskToTime = Math.random();
-	        return with_data_1.getWithDataAndLifeTableFunctionsFunctionReturn(Object.assign({}, currentResult, { riskToTime }));
-	    };
-	}
-	exports.curryGetRiskToTimeReturnsWithDataAndGetLifeExpectancy = curryGetRiskToTimeReturnsWithDataAndGetLifeExpectancy;
-	function curryGetRiskToTimeReturnsFullWithData(currentResult) {
-	    return (time) => {
-	        time;
-	        const riskToTime = Math.random();
-	        return with_data_1.getFullWithDataFunctionReturn(Object.assign({}, currentResult, { riskToTime }));
-	    };
-	}
-	exports.curryGetRiskToTimeReturnsFullWithData = curryGetRiskToTimeReturnsFullWithData;
-	//# sourceMappingURL=get-risk-to-time.js.map
-
-/***/ },
-/* 439 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	Object.defineProperty(exports, "__esModule", { value: true });
-	const with_data_1 = __webpack_require__(436);
-	function curryGetLifeExpectancyReturnsWithDataAndLifeTablFunctions(currentResult) {
-	    return () => {
-	        const lifeExpectancy = Math.random();
-	        return with_data_1.getWithDataAndLifeTableFunctionsFunctionReturn(Object.assign({}, currentResult, { lifeExpectancy }));
-	    };
-	}
-	exports.curryGetLifeExpectancyReturnsWithDataAndLifeTablFunctions = curryGetLifeExpectancyReturnsWithDataAndLifeTablFunctions;
-	function curryGetLifeExpectancyReturnsFullWithDataFunction(currentResult) {
-	    return () => {
-	        const lifeExpectancy = Math.random();
-	        return with_data_1.getFullWithDataFunctionReturn(Object.assign({}, currentResult, { lifeExpectancy }));
-	    };
-	}
-	exports.curryGetLifeExpectancyReturnsFullWithDataFunction = curryGetLifeExpectancyReturnsFullWithDataFunction;
-	//# sourceMappingURL=get-life-expectancy.js.map
-
-/***/ },
-/* 440 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	Object.defineProperty(exports, "__esModule", { value: true });
-	const with_data_1 = __webpack_require__(436);
-	function curryGetHealthAgeReturnsWithDataAndGetHealthAgeFunction(currentResult) {
-	    return () => {
-	        const healthAge = Math.random();
-	        return with_data_1.getWithDataAndGetHealthAgeFunctionReturn(Object.assign({}, currentResult, { healthAge }));
-	    };
-	}
-	exports.curryGetHealthAgeReturnsWithDataAndGetHealthAgeFunction = curryGetHealthAgeReturnsWithDataAndGetHealthAgeFunction;
-	function curryGetHealthAgeReturnsFullWithDataFunction(currentResult) {
-	    return () => {
-	        const healthAge = Math.random();
-	        return with_data_1.getFullWithDataFunctionReturn(Object.assign({}, currentResult, { healthAge }));
-	    };
-	}
-	exports.curryGetHealthAgeReturnsFullWithDataFunction = curryGetHealthAgeReturnsFullWithDataFunction;
-	//# sourceMappingURL=get-health-age.js.map
-
-/***/ },
-/* 441 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	Object.defineProperty(exports, "__esModule", { value: true });
-	const with_data_1 = __webpack_require__(436);
-	function curryGetLifeYearsLostReturnsWithDataAndLifeTableFunction(currentResult) {
-	    return (riskFactor) => {
-	        //TODO Figure out the any
-	        const lifeYearsLost = Object.assign({}, currentResult.lifeYearsLost, { [riskFactor]: Math.random() });
-	        return with_data_1.getWithDataAndLifeTableFunctionsFunctionReturn(Object.assign({}, currentResult, { lifeYearsLost }));
-	    };
-	}
-	exports.curryGetLifeYearsLostReturnsWithDataAndLifeTableFunction = curryGetLifeYearsLostReturnsWithDataAndLifeTableFunction;
-	function curryGetLifeYearsLostReturnsFullWithDataFunction(currentResult) {
-	    return (riskFactor) => {
-	        //TODO Figure out the any
-	        const lifeYearsLost = Object.assign({}, currentResult.lifeYearsLost, { [riskFactor]: Math.random() });
-	        return with_data_1.getFullWithDataFunctionReturn(Object.assign({}, currentResult, { lifeYearsLost }));
-	    };
-	}
-	exports.curryGetLifeYearsLostReturnsFullWithDataFunction = curryGetLifeYearsLostReturnsFullWithDataFunction;
-	//# sourceMappingURL=get-life-years-lost.js.map
-
-/***/ },
-/* 442 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	Object.defineProperty(exports, "__esModule", { value: true });
-	const get_survival_to_time_1 = __webpack_require__(425);
-	const get_risk_1 = __webpack_require__(302);
-	const add_life_table_1 = __webpack_require__(426);
-	const get_life_expectancy_1 = __webpack_require__(427);
-	const get_life_years_lost_1 = __webpack_require__(429);
-	const add_ref_pop_1 = __webpack_require__(432);
-	const to_json_1 = __webpack_require__(431);
-	const algorithm_evaluator_1 = __webpack_require__(435);
-	const get_health_age_1 = __webpack_require__(433);
-	function curryBaseAddAlgorithmFunction(cox, coxJson) {
-	    return (addedCox) => {
-	        addedCox;
-	        return {
-	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
-	            getRisk: get_risk_1.curryGetRiskFunction(cox),
-	            addLifeTable: add_life_table_1.curryAddLifeTableFunctionWithAddRefPop(cox, coxJson),
-	            addRefPop: add_ref_pop_1.curryAddRefPopWithAddLifeTable(cox, coxJson),
-	            toJson: to_json_1.curryToJsonFunction(coxJson),
-	            withData: algorithm_evaluator_1.curryBaseWithDataFunction({})
-	        };
-	    };
-	}
-	exports.curryBaseAddAlgorithmFunction = curryBaseAddAlgorithmFunction;
-	function curryAddAlgorithmWithLifeTableFunctionsFunction(cox, refLifeTable, coxJson) {
-	    return (addedCox) => {
-	        addedCox;
-	        return {
-	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
-	            getRisk: get_risk_1.curryGetRiskFunction(cox),
-	            getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyFunction(cox, refLifeTable),
-	            getLifeYearsLost: get_life_years_lost_1.curryGetLifeYearsLostFunction(coxJson.causeDeletedRef, refLifeTable),
-	            addRefPop: add_ref_pop_1.curryAddRefPopWithGetLifeExpectancy(cox, coxJson, refLifeTable),
-	            toJson: to_json_1.curryToJsonFunction(coxJson),
-	            withData: algorithm_evaluator_1.curryWithDataAndLifeTableFunctionsFunction({})
-	        };
-	    };
-	}
-	exports.curryAddAlgorithmWithLifeTableFunctionsFunction = curryAddAlgorithmWithLifeTableFunctionsFunction;
-	function curryAddAlgorithmReturnsGetHealthAgeFunction(cox, coxJson, refPop) {
-	    return (addedCox) => {
-	        addedCox;
-	        return {
-	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
-	            getRisk: get_risk_1.curryGetRiskFunction(cox),
-	            addLifeTable: add_life_table_1.curryAddLifeTableFunctionWithGetHealthAge(cox, coxJson, refPop),
-	            getHealthAge: get_health_age_1.curryGetHeathAgeFunction(refPop),
-	            toJson: to_json_1.curryToJsonFunction(coxJson),
-	            withData: algorithm_evaluator_1.curryWithDataAndGetHealthAgeFunction({})
-	        };
-	    };
-	}
-	exports.curryAddAlgorithmReturnsGetHealthAgeFunction = curryAddAlgorithmReturnsGetHealthAgeFunction;
-	function curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions(cox, coxJson, refPop, refLifeTable) {
-	    return () => {
-	        return {
-	            getSurvivalToTime: get_survival_to_time_1.curryGetSurvivalToTimeFunction(cox),
-	            getRisk: get_risk_1.curryGetRiskFunction(cox),
-	            getHealthAge: get_health_age_1.curryGetHeathAgeFunction(refPop),
-	            getLifeExpectancy: get_life_expectancy_1.curryGetLifeExpectancyFunction(cox, refLifeTable),
-	            getLifeYearsLost: get_life_years_lost_1.curryGetLifeYearsLostFunction(coxJson.causeDeletedRef, refLifeTable),
-	            toJson: to_json_1.curryToJsonFunction(coxJson),
-	            withData: algorithm_evaluator_1.curryFullWithDataFunction({})
-	        };
-	    };
-	}
-	exports.curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions = curryAddAlgorithmWithGetHealthAgeAndLifeTableFunctions;
-	//# sourceMappingURL=add-algorithm.js.map
-
-/***/ },
-/* 443 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	Object.defineProperty(exports, "__esModule", { value: true });
-	const covariate_1 = __webpack_require__(444);
-	function parseCoxJsonToCox(coxJson) {
-	    return Object.assign({}, coxJson, {
-	        covariates: coxJson.covariates.map((covariateJson) => {
-	            return covariate_1.parseCovariateJsonToCovariate(covariateJson, coxJson.covariates, coxJson.derivedFields);
-	        })
-	    });
-	}
-	exports.parseCoxJsonToCox = parseCoxJsonToCox;
-	//# sourceMappingURL=cox.js.map
-
-/***/ },
-/* 444 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	Object.defineProperty(exports, "__esModule", { value: true });
-	const derived_field_1 = __webpack_require__(445);
-	const field_types_1 = __webpack_require__(305);
-	const custom_function_1 = __webpack_require__(446);
-	function findCovariateJsonWithName(covariateJsons, name) {
-	    return covariateJsons
-	        .find(covariateJson => covariateJson.name === name);
-	}
-	exports.findCovariateJsonWithName = findCovariateJsonWithName;
-	function parseCovariateJsonToCovariate(covariateJson, covariateJsons, derivedFieldJsons) {
-	    const derivedFieldJsonForCovariateJson = derived_field_1.findDerivedFieldJsonWithName(derivedFieldJsons, covariateJson.name);
-	    const parsedDerivedField = derivedFieldJsonForCovariateJson ? derived_field_1.parseDerivedFieldJsonToDerivedField(derivedFieldJsonForCovariateJson, derivedFieldJsons, covariateJsons) : undefined;
-	    const parsedCustomFunction = covariateJson.customFunction ? custom_function_1.parseCustomFunctionJsonToCustomFunction(covariateJson.customFunction, covariateJsons, derivedFieldJsons) : undefined;
-	    if (covariateJson.fieldType === field_types_1.FieldTypes.InteractionCovariate) {
-	        if (!parsedDerivedField) {
-	            throw new Error();
-	        }
-	        else {
-	            return Object.assign({}, covariateJson, {
-	                derivedField: parsedDerivedField,
-	                customFunction: parsedCustomFunction
-	            });
-	        }
+	const data_1 = __webpack_require__(311);
+	const errors_1 = __webpack_require__(316);
+	function getCauseEffectRefForData(genderCauseEffectRef, data) {
+	    const sexDatum = data_1.findDatumWithName('sex', data);
+	    const causeEffectRefFound = genderCauseEffectRef[sexDatum.coefficent];
+	    if (!causeEffectRefFound) {
+	        throw new errors_1.NoCauseEffectRefFound(sexDatum.coefficent);
 	    }
-	    else {
-	        return Object.assign({}, covariateJson, {
-	            derivedField: parsedDerivedField,
-	            customFunction: parsedCustomFunction
-	        });
-	    }
+	    return causeEffectRefFound;
 	}
-	exports.parseCovariateJsonToCovariate = parseCovariateJsonToCovariate;
-	//# sourceMappingURL=covariate.js.map
-
-/***/ },
-/* 445 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	Object.defineProperty(exports, "__esModule", { value: true });
-	const covariate_1 = __webpack_require__(444);
-	function findDerivedFieldJsonWithName(derivedFieldJsons, name) {
-	    return derivedFieldJsons
-	        .find(derivedFieldJson => derivedFieldJson.name === name);
+	exports.getCauseEffectRefForData = getCauseEffectRefForData;
+	function getCauseEffectDataForRiskFactors(riskFactors, causeEffectRef) {
+	    return riskFactors
+	        .map(riskFactor => {
+	        return causeEffectRef[riskFactor];
+	    })
+	        .reduce((currentCauseEffectRefData, causeEffectRefData) => {
+	        return currentCauseEffectRefData.concat(causeEffectRefData);
+	    }, []);
 	}
-	exports.findDerivedFieldJsonWithName = findDerivedFieldJsonWithName;
-	function parseDerivedFromJsonToDerivedFrom(derivedFromJson, derivedFieldJsons, covariatesJson) {
-	    return derivedFromJson
-	        .map((derivedFromJsonItem) => {
-	        if (typeof derivedFromJsonItem === 'string') {
-	            const covariateJsonForCurrentDerivedFromItem = covariate_1.findCovariateJsonWithName(covariatesJson, derivedFromJsonItem);
-	            const derivedFieldJsonForCurrentDerivedFromItem = findDerivedFieldJsonWithName(derivedFieldJsons, derivedFromJsonItem);
-	            if (covariateJsonForCurrentDerivedFromItem) {
-	                return covariate_1.parseCovariateJsonToCovariate(covariateJsonForCurrentDerivedFromItem, covariatesJson, derivedFieldJsons);
-	            }
-	            else if (derivedFieldJsonForCurrentDerivedFromItem) {
-	                return parseDerivedFieldJsonToDerivedField(derivedFieldJsonForCurrentDerivedFromItem, derivedFieldJsons, covariatesJson);
-	            }
-	            else {
-	                throw new Error();
-	            }
-	        }
-	        else {
-	            return derivedFromJsonItem;
-	        }
-	    });
-	}
-	exports.parseDerivedFromJsonToDerivedFrom = parseDerivedFromJsonToDerivedFrom;
-	function parseDerivedFieldJsonToDerivedField(derivedFieldJson, derivedFieldJsons, covariateJsons) {
-	    return Object.assign({}, derivedFieldJson, {
-	        derivedFrom: parseDerivedFromJsonToDerivedFrom(derivedFieldJson.derivedFrom, derivedFieldJsons, covariateJsons)
-	    });
-	}
-	exports.parseDerivedFieldJsonToDerivedField = parseDerivedFieldJsonToDerivedField;
-	//# sourceMappingURL=derived-field.js.map
-
-/***/ },
-/* 446 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	Object.defineProperty(exports, "__esModule", { value: true });
-	const rcs_custom_function_1 = __webpack_require__(447);
-	const custom_function_types_1 = __webpack_require__(448);
-	function parseCustomFunctionJsonToCustomFunction(customFunctionJson, covariateJsons, derivedFieldJsons) {
-	    if (customFunctionJson.customFunctionType === custom_function_types_1.CustomFunctionTypes.RcsCustomFunction) {
-	        return rcs_custom_function_1.parseRcsCustomFunctionJsonToRcsCustomFunction(customFunctionJson, covariateJsons, derivedFieldJsons);
-	    }
-	    else {
-	        throw new Error(`Unknown custom function type`);
-	    }
-	}
-	exports.parseCustomFunctionJsonToCustomFunction = parseCustomFunctionJsonToCustomFunction;
-	//# sourceMappingURL=custom-function.js.map
-
-/***/ },
-/* 447 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	Object.defineProperty(exports, "__esModule", { value: true });
-	const covariate_1 = __webpack_require__(444);
-	function parseRcsCustomFunctionJsonToRcsCustomFunction(rcsCustomFunctionJson, covariateJsons, derivedFieldJsons) {
-	    const firstVariableCovariate = covariate_1.findCovariateJsonWithName(covariateJsons, rcsCustomFunctionJson.firstVariableCovariate);
-	    if (!firstVariableCovariate) {
-	        throw new Error(``);
-	    }
-	    return Object.assign({}, rcsCustomFunctionJson, {
-	        firstVariableCovariate: covariate_1.parseCovariateJsonToCovariate(firstVariableCovariate, covariateJsons, derivedFieldJsons)
-	    });
-	}
-	exports.parseRcsCustomFunctionJsonToRcsCustomFunction = parseRcsCustomFunctionJsonToRcsCustomFunction;
-	//# sourceMappingURL=rcs-custom-function.js.map
-
-/***/ },
-/* 448 */
-/***/ function(module, exports) {
-
-	"use strict";
-	Object.defineProperty(exports, "__esModule", { value: true });
-	var CustomFunctionTypes;
-	(function (CustomFunctionTypes) {
-	    CustomFunctionTypes[CustomFunctionTypes["RcsCustomFunction"] = 0] = "RcsCustomFunction";
-	})(CustomFunctionTypes = exports.CustomFunctionTypes || (exports.CustomFunctionTypes = {}));
-	//# sourceMappingURL=custom-function-types.js.map
+	exports.getCauseEffectDataForRiskFactors = getCauseEffectDataForRiskFactors;
+	//# sourceMappingURL=gender-cause-effect-ref.js.map
 
 /***/ }
 /******/ ])

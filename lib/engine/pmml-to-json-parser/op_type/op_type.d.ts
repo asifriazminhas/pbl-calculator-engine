@@ -1,5 +1,5 @@
-import { OpTypes } from '../../common/op-types';
-import { GenericField } from '../../common/generic-types';
+import { OpType } from '../../op-type';
+import { Field } from '../../field';
 import { IDataField } from '../../pmml';
-export declare function addCategoricalOrContinuousFields<T extends GenericField>(field: T, dataFieldNode: IDataField): T;
-export declare function getOpTypeFromPmmlOpType(opType: string): OpTypes;
+export declare function addCategoricalOrContinuousFields<T extends Field>(field: T, dataFieldNode: IDataField): T;
+export declare function getOpTypeFromPmmlOpType(opType: string): OpType;

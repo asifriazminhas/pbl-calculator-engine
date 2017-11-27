@@ -20,4 +20,4 @@ export interface BaseDataField {
     Recommended: string;
     betacoefficent: string;
 }
-export declare function transformPhiatDictionaryToPmml(phiatCsvString: string, webSpecificationsCategories: string, gender: 'Male' | 'Female' | 'both', addMeans: boolean, addBetas: boolean, baselineHazard: number): string;
+export declare function transformPhiatDictionaryToPmml(algorithmName: string, phiatCsvString: string, webSpecificationsCategories: string, gender: 'Male' | 'Female' | 'both', addMeans: boolean, addBetas: boolean, baseline: number): string;

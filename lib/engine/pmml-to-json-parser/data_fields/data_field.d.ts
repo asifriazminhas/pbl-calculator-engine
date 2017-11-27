@@ -1,3 +1,3 @@
-import { GenericField } from '../../common/generic-types';
+import { Field } from '../../field';
 import { IDataField } from '../../pmml';
-export declare function parseDataFieldFromDataFieldPmmlNode(dataFieldNode: IDataField): GenericField;
+export declare function parseDataFieldFromDataFieldPmmlNode(dataFieldNode: IDataField): Field;
