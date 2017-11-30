@@ -7,18 +7,24 @@ import {
 } from '../engine/cox/bins';
 // tslint:disable-next-line
 const csvParse = require('csv-parse/lib/sync');
-import * as path from 'path';
 import * as fs from 'fs';
 import { expect } from 'chai';
 import { throwErrorIfUndefined } from '../engine/undefined/undefined';
 import { TestAssetsDirPath } from './constants';
+import { ICoxWithBins, getRiskToTimeForCoxWithBins } from '../engine/cox/cox';
+import { AlgorithmType } from '../engine/algorithm/algorithm-type';
+import { TimeMetric } from '../engine/cox/time-metric';
+const binsLookupCsvString = fs.readFileSync(
+    `${TestAssetsDirPath}/bins/bins-lookup.csv`,
+    'utf8',
+);
+const binsDataCsvString = fs.readFileSync(
+    `${TestAssetsDirPath}/bins/bins-data.csv`,
+    'utf8',
+);
+import * as moment from 'moment';
 
 test(`convertBinsLookupCsvToBinsLookup function`, t => {
-    const binsLookupCsvString = fs.readFileSync(
-        `${TestAssetsDirPath}/bins/bins-lookup.csv`,
-        'utf8',
-    );
-
     const binsLookupCsv: BinsLookupCsv = csvParse(binsLookupCsvString, {
         columns: true,
     });
@@ -57,10 +63,6 @@ test(`convertBinsLookupCsvToBinsLookup function`, t => {
 });
 
 test(`convertBinsDataCsvToBinsData function`, t => {
-    const binsDataCsvString = fs.readFileSync(
-        `${TestAssetsDirPath}/bins/bins-data.csv`,
-        'utf8',
-    );
     const binsDataCsv: BinsDataCsv = csvParse(binsDataCsvString, {
         columns: true,
     });
@@ -96,6 +98,39 @@ test(`convertBinsDataCsvToBinsData function`, t => {
         });
     });
     t.pass(`Bins data object has the same data as csv`);
+
+    t.end();
+});
+
+test(`getRiskToTimeForBins function`, t => {
+    const binsData = convertBinsDataCsvToBinsData(binsDataCsvString);
+
+    const coxWithBins: ICoxWithBins = {
+        binsLookup: convertBinsLookupCsvToBinsLookup(binsLookupCsvString),
+        binsData,
+        algorithmType: AlgorithmType.Cox,
+        name: '',
+        version: '',
+        description: '',
+        // No covariates meaning that the score will be zero
+        covariates: [],
+        // Since score is zero the calculated risk for the cox model will be the baseline
+        baseline: 0.6,
+        userFunctions: {},
+        timeMetric: TimeMetric.Days,
+    };
+
+    const DaysAdded = 50;
+
+    const time = moment();
+    time.add(DaysAdded, 'days');
+
+    const expectedRisk = 70;
+
+    expect(expectedRisk).to.equal(
+        getRiskToTimeForCoxWithBins(coxWithBins, [], time),
+    );
+    t.pass(`Expected risk equals calculated risk`);
 
     t.end();
 });

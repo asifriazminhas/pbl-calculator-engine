@@ -1,6 +1,3 @@
-import { IAlgorithmJson } from '../algorithm';
-import { AlgorithmType } from '../algorithm/algorithm-type';
+import { IBaseCox } from './base-cox';
 
-export interface ICoxJson extends IAlgorithmJson {
-    algorithmType: AlgorithmType.Cox;
-}
+export interface ICoxJson extends IBaseCox {}

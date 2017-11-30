@@ -6,3 +6,4 @@ export {
 export { UnknownRegressionType } from './unknown-regression-type';
 export { NoLifeTableFoundError } from './no-life-table-found-error';
 export { NoDatumFoundError } from './no-datum-found-error';
+export { NoBinFoundError } from './no-bin-found-error';
