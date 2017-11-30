@@ -121,16 +121,26 @@ test.only(`getRiskToTimeForBins function`, t => {
     };
 
     const DaysAdded = 50;
+    const timeOne = moment();
+    timeOne.add(DaysAdded, 'days');
+    const expectedRiskOne = 1 - 0.7;
 
-    const time = moment();
-    time.add(DaysAdded, 'days');
-
-    const expectedRisk = 0.7;
-
-    expect(expectedRisk).to.equal(
-        getRiskToTimeForCoxWithBins(coxWithBins, [], time),
+    expect(expectedRiskOne).to.equal(
+        getRiskToTimeForCoxWithBins(coxWithBins, [], timeOne),
     );
-    t.pass(`Expected risk equals calculated risk`);
+    t.pass(`Expected risk equals calculated risk for simple case`);
+
+    // For testing days after everybody has died in that group
+    const NumOfDaysAfterWhichEveryoneIsDead = 1799;
+    const timeTwo = moment();
+    timeTwo.add(NumOfDaysAfterWhichEveryoneIsDead, 'days');
+    const expectedRiskTwo = 1;
+    expect(expectedRiskTwo).to.equal(
+        getRiskToTimeForCoxWithBins(coxWithBins, [], timeTwo),
+    );
+    t.pass(
+        `Expected risk equals calculated risk for case where time is after everyone has died`,
+    );
 
     t.end();
 });

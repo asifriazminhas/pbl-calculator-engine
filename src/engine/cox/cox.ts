@@ -118,8 +118,15 @@ export function getRiskToTimeForCoxWithBins(
             timeDifference,
         );
 
-    // Return the percent as the risk
-    return (percents[indexOfClosestValue] as number) / 100;
+    if (
+        (binData[percents[indexOfClosestValue]] as number) < timeDifference &&
+        isUndefined(binData[percents[indexOfClosestValue - 1]])
+    ) {
+        return 1;
+    }
+
+    // Return the percent as the risk. Do a minus one since the bins data has survival
+    return 1 - (percents[indexOfClosestValue] as number) / 100;
 }
 
 export function getRiskToTime(
