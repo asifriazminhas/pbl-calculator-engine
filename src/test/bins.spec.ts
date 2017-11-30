@@ -102,7 +102,7 @@ test(`convertBinsDataCsvToBinsData function`, t => {
     t.end();
 });
 
-test.only(`getRiskToTimeForBins function`, t => {
+test(`getRiskToTimeForBins function`, t => {
     const binsData = convertBinsDataCsvToBinsData(binsDataCsvString);
 
     const coxWithBins: ICoxWithBins = {
