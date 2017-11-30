@@ -102,7 +102,7 @@ test(`convertBinsDataCsvToBinsData function`, t => {
     t.end();
 });
 
-test(`getRiskToTimeForBins function`, t => {
+test.only(`getRiskToTimeForBins function`, t => {
     const binsData = convertBinsDataCsvToBinsData(binsDataCsvString);
 
     const coxWithBins: ICoxWithBins = {
@@ -125,7 +125,7 @@ test(`getRiskToTimeForBins function`, t => {
     const time = moment();
     time.add(DaysAdded, 'days');
 
-    const expectedRisk = 70;
+    const expectedRisk = 0.7;
 
     expect(expectedRisk).to.equal(
         getRiskToTimeForCoxWithBins(coxWithBins, [], time),

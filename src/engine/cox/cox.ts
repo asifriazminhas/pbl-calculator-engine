@@ -119,7 +119,7 @@ export function getRiskToTimeForCoxWithBins(
         );
 
     // Return the percent as the risk
-    return percents[indexOfClosestValue] as number;
+    return (percents[indexOfClosestValue] as number) / 100;
 }
 
 export function getRiskToTime(
