@@ -23,7 +23,7 @@ export function calculateScore(algorithm: Algorithm, data: Data): number {
         .map(covariate =>
             getComponent(covariate, data, algorithm.userFunctions),
         )
-        .reduce(add);
+        .reduce(add, 0);
 }
 
 export function getBaselineForData(algorithm: Algorithm, data: Data): number {
