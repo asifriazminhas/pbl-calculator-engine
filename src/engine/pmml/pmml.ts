@@ -16,7 +16,7 @@ export interface IPmml {
     DataDictionary: IDataDictionary;
     LocalTransformations: ILocalTransformations;
     GeneralRegressionModel: IGeneralRegressionModel;
-    Taxonomy: ITaxonomy[] | ITaxonomy;
+    Taxonomy?: ITaxonomy[] | ITaxonomy;
 }
 
 export interface ICustomPmml extends IPmml {

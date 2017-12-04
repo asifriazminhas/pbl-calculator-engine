@@ -13,6 +13,7 @@ import { Predicate } from '../multiple-algorithm-model';
 import { AlgorithmType } from '../algorithm';
 import { UnknownRegressionType } from '../errors';
 import { AlgorithmJsonTypes } from '../algorithm/algorithm-json-types';
+import { parseTaxonomy } from './taxonomy';
 
 function getAlgorithmTypeFromGeneralRegressionModel(
     generalRegressionModel: IGeneralRegressionModel,
@@ -62,7 +63,7 @@ async function pmmlStringsToJson(
             }, {}),
         // TODO Fix this
         causeDeletedRef: null,
-        tables: {},
+        tables: parseTaxonomy(pmml.pmmlXml.PMML.Taxonomy),
     };
 
     // parseFromAlgorithmJson(parsedAlgorithm);

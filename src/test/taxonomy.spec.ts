@@ -64,5 +64,8 @@ test(`Testing parsing PMML Taxonomy`, async t => {
     ]);
     t.pass(`Table values are correctly set`);
 
+    expect(parseTaxonomy(undefined)).to.eql({});
+    t.pass(`Empty obnject returned when taxonomy is undefined`);
+
     t.end();
 });
