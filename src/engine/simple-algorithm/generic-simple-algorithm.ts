@@ -1,9 +1,7 @@
 import { IGenericAlgorithm, AlgorithmType } from '../algorithm';
-import { DerivedField, DerivedFieldJson } from '../derived-field';
+import { DerivedField } from '../derived-field';
 
-export interface IGenericSimpleAlgorithm<
-    T,
-    U extends DerivedField | DerivedFieldJson
-> extends IGenericAlgorithm<T, AlgorithmType.SimpleAlgorithm> {
-    derivedFields: U[];
+export interface IGenericSimpleAlgorithm<T, V extends string | DerivedField>
+    extends IGenericAlgorithm<T, AlgorithmType.SimpleAlgorithm> {
+    output: V;
 }
