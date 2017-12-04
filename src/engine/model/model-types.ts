@@ -12,13 +12,17 @@ import {
 import { Data } from '../data';
 import { ModelType } from './model-type';
 import { Algorithm } from '../algorithm';
+import { AlgorithmTypes } from '../algorithm/algorithm-types';
+import { RegressionAlgorithmTypes } from '../regression-algorithm/regression-algorithm-types';
 
-export type ModelTypes = SingleAlgorithmModel | MultipleAlgorithmModel;
+export type ModelTypes<U extends AlgorithmTypes = AlgorithmTypes> =
+    | SingleAlgorithmModel<U>
+    | MultipleAlgorithmModel<U>;
 
 export function getAlgorithmForModelAndData(
     model: ModelTypes,
     data: Data,
-): Algorithm {
+): Algorithm<any> {
     if (model.modelType === ModelType.SingleAlgorithm) {
         return model.algorithm;
     } else {
@@ -27,12 +31,12 @@ export function getAlgorithmForModelAndData(
 }
 
 export function updateBaselineForModel(
-    model: ModelTypes,
+    model: ModelTypes<RegressionAlgorithmTypes>,
     newBaseline:
         | number
         | SingleAlgorithmModelNewBaseline
         | MultipleAlgorithmModelNewBaseline,
-): ModelTypes {
+): ModelTypes<RegressionAlgorithmTypes> {
     if (model.modelType === ModelType.SingleAlgorithm) {
         return updateBaselineForSingleAlgorithmModel(
             model,

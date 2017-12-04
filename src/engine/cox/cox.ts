@@ -2,13 +2,18 @@ import { IBaseCox } from './base-cox';
 import { Data } from '../data';
 import { shouldLogDebugInfo } from '../env';
 import * as moment from 'moment';
-import { calculateScore, getBaselineForData } from '../algorithm';
 import { BinsLookup, IBinsData } from './bins';
 import { throwErrorIfUndefined } from '../undefined';
 import { sortedIndex, isUndefined } from 'lodash';
 import { NoBinFoundError } from '../errors';
+import { AlgorithmType } from '../algorithm/algorithm-type';
+import {
+    getBaselineForData,
+    IRegressionAlgorithm,
+    calculateScore,
+} from '../regression-algorithm/regression-algorithm';
 
-export interface Cox extends IBaseCox {
+export interface Cox extends IBaseCox, IRegressionAlgorithm<AlgorithmType.Cox> {
     binsLookup?: BinsLookup;
     binsData?: IBinsData;
 }

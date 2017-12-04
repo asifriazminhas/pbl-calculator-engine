@@ -1,12 +1,13 @@
-import {
-    Algorithm,
-    AlgorithmType,
-    calculateScore,
-    getBaselineForData,
-} from '../algorithm';
+import { AlgorithmType } from '../algorithm';
 import { Data } from '../data';
+import {
+    calculateScore,
+    IRegressionAlgorithm,
+    getBaselineForData,
+} from '../regression-algorithm/regression-algorithm';
 
-export interface ILogisticRegression extends Algorithm {
+export interface ILogisticRegression
+    extends IRegressionAlgorithm<AlgorithmType.LogisticRegression> {
     algorithmType: AlgorithmType.LogisticRegression;
 }
 

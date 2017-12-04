@@ -10,8 +10,9 @@ import {
 import { parseDefineFunction } from './define-function/define-function';
 import { JsonModelTypes, ModelType } from '../model';
 import { Predicate } from '../multiple-algorithm-model';
-import { IAlgorithmJson, AlgorithmType } from '../algorithm';
+import { AlgorithmType } from '../algorithm';
 import { UnknownRegressionType } from '../errors';
+import { AlgorithmJsonTypes } from '../algorithm/algorithm-json-types';
 
 function getAlgorithmTypeFromGeneralRegressionModel(
     generalRegressionModel: IGeneralRegressionModel,
@@ -35,7 +36,7 @@ function parseBaselineFromPmmlXml(pmml: Pmml): number {
 
 async function pmmlStringsToJson(
     pmmlXmlStrings: string[],
-): Promise<IAlgorithmJson> {
+): Promise<AlgorithmJsonTypes> {
     const pmml = await PmmlParser.parsePmmlFromPmmlXmlStrings(pmmlXmlStrings);
 
     const allDefineFunctionNames = pmml.pmmlXml.PMML.LocalTransformations.DefineFunction.map(
@@ -61,11 +62,12 @@ async function pmmlStringsToJson(
             }, {}),
         // TODO Fix this
         causeDeletedRef: null,
+        tables: {},
     };
 
     // parseFromAlgorithmJson(parsedAlgorithm);
 
-    return parsedAlgorithm;
+    return parsedAlgorithm as AlgorithmJsonTypes;
 }
 
 export async function pmmlXmlStringsToJson(

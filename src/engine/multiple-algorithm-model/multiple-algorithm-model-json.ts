@@ -2,15 +2,16 @@ import { GenericMultipleAlgorithmModel } from './generic-multiple-algorithm-mode
 import { IAlgorithmJson } from '../algorithm';
 import { Data } from '../data';
 import { getPredicateResult } from './predicate';
+import { AlgorithmJsonTypes } from '../algorithm/algorithm-json-types';
 
-export type MultipleAlgorithmModelJson = GenericMultipleAlgorithmModel<
-    IAlgorithmJson
->;
+export type MultipleAlgorithmModelJson<
+    U extends AlgorithmJsonTypes = AlgorithmJsonTypes
+> = GenericMultipleAlgorithmModel<U>;
 
 export function getAlgorithmJsonForData(
     multipleAlgorithmModel: MultipleAlgorithmModelJson,
     data: Data,
-): IAlgorithmJson {
+): IAlgorithmJson<any> {
     const matchedAlgorithm = multipleAlgorithmModel.algorithms.find(
         algorithmWithPredicate => {
             return getPredicateResult(data, algorithmWithPredicate.predicate);

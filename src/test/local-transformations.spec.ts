@@ -16,14 +16,18 @@ import { getAlgorithmForData } from '../engine/multiple-algorithm-model';
 const csvParse = require('csv-parse/lib/sync');
 import { Cox } from '../engine/cox/cox';
 import { expect } from 'chai';
+import { RegressionAlgorithmTypes } from '../engine/regression-algorithm/regression-algorithm-types';
 
 const TestAssetsFolderPath = path.join(__dirname, '../../assets/test');
 const TestAlgorithmsFolderPath = `${TestAssetsFolderPath}/algorithms`;
 const TransformationsTestingDataFolderPath = `${TestAssetsFolderPath}/local-transformations`;
 
-function getAlgorithmNamesToTest(): string[] {
+function getAlgorithmNamesToTest(excludeAlgorithms: string[]): string[] {
     return fs
         .readdirSync(TestAlgorithmsFolderPath)
+        .filter(
+            algorithmName => excludeAlgorithms.indexOf(algorithmName) === -1,
+        )
         .filter(algorithmName => algorithmName !== '.DS_Store');
 }
 
@@ -158,21 +162,25 @@ function testLocalTransformationsForModel(
                 columns: true,
             },
         );
-        model.algorithm.covariates.forEach(covariate => {
-            const { inputData, expectedOutputs } = getTestingDataForCovariate(
-                covariate,
-                testingCsvData,
-            );
+        (model.algorithm as RegressionAlgorithmTypes).covariates.forEach(
+            covariate => {
+                const {
+                    inputData,
+                    expectedOutputs,
+                } = getTestingDataForCovariate(covariate, testingCsvData);
 
-            testCovariateTransformations(
-                covariate,
-                inputData,
-                expectedOutputs,
-                model.algorithm.userFunctions,
-            );
+                testCovariateTransformations(
+                    covariate,
+                    inputData,
+                    expectedOutputs,
+                    model.algorithm.userFunctions,
+                );
 
-            t.pass(`Testing transformations for covariate ${covariate.name}`);
-        });
+                t.pass(
+                    `Testing transformations for covariate ${covariate.name}`,
+                );
+            },
+        );
     } else if (model.modelType === ModelType.MultipleAlgorithm) {
         const genders = ['male', 'female'];
 
@@ -193,23 +201,25 @@ function testLocalTransformationsForModel(
                 },
             ]);
 
-            algorithmForCurrentGender.covariates.forEach(covariate => {
-                const {
-                    inputData,
-                    expectedOutputs,
-                } = getTestingDataForCovariate(covariate, testingCsvData);
+            (algorithmForCurrentGender as RegressionAlgorithmTypes).covariates.forEach(
+                covariate => {
+                    const {
+                        inputData,
+                        expectedOutputs,
+                    } = getTestingDataForCovariate(covariate, testingCsvData);
 
-                testCovariateTransformations(
-                    covariate,
-                    inputData,
-                    expectedOutputs,
-                    algorithmForCurrentGender.userFunctions,
-                );
+                    testCovariateTransformations(
+                        covariate,
+                        inputData,
+                        expectedOutputs,
+                        algorithmForCurrentGender.userFunctions,
+                    );
 
-                t.pass(
-                    `Testing transformations for covariate ${covariate.name}`,
-                );
-            });
+                    t.pass(
+                        `Testing transformations for covariate ${covariate.name}`,
+                    );
+                },
+            );
         });
     }
 
@@ -217,7 +227,7 @@ function testLocalTransformationsForModel(
 }
 
 test(`Testing local transformations`, async function(t) {
-    const namesOfAlgorithmsToTest = getAlgorithmNamesToTest();
+    const namesOfAlgorithmsToTest = getAlgorithmNamesToTest(['Sodium']);
     const models = await Promise.all(
         namesOfAlgorithmsToTest.map(algorithmName => {
             return getModelObjFromAlgorithmName(algorithmName);

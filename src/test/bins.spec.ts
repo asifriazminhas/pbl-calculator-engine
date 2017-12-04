@@ -118,6 +118,7 @@ test(`getRiskToTimeForBins function`, t => {
         baseline: 0.6,
         userFunctions: {},
         timeMetric: TimeMetric.Days,
+        tables: {},
     };
 
     const DaysAdded = 50;

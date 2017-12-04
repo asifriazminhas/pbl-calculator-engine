@@ -8,20 +8,20 @@ import {
 // @ts-ignore
 import { Data, IDatum } from '../data';
 import { getRiskToTime, getSurvivalToTime, Cox } from '../cox';
+import * as moment from 'moment';
 import {
     INewPredictorTypes,
     addPredictor,
     IBaselineObject,
-} from '../algorithm';
-import * as moment from 'moment';
+} from '../regression-algorithm/regression-algorithm';
 
 export type CalibrationObjects = Array<{ age: number; baseline: number }>;
 
 export class SurvivalModelFunctions {
-    private model: ModelTypes;
+    private model: ModelTypes<Cox>;
     private modelJson: JsonModelTypes;
 
-    constructor(model: ModelTypes, modelJson: JsonModelTypes) {
+    constructor(model: ModelTypes<Cox>, modelJson: JsonModelTypes) {
         this.model = model;
         this.modelJson = modelJson;
     }
@@ -44,7 +44,10 @@ export class SurvivalModelFunctions {
         if (this.model.modelType === ModelType.SingleAlgorithm) {
             return new SurvivalModelFunctions(
                 Object.assign({}, this.model, {
-                    algorithm: addPredictor(this.model.algorithm, newPredictor),
+                    algorithm: addPredictor(
+                        this.model.algorithm as Cox,
+                        newPredictor,
+                    ),
                 }),
                 this.modelJson,
             );
@@ -54,7 +57,7 @@ export class SurvivalModelFunctions {
                     algorithms: this.model.algorithms.map(algorithm => {
                         return Object.assign({}, algorithm, {
                             algorithms: addPredictor(
-                                algorithm.algorithm,
+                                algorithm.algorithm as Cox,
                                 newPredictor,
                             ),
                         });
@@ -80,7 +83,7 @@ export class SurvivalModelFunctions {
                     this.convertCalibrationObjectsToBaselineObject(
                         calibrationObjects,
                     ),
-                ),
+                ) as ModelTypes<Cox>,
                 this.modelJson,
             );
         } else {
@@ -108,7 +111,7 @@ export class SurvivalModelFunctions {
                             calibrationObjects.female,
                         ),
                     },
-                ]),
+                ]) as ModelTypes<Cox>,
                 this.modelJson,
             );
         }

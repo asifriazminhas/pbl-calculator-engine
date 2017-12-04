@@ -9,19 +9,21 @@ import { IHeader } from './header/header';
 import { ICustomHeader } from './custom/header';
 import { IRestrictedCubicSpline } from './custom/restricted_cubic_spline';
 import { buildXmlFromXml2JsObject } from '../xmlbuilder';
+import { ITaxonomy } from './taxonomy';
 
 export interface IPmml {
     Header: IHeader;
     DataDictionary: IDataDictionary;
     LocalTransformations: ILocalTransformations;
     GeneralRegressionModel: IGeneralRegressionModel;
+    Taxonomy: ITaxonomy[] | ITaxonomy;
 }
 
 export interface ICustomPmml extends IPmml {
     Header: ICustomHeader;
     CustomPMML: {
-        RestrictedCubicSpline: IRestrictedCubicSpline
-    }
+        RestrictedCubicSpline: IRestrictedCubicSpline;
+    };
 }
 
 export interface ICustomPmmlXml {
@@ -34,34 +36,38 @@ export class Pmml {
     constructor(pmmlXml: ICustomPmmlXml) {
         this.pmmlXml = pmmlXml;
     }
-    
+
     findDataFieldWithName(dataFieldName: string): IDataField | undefined {
-        return this.pmmlXml.PMML.DataDictionary.DataField
-            .find(dataField => dataField.$.name === dataFieldName);
+        return this.pmmlXml.PMML.DataDictionary.DataField.find(
+            dataField => dataField.$.name === dataFieldName,
+        );
     }
 
     findParameterWithLabel(parameterLabel: string): IParameter | undefined {
-        return this.pmmlXml.PMML.GeneralRegressionModel.ParameterList.Parameter
-            .find(parameter => parameter.$.label === parameterLabel);
+        return this.pmmlXml.PMML.GeneralRegressionModel.ParameterList.Parameter.find(
+            parameter => parameter.$.label === parameterLabel,
+        );
     }
 
     findPCellWithParameterName(parameterName: string): IPCell | undefined {
-        return this.pmmlXml.PMML.GeneralRegressionModel.ParamMatrix.PCell
-            .find(pCell => pCell.$.parameterName === parameterName);
+        return this.pmmlXml.PMML.GeneralRegressionModel.ParamMatrix.PCell.find(
+            pCell => pCell.$.parameterName === parameterName,
+        );
     }
 
     findDerivedFieldWithName(
-        derivedFieldName: string
+        derivedFieldName: string,
     ): IDerivedField | undefined {
-        return this.pmmlXml.PMML.LocalTransformations.DerivedField
-            .find(derivedField => derivedField.$.name === derivedFieldName);
+        return this.pmmlXml.PMML.LocalTransformations.DerivedField.find(
+            derivedField => derivedField.$.name === derivedFieldName,
+        );
     }
 
     toString(): string {
         return buildXmlFromXml2JsObject({
-            PMML: this.pmmlXml.PMML
+            PMML: this.pmmlXml.PMML,
         }).end({
-            pretty: true
+            pretty: true,
         });
     }
 }
