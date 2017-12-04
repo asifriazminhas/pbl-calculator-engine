@@ -4,9 +4,14 @@ import {
     parseRegressionAlgorithmJson,
 } from '../regression-algorithm/regression-algorithm-json-types';
 import { AlgorithmTypes } from './algorithm-types';
-import { UnknownAlgorithmTypeError } from '../errors';
+import {
+    parseSimpleAlgorithmJsonToSimpleAlgorithm,
+    ISimpleAlgorithmJson,
+} from '../simple-algorithm';
 
-export type AlgorithmJsonTypes = RegressionAlgorithmJsonTypes;
+export type AlgorithmJsonTypes =
+    | RegressionAlgorithmJsonTypes
+    | ISimpleAlgorithmJson;
 
 export function parseAlgorithmJson(
     algorithmJson: AlgorithmJsonTypes,
@@ -14,8 +19,6 @@ export function parseAlgorithmJson(
     if (isRegressionAlgorithmJson(algorithmJson)) {
         return parseRegressionAlgorithmJson(algorithmJson);
     } else {
-        throw new UnknownAlgorithmTypeError(
-            (algorithmJson as AlgorithmJsonTypes).algorithmType,
-        );
+        return parseSimpleAlgorithmJsonToSimpleAlgorithm(algorithmJson);
     }
 }
