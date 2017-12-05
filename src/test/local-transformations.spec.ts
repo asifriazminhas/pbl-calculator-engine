@@ -125,6 +125,7 @@ function testCovariateTransformations(
             derivedField,
             currentInputData,
             userFunctions,
+            {},
         );
         let expectedOutput = expectedOutputs[index];
         let diffError: number;

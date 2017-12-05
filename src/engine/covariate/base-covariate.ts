@@ -13,7 +13,7 @@ import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficen
 // tslint:disable-next-line
 import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForDerivedField } from '../derived-field';
 import { oneLine } from 'common-tags';
-import { Cox } from '../cox';
+import { Algorithm } from '../algorithm/algorithm';
 
 export interface IBaseCovariate extends GenericBaseCovariate<Covariate> {
     derivedField: DerivedField | undefined;
@@ -22,7 +22,8 @@ export interface IBaseCovariate extends GenericBaseCovariate<Covariate> {
 export function calculateDataToCalculateCoefficent(
     covariate: IBaseCovariate,
     data: Data,
-    userDefinedFunctions: Cox['userFunctions'],
+    userDefinedFunctions: Algorithm<any>['userFunctions'],
+    tables: Algorithm<any>['tables'],
 ): Data {
     // Try to find a datum with the same name field in the data arg
     const datumFound = getDatumForField(covariate, data);
@@ -36,6 +37,7 @@ export function calculateDataToCalculateCoefficent(
                 covariate.customFunction,
                 data,
                 userDefinedFunctions,
+                tables,
             );
         } else if (covariate.derivedField) {
             // Fall back to derived field
@@ -44,14 +46,13 @@ export function calculateDataToCalculateCoefficent(
                     covariate.derivedField,
                     data,
                     userDefinedFunctions,
+                    tables,
                 );
             } catch (err) {
                 if (shouldLogWarnings()) {
-                    console.warn(
-                        oneLine`Incomplete data to calculate coefficent for
+                    console.warn(oneLine`Incomplete data to calculate coefficent for
                         data field ${covariate.name}. Setting it to reference
-                        point`,
-                    );
+                        point`);
                 }
 
                 return [datumFactory(covariate.name, covariate.referencePoint)];
@@ -59,10 +60,8 @@ export function calculateDataToCalculateCoefficent(
         } else {
             // Fall back to setting it to reference point
             if (shouldLogWarnings()) {
-                console.warn(
-                    oneLine`Incomplete data to calculate coefficent for
-                    datafield ${covariate.name}. Setting it to reference point`,
-                );
+                console.warn(oneLine`Incomplete data to calculate coefficent for
+                    datafield ${covariate.name}. Setting it to reference point`);
             }
 
             return [datumFromCovariateReferencePointFactory(covariate)];

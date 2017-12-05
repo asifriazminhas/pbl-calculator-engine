@@ -24,7 +24,12 @@ export function calculateScore(
 ): number {
     return algorithm.covariates
         .map(covariate =>
-            getComponent(covariate, data, algorithm.userFunctions),
+            getComponent(
+                covariate,
+                data,
+                algorithm.userFunctions,
+                algorithm.tables,
+            ),
         )
         .reduce(add, 0);
 }

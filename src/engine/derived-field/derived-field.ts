@@ -12,6 +12,9 @@ import { calculateCoefficent as calculateCoefficentForCovariate } from '../covar
 import { Cox } from '../cox';
 import PmmlFunctions from '../cox/pmml-functions';
 import { shouldLogDebugInfo } from '../env';
+import { Algorithm } from '../algorithm';
+import { throwErrorIfUndefined } from '../undefined';
+import { NoTableRowFoundError } from '../errors';
 
 /*
 The following 3 interfaces are important because of the following issue
@@ -30,17 +33,42 @@ export type DerivedField =
     | ICategoricalDerivedField
     | IContinuousDerivedField;
 
+function getValueFromTable(
+    table: Array<{ [index: string]: string }>,
+    outputColumn: string,
+    conditions: { [index: string]: string },
+): string {
+    const conditionTableColumns = Object.keys(conditions);
+
+    return throwErrorIfUndefined(
+        table.find(row => {
+            return conditionTableColumns.find(conditionColumn => {
+                // tslint:disable-next-line
+                return row[conditionColumn] != conditions[conditionColumn];
+            })
+                ? false
+                : true;
+        }),
+        new NoTableRowFoundError(conditions),
+    )[outputColumn];
+}
+// tslint:disable-next-line
+getValueFromTable;
+
 function evaluateEquation(
     derivedField: DerivedField,
     obj: {
         [index: string]: any;
     },
     userFunctions: Cox['userFunctions'],
+    tables: Algorithm<any>['tables'],
 ): any {
     // tslint:disable-next-line
     obj;
     // tslint:disable-next-line
     userFunctions;
+    // tslint:disable-next-line
+    tables;
 
     // tslint:disable-next-line
     let derived: any = undefined;
@@ -57,7 +85,8 @@ function evaluateEquation(
 export function calculateCoefficent(
     derivedField: DerivedField,
     data: Data,
-    userDefinedFunctions: Cox['userFunctions'],
+    userDefinedFunctions: Algorithm<any>['userFunctions'],
+    tables: Algorithm<any>['tables'],
 ): Coefficent {
     /*Check if there is a datum for this intermediate predictor. If there is then we don't need to go further*/
     const datumForCurrentDerivedField = getDatumForField(derivedField, data);
@@ -81,6 +110,7 @@ export function calculateCoefficent(
                 derivedField,
                 data,
                 userDefinedFunctions,
+                tables,
             );
         }
 
@@ -104,6 +134,7 @@ export function calculateCoefficent(
             derivedField,
             obj,
             userDefinedFunctions,
+            tables,
         );
         if (shouldLogDebugInfo()) {
             console.log(`Evaluated value: ${evaluatedValue}`);
@@ -117,6 +148,7 @@ export function calculateDataToCalculateCoefficent(
     derivedField: DerivedField,
     data: Data,
     userDefinedFunctions: Cox['userFunctions'],
+    tables: Algorithm<any>['tables'],
 ): Data {
     /*Go through each explanatory predictor and calculate the coefficent for
     each which will be used for the evaluation*/
@@ -134,6 +166,7 @@ export function calculateDataToCalculateCoefficent(
                         derivedFromItem,
                         data,
                         userDefinedFunctions,
+                        tables,
                     ),
                 );
             } else if (derivedFromItem.fieldType === FieldType.DerivedField) {
@@ -143,6 +176,7 @@ export function calculateDataToCalculateCoefficent(
                         derivedFromItem,
                         data,
                         userDefinedFunctions,
+                        tables,
                     ),
                 );
             } else {

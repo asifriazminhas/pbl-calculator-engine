@@ -5,6 +5,7 @@ import {
 import { GenericRcsCustomFunction } from './generic-custom-function';
 import { Data, IDatum } from '../data';
 import { isFieldWithName } from '../field';
+import { Algorithm } from '../algorithm';
 
 export interface RcsCustomFunction
     extends GenericRcsCustomFunction<Covariate> {}
@@ -129,9 +130,8 @@ function getDataToCalculateCoefficent(
 export function calculateDataToCalculateCoefficent(
     rcsCustomFunction: RcsCustomFunction,
     data: Data,
-    userDefinedFunctions: {
-        [index: string]: () => any;
-    },
+    userDefinedFunctions: Algorithm<any>['userFunctions'],
+    tables: Algorithm<any>['tables'],
 ): Data {
     return [
         {
@@ -140,6 +140,7 @@ export function calculateDataToCalculateCoefficent(
                 rcsCustomFunction.firstVariableCovariate,
                 data,
                 userDefinedFunctions,
+                tables,
             ),
         },
     ];
