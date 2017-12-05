@@ -3,46 +3,48 @@ import { getOpTypeFromPmmlOpType } from '../../op_type/op_type';
 import { IDerivedField, Pmml } from '../../../pmml';
 import { ExpressionStatementAST } from '../../interfaces/ast';
 import * as escodegen from 'escodegen';
-import { getASTForApply, getASTForConstant, getASTForFieldRef } from './node_parser';
+import {
+    getASTForApply,
+    getASTForConstant,
+    getASTForFieldRef,
+} from './node_parser';
 import { parseDataFieldFromDataFieldPmmlNode } from '../data_field';
 import { DataField } from '../../../data-field';
 import { FieldType } from '../../../field';
-var astTypes = require('ast-types');
+// tslint:disable-next-line
+const astTypes = require('ast-types');
 
 function getAstForDerivedField(
     derivedField: IDerivedField,
-    userDefinedFunctionNames: Array<string>
+    userDefinedFunctionNames: string[],
 ): ExpressionStatementAST {
     let right: any = null;
     if (derivedField.Apply) {
         right = getASTForApply(
-            derivedField.Apply, 
+            derivedField.Apply,
             userDefinedFunctionNames,
-            true
+            true,
         );
-    }
-    else if (derivedField.Constant) {
+    } else if (derivedField.Constant) {
         right = getASTForConstant(derivedField.Constant);
-    }
-    else if (derivedField.FieldRef) {
+    } else if (derivedField.FieldRef) {
         right = getASTForFieldRef(derivedField.FieldRef, true);
-    }
-    else {
+    } else {
         throw new Error(`Unknown root node in derived field`);
     }
 
-    //make the line of code 'var {derivedFieldName};'
-    var declarationAst = {
+    // Make the line of code 'var {derivedFieldName};'
+    const declarationAst = {
         type: 'ExpressionStatement' as 'ExpressionStatement',
         expression: {
             type: 'AssignmentExpression' as 'AssignmentExpression',
             operator: '=',
             left: {
                 type: 'Identifier' as 'Identifier',
-                name: 'derived'
+                name: 'derived',
             },
-            right
-        }
+            right,
+        },
     };
 
     return declarationAst;
@@ -50,98 +52,103 @@ function getAstForDerivedField(
 
 function getDerivedFromForAst(
     ast: ExpressionStatementAST,
-    pmml: Pmml
+    pmml: Pmml,
 ): Array<string | DataField> {
-    const derivedFrom: Array<string> = [];
+    const derivedFrom: string[] = [];
     const ObjIdentifier = 'obj';
     const IdentifiersToNotInclude = [
         'derived',
         'func',
         ObjIdentifier,
         'NA',
-        'userFunctions'
+        'userFunctions',
     ];
 
     astTypes.visit(ast, {
-        //Code like obj['age'] is a MemberExpression so to extract for example age we need to visit them
-        visitMemberExpression: function (path: any) {
-            //Check whether the AST represents accessing a property of a variable called 'obj'
+        // Code like obj['age'] is a MemberExpression so to extract for example age we need to visit them
+        visitMemberExpression(path: any) {
+            // Check whether the AST represents accessing a property of a variable called 'obj'
             if (path.node.object.name === ObjIdentifier) {
-                //The name of the field being accessed on obj
+                // The name of the field being accessed on obj
                 const objectPropertyName = path.node.property.value;
 
-                //Check whether it is NA
-                if (IdentifiersToNotInclude.indexOf(objectPropertyName) === -1) {
+                // Check whether it is NA
+                if (
+                    IdentifiersToNotInclude.indexOf(objectPropertyName) === -1
+                ) {
                     derivedFrom.push(objectPropertyName);
                 }
             }
 
             this.traverse(path);
         },
-        visitIdentifier: function (path: any) {
-            const variableName = path.node.name
+        visitIdentifier(path: any) {
+            const variableName = path.node.name;
             if (IdentifiersToNotInclude.indexOf(variableName) === -1) {
                 derivedFrom.push(variableName);
             }
 
             this.traverse(path);
-        }
+        },
     });
 
-    return derivedFrom
-        //Remove duplicates
-        .filter((derivedFromItem, index, derivedFrom) => {
-            return derivedFrom.indexOf(derivedFromItem) === index;
-        })
-        //Depending on whether we find a DerivedField for the current derivedFromItem return iteself or a DataField based on it
-        .map((derivedFromItem) => {
-            const derivedFieldForCurrentDerivedFrom = pmml
-                .findDerivedFieldWithName(derivedFromItem);
+    return (
+        derivedFrom
+            // Remove duplicates
+            .filter((derivedFromItem, index, currentDerivedFrom) => {
+                return currentDerivedFrom.indexOf(derivedFromItem) === index;
+            })
+            /* Depending on whether we find a DerivedField for the current
+            derivedFromItem return iteself or a DataField based on it */
+            .map(derivedFromItem => {
+                const derivedFieldForCurrentDerivedFrom = pmml.findDerivedFieldWithName(
+                    derivedFromItem,
+                );
 
-            if (derivedFieldForCurrentDerivedFrom) {
-                return derivedFromItem;
-            }
-            else {
-                const dataFieldForCurrentDerivedField = pmml.findDataFieldWithName(derivedFromItem);
-
-                if (dataFieldForCurrentDerivedField) {
-                    return Object.assign(
-                        {},
-                        parseDataFieldFromDataFieldPmmlNode(
-                            dataFieldForCurrentDerivedField
-                        ),
-                        {
-                            fieldType: FieldType.DataField as FieldType.DataField
-                        }
+                if (derivedFieldForCurrentDerivedFrom) {
+                    return derivedFromItem;
+                } else {
+                    const dataFieldForCurrentDerivedField = pmml.findDataFieldWithName(
+                        derivedFromItem,
                     );
-                }
-                else {
-                    return {
-                        fieldType: FieldType.DataField as FieldType.DataField,
-                        name: derivedFromItem,
-                        displayName: '',
-                        extensions: {}
+
+                    if (dataFieldForCurrentDerivedField) {
+                        return Object.assign(
+                            {},
+                            parseDataFieldFromDataFieldPmmlNode(
+                                dataFieldForCurrentDerivedField,
+                            ),
+                            {
+                                fieldType: FieldType.DataField as FieldType.DataField,
+                            },
+                        );
+                    } else {
+                        return {
+                            fieldType: FieldType.DataField as FieldType.DataField,
+                            name: derivedFromItem,
+                            displayName: '',
+                            extensions: {},
+                        };
                     }
                 }
-            }
-        });
+            })
+    );
 }
 
 export function parseDerivedFields(
     pmml: Pmml,
-    userDefinedFunctionNames: Array<string>
-): Array<DerivedFieldJson> {
+    userDefinedFunctionNames: string[],
+): DerivedFieldJson[] {
     if (pmml.pmmlXml.PMML.LocalTransformations.DerivedField) {
-        //All the derived predictors for this algorithm
-        return pmml.pmmlXml.PMML.LocalTransformations.DerivedField
-            .map((derivedField) => {
-                const dataFieldForCurrentDerivedField = pmml
-                    .findDataFieldWithName(
-                    derivedField.$.name
-                    );
+        // All the derived predictors for this algorithm
+        return pmml.pmmlXml.PMML.LocalTransformations.DerivedField.map(
+            derivedField => {
+                const dataFieldForCurrentDerivedField = pmml.findDataFieldWithName(
+                    derivedField.$.name,
+                );
                 const ast = getAstForDerivedField(
                     derivedField,
-                    userDefinedFunctionNames
+                    userDefinedFunctionNames,
                 );
 
                 return Object.assign(
@@ -152,19 +159,20 @@ export function parseDerivedFields(
                         equation: escodegen.generate(ast),
                         derivedFrom: getDerivedFromForAst(ast, pmml),
                         displayName: '',
-                        extensions: {}
+                        extensions: {},
                     },
-                    dataFieldForCurrentDerivedField ?
-                        parseDataFieldFromDataFieldPmmlNode(
-                            dataFieldForCurrentDerivedField
-                        ) : {},
+                    dataFieldForCurrentDerivedField
+                        ? parseDataFieldFromDataFieldPmmlNode(
+                              dataFieldForCurrentDerivedField,
+                          )
+                        : {},
                     {
-                        fieldType: FieldType.DerivedField as FieldType.DerivedField
-                    }
+                        fieldType: FieldType.DerivedField as FieldType.DerivedField,
+                    },
                 );
-            });
-    }
-    else {
+            },
+        );
+    } else {
         return [];
     }
 }
