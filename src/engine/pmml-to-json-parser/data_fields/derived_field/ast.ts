@@ -1,27 +1,29 @@
 //interfaces
 import {
-    LiteralAST,
-    IdentifierAST,
+    ILiteralAST,
+    IIdentifierAST,
     BinaryExpressionASTLeftAndRight,
-    BinaryExpressionAST,
+    IBinaryExpressionAST,
     LogicalExpressionASTLeftAndRight,
-    LogicalExpressionAST,
+    ILogicalExpressionAST,
     UnaryExpressionASTArgument,
-    UnaryExpressionAST,
-    AssignmentExpressionAST,
+    IUnaryExpressionAST,
+    IAssignmentExpressionAST,
     AssignmentExpressionASTRight,
-    ExpressionStatementAST,
-    MemberExpressionAST,
-    CallExpressionAST,
-    ConditionalExpressionAST,
+    IExpressionStatementAST,
+    IMemberExpressionAST,
+    ICallExpressionAST,
+    IConditionalExpressionAST,
     CallExpressionArgumentAST,
     ConditionalExpressionTestAST,
     ConditionalExpressionAlternateAST,
     ConditionalExpressionConsequentAST,
-    FunctionExpressionAst,
-    ReturnStatementAst,
-    AST
-} from '../../interfaces/ast'
+    IFunctionExpressionAst,
+    IReturnStatementAst,
+    IObjectExpressionAst,
+    AST,
+    IPropertyAst,
+} from '../../interfaces/ast';
 
 /**
  * 
@@ -30,12 +32,12 @@ import {
  * @param {(number | string)} value 
  * @returns {LiteralAST} 
  */
-export function getLiteralAST(value: number | string | null): LiteralAST {
+export function getLiteralAST(value: number | string | null): ILiteralAST {
     return {
         type: 'Literal',
         value: value,
-        raw: String(value)
-    }
+        raw: String(value),
+    };
 }
 
 /**
@@ -43,13 +45,13 @@ export function getLiteralAST(value: number | string | null): LiteralAST {
  * 
  * @export
  * @param {string} name 
- * @returns {IdentifierAST} 
+ * @returns {IIdentifierAST} 
  */
-export function getIdentifierAST(name: string): IdentifierAST {
+export function getIdentifierAST(name: string): IIdentifierAST {
     return {
         type: 'Identifier',
-        name
-    }
+        name,
+    };
 }
 
 /**
@@ -59,15 +61,19 @@ export function getIdentifierAST(name: string): IdentifierAST {
  * @param {string} operator 
  * @param {BinaryExpressionASTLeftAndRight} left 
  * @param {BinaryExpressionASTLeftAndRight} right 
- * @returns {BinaryExpressionAST} 
+ * @returns {IBinaryExpressionAST} 
  */
-export function getBinaryExpressionAST(operator: string, left: BinaryExpressionASTLeftAndRight, right: BinaryExpressionASTLeftAndRight): BinaryExpressionAST {
+export function getBinaryExpressionAST(
+    operator: string,
+    left: BinaryExpressionASTLeftAndRight,
+    right: BinaryExpressionASTLeftAndRight,
+): IBinaryExpressionAST {
     return {
         type: 'BinaryExpression',
         operator,
         left,
-        right
-    }
+        right,
+    };
 }
 
 /**
@@ -77,15 +83,19 @@ export function getBinaryExpressionAST(operator: string, left: BinaryExpressionA
  * @param {string} operator 
  * @param {LogicalExpressionASTLeftAndRight} left 
  * @param {LogicalExpressionASTLeftAndRight} right 
- * @returns {LogicalExpressionAST} 
+ * @returns {ILogicalExpressionAST} 
  */
-export function getLogicalExpressionAST(operator: string, left: LogicalExpressionASTLeftAndRight, right: LogicalExpressionASTLeftAndRight): LogicalExpressionAST {
+export function getLogicalExpressionAST(
+    operator: string,
+    left: LogicalExpressionASTLeftAndRight,
+    right: LogicalExpressionASTLeftAndRight,
+): ILogicalExpressionAST {
     return {
         type: 'LogicalExpression',
         operator,
         left,
-        right
-    }
+        right,
+    };
 }
 
 /**
@@ -94,14 +104,17 @@ export function getLogicalExpressionAST(operator: string, left: LogicalExpressio
  * @export
  * @param {string} operator 
  * @param {UnaryExpressionASTArgument} argument 
- * @returns {UnaryExpressionAST} 
+ * @returns {IUnaryExpressionAST} 
  */
-export function getUnaryExpressionAST(operator: string, argument: UnaryExpressionASTArgument): UnaryExpressionAST {
+export function getUnaryExpressionAST(
+    operator: string,
+    argument: UnaryExpressionASTArgument,
+): IUnaryExpressionAST {
     return {
         type: 'UnaryExpression',
         operator,
-        argument
-    }
+        argument,
+    };
 }
 
 /**
@@ -109,67 +122,79 @@ export function getUnaryExpressionAST(operator: string, argument: UnaryExpressio
  * 
  * @export
  * @param {string} operator 
- * @param {IdentifierAST} left 
+ * @param {IIdentifierAST} left 
  * @param {AssignmentExpressionASTRight} right 
- * @returns {AssignmentExpressionAST} 
+ * @returns {IAssignmentExpressionAST} 
  */
-export function getAssignmentExpressionAST(operator: string, left: IdentifierAST, right: AssignmentExpressionASTRight): AssignmentExpressionAST {
+export function getAssignmentExpressionAST(
+    operator: string,
+    left: IIdentifierAST,
+    right: AssignmentExpressionASTRight,
+): IAssignmentExpressionAST {
     return {
         type: 'AssignmentExpression',
         operator,
         left,
-        right
-    }
+        right,
+    };
 }
 
 /**
  * 
  * 
  * @export
- * @param {AssignmentExpressionAST} expression 
- * @returns {ExpressionStatementAST} 
+ * @param {IAssignmentExpressionAST} expression 
+ * @returns {IExpressionStatementAST} 
  */
-export function getExpressionStatementAST(expression: AssignmentExpressionAST): ExpressionStatementAST {
+export function getExpressionStatementAST(
+    expression: IAssignmentExpressionAST,
+): IExpressionStatementAST {
     return {
         type: 'ExpressionStatement',
-        expression
-    }
+        expression,
+    };
 }
 
 /**
  * 
  * 
  * @export
- * @param {LiteralAST} property 
+ * @param {ILiteralAST} property 
  * @param {string} objName 
- * @returns {MemberExpressionAST} 
+ * @returns {IMemberExpressionAST} 
  */
-export function getMemberExpressionAST(property: LiteralAST, objName: string): MemberExpressionAST {
+export function getMemberExpressionAST(
+    property: ILiteralAST,
+    objName: string,
+): IMemberExpressionAST {
     return {
         type: 'MemberExpression',
         computed: true,
         object: {
             type: 'Identifier',
-            name: objName
+            name: objName,
         },
-        property
-    }
+        property,
+    };
 }
 
 /**
  * 
  * 
  * @export
- * @param {MemberExpressionAST} callee 
+ * @param {IMemberExpressionAST} callee 
  * @param {Array<CallExpressionArgumentAST>} args 
- * @returns {CallExpressionAST} 
+ * @returns {ICallExpressionAST} 
  */
-export function getCallExpressionAST(callee: MemberExpressionAST, args: Array<CallExpressionArgumentAST>): CallExpressionAST {
+export function getCallExpressionAST(
+    callee: IMemberExpressionAST | IIdentifierAST,
+    args: Array<CallExpressionArgumentAST>,
+): ICallExpressionAST {
     return {
         type: 'CallExpression',
         callee,
-        arguments: args
-    }
+        arguments: args,
+    };
 }
 
 /**
@@ -179,39 +204,62 @@ export function getCallExpressionAST(callee: MemberExpressionAST, args: Array<Ca
  * @param {ConditionalExpressionTestAST} test 
  * @param {ConditionalExpressionConsequentAST} consequent 
  * @param {ConditionalExpressionAlternateAST} alternate 
- * @returns {ConditionalExpressionAST} 
+ * @returns {IConditionalExpressionAST} 
  */
-export function getConditionalExpressionAST(test: ConditionalExpressionTestAST, consequent: ConditionalExpressionConsequentAST, alternate: ConditionalExpressionAlternateAST): ConditionalExpressionAST {
+export function getConditionalExpressionAST(
+    test: ConditionalExpressionTestAST,
+    consequent: ConditionalExpressionConsequentAST,
+    alternate: ConditionalExpressionAlternateAST,
+): IConditionalExpressionAST {
     return {
         type: 'ConditionalExpression',
         test,
         consequent,
-        alternate
-    }
+        alternate,
+    };
 }
 
 export function getFunctionExpressionAst(
     params: Array<string>,
-    returnStatementAst: ReturnStatementAst
-): FunctionExpressionAst {
+    returnStatementAst: IReturnStatementAst,
+): IFunctionExpressionAst {
     return {
         type: 'FunctionExpression',
-        params: params
-            .map(param => getIdentifierAST(param)),
+        params: params.map(param => getIdentifierAST(param)),
         body: {
             type: 'BlockStatement',
-            body: [returnStatementAst]
-        }
-    }
+            body: [returnStatementAst],
+        },
+    };
 }
 
-export function getReturnStatementAst(
-    argument: AST
-): ReturnStatementAst {
+export function getReturnStatementAst(argument: AST): IReturnStatementAst {
     return {
         type: 'ReturnStatement',
-        argument
-    }
+        argument,
+    };
 }
 
+export function getObjectExpressionAst(
+    properties: IPropertyAst[],
+): IObjectExpressionAst {
+    return {
+        type: 'ObjectExpression',
+        properties,
+    };
+}
 
+export function getPropertyAst(
+    key: string,
+    value: ILiteralAST | IMemberExpressionAST,
+): IPropertyAst {
+    return {
+        type: 'Property',
+        method: false,
+        shorthand: false,
+        computed: false,
+        key: getLiteralAST(key),
+        value,
+        kind: 'init',
+    };
+}

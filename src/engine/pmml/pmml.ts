@@ -58,9 +58,15 @@ export class Pmml {
     findDerivedFieldWithName(
         derivedFieldName: string,
     ): IDerivedField | undefined {
-        return this.pmmlXml.PMML.LocalTransformations.DerivedField.find(
-            derivedField => derivedField.$.name === derivedFieldName,
-        );
+        const DerivedField = this.pmmlXml.PMML.LocalTransformations
+            .DerivedField;
+        return DerivedField instanceof Array
+            ? DerivedField.find(
+                  derivedField => derivedField.$.name === derivedFieldName,
+              )
+            : DerivedField.$.name === derivedFieldName
+              ? DerivedField
+              : undefined;
     }
 
     toString(): string {
