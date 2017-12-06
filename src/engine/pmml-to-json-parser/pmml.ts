@@ -1,7 +1,6 @@
 import { parseCovariates } from './data_fields/covariate';
 import { parseDerivedFields } from './data_fields/derived_field/derived_field';
 import {
-    Pmml,
     PmmlParser,
     IGeneralRegressionModel,
     CoxRegressionModelType,
@@ -14,10 +13,14 @@ import { AlgorithmType } from '../algorithm';
 import { UnknownRegressionType } from '../errors';
 import { AlgorithmJsonTypes } from '../algorithm/algorithm-json-types';
 import { parseTaxonomy } from './taxonomy';
+import { RegressionAlgorithmJsonTypes } from '../regression-algorithm/regression-algorithm-json-types';
+import { ISimpleAlgorithmJson } from '../simple-algorithm/simple-algorithm-json';
+import { IAlgorithmJson } from '../algorithm/algorithm-json';
+import { IOutput } from '../pmml/pmml';
 
 function getAlgorithmTypeFromGeneralRegressionModel(
     generalRegressionModel: IGeneralRegressionModel,
-): AlgorithmType {
+): AlgorithmType.Cox | AlgorithmType.LogisticRegression {
     switch (generalRegressionModel.$.modelType) {
         case CoxRegressionModelType: {
             return AlgorithmType.Cox;
@@ -31,8 +34,14 @@ function getAlgorithmTypeFromGeneralRegressionModel(
     }
 }
 
-function parseBaselineFromPmmlXml(pmml: Pmml): number {
-    return Number(pmml.pmmlXml.PMML.GeneralRegressionModel.$.baselineHazard);
+function getOutputName(output: IOutput): string {
+    return output.OutputField.$.name;
+}
+
+function parseBaselineFromPmmlXml(
+    generalRegressionModel: IGeneralRegressionModel,
+): number {
+    return Number(generalRegressionModel.$.baselineHazard);
 }
 
 async function pmmlStringsToJson(
@@ -44,15 +53,11 @@ async function pmmlStringsToJson(
         defineFunction => defineFunction.$.name,
     );
 
-    const parsedAlgorithm = {
-        algorithmType: getAlgorithmTypeFromGeneralRegressionModel(
-            pmml.pmmlXml.PMML.GeneralRegressionModel,
-        ),
+    const baseAlgorithm: IAlgorithmJson<AlgorithmType.Unknown> = {
+        algorithmType: AlgorithmType.Unknown,
         name: pmml.pmmlXml.PMML.Header.Extension.ModelName,
         version: pmml.pmmlXml.PMML.Header.Extension.Version,
         description: pmml.pmmlXml.PMML.Header.$.description,
-        baseline: parseBaselineFromPmmlXml(pmml),
-        covariates: parseCovariates(pmml),
         derivedFields: parseDerivedFields(pmml, allDefineFunctionNames),
         userFunctions: pmml.pmmlXml.PMML.LocalTransformations.DefineFunction
             .map(defineFunction =>
@@ -61,14 +66,28 @@ async function pmmlStringsToJson(
             .reduce((userFunctionObj, currentObject) => {
                 return Object.assign({}, userFunctionObj, currentObject);
             }, {}),
-        // TODO Fix this
-        causeDeletedRef: null,
         tables: parseTaxonomy(pmml.pmmlXml.PMML.Taxonomy),
     };
 
-    // parseFromAlgorithmJson(parsedAlgorithm);
-
-    return parsedAlgorithm as AlgorithmJsonTypes;
+    if (pmml.pmmlXml.PMML.GeneralRegressionModel) {
+        return {
+            ...baseAlgorithm,
+            algorithmType: getAlgorithmTypeFromGeneralRegressionModel(
+                pmml.pmmlXml.PMML.GeneralRegressionModel,
+            ) as AlgorithmType.Cox | AlgorithmType.LogisticRegression,
+            baseline: parseBaselineFromPmmlXml(
+                pmml.pmmlXml.PMML.GeneralRegressionModel,
+            ),
+            covariates: parseCovariates(pmml),
+        } as RegressionAlgorithmJsonTypes;
+    } else if (pmml.pmmlXml.PMML.Output && pmml.pmmlXml.PMML.Targets) {
+        return Object.assign({}, baseAlgorithm, {
+            algorithmType: AlgorithmType.SimpleAlgorithm as AlgorithmType.SimpleAlgorithm,
+            output: getOutputName(pmml.pmmlXml.PMML.Output),
+        }) as ISimpleAlgorithmJson;
+    } else {
+        throw new Error(`Unknown algorithm`);
+    }
 }
 
 export async function pmmlXmlStringsToJson(

@@ -1,19 +1,26 @@
 import { parseCustomFunction } from './custom_functions/custom_function';
 import { CovariateJson } from '../../covariate';
 import { RcsCustomFunctionJson } from '../../custom-function';
-import { Pmml, IDataField, IParameter, IPCell, IPredictor } from '../../pmml';;
+import { Pmml, IDataField, IParameter, IPCell, IPredictor } from '../../pmml';
 import { parseDataFieldFromDataFieldPmmlNode } from './data_field';
 import { parseExtensions } from '../extensions';
 import { throwErrorIfUndefined } from '../../undefined';
-import { NoDataFieldNodeFound, NoParameterNodeFoundWithLabel, NoPCellNodeFoundWithParameterName } from '../errors';
+import {
+    NoDataFieldNodeFound,
+    NoParameterNodeFoundWithLabel,
+    NoPCellNodeFoundWithParameterName,
+} from '../errors';
 import { FieldType } from '../../field';
+import { IGeneralRegressionModel } from '../../pmml/general_regression_model/general_regression_model';
 
 /**
  * 
  * @param {string} name 
  * @returns {boolean} 
  */
-function isCovariateWithNameAnInteractionCovariate(covariateName: string): boolean {
+function isCovariateWithNameAnInteractionCovariate(
+    covariateName: string,
+): boolean {
     return covariateName.indexOf('_int') > -1;
 }
 
@@ -24,11 +31,12 @@ function isCovariateWithNameAnInteractionCovariate(covariateName: string): boole
  * @param {string} name 
  * @returns {string} 
  */
-function getCovariateType(name: string): FieldType.InteractionCovariate | FieldType.NonInteractionCovariate {
+function getCovariateType(
+    name: string,
+): FieldType.InteractionCovariate | FieldType.NonInteractionCovariate {
     if (isCovariateWithNameAnInteractionCovariate(name)) {
-        return FieldType.InteractionCovariate
-    }
-    else {
+        return FieldType.InteractionCovariate;
+    } else {
         return FieldType.NonInteractionCovariate;
     }
 }
@@ -48,21 +56,19 @@ function parseCovariateFromPredictor(
     dataField: IDataField,
     parameter: IParameter,
     pCell: IPCell,
-    customFunctionJson: RcsCustomFunctionJson | undefined
+    customFunctionJson: RcsCustomFunctionJson | undefined,
 ): CovariateJson {
-    return Object.assign(
-        {},
-        parseDataFieldFromDataFieldPmmlNode(dataField), {
-            fieldType: getCovariateType(predictor.$.name) as FieldType.NonInteractionCovariate,
-            name: predictor.$.name,
-            beta: Number(pCell.$.beta),
-            referencePoint: Number(parameter.$.referencePoint),
-            customFunction: customFunctionJson,
-            extensions: parseExtensions(dataField)
-        }
-    );
+    return Object.assign({}, parseDataFieldFromDataFieldPmmlNode(dataField), {
+        fieldType: getCovariateType(
+            predictor.$.name,
+        ) as FieldType.NonInteractionCovariate,
+        name: predictor.$.name,
+        beta: Number(pCell.$.beta),
+        referencePoint: Number(parameter.$.referencePoint),
+        customFunction: customFunctionJson,
+        extensions: parseExtensions(dataField),
+    });
 }
-
 
 /**
  * Returns all the JSON covariate objects in the pmml argument
@@ -73,28 +79,29 @@ function parseCovariateFromPredictor(
  */
 export function parseCovariates(pmml: Pmml): Array<CovariateJson> {
     //Each Predictor Node in the CovariateList node is a covariate
-    return pmml.pmmlXml.PMML.GeneralRegressionModel.CovariateList.Predictor
-        .map((predictor) => {
+    return (pmml.pmmlXml.PMML
+        .GeneralRegressionModel as IGeneralRegressionModel).CovariateList.Predictor.map(
+        predictor => {
             //DataField whose name field is the same as the predictor's name field. Problem if we don't find one. Need it for the following fields: name, displayName, opType, recommended extension anf question extension
             const dataFieldForCurrentPredictor = throwErrorIfUndefined(
                 pmml.findDataFieldWithName(predictor.$.name),
-                NoDataFieldNodeFound(predictor.$.name)
+                NoDataFieldNodeFound(predictor.$.name),
             );
 
             //Paramter whose label field is the same as the predictor's name field. Problem if we don't find one. Need it for the referencePoint
             const parameterForCurrentPredictor = throwErrorIfUndefined(
                 pmml.findParameterWithLabel(predictor.$.name),
-                NoParameterNodeFoundWithLabel(predictor.$.name)
+                NoParameterNodeFoundWithLabel(predictor.$.name),
             );
 
             //PCell whose parameterName field is the same as the predictor's name field. Problem if we dont find one. Need it for the beta
             const pCellForCurrentParamater = throwErrorIfUndefined(
                 pmml.findPCellWithParameterName(
-                    parameterForCurrentPredictor.$.name
+                    parameterForCurrentPredictor.$.name,
                 ),
                 NoPCellNodeFoundWithParameterName(
-                    parameterForCurrentPredictor.$.name
-                )
+                    parameterForCurrentPredictor.$.name,
+                ),
             );
 
             //Using the DataField, Parameter, Predictor, PCell get the CovariateJson
@@ -105,8 +112,9 @@ export function parseCovariates(pmml: Pmml): Array<CovariateJson> {
                 pCellForCurrentParamater,
                 parseCustomFunction(
                     parameterForCurrentPredictor,
-                    pmml.pmmlXml.PMML.CustomPMML.RestrictedCubicSpline
-                )
+                    pmml.pmmlXml.PMML.CustomPMML.RestrictedCubicSpline,
+                ),
             );
-        });
+        },
+    );
 }

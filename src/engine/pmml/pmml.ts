@@ -11,12 +11,30 @@ import { IRestrictedCubicSpline } from './custom/restricted_cubic_spline';
 import { buildXmlFromXml2JsObject } from '../xmlbuilder';
 import { ITaxonomy } from './taxonomy';
 
+export interface IOutput {
+    OutputField: {
+        $: {
+            name: string;
+            targetField: string;
+        };
+    };
+}
+
 export interface IPmml {
     Header: IHeader;
     DataDictionary: IDataDictionary;
     LocalTransformations: ILocalTransformations;
-    GeneralRegressionModel: IGeneralRegressionModel;
+    GeneralRegressionModel?: IGeneralRegressionModel;
     Taxonomy?: ITaxonomy[] | ITaxonomy;
+    Output?: IOutput;
+    Targets?: {
+        Target: {
+            $: {
+                field: string;
+                opType: 'continuous' | 'categorical';
+            };
+        };
+    };
 }
 
 export interface ICustomPmml extends IPmml {
@@ -38,19 +56,25 @@ export class Pmml {
     }
 
     findDataFieldWithName(dataFieldName: string): IDataField | undefined {
-        return this.pmmlXml.PMML.DataDictionary.DataField.find(
-            dataField => dataField.$.name === dataFieldName,
-        );
+        return this.pmmlXml.PMML.DataDictionary
+            ? this.pmmlXml.PMML.DataDictionary.DataField
+              ? this.pmmlXml.PMML.DataDictionary.DataField.find(
+                    dataField => dataField.$.name === dataFieldName,
+                )
+              : undefined
+            : undefined;
     }
 
     findParameterWithLabel(parameterLabel: string): IParameter | undefined {
-        return this.pmmlXml.PMML.GeneralRegressionModel.ParameterList.Parameter.find(
+        return (this.pmmlXml.PMML
+            .GeneralRegressionModel as IGeneralRegressionModel).ParameterList.Parameter.find(
             parameter => parameter.$.label === parameterLabel,
         );
     }
 
     findPCellWithParameterName(parameterName: string): IPCell | undefined {
-        return this.pmmlXml.PMML.GeneralRegressionModel.ParamMatrix.PCell.find(
+        return (this.pmmlXml.PMML
+            .GeneralRegressionModel as IGeneralRegressionModel).ParamMatrix.PCell.find(
             pCell => pCell.$.parameterName === parameterName,
         );
     }
