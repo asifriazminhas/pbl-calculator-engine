@@ -1,0 +1,14 @@
+<PMML>
+    <Header description="">
+        <Annotation>
+            <Extension name="author">Yulric Sequeira</Extension>
+        </Annotation>
+        <Extension name="Sodium"/>
+    </Header>
+    <Output>
+        <OutputField name="sodiumPerDay" targetField="sodiumPerDay" />
+    </Output>
+    <Targets>
+        <Target field="sodiumPerDay" optype="continuous"/>
+    </Targets>
+</PMML>
