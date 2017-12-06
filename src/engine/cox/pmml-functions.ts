@@ -44,4 +44,7 @@ export default {
     ifelse: function(booleanOne: boolean, whenTrue: any, whenFalse: any): any {
         return booleanOne ? whenTrue : whenFalse;
     },
+    floor: function(decimal: number): number {
+        return Math.floor(decimal);
+    },
 };

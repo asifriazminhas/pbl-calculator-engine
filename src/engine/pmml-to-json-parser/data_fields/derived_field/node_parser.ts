@@ -485,6 +485,7 @@ const SpecialFunctions: Array<string> = [
     'ifelse',
     'isIn',
     'log',
+    'floor',
 ];
 /**
  * Maps a PMML apply node whose function string is set to one in the above SpecialFunctions object to a CallExpressionAST
