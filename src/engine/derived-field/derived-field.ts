@@ -222,3 +222,45 @@ export function getLeafFieldsForDerivedField(
         );
     }
 }
+
+export function findDescendantDerivedField(
+    derivedField: DerivedField,
+    name: string,
+): DerivedField | undefined {
+    let foundDerivedField: DerivedField | undefined;
+
+    derivedField.derivedFrom.every(derivedFromItem => {
+        if (derivedFromItem.name === name) {
+            if (derivedFromItem.fieldType === FieldType.DerivedField) {
+                foundDerivedField = derivedFromItem;
+            }
+        } else {
+            if (
+                derivedFromItem.fieldType ===
+                    FieldType.NonInteractionCovariate &&
+                derivedFromItem.derivedField
+            ) {
+                foundDerivedField = findDescendantDerivedField(
+                    derivedFromItem.derivedField,
+                    name,
+                );
+            } else if (
+                derivedFromItem.fieldType === FieldType.InteractionCovariate
+            ) {
+                foundDerivedField = findDescendantDerivedField(
+                    derivedFromItem.derivedField,
+                    name,
+                );
+            } else if (derivedFromItem.fieldType === FieldType.DerivedField) {
+                foundDerivedField = findDescendantDerivedField(
+                    derivedFromItem,
+                    name,
+                );
+            }
+        }
+
+        return foundDerivedField ? false : true;
+    });
+
+    return foundDerivedField;
+}

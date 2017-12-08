@@ -1,7 +1,11 @@
 import * as test from 'tape';
 import { calculateCoefficent } from '../engine/derived-field';
 import { Algorithm } from '../engine/algorithm/algorithm';
-import { IBaseDerivedField } from '../engine/derived-field/derived-field';
+import {
+    IBaseDerivedField,
+    DerivedField,
+    findDescendantDerivedField,
+} from '../engine/derived-field/derived-field';
 import { FieldType } from '../engine/field/field-type';
 import { DataField } from '../engine/data-field/data-field';
 import { expect } from 'chai';
@@ -55,6 +59,64 @@ test(`.calculateCoefficent`, t => {
         calculateCoefficent(derivedField, data, userFunctions, tables),
     ).to.equal('1');
     t.pass(`Correctly calculated coefficent with table condition`);
+
+    t.end();
+});
+
+test(`.getDerivedFieldWithName`, t => {
+    const childFields: DerivedField[] = [
+        {
+            fieldType: FieldType.DerivedField,
+            equation: '',
+            derivedFrom: [
+                {
+                    fieldType: FieldType.DerivedField,
+                    equation: '',
+                    derivedFrom: [
+                        {
+                            fieldType: FieldType.DerivedField,
+                            equation: '',
+                            derivedFrom: [],
+                            name: '',
+                            displayName: '',
+                            extensions: {},
+                        },
+                    ],
+                    displayName: '',
+                    extensions: {},
+                    name: 'fieldToFind',
+                },
+            ] as DerivedField[],
+            name: '',
+            displayName: '',
+            extensions: {},
+        },
+        {
+            fieldType: FieldType.DerivedField,
+            name: '',
+            displayName: '',
+            extensions: {},
+            equation: '',
+            derivedFrom: [],
+        },
+    ];
+
+    const derivedField: DerivedField = {
+        fieldType: FieldType.DerivedField,
+        equation: '',
+        derivedFrom: childFields,
+        name: '',
+        displayName: '',
+        extensions: {},
+    };
+
+    expect(
+        findDescendantDerivedField(
+            derivedField,
+            childFields[0].derivedFrom[0].name,
+        ),
+    ).to.eql(childFields[0].derivedFrom[0]);
+    t.pass(`Returned right derived field`);
 
     t.end();
 });
