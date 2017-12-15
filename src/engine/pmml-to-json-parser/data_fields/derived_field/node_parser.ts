@@ -37,6 +37,8 @@ import {
     IFieldColumnPair,
 } from '../../../pmml/local_transformations/derived_field';
 
+import PmmlFunctions from '../../../cox/pmml-functions';
+
 //Object for oeprators that don't meet the normal parsing conditions
 const ApplyOperatorExceptions: {
     [index: string]: (
@@ -111,6 +113,8 @@ export function getASTForConstant(
         }
     } else if (constant.$.dataType === 'NA') {
         return getLiteralAST(null);
+    } else if (constant.$.dataType === 'boolean') {
+        return getLiteralAST(constant._ === 'true' ? true : false);
     } else {
         throw new Error(`Unknown dataType ${constant.$.dataType} for Constant`);
     }
@@ -178,7 +182,11 @@ export function getASTForApply(
             userDefinedFunctionNames,
             wrapFieldRefInMemberExpressionAst,
         );
-    } else if (SpecialFunctions.indexOf(apply.$.function) > -1) {
+    } else if (
+        SpecialFunctions.find(
+            specialFunction => specialFunction === apply.$.function,
+        )
+    ) {
         //if it is one of the special PMML functions
         return getASTForCallExpressionApply(
             apply,
@@ -473,20 +481,8 @@ export function getASTForIfApply(
 }
 
 //These are functions which we have implemented ourselves
-const SpecialFunctions: Array<string> = [
-    'exp',
-    'ln',
-    'is.na',
-    'not',
-    'notEqual',
-    'formatDatetime',
-    'max',
-    'sum',
-    'ifelse',
-    'isIn',
-    'log',
-    'floor',
-];
+const SpecialFunctions = Object.keys(PmmlFunctions);
+
 /**
  * Maps a PMML apply node whose function string is set to one in the above SpecialFunctions object to a CallExpressionAST
  * 
