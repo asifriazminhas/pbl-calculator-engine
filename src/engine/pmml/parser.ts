@@ -46,7 +46,7 @@ function mergePmml(
                 pmmlOne.PMML.LocalTransformations,
                 pmmlTwo.PMML.LocalTransformations,
             ),
-            ...mergedGeneralRegressionModel,
+            GeneralRegressionModel: mergedGeneralRegressionModel,
             CustomPMML: Object.assign(
                 {},
                 pmmlOne.PMML.CustomPMML ? pmmlOne.PMML.CustomPMML : {},
