@@ -1,5 +1,9 @@
 import * as moment from 'moment';
 
+function ifelse(booleanOne: boolean, whenTrue: any, whenFalse: any): any {
+    return booleanOne ? whenTrue : whenFalse;
+}
+
 export default {
     exp: function(value: number) {
         return Math.exp(value);
@@ -41,10 +45,12 @@ export default {
     log: function(num: number): number {
         return Math.log10(num);
     },
-    ifelse: function(booleanOne: boolean, whenTrue: any, whenFalse: any): any {
-        return booleanOne ? whenTrue : whenFalse;
-    },
+    ifelse: ifelse,
+    ifelse2: ifelse,
     floor: function(decimal: number): number {
         return Math.floor(decimal);
+    },
+    pmax: function(num1: number, num2: number): number {
+        return num1 > num2 ? num1 : num2;
     },
 };
