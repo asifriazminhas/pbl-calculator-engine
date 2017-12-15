@@ -1,15 +1,26 @@
+import { IBaseCox } from './base-cox';
 import { Data } from '../data';
 import { shouldLogDebugInfo } from '../env';
 import * as moment from 'moment';
+import { BinsLookup, IBinsData } from './bins';
+import { throwErrorIfUndefined } from '../undefined';
+import { sortedIndex, isUndefined } from 'lodash';
+import { NoBinFoundError } from '../errors';
+import { AlgorithmType } from '../algorithm/algorithm-type';
 import {
-    Algorithm,
-    AlgorithmType,
-    calculateScore,
     getBaselineForData,
-} from '../algorithm';
+    IRegressionAlgorithm,
+    calculateScore,
+} from '../regression-algorithm/regression-algorithm';
 
-export interface Cox extends Algorithm {
-    algorithmType: AlgorithmType.Cox;
+export interface Cox extends IBaseCox, IRegressionAlgorithm<AlgorithmType.Cox> {
+    binsLookup?: BinsLookup;
+    binsData?: IBinsData;
+}
+
+export interface ICoxWithBins extends Cox {
+    binsLookup: BinsLookup;
+    binsData: IBinsData;
 }
 
 export function getTimeMultiplier(time: moment.Moment) {
@@ -54,6 +65,73 @@ export function getSurvivalToTime(
         1 - getBaselineForData(cox, data) * Math.pow(Math.E, score);
 
     return oneYearSurvivalProbability * getTimeMultiplier(formattedTime);
+}
+
+export function getRiskToTimeForCoxWithBins(
+    cox: ICoxWithBins,
+    data: Data,
+    time?: Date | moment.Moment,
+): number {
+    // Get the cox risk without any time modifications
+    const coxRisk = getRiskToTime(cox, data);
+
+    // Get the bin number for the above cox risk and throw an error if nothing was found
+    const binNumberForCalculatedCoxRisk = throwErrorIfUndefined(
+        cox.binsLookup.find((binsLookupRow, index) => {
+            if (index !== cox.binsLookup.length - 1) {
+                return (
+                    coxRisk >= binsLookupRow.minRisk &&
+                    coxRisk < binsLookupRow.maxRisk
+                );
+            } else {
+                return (
+                    coxRisk >= binsLookupRow.minRisk &&
+                    coxRisk <= binsLookupRow.maxRisk
+                );
+            }
+        }),
+        new NoBinFoundError(coxRisk),
+    ).binNumber;
+
+    /* Get the difference in time from the above passed in time using the
+    timeMetric field to decide what thje difference is */
+    const timeDifference = Math.abs(
+        moment()
+            .startOf('day')
+            .diff(time, cox.timeMetric, true),
+    );
+
+    /* Get the bin data for the bin this person is in*/
+    const binData = cox.binsData[binNumberForCalculatedCoxRisk];
+    /* Get the list of percents for this binData */
+    const percents = Object.keys(binData).map(Number);
+
+    /* Get the index of the percent value which is the closest to the
+    timeDifference */
+    const indexOfClosestValue =
+        // Subtract the length since we are reversing the array
+        percents.length -
+        // Reverse the array since we need to go from low to high values
+        sortedIndex(
+            percents
+                // Remove undefined as the sortedIndex will return a wrong value otherwise
+                .filter(percent => !isUndefined(binData[percent]))
+                .map(percent => {
+                    return binData[percent];
+                })
+                .reverse(),
+            timeDifference,
+        );
+
+    if (
+        (binData[percents[indexOfClosestValue]] as number) < timeDifference &&
+        isUndefined(binData[percents[indexOfClosestValue - 1]])
+    ) {
+        return 1;
+    }
+
+    // Return the percent as the risk. Do a minus one since the bins data has survival
+    return 1 - (percents[indexOfClosestValue] as number) / 100;
 }
 
 export function getRiskToTime(

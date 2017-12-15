@@ -3,7 +3,7 @@ import { ModelType } from '../model';
 import { IGenericAlgorithm } from '../algorithm';
 
 export interface GenericMultipleAlgorithmModel<
-    U extends IGenericAlgorithm<any, any, any>
+    U extends IGenericAlgorithm<any, any>
 > {
     modelType: ModelType.MultipleAlgorithm;
     algorithms: Array<{

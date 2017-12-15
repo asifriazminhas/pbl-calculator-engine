@@ -8,8 +8,8 @@ import { IBaseCovariate } from './base-covariate';
 import { DerivedField } from '../derived-field';
 import { IDatum, Data, datumFromCovariateReferencePointFactory } from '../data';
 import { NonInteractionCovariate } from './non-interaction-covariate';
-import { Cox } from '../cox';
 import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForCovariate } from './base-covariate';
+import { Algorithm } from '../algorithm';
 
 /* Need the following three interfaces because of this issue
 https://github.com/Microsoft/TypeScript/issues/14174 */
@@ -51,12 +51,14 @@ function isCoefficentDatumSetToReferencePoint(
 export function calculateDataToCalculateCoefficent(
     interactionCovariate: InteractionCovariate,
     data: Data,
-    userDefinedFunctions: Cox['userFunctions'],
+    userDefinedFunctions: Algorithm<any>['userFunctions'],
+    tables: Algorithm<any>['tables'],
 ): IDatum[] {
     const coefficentData = calculateDataToCalculateCoefficentForCovariate(
         interactionCovariate,
         data,
         userDefinedFunctions,
+        tables,
     );
 
     if (

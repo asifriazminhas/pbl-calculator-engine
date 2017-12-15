@@ -1,17 +1,24 @@
 import { GenericMultipleAlgorithmModel } from './generic-multiple-algorithm-model';
 import { Algorithm } from '../algorithm';
-import { updateBaseline, IBaselineObject } from '../algorithm';
 import { Data } from '../data';
 import { getPredicateResult } from './predicate';
 import { throwErrorIfUndefined } from '../undefined';
 import { NoBaselineFoundForAlgorithm } from '../errors';
+import {
+    IBaselineObject,
+    updateBaseline,
+} from '../regression-algorithm/regression-algorithm';
+import { RegressionAlgorithmTypes } from '../regression-algorithm/regression-algorithm-types';
+import { AlgorithmTypes } from '../algorithm/algorithm-types';
 
-export type MultipleAlgorithmModel = GenericMultipleAlgorithmModel<Algorithm>;
+export type MultipleAlgorithmModel<
+    U extends AlgorithmTypes = AlgorithmTypes
+> = GenericMultipleAlgorithmModel<U>;
 
 export function getAlgorithmForData(
     multipleAlgorithmModel: MultipleAlgorithmModel,
     data: Data,
-): Algorithm {
+): Algorithm<any> {
     const matchedAlgorithm = multipleAlgorithmModel.algorithms.find(
         algorithmWithPredicate => {
             return getPredicateResult(data, algorithmWithPredicate.predicate);
@@ -30,9 +37,9 @@ export type NewBaseline = Array<{
     newBaseline: IBaselineObject;
 }>;
 export function updateBaselineForModel(
-    model: MultipleAlgorithmModel,
+    model: MultipleAlgorithmModel<RegressionAlgorithmTypes>,
     newBaselines: NewBaseline,
-): MultipleAlgorithmModel {
+): MultipleAlgorithmModel<RegressionAlgorithmTypes> {
     return Object.assign({}, model, {
         algorithms: model.algorithms.map(({ predicate, algorithm }) => {
             const newBaselineForCurrentAlgorithm = throwErrorIfUndefined(

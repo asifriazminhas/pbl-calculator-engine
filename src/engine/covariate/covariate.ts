@@ -10,7 +10,7 @@ import { FieldType } from '../field';
 // tslint:disable-next-line
 import { calculateCoefficent as calculateCoefficentForRcsCustomFunction } from '../custom-function';
 import { calculateCoefficent as calculateCoefficentForDerivedField } from '../derived-field';
-import { Cox } from '../cox';
+import { Algorithm } from '../algorithm';
 
 export type Covariate = InteractionCovariate | NonInteractionCovariate;
 
@@ -34,7 +34,8 @@ function calculateComponent(covariate: Covariate, coefficent: number): number {
 export function getComponent(
     covariate: Covariate,
     data: Data,
-    userFunctions: Cox['userFunctions'],
+    userFunctions: Algorithm<any>['userFunctions'],
+    tables: Algorithm<any>['tables'],
 ): number {
     if (shouldLogWarnings()) {
         console.groupCollapsed(`${covariate.name}`);
@@ -42,7 +43,7 @@ export function getComponent(
 
     const component = calculateComponent(
         covariate,
-        calculateCoefficent(covariate, data, userFunctions),
+        calculateCoefficent(covariate, data, userFunctions, tables),
     );
 
     if (shouldLogDebugInfo() === true) {
@@ -55,7 +56,8 @@ export function getComponent(
 export function calculateCoefficent(
     covariate: Covariate,
     data: Data,
-    userDefinedFunctions: Cox['userFunctions'],
+    userDefinedFunctions: Algorithm<any>['userFunctions'],
+    tables: Algorithm<any>['tables'],
 ): number {
     const coefficentData =
         covariate.fieldType === FieldType.InteractionCovariate
@@ -63,11 +65,13 @@ export function calculateCoefficent(
                   covariate,
                   data,
                   userDefinedFunctions,
+                  tables,
               )
             : calculateDataToCalculateCoefficentForCovariate(
                   covariate,
                   data,
                   userDefinedFunctions,
+                  tables,
               );
 
     let coefficent: any = 0;
@@ -87,6 +91,7 @@ export function calculateCoefficent(
             covariate.derivedField,
             coefficentData,
             userDefinedFunctions,
+            tables,
         );
     }
 

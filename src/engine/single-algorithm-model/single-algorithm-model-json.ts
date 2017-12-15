@@ -1,6 +1,6 @@
-import { IAlgorithmJson } from '../algorithm';
 import { GenericSingleAlgorithmModel } from './generic-single-algorithm-model';
+import { AlgorithmJsonTypes } from '../algorithm/algorithm-json-types';
 
-export type SingleAlgorithmModelJson = GenericSingleAlgorithmModel<
-    IAlgorithmJson
->;
+export type SingleAlgorithmModelJson<
+    U extends AlgorithmJsonTypes = AlgorithmJsonTypes
+> = GenericSingleAlgorithmModel<U>;

@@ -10,6 +10,8 @@ import { SingleAlgorithmModelJson } from '../single-algorithm-model';
 import { MultipleAlgorithmModelJson } from '../multiple-algorithm-model';
 import { parseModelJsonToModel } from '../model';
 import { SurvivalModelFunctions } from './survival-model-functions';
+import { ModelTypes } from '../model/model-types';
+import { Cox } from '../cox/index';
 
 export type BuildFromAssetsFolderFunction = (
     assetsFolderPath: string,
@@ -210,7 +212,10 @@ export function getBuildFromAssetsFolder(): IBuildFromAssetsFolder {
 
             const model = parseModelJsonToModel(modelJson);
 
-            return new SurvivalModelFunctions(model, modelJson);
+            return new SurvivalModelFunctions(
+                model as ModelTypes<Cox>,
+                modelJson,
+            );
         },
     };
 }

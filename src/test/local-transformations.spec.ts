@@ -16,14 +16,18 @@ import { getAlgorithmForData } from '../engine/multiple-algorithm-model';
 const csvParse = require('csv-parse/lib/sync');
 import { Cox } from '../engine/cox/cox';
 import { expect } from 'chai';
+import { RegressionAlgorithmTypes } from '../engine/regression-algorithm/regression-algorithm-types';
 
 const TestAssetsFolderPath = path.join(__dirname, '../../assets/test');
 const TestAlgorithmsFolderPath = `${TestAssetsFolderPath}/algorithms`;
 const TransformationsTestingDataFolderPath = `${TestAssetsFolderPath}/local-transformations`;
 
-function getAlgorithmNamesToTest(): string[] {
+function getAlgorithmNamesToTest(excludeAlgorithms: string[]): string[] {
     return fs
         .readdirSync(TestAlgorithmsFolderPath)
+        .filter(
+            algorithmName => excludeAlgorithms.indexOf(algorithmName) === -1,
+        )
         .filter(algorithmName => algorithmName !== '.DS_Store');
 }
 
@@ -121,6 +125,7 @@ function testCovariateTransformations(
             derivedField,
             currentInputData,
             userFunctions,
+            {},
         );
         let expectedOutput = expectedOutputs[index];
         let diffError: number;
@@ -137,8 +142,8 @@ function testCovariateTransformations(
 
         expect(
             diffError < 0.00001 || diffError === 0,
-            `DerivedField ${(derivedField as any)
-                .name}. Input Row: ${index}. Actual Output: ${actualOutput}. ExpectedOutput: ${expectedOutput}. DiffError: ${diffError}`,
+            `DerivedField ${(derivedField as any).name}. Input Row: ${index +
+                2}. Actual Output: ${actualOutput}. ExpectedOutput: ${expectedOutput}. DiffError: ${diffError}`,
         ).to.be.true;
     });
 }
@@ -158,42 +163,8 @@ function testLocalTransformationsForModel(
                 columns: true,
             },
         );
-        model.algorithm.covariates.forEach(covariate => {
-            const { inputData, expectedOutputs } = getTestingDataForCovariate(
-                covariate,
-                testingCsvData,
-            );
-
-            testCovariateTransformations(
-                covariate,
-                inputData,
-                expectedOutputs,
-                model.algorithm.userFunctions,
-            );
-
-            t.pass(`Testing transformations for covariate ${covariate.name}`);
-        });
-    } else if (model.modelType === ModelType.MultipleAlgorithm) {
-        const genders = ['male', 'female'];
-
-        genders.forEach(gender => {
-            const testingCsvData = csvParse(
-                fs.readFileSync(
-                    `${TransformationsTestingDataFolderPath}/${modelName}/${gender}/testing-data.csv`,
-                    'utf8',
-                ),
-                {
-                    columns: true,
-                },
-            );
-            const algorithmForCurrentGender = getAlgorithmForData(model, [
-                {
-                    name: 'sex',
-                    coefficent: gender,
-                },
-            ]);
-
-            algorithmForCurrentGender.covariates.forEach(covariate => {
+        (model.algorithm as RegressionAlgorithmTypes).covariates.forEach(
+            covariate => {
                 const {
                     inputData,
                     expectedOutputs,
@@ -203,21 +174,66 @@ function testLocalTransformationsForModel(
                     covariate,
                     inputData,
                     expectedOutputs,
-                    algorithmForCurrentGender.userFunctions,
+                    model.algorithm.userFunctions,
                 );
 
                 t.pass(
                     `Testing transformations for covariate ${covariate.name}`,
                 );
+            },
+        );
+    } else if (model.modelType === ModelType.MultipleAlgorithm) {
+        const genders = ['male', 'female'];
+
+        genders.forEach(gender => {
+            t.test(`Testing ${gender} algorithm`, t => {
+                const testingCsvData = csvParse(
+                    fs.readFileSync(
+                        `${TransformationsTestingDataFolderPath}/${modelName}/${gender}/testing-data.csv`,
+                        'utf8',
+                    ),
+                    {
+                        columns: true,
+                    },
+                );
+                const algorithmForCurrentGender = getAlgorithmForData(model, [
+                    {
+                        name: 'sex',
+                        coefficent: gender,
+                    },
+                ]);
+
+                (algorithmForCurrentGender as RegressionAlgorithmTypes).covariates.forEach(
+                    covariate => {
+                        const {
+                            inputData,
+                            expectedOutputs,
+                        } = getTestingDataForCovariate(
+                            covariate,
+                            testingCsvData,
+                        );
+
+                        testCovariateTransformations(
+                            covariate,
+                            inputData,
+                            expectedOutputs,
+                            algorithmForCurrentGender.userFunctions,
+                        );
+
+                        t.pass(
+                            `Testing transformations for covariate ${covariate.name}`,
+                        );
+                    },
+                );
+
+                t.end();
             });
         });
     }
-
-    t.end();
 }
 
 test(`Testing local transformations`, async function(t) {
-    const namesOfAlgorithmsToTest = getAlgorithmNamesToTest();
+    const namesOfAlgorithmsToTest = getAlgorithmNamesToTest(['Sodium']);
     const models = await Promise.all(
         namesOfAlgorithmsToTest.map(algorithmName => {
             return getModelObjFromAlgorithmName(algorithmName);

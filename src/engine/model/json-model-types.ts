@@ -6,16 +6,20 @@ import {
 import { ModelType } from './model-type';
 import { Data } from '../data';
 import { ModelTypes } from './model-types';
-import { parseAlgorithmJson, IAlgorithmJson } from '../algorithm';
+import { IAlgorithmJson } from '../algorithm';
+import {
+    parseAlgorithmJson,
+    AlgorithmJsonTypes,
+} from '../algorithm/algorithm-json-types';
 
-export type JsonModelTypes =
-    | SingleAlgorithmModelJson
-    | MultipleAlgorithmModelJson;
+export type JsonModelTypes<U extends AlgorithmJsonTypes = AlgorithmJsonTypes> =
+    | SingleAlgorithmModelJson<U>
+    | MultipleAlgorithmModelJson<U>;
 
 export function getAlgorithmJsonForModelAndData(
     model: JsonModelTypes,
     data: Data,
-): IAlgorithmJson {
+): IAlgorithmJson<any> {
     if (model.modelType === ModelType.SingleAlgorithm) {
         return model.algorithm;
     } else {

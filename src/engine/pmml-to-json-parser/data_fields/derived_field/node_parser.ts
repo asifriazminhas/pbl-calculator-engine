@@ -1,18 +1,23 @@
 //interfaces
-import { IApply, IFieldRef, IConstant } from '../../../pmml/local_transformations/common';
 import {
-    LiteralAST,
+    IApply,
+    IFieldRef,
+    IConstant,
+} from '../../../pmml/local_transformations/common';
+import {
+    ILiteralAST,
     BinaryExpressionASTLeftAndRight,
-    BinaryExpressionAST,
+    IBinaryExpressionAST,
     LogicalExpressionASTLeftAndRight,
-    LogicalExpressionAST,
-    UnaryExpressionAST,
-    MemberExpressionAST,
-    ConditionalExpressionAST,
-    CallExpressionAST,
-    IdentifierAST,
-    AST
-} from '../../interfaces/ast'
+    ILogicalExpressionAST,
+    IUnaryExpressionAST,
+    IMemberExpressionAST,
+    IConditionalExpressionAST,
+    ICallExpressionAST,
+    IIdentifierAST,
+    AST,
+    IPropertyAst,
+} from '../../interfaces/ast';
 
 //models
 import {
@@ -23,58 +28,63 @@ import {
     getConditionalExpressionAST,
     getLogicalExpressionAST,
     getCallExpressionAST,
-    getIdentifierAST
-} from './ast'
+    getIdentifierAST,
+    getObjectExpressionAst,
+    getPropertyAst,
+} from './ast';
+import {
+    IMapValues,
+    IFieldColumnPair,
+} from '../../../pmml/local_transformations/derived_field';
+
+import PmmlFunctions from '../../../cox/pmml-functions';
 
 //Object for oeprators that don't meet the normal parsing conditions
 const ApplyOperatorExceptions: {
     [index: string]: (
-        apply: IApply, 
+        apply: IApply,
         userDefinedFunctionNames: Array<string>,
-        wrapFieldRefInMemberExpressionAst: boolean
+        wrapFieldRefInMemberExpressionAst: boolean,
     ) => AST;
 } = {
     //The - operator can be a subtraction (a - b) or a negation (-a)
     '-': function(
         apply,
-        userDefinedFunctionNames, 
-        wrapFieldRefInMemberExpressionAst
+        userDefinedFunctionNames,
+        wrapFieldRefInMemberExpressionAst,
     ) {
-        if(!apply.$$[1]) {
+        if (!apply.$$[1]) {
             const leftNode = apply.$$[0];
             let leftNodeAst;
 
-            if(leftNode['#name'] === 'Constant') {
+            if (leftNode['#name'] === 'Constant') {
                 leftNodeAst = getASTForConstant(leftNode as IConstant);
-            }
-            else if(leftNode['#name'] === 'FieldRef') {
+            } else if (leftNode['#name'] === 'FieldRef') {
                 leftNodeAst = getASTForFieldRef(
                     leftNode as IFieldRef,
-                    wrapFieldRefInMemberExpressionAst
+                    wrapFieldRefInMemberExpressionAst,
                 );
-            }
-            else if(leftNode['#name'] === 'Apply') {
+            } else if (leftNode['#name'] === 'Apply') {
                 leftNodeAst = getASTForApply(
                     leftNode as IApply,
                     userDefinedFunctionNames,
-                    wrapFieldRefInMemberExpressionAst
+                    wrapFieldRefInMemberExpressionAst,
                 );
             }
 
-            if(!leftNodeAst) {
+            if (!leftNodeAst) {
                 throw new Error(`Unhandle node type`);
             }
 
             return getUnaryExpressionAST('-', leftNodeAst as any);
-        }
-        else {
+        } else {
             return getASTForBinaryExpressionApply(
                 apply,
                 userDefinedFunctionNames,
-                wrapFieldRefInMemberExpressionAst
+                wrapFieldRefInMemberExpressionAst,
             );
         }
-    }
+    },
 };
 
 /**
@@ -82,31 +92,31 @@ const ApplyOperatorExceptions: {
  * 
  * @export
  * @param {Constant} constant
- * @returns {(UnaryExpressionAST | LiteralAST)}
+ * @returns {(IUnaryExpressionAST | ILiteralAST)}
  */
-export function getASTForConstant(constant: IConstant): UnaryExpressionAST | LiteralAST {
+export function getASTForConstant(
+    constant: IConstant,
+): IUnaryExpressionAST | ILiteralAST {
     //If the constant's dataType is a string or the dataType is not given
-    if(!constant.$ || constant.$.dataType === 'string') {
-        return getLiteralAST(constant._)
-    }
-    //If it's dataType is a double
-    else if(constant.$.dataType === 'double') {
+    if (!constant.$ || constant.$.dataType === 'string') {
+        return getLiteralAST(constant._);
+    } else if (constant.$.dataType === 'double') {
+        //If it's dataType is a double
         //Parse the value as a number
-        let value = Number(constant._)
+        let value = Number(constant._);
 
         //If it is negative then return a UnaryExpressionAST
-        if(value < 0) {
-            return getUnaryExpressionAST('-', getLiteralAST(Math.abs(value)))
+        if (value < 0) {
+            return getUnaryExpressionAST('-', getLiteralAST(Math.abs(value)));
+        } else {
+            return getLiteralAST(value);
         }
-        else {
-            return getLiteralAST(value)
-        }
-    }
-    else if(constant.$.dataType === 'NA'){
-        return getLiteralAST(null)
-    }
-    else {
-        throw new Error(`Unknown dataType ${constant.$.dataType} for Constant`)
+    } else if (constant.$.dataType === 'NA') {
+        return getLiteralAST(null);
+    } else if (constant.$.dataType === 'boolean') {
+        return getLiteralAST(constant._ === 'true' ? true : false);
+    } else {
+        throw new Error(`Unknown dataType ${constant.$.dataType} for Constant`);
     }
 }
 
@@ -115,23 +125,23 @@ export function getASTForConstant(constant: IConstant): UnaryExpressionAST | Lit
  * 
  * @export
  * @param {FieldRef} fieldRef
- * @returns {MemberExpressionAST}
+ * @returns {IMemberExpressionAST}
  */
 export function getASTForFieldRef(
     fieldRef: IFieldRef,
-    wrapInMemberExpressionAst: boolean
-): MemberExpressionAST | IdentifierAST {
+    wrapInMemberExpressionAst: boolean,
+): IMemberExpressionAST | IIdentifierAST {
     //Since field ref's refer to other predictor values we need to inject them at runtime when evaluating an algorithm. This if the fieldRef is for example test we return the AST so that it generates obj['test']
-    return (
-        wrapInMemberExpressionAst
-    ) ? (
-        getMemberExpressionAST(getLiteralAST(fieldRef.$.field), 'obj')
-    ) : (
-        getIdentifierAST(fieldRef.$.field)
-    )
+    return wrapInMemberExpressionAst
+        ? getMemberExpressionAST(getLiteralAST(fieldRef.$.field), 'obj')
+        : getIdentifierAST(fieldRef.$.field);
 }
 
-export type GetAstForApplyReturn = BinaryExpressionAST | LogicalExpressionAST | ConditionalExpressionAST | CallExpressionAST;
+export type GetAstForApplyReturn =
+    | IBinaryExpressionAST
+    | ILogicalExpressionAST
+    | IConditionalExpressionAST
+    | ICallExpressionAST;
 /**
  * Returns AST for an Apply node
  * 
@@ -142,335 +152,337 @@ export type GetAstForApplyReturn = BinaryExpressionAST | LogicalExpressionAST | 
 export function getASTForApply(
     apply: IApply,
     userDefinedFunctionNames: Array<string>,
-    wrapFieldRefInMemberExpressionAst: boolean
+    wrapFieldRefInMemberExpressionAst: boolean,
 ): GetAstForApplyReturn {
-    if(ApplyOperatorExceptions[apply.$.function]) {
+    if (ApplyOperatorExceptions[apply.$.function]) {
         return ApplyOperatorExceptions[apply.$.function](
             apply,
             userDefinedFunctionNames,
-            wrapFieldRefInMemberExpressionAst
+            wrapFieldRefInMemberExpressionAst,
         ) as any;
     }
     //if the function is a binary expression operator
-    if(BinaryExpressionOperators[apply.$.function] !== undefined) {
+    if (BinaryExpressionOperators[apply.$.function] !== undefined) {
         return getASTForBinaryExpressionApply(
             apply,
             userDefinedFunctionNames,
-            wrapFieldRefInMemberExpressionAst
-        )
-    }
-    //if the function is a logical expression operator
-    else if(LogicalExpressionOperators[apply.$.function] !==  undefined) {
+            wrapFieldRefInMemberExpressionAst,
+        );
+    } else if (LogicalExpressionOperators[apply.$.function] !== undefined) {
+        //if the function is a logical expression operator
         return getASTForLogicalExpressionApply(
             apply,
             userDefinedFunctionNames,
-            wrapFieldRefInMemberExpressionAst
-        )
-    }
-    //if the function is an if statement
-    else if(apply.$.function === 'if') {
+            wrapFieldRefInMemberExpressionAst,
+        );
+    } else if (apply.$.function === 'if') {
+        //if the function is an if statement
         return getASTForIfApply(
             apply,
             userDefinedFunctionNames,
-            wrapFieldRefInMemberExpressionAst
+            wrapFieldRefInMemberExpressionAst,
+        );
+    } else if (
+        SpecialFunctions.find(
+            specialFunction => specialFunction === apply.$.function,
         )
-    }
-    //if it is one of the special PMML functions
-    else if(SpecialFunctions.indexOf(apply.$.function) > -1) {
+    ) {
+        //if it is one of the special PMML functions
         return getASTForCallExpressionApply(
             apply,
             userDefinedFunctionNames,
-            wrapFieldRefInMemberExpressionAst
-        )
-    }
-    else if(userDefinedFunctionNames.indexOf(apply.$.function) > -1) {
+            wrapFieldRefInMemberExpressionAst,
+        );
+    } else if (userDefinedFunctionNames.indexOf(apply.$.function) > -1) {
         return getASTForUserDefinedFunctionApply(
             apply,
             userDefinedFunctionNames,
-            wrapFieldRefInMemberExpressionAst
+            wrapFieldRefInMemberExpressionAst,
         );
-    }
-    else {
-        throw new Error(`Unhandled function ${apply.$.function}`)
+    } else {
+        throw new Error(`Unhandled function ${apply.$.function}`);
     }
 }
 
 //Maps PMML functions which can be binary expression operators to their relevant ones in javascript
 const BinaryExpressionOperators: {
-    [index: string]: string | undefined
+    [index: string]: string | undefined;
 } = {
     '*': '*',
     '/': '/',
     '+': '+',
     '-': '-',
-    'greaterThan': '>',
-    'lessThan': '<',
-    'equal': '==',
-    'greaterOrEqual': '>=',
-    'lessOrEqual': '<='
-}
+    greaterThan: '>',
+    lessThan: '<',
+    equal: '==',
+    greaterOrEqual: '>=',
+    lessOrEqual: '<=',
+};
 /**
  * Maps an Apply node whose function is a binary expression operand to a BinaryExpressionAST 
  * 
  * @export
  * @param {Apply} apply
- * @returns {BinaryExpressionAST}
+ * @returns {IBinaryExpressionAST}
  */
 export function getASTForBinaryExpressionApply(
     apply: IApply,
     userDefinedFunctionNames: Array<string>,
-    wrapFieldRefInMemberExpressionAst: boolean
-): BinaryExpressionAST {
-    var left: BinaryExpressionASTLeftAndRight
-    var leftNode = apply.$$[0]
-    switch(leftNode['#name']) {
+    wrapFieldRefInMemberExpressionAst: boolean,
+): IBinaryExpressionAST {
+    var left: BinaryExpressionASTLeftAndRight;
+    var leftNode = apply.$$[0];
+    switch (leftNode['#name']) {
         case 'Constant': {
-            left = getASTForConstant(leftNode as IConstant)
-            break
+            left = getASTForConstant(leftNode as IConstant);
+            break;
         }
         case 'FieldRef': {
             left = getASTForFieldRef(
                 leftNode as IFieldRef,
-                wrapFieldRefInMemberExpressionAst
-            )
-            break
+                wrapFieldRefInMemberExpressionAst,
+            );
+            break;
         }
         case 'Apply': {
             left = getASTForApply(
-                leftNode as IApply, 
+                leftNode as IApply,
                 userDefinedFunctionNames,
-                wrapFieldRefInMemberExpressionAst
+                wrapFieldRefInMemberExpressionAst,
             ) as BinaryExpressionASTLeftAndRight;
-            break
+            break;
         }
         default: {
-            throw new Error(`Unhandled node type ${leftNode['#name']} when getting AST for binaryh expression node`)
+            throw new Error(
+                `Unhandled node type ${leftNode[
+                    '#name'
+                ]} when getting AST for binaryh expression node`,
+            );
         }
     }
 
-    var right: BinaryExpressionASTLeftAndRight
+    var right: BinaryExpressionASTLeftAndRight;
     var rightNode = apply.$$[1];
-    switch(rightNode['#name']) {
+    switch (rightNode['#name']) {
         case 'Constant': {
-            right = getASTForConstant(rightNode as IConstant)
-            break
+            right = getASTForConstant(rightNode as IConstant);
+            break;
         }
         case 'FieldRef': {
             right = getASTForFieldRef(
                 rightNode as IFieldRef,
-                wrapFieldRefInMemberExpressionAst
-            )
-            break
+                wrapFieldRefInMemberExpressionAst,
+            );
+            break;
         }
         case 'Apply': {
             right = getASTForApply(
                 rightNode as IApply,
                 userDefinedFunctionNames,
-                wrapFieldRefInMemberExpressionAst
-            ) as BinaryExpressionASTLeftAndRight
-            break
+                wrapFieldRefInMemberExpressionAst,
+            ) as BinaryExpressionASTLeftAndRight;
+            break;
         }
         default: {
-            throw new Error(`Unhandled node type ${rightNode['#name']} when getting AST for binaryh expression node`)
+            throw new Error(
+                `Unhandled node type ${rightNode[
+                    '#name'
+                ]} when getting AST for binaryh expression node`,
+            );
         }
     }
 
-    if(BinaryExpressionOperators[apply.$.function] === undefined) {
-        throw new Error(`Unhandled operator ${apply.$.function}`)
+    if (BinaryExpressionOperators[apply.$.function] === undefined) {
+        throw new Error(`Unhandled operator ${apply.$.function}`);
     }
 
     return getBinaryExpressionAST(
-        BinaryExpressionOperators[apply.$.function] as string, 
-        left, 
-        right
-    )
+        BinaryExpressionOperators[apply.$.function] as string,
+        left,
+        right,
+    );
 }
 
 //Maps PMML Apply function strings which are logical expression operators to their corresponsing logical expression operand in JS
 const LogicalExpressionOperators: {
-    [index: string]: string | undefined
+    [index: string]: string | undefined;
 } = {
     and: '&&',
-    or: '||'
-}
+    or: '||',
+};
 /**
  * Maps an Apply whose function string is one of the above LogicalExpressionOperators to a LogicalExpressionAST
  * 
  * @export
  * @param {Apply} apply
- * @returns {LogicalExpressionAST}
+ * @returns {ILogicalExpressionAST}
  */
 export function getASTForLogicalExpressionApply(
     apply: IApply,
     userDefinedFunctionNames: Array<string>,
-    wrapFieldRefInMemberExpressionAst: boolean
-): LogicalExpressionAST {
-    var left: LogicalExpressionASTLeftAndRight
-    switch(apply.$$[1]['#name']) {
+    wrapFieldRefInMemberExpressionAst: boolean,
+): ILogicalExpressionAST {
+    var left: LogicalExpressionASTLeftAndRight;
+    switch (apply.$$[1]['#name']) {
         case 'Constant': {
-            left = getASTForConstant(apply.$$[0] as IConstant)
-            break
+            left = getASTForConstant(apply.$$[0] as IConstant);
+            break;
         }
         case 'FieldRef': {
             left = getASTForFieldRef(
                 apply.$$[0] as IFieldRef,
-                wrapFieldRefInMemberExpressionAst
-            )
-            break
+                wrapFieldRefInMemberExpressionAst,
+            );
+            break;
         }
         case 'Apply': {
             left = getASTForApply(
-                apply.$$[0] as IApply, 
+                apply.$$[0] as IApply,
                 userDefinedFunctionNames,
-                wrapFieldRefInMemberExpressionAst
-            ) as LogicalExpressionASTLeftAndRight
-            break
+                wrapFieldRefInMemberExpressionAst,
+            ) as LogicalExpressionASTLeftAndRight;
+            break;
         }
         default: {
-            throw new Error(`Unhandled node ${apply.$$[1]['#name']}`)
+            throw new Error(`Unhandled node ${apply.$$[1]['#name']}`);
         }
     }
 
-    var right: LogicalExpressionASTLeftAndRight
-    switch(apply.$$[1]['#name']) {
+    var right: LogicalExpressionASTLeftAndRight;
+    switch (apply.$$[1]['#name']) {
         case 'Constant': {
-            right = getASTForConstant(apply.$$[1] as IConstant)
-            break
+            right = getASTForConstant(apply.$$[1] as IConstant);
+            break;
         }
         case 'FieldRef': {
             right = getASTForFieldRef(
                 apply.$$[1] as IFieldRef,
-                wrapFieldRefInMemberExpressionAst
-            )
-            break
+                wrapFieldRefInMemberExpressionAst,
+            );
+            break;
         }
         case 'Apply': {
             right = getASTForApply(
                 apply.$$[1] as IApply,
                 userDefinedFunctionNames,
-                wrapFieldRefInMemberExpressionAst
-            ) as LogicalExpressionASTLeftAndRight
-            break
+                wrapFieldRefInMemberExpressionAst,
+            ) as LogicalExpressionASTLeftAndRight;
+            break;
         }
         default: {
-            throw new Error(`Unhandled node ${apply.$$[1]['#name']}`)
+            throw new Error(`Unhandled node ${apply.$$[1]['#name']}`);
         }
     }
 
-    if(LogicalExpressionOperators[apply.$.function] === undefined) {
-        throw new Error(`Unhandled operator ${apply.$.function}`)
+    if (LogicalExpressionOperators[apply.$.function] === undefined) {
+        throw new Error(`Unhandled operator ${apply.$.function}`);
     }
 
-    return getLogicalExpressionAST(LogicalExpressionOperators[apply.$.function] as string, left, right)
-} 
+    return getLogicalExpressionAST(
+        LogicalExpressionOperators[apply.$.function] as string,
+        left,
+        right,
+    );
+}
 
 /**
  * Maps an Apply node whose function is an if to a ConditionalExpressionAST. Do this rather than an IfStatement because it's more concise
  * 
  * @export
  * @param {Apply} apply
- * @returns {ConditionalExpressionAST}
+ * @returns {IConditionalExpressionAST}
  */
 export function getASTForIfApply(
     apply: IApply,
     userDefinedFunctionNames: Array<string>,
-    wrapFieldRefInMemberExpressionAst: boolean
-): ConditionalExpressionAST {
-    var test: AST
-    switch(apply.$$[0]['#name']) {
+    wrapFieldRefInMemberExpressionAst: boolean,
+): IConditionalExpressionAST {
+    var test: AST;
+    switch (apply.$$[0]['#name']) {
         case 'Constant': {
-            test = getASTForConstant(apply.$$[0] as IConstant) as LiteralAST
-            break
+            test = getASTForConstant(apply.$$[0] as IConstant) as ILiteralAST;
+            break;
         }
         case 'FieldRef': {
             test = getASTForFieldRef(
                 apply.$$[0] as IFieldRef,
-                wrapFieldRefInMemberExpressionAst
-            )
-            break
+                wrapFieldRefInMemberExpressionAst,
+            );
+            break;
         }
         case 'Apply': {
             test = getASTForApply(
                 apply.$$[0] as IApply,
                 userDefinedFunctionNames,
-                wrapFieldRefInMemberExpressionAst
-            )
-            break
+                wrapFieldRefInMemberExpressionAst,
+            );
+            break;
         }
         default: {
-            throw new Error(`Unhandles node type ${apply.$$[0]['#name']}`)
+            throw new Error(`Unhandles node type ${apply.$$[0]['#name']}`);
         }
     }
 
-    var consequent: AST
-    switch(apply.$$[1]['#name']) {
+    var consequent: AST;
+    switch (apply.$$[1]['#name']) {
         case 'Constant': {
-            consequent = getASTForConstant(apply.$$[1] as IConstant) as LiteralAST
-            break
+            consequent = getASTForConstant(apply
+                .$$[1] as IConstant) as ILiteralAST;
+            break;
         }
         case 'FieldRef': {
             consequent = getASTForFieldRef(
                 apply.$$[1] as IFieldRef,
-                wrapFieldRefInMemberExpressionAst
-            )
-            break
+                wrapFieldRefInMemberExpressionAst,
+            );
+            break;
         }
         case 'Apply': {
             consequent = getASTForApply(
                 apply.$$[1] as IApply,
                 userDefinedFunctionNames,
-                wrapFieldRefInMemberExpressionAst
-            )
-            break
+                wrapFieldRefInMemberExpressionAst,
+            );
+            break;
         }
         default: {
-            throw new Error(`Unhandles node type ${apply.$$[1]['#name']}`)
+            throw new Error(`Unhandles node type ${apply.$$[1]['#name']}`);
         }
     }
 
-    var alternate: AST
-    switch(apply.$$[2]['#name']) {
+    var alternate: AST;
+    switch (apply.$$[2]['#name']) {
         case 'Constant': {
-            alternate = getASTForConstant(apply.$$[2] as IConstant) as LiteralAST
-            break
+            alternate = getASTForConstant(apply
+                .$$[2] as IConstant) as ILiteralAST;
+            break;
         }
         case 'FieldRef': {
             alternate = getASTForFieldRef(
                 apply.$$[2] as IFieldRef,
-                wrapFieldRefInMemberExpressionAst
-            )
-            break
+                wrapFieldRefInMemberExpressionAst,
+            );
+            break;
         }
         case 'Apply': {
             alternate = getASTForApply(
                 apply.$$[2] as IApply,
                 userDefinedFunctionNames,
-                wrapFieldRefInMemberExpressionAst
-            )
-            break
+                wrapFieldRefInMemberExpressionAst,
+            );
+            break;
         }
         default: {
-            throw new Error(`Unhandled node type ${apply.$$[2]['#name']}`)
+            throw new Error(`Unhandled node type ${apply.$$[2]['#name']}`);
         }
-    } 
+    }
 
-    return getConditionalExpressionAST(test, consequent, alternate)
+    return getConditionalExpressionAST(test, consequent, alternate);
 }
 
 //These are functions which we have implemented ourselves
-const SpecialFunctions: Array<string> = [
-    'exp',
-    'ln',
-    'is.na',
-    'not',
-    'notEqual',
-    'formatDatetime',
-    'max',
-    'sum',
-    'ifelse',
-    'isIn',
-    'log'
-]
+const SpecialFunctions = Object.keys(PmmlFunctions);
+
 /**
  * Maps a PMML apply node whose function string is set to one in the above SpecialFunctions object to a CallExpressionAST
  * 
@@ -481,35 +493,35 @@ const SpecialFunctions: Array<string> = [
 export function getASTForCallExpressionApply(
     apply: IApply,
     userDefinedFunctionNames: Array<string>,
-    wrapFieldRefInMemberExpressionAst: boolean
-): CallExpressionAST {
+    wrapFieldRefInMemberExpressionAst: boolean,
+): ICallExpressionAST {
     //We make the function call look like func[apply.$.function] so that we can dynamically make the functions available at runtime
     return getCallExpressionAST(
         getMemberExpressionAST(getLiteralAST(apply.$.function), 'func'),
         //Go through all the function arguments
-        apply.$$.map((apply) => {
+        apply.$$.map(apply => {
             switch (apply['#name']) {
                 case 'Constant': {
-                    return getASTForConstant(apply as IConstant)
+                    return getASTForConstant(apply as IConstant);
                 }
                 case 'FieldRef': {
                     return getASTForFieldRef(
                         apply as IFieldRef,
-                        wrapFieldRefInMemberExpressionAst
-                    )
+                        wrapFieldRefInMemberExpressionAst,
+                    );
                 }
                 case 'Apply': {
                     return getASTForApply(
                         apply as IApply,
                         userDefinedFunctionNames,
-                        wrapFieldRefInMemberExpressionAst
-                    )
+                        wrapFieldRefInMemberExpressionAst,
+                    );
                 }
                 default: {
-                    throw new Error(`Unhandled node type ${apply['#name']}`)
+                    throw new Error(`Unhandled node type ${apply['#name']}`);
                 }
             }
-        })
+        }),
     );
 }
 
@@ -523,45 +535,81 @@ export function getASTForCallExpressionApply(
 export function getASTForUserDefinedFunctionApply(
     apply: IApply,
     userDefinedFunctionNames: Array<string>,
-    wrapFieldRefInMemberExpressionAst: boolean
-): CallExpressionAST {
-    const additionalFunctionPassedInArgs = [
-        'userFunctions',
-        'func'
-    ];
+    wrapFieldRefInMemberExpressionAst: boolean,
+): ICallExpressionAST {
+    const additionalFunctionPassedInArgs = ['userFunctions', 'func'];
 
     //We make the function call look like func[apply.$.function] so that we can dynamically make the functions available at runtime
     return getCallExpressionAST(
         getMemberExpressionAST(
-            getLiteralAST(apply.$.function), 'userFunctions'
+            getLiteralAST(apply.$.function),
+            'userFunctions',
         ),
         //Go through all the function arguments
-        apply.$$.map((apply) => {
-            switch (apply['#name']) {
-                case 'Constant': {
-                    return getASTForConstant(apply as IConstant)
+        apply.$$
+            .map(apply => {
+                switch (apply['#name']) {
+                    case 'Constant': {
+                        return getASTForConstant(apply as IConstant);
+                    }
+                    case 'FieldRef': {
+                        return getASTForFieldRef(
+                            apply as IFieldRef,
+                            wrapFieldRefInMemberExpressionAst,
+                        );
+                    }
+                    case 'Apply': {
+                        return getASTForApply(
+                            apply as IApply,
+                            userDefinedFunctionNames,
+                            wrapFieldRefInMemberExpressionAst,
+                        );
+                    }
+                    default: {
+                        throw new Error(
+                            `Unhandled node type ${apply['#name']}`,
+                        );
+                    }
                 }
-                case 'FieldRef': {
-                    return getASTForFieldRef(
-                        apply as IFieldRef,
-                        wrapFieldRefInMemberExpressionAst
-                    )
-                }
-                case 'Apply': {
-                    return getASTForApply(
-                        apply as IApply,
-                        userDefinedFunctionNames,
-                        wrapFieldRefInMemberExpressionAst
-                    )
-                }
-                default: {
-                    throw new Error(`Unhandled node type ${apply['#name']}`)
-                }
-            }
-        }).concat(
-            additionalFunctionPassedInArgs
-                .map((functionArg) => getIdentifierAST(functionArg))
-        )
+            })
+            .concat(
+                additionalFunctionPassedInArgs.map(functionArg =>
+                    getIdentifierAST(functionArg),
+                ),
+            ),
     );
 }
 
+function getPropertyAstFromFieldColumnPair(
+    fieldColumnPair: IFieldColumnPair,
+): IPropertyAst {
+    return getPropertyAst(
+        fieldColumnPair.$.column,
+        fieldColumnPair.$.field
+            ? getMemberExpressionAST(
+                  getLiteralAST(fieldColumnPair.$.field),
+                  'obj',
+              )
+            : getLiteralAST(fieldColumnPair.$.constant as string),
+    );
+}
+
+export function getAstForMapValues(mapValues: IMapValues): ICallExpressionAST {
+    const fieldColumnPairs =
+        mapValues.FieldColumnPair instanceof Array
+            ? mapValues.FieldColumnPair
+            : [mapValues.FieldColumnPair];
+
+    return getCallExpressionAST(getIdentifierAST('getValueFromTable'), [
+        getMemberExpressionAST(
+            getLiteralAST(mapValues.TableLocator.$.name),
+            'tables',
+        ),
+        getLiteralAST(mapValues.$.outputColumn),
+        getObjectExpressionAst(
+            fieldColumnPairs.map(fieldColumnPair => {
+                return getPropertyAstFromFieldColumnPair(fieldColumnPair);
+            }),
+        ),
+    ]);
+}
