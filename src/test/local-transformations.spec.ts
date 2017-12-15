@@ -142,8 +142,8 @@ function testCovariateTransformations(
 
         expect(
             diffError < 0.00001 || diffError === 0,
-            `DerivedField ${(derivedField as any)
-                .name}. Input Row: ${index}. Actual Output: ${actualOutput}. ExpectedOutput: ${expectedOutput}. DiffError: ${diffError}`,
+            `DerivedField ${(derivedField as any).name}. Input Row: ${index +
+                2}. Actual Output: ${actualOutput}. ExpectedOutput: ${expectedOutput}. DiffError: ${diffError}`,
         ).to.be.true;
     });
 }
@@ -186,45 +186,50 @@ function testLocalTransformationsForModel(
         const genders = ['male', 'female'];
 
         genders.forEach(gender => {
-            const testingCsvData = csvParse(
-                fs.readFileSync(
-                    `${TransformationsTestingDataFolderPath}/${modelName}/${gender}/testing-data.csv`,
-                    'utf8',
-                ),
-                {
-                    columns: true,
-                },
-            );
-            const algorithmForCurrentGender = getAlgorithmForData(model, [
-                {
-                    name: 'sex',
-                    coefficent: gender,
-                },
-            ]);
+            t.test(`Testing ${gender} algorithm`, t => {
+                const testingCsvData = csvParse(
+                    fs.readFileSync(
+                        `${TransformationsTestingDataFolderPath}/${modelName}/${gender}/testing-data.csv`,
+                        'utf8',
+                    ),
+                    {
+                        columns: true,
+                    },
+                );
+                const algorithmForCurrentGender = getAlgorithmForData(model, [
+                    {
+                        name: 'sex',
+                        coefficent: gender,
+                    },
+                ]);
 
-            (algorithmForCurrentGender as RegressionAlgorithmTypes).covariates.forEach(
-                covariate => {
-                    const {
-                        inputData,
-                        expectedOutputs,
-                    } = getTestingDataForCovariate(covariate, testingCsvData);
+                (algorithmForCurrentGender as RegressionAlgorithmTypes).covariates.forEach(
+                    covariate => {
+                        const {
+                            inputData,
+                            expectedOutputs,
+                        } = getTestingDataForCovariate(
+                            covariate,
+                            testingCsvData,
+                        );
 
-                    testCovariateTransformations(
-                        covariate,
-                        inputData,
-                        expectedOutputs,
-                        algorithmForCurrentGender.userFunctions,
-                    );
+                        testCovariateTransformations(
+                            covariate,
+                            inputData,
+                            expectedOutputs,
+                            algorithmForCurrentGender.userFunctions,
+                        );
 
-                    t.pass(
-                        `Testing transformations for covariate ${covariate.name}`,
-                    );
-                },
-            );
+                        t.pass(
+                            `Testing transformations for covariate ${covariate.name}`,
+                        );
+                    },
+                );
+
+                t.end();
+            });
         });
     }
-
-    t.end();
 }
 
 test(`Testing local transformations`, async function(t) {
