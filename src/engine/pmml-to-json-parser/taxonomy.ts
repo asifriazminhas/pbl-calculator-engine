@@ -1,7 +1,7 @@
 import { ITables } from '../algorithm';
 import { ICustomPmml } from '../pmml';
 import { ITaxonomy } from '../pmml/taxonomy';
-import { isUndefined } from 'lodash';
+import { isUndefined, isEmpty } from 'lodash';
 
 function reduceRowToTableRow(
     tableRow: { [index: string]: string },
@@ -30,7 +30,7 @@ function reduceInlineTableToTable(
 }
 
 export function parseTaxonomy(taxonomy: ICustomPmml['Taxonomy']): ITables {
-    if (isUndefined(taxonomy)) {
+    if (isUndefined(taxonomy) || isEmpty(taxonomy)) {
         return {};
     } else if (taxonomy instanceof Array) {
         return taxonomy.reduce(
