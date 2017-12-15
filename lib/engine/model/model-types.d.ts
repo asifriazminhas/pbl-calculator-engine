@@ -2,6 +2,8 @@ import { SingleAlgorithmModel, NewBaseline as SingleAlgorithmModelNewBaseline } 
 import { MultipleAlgorithmModel, NewBaseline as MultipleAlgorithmModelNewBaseline } from '../multiple-algorithm-model';
 import { Data } from '../data';
 import { Algorithm } from '../algorithm';
-export declare type ModelTypes = SingleAlgorithmModel | MultipleAlgorithmModel;
-export declare function getAlgorithmForModelAndData(model: ModelTypes, data: Data): Algorithm;
-export declare function updateBaselineForModel(model: ModelTypes, newBaseline: number | SingleAlgorithmModelNewBaseline | MultipleAlgorithmModelNewBaseline): ModelTypes;
+import { AlgorithmTypes } from '../algorithm/algorithm-types';
+import { RegressionAlgorithmTypes } from '../regression-algorithm/regression-algorithm-types';
+export declare type ModelTypes<U extends AlgorithmTypes = AlgorithmTypes> = SingleAlgorithmModel<U> | MultipleAlgorithmModel<U>;
+export declare function getAlgorithmForModelAndData(model: ModelTypes, data: Data): Algorithm<any>;
+export declare function updateBaselineForModel(model: ModelTypes<RegressionAlgorithmTypes>, newBaseline: number | SingleAlgorithmModelNewBaseline | MultipleAlgorithmModelNewBaseline): ModelTypes<RegressionAlgorithmTypes>;

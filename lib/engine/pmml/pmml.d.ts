@@ -8,11 +8,30 @@ import { IPCell } from './general_regression_model/p_cell';
 import { IHeader } from './header/header';
 import { ICustomHeader } from './custom/header';
 import { IRestrictedCubicSpline } from './custom/restricted_cubic_spline';
+import { ITaxonomy } from './taxonomy';
+export interface IOutput {
+    OutputField: {
+        $: {
+            name: string;
+            targetField: string;
+        };
+    };
+}
 export interface IPmml {
     Header: IHeader;
     DataDictionary: IDataDictionary;
     LocalTransformations: ILocalTransformations;
-    GeneralRegressionModel: IGeneralRegressionModel;
+    GeneralRegressionModel?: IGeneralRegressionModel;
+    Taxonomy?: ITaxonomy[] | ITaxonomy;
+    Output?: IOutput;
+    Targets?: {
+        Target: {
+            $: {
+                field: string;
+                opType: 'continuous' | 'categorical';
+            };
+        };
+    };
 }
 export interface ICustomPmml extends IPmml {
     Header: ICustomHeader;

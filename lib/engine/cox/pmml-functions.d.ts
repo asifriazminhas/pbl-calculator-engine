@@ -11,5 +11,8 @@ declare const _default: {
     isIn: (...args: number[]) => boolean;
     log: (num: number) => number;
     ifelse: (booleanOne: boolean, whenTrue: any, whenFalse: any) => any;
+    ifelse2: (booleanOne: boolean, whenTrue: any, whenFalse: any) => any;
+    floor: (decimal: number) => number;
+    pmax: (num1: number, num2: number) => number;
 };
 export default _default;

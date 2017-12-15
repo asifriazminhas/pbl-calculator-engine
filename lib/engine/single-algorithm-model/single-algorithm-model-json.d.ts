@@ -1,3 +1,3 @@
-import { IAlgorithmJson } from '../algorithm';
 import { GenericSingleAlgorithmModel } from './generic-single-algorithm-model';
-export declare type SingleAlgorithmModelJson = GenericSingleAlgorithmModel<IAlgorithmJson>;
+import { AlgorithmJsonTypes } from '../algorithm/algorithm-json-types';
+export declare type SingleAlgorithmModelJson<U extends AlgorithmJsonTypes = AlgorithmJsonTypes> = GenericSingleAlgorithmModel<U>;
