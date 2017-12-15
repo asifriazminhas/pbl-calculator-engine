@@ -32,7 +32,9 @@ import {
  * @param {(number | string)} value 
  * @returns {LiteralAST} 
  */
-export function getLiteralAST(value: number | string | null): ILiteralAST {
+export function getLiteralAST(
+    value: number | string | boolean | null,
+): ILiteralAST {
     return {
         type: 'Literal',
         value: value,
