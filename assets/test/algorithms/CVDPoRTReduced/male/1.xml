@@ -107,7 +107,7 @@
             <Parameter name="p1" label="AgeC_rcs2" referencePoint="11.8606801709774"/>
             <Parameter name="p2" label="AgeC_rcs3" referencePoint="3.79490766463087"/>
             <Parameter name="p3" label="AgeC_rcs4" referencePoint="1.13336772506441"/>
-            <Parameter name="p4" label="PackYearsC_rcs1"referencePoint="-7.38757298207009e-13"/>
+            <Parameter name="p4" label="PackYearsC_rcs1" referencePoint="-7.38757298207009e-13"/>
             <Parameter name="p5" label="PackYearsC_rcs2" referencePoint="1.68870972794152"/>
             <Parameter name="p6" label="SmokeFormer5PlusC_cat" referencePoint="-1.38527194688192e-15"/>
             <Parameter name="p7" label="SmokeFormer0to5C_cat" referencePoint="3.42610505136119e-15"/>
@@ -186,7 +186,7 @@
             <PPCell value="1" predictorName="AgeC_rcs2" parameterName="p1"/>
             <PPCell value="1" predictorName="AgeC_rcs3" parameterName="p2"/>
             <PPCell value="1" predictorName="AgeC_rcs4" parameterName="p3"/>
-            <PPCell value="1" predictorName="PackYearsC_rcs1"parameterName="p4"/>
+            <PPCell value="1" predictorName="PackYearsC_rcs1" parameterName="p4"/>
             <PPCell value="1" predictorName="PackYearsC_rcs2" parameterName="p5"/>
             <PPCell value="1" predictorName="SmokeFormer5PlusC_cat" parameterName="p6"/>
             <PPCell value="1" predictorName="SmokeFormer0to5C_cat" parameterName="p7"/>
