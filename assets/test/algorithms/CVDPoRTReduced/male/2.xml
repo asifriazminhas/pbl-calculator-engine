@@ -1,4 +1,602 @@
 <PMML>
+    <Taxonomy name="webSpec">
+        <InlineTable>
+            <row>
+                <Name>Variable Name</Name>
+                <Mean_male>DemPoRT Male Variable Means</Mean_male>
+                <Mean_female>DemPoRT Female Variable Means</Mean_female>
+                <UserMin_male>DemPoRT User Min (Male)</UserMin_male>
+                <UserMin_female>DemPoRT User Min (Female)</UserMin_female>
+                <UserMax_male>DemPoRT User Max (Male)</UserMax_male>
+                <UserMax_female>DemPoRT User Max (Female)</UserMax_female>
+            </row>
+            <row>
+                <Name>Age_cont</Name>
+                <Mean_male>50.06</Mean_male>
+                <Mean_female>47.98</Mean_female>
+                <UserMin_male>20</UserMin_male>
+                <UserMin_female>20</UserMin_female>
+                <UserMax_male>79</UserMax_male>
+                <UserMax_female>79</UserMax_female>
+            </row>
+            <row>
+                <Name>AgeC_cont</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>AgeC_rcs1</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SmokeDaily</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>DailyCig</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>0</UserMin_male>
+                <UserMin_female>0</UserMin_female>
+                <UserMax_male>99</UserMax_male>
+                <UserMax_female>99</UserMax_female>
+            </row>
+            <row>
+                <Name>AgeDailyStart</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>5</UserMin_male>
+                <UserMin_female>5</UserMin_female>
+                <UserMax_male>Age_cont</UserMax_male>
+                <UserMax_female>Age_cont</UserMax_female>
+            </row>
+            <row>
+                <Name>AgeDailyQuit</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>5</UserMin_male>
+                <UserMin_female>5</UserMin_female>
+                <UserMax_male>Age_cont - 5</UserMax_male>
+                <UserMax_female>Age_cont - 5</UserMax_female>
+            </row>
+            <row>
+                <Name>TypeOfSmoker2</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>PackYears</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>PackYears_cont</Name>
+                <Mean_male>13.19</Mean_male>
+                <Mean_female>8.17</Mean_female>
+                <UserMin_male>0</UserMin_male>
+                <UserMin_female>109</UserMin_female>
+                <UserMax_male>0</UserMax_male>
+                <UserMax_female>79</UserMax_female>
+            </row>
+            <row>
+                <Name>PackYearsC_cont</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>PackYearsC_rcs1</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SmokeSimple</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SmokeFormer5Plus_cat</Name>
+                <Mean_male>0.36</Mean_male>
+                <Mean_female>0.31</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SmokeFormer0to5_cat</Name>
+                <Mean_male>0.1</Mean_male>
+                <Mean_female>0.07</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SmokeCurrent_cat</Name>
+                <Mean_male>0.28</Mean_male>
+                <Mean_female>0.23</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SmokeNon</Name>
+                <Mean_male>0.25</Mean_male>
+                <Mean_female>0.38</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SmokeFormer5PlusC_cat</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SmokeFormer0to5C_cat</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SmokeCurrentC_cat</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>DrinksLastWeek</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>DrinksLastWeek_cont</Name>
+                <Mean_male>5.77</Mean_male>
+                <Mean_female>2.22</Mean_female>
+                <UserMin_male>0</UserMin_male>
+                <UserMin_female>0</UserMin_female>
+                <UserMax_male>53</UserMax_male>
+                <UserMax_female>26</UserMax_female>
+            </row>
+            <row>
+                <Name>DrinksLastWeekC_cont</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>DrinksLastWeekC_rcs1</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>FormerDrinkerNo</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>0.84</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>FormerDrinker_cat</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>0.16</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>FormerDrinkerC_cat</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>FruitVeg</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>FruitVeg_cont</Name>
+                <Mean_male>3.01</Mean_male>
+                <Mean_female>3.97</Mean_female>
+                <UserMin_male>0</UserMin_male>
+                <UserMin_female>0</UserMin_female>
+                <UserMax_male>13</UserMax_male>
+                <UserMax_female>12</UserMax_female>
+            </row>
+            <row>
+                <Name>FruitVegC_cont</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>FruitVegC_rcs1</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>Potato_cont</Name>
+                <Mean_male>0.41</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>0</UserMin_male>
+                <UserMin_female>0</UserMin_female>
+                <UserMax_male>2</UserMax_male>
+                <UserMax_female>2</UserMax_female>
+            </row>
+            <row>
+                <Name>PotatoC_cont</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>PotatoC_rcs1</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>Juice_cont</Name>
+                <Mean_male>0.92</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>0</UserMin_male>
+                <UserMin_female>0</UserMin_female>
+                <UserMax_male>6</UserMax_male>
+                <UserMax_female>6</UserMax_female>
+            </row>
+            <row>
+                <Name>JuiceC_cont</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>PhysicalActivity</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>0</UserMin_male>
+                <UserMin_female>0</UserMin_female>
+                <UserMax_male>10</UserMax_male>
+                <UserMax_female>10</UserMax_female>
+            </row>
+            <row>
+                <Name>PhysicalActivity_cont</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>1.87</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>PhysicalActivityC_cont</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>PhysicalActivityC_rcs1</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>BMI_cont</Name>
+                <Mean_male>26.74</Mean_male>
+                <Mean_female>25.71</Mean_female>
+                <UserMin_male>?</UserMin_male>
+                <UserMin_female>?</UserMin_female>
+                <UserMax_male>?</UserMax_male>
+                <UserMax_female>?</UserMax_female>
+            </row>
+            <row>
+                <Name>BMIC_cont</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>BMIC_rcs1</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>Edu2</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>EduHSGrad2_cat</Name>
+                <Mean_male>0.18</Mean_male>
+                <Mean_female>0.2</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>EduSomePS2_cat</Name>
+                <Mean_male>0.07</Mean_male>
+                <Mean_female>0.07</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>EduPSGrad2_cat</Name>
+                <Mean_male>0.56</Mean_male>
+                <Mean_female>0.53</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>EduNoHSGrad2</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>EduHSGrad2C_cat</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>EduSomePS2C_cat</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>EduPSGrad2C_cat</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>Diabetes_cat</Name>
+                <Mean_male>0.06</Mean_male>
+                <Mean_female>0.05</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>DiabetesNo </Name>
+                <Mean_male>0.94</Mean_male>
+                <Mean_female>0.95</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>DiabetesC_cat</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>Hypertension_cat</Name>
+                <Mean_male>0.17</Mean_male>
+                <Mean_female>0.2</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>NoHypertension</Name>
+                <Mean_male>0.83</Mean_male>
+                <Mean_female>0.8</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>HypertensionC_cat</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SurveyCycle</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SurveyCycle1</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SurveyCycle2_cat</Name>
+                <Mean_male>0.25</Mean_male>
+                <Mean_female>0.25</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SurveyCycle3_cat</Name>
+                <Mean_male>0.25</Mean_male>
+                <Mean_female>0.25</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SurveyCycle4_cat</Name>
+                <Mean_male>0.26</Mean_male>
+                <Mean_female>0.26</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SurveyCycle2C_cat</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SurveyCycle3C_cat</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+            <row>
+                <Name>SurveyCycle4C_cat</Name>
+                <Mean_male>NA</Mean_male>
+                <Mean_female>NA</Mean_female>
+                <UserMin_male>NA</UserMin_male>
+                <UserMin_female>NA</UserMin_female>
+                <UserMax_male>NA</UserMax_male>
+                <UserMax_female>NA</UserMax_female>
+            </row>
+        </InlineTable>
+    </Taxonomy>
     <LocalTransformations>
         <DefineFunction name="Center.fun">
             <ParameterField name="uncentered" dataType="double"/>
@@ -1481,9 +2079,10 @@
         <DerivedField name="AgeC_cont" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="Age_cont"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">Age_cont</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="Age_cont"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="AgeC_rcs1" optype="continuous">
@@ -1821,17 +2420,19 @@
         <DerivedField name="DrinksLastWeek_cont" optype="continuous">
             <Apply function="Max.fun">
                 <FieldRef field="DrinksLastWeek"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">DrinksLastWeek_cont</Constant>
-                <Constant dataType="string">UserMax_male</Constant>
+                <MapValues outputColumn="UserMax_male">
+                    <FieldColumnPair column="Name" constant="DrinksLastWeek_cont"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="DrinksLastWeekC_cont" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="DrinksLastWeek_cont"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">DrinksLastWeek_cont</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="DrinksLastWeek_cont"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="DrinksLastWeekC_rcs1" optype="continuous">
@@ -2790,17 +3391,19 @@
         <DerivedField name="PackYears_cont" optype="continuous">
             <Apply function="Max.fun">
                 <FieldRef field="PackYears"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">PackYears_cont</Constant>
-                <Constant dataType="string">UserMax_male</Constant>
+                <MapValues outputColumn="UserMax_male">
+                    <FieldColumnPair column="Name" constant="PackYears_cont"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="PackYearsC_cont" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="PackYears_cont"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">PackYears_cont</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="PackYears_cont"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="PackYearsC_rcs1" optype="continuous">
@@ -2912,25 +3515,28 @@
         <DerivedField name="SmokeFormer5PlusC_cat" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="SmokeFormer5Plus_cat"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">SmokeFormer5Plus_cat</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="SmokeFormer5Plus_cat"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="SmokeFormer0to5C_cat" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="SmokeFormer0to5_cat"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">SmokeFormer0to5_cat</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="SmokeFormer0to5_cat"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="SmokeCurrentC_cat" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="SmokeCurrent_cat"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">SmokeCurrent_cat</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="SmokeCurrent_cat"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="AgeCXPackYearsC_int" optype="continuous">
@@ -3563,9 +4169,10 @@
         <DerivedField name="FruitVegC_cont" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="FruitVeg_cont"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">FruitVeg_cont</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="FruitVeg_cont"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="FruitVegC_rcs1" optype="continuous">
@@ -3586,9 +4193,10 @@
         <DerivedField name="JuiceC_cont" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="Juice_cont"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">Juice_cont</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="Juice_cont"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="AgeCXJuiceC_int" optype="continuous">
@@ -3606,9 +4214,10 @@
         <DerivedField name="PotatoC_cont" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="Potato_cont"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">Potato_cont</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="Potato_cont"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="PotatoC_rcs1" optype="continuous">
@@ -3791,9 +4400,10 @@
         <DerivedField name="BMIC_cont" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="BMI_cont"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">BMI_cont</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="BMI_cont"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="BMIC_rcs1" optype="continuous">
@@ -4022,25 +4632,28 @@
         <DerivedField name="EduHSGrad2C_cat" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="EduHSGrad2_cat"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">EduHSGrad2_cat</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="EduHSGrad2_cat"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="EduSomePS2C_cat" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="EduSomePS2_cat"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">EduSomePS2_cat</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="EduSomePS2_cat"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="EduPSGrad2C_cat" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="EduPSGrad2_cat"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">EduPSGrad2_cat</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="EduPSGrad2_cat"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DefineFunction name="HeartDis_cat.fun">
@@ -4141,9 +4754,10 @@
         <DerivedField name="DiabetesC_cat" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="Diabetes_cat"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">Diabetes_cat</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="Diabetes_cat"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="AgeCXDiabetesC_int" optype="continuous">
@@ -4160,9 +4774,10 @@
         <DerivedField name="HypertensionC_cat" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="Hypertension_cat"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">Hypertension_cat</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="Hypertension_cat"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="AgeCXHypertensionC_int" optype="continuous">
@@ -4249,25 +4864,28 @@
         <DerivedField name="SurveyCycle2C_cat" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="SurveyCycle2_cat"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">SurveyCycle2_cat</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="SurveyCycle2_cat"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="SurveyCycle3C_cat" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="SurveyCycle3_cat"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">SurveyCycle3_cat</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="SurveyCycle3_cat"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
         <DerivedField name="SurveyCycle4C_cat" optype="continuous">
             <Apply function="Center.fun">
                 <FieldRef field="SurveyCycle4_cat"/>
-                <FieldRef field="CRSpec"/>
-                <Constant dataType="string">SurveyCycle4_cat</Constant>
-                <Constant dataType="string">Mean_male</Constant>
+                <MapValues outputColumn="Mean_male">
+                    <FieldColumnPair column="Name" constant="SurveyCycle4_cat"/>
+                    <TableLocator location="taxonomy" name="webSpec"/>
+                </MapValues>
             </Apply>
         </DerivedField>
     </LocalTransformations>
