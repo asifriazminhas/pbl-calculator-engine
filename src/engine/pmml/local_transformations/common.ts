@@ -1,24 +1,26 @@
+import { IMapValues } from './derived_field';
+
 export interface IApply {
-    '#name': 'Apply'
+    '#name': 'Apply';
     $: {
-        function: string
-    }
-    $$: Array<IApplyChildNode>
+        function: string;
+    };
+    $$: Array<IApplyChildNode>;
 }
 
 export interface IConstant {
-    '#name': 'Constant'
+    '#name': 'Constant';
     $: {
-        dataType: string
-    }
-    _: string
+        dataType: string;
+    };
+    _: string;
 }
 
 export interface IFieldRef {
-    '#name': 'FieldRef'
+    '#name': 'FieldRef';
     $: {
-        field: string
-    }
+        field: string;
+    };
 }
 
-export type IApplyChildNode = IApply | IConstant | IFieldRef
+export type IApplyChildNode = IApply | IConstant | IFieldRef | IMapValues;
