@@ -53,4 +53,7 @@ export default {
     pmax: function(num1: number, num2: number): number {
         return num1 > num2 ? num1 : num2;
     },
+    exists: function(value: any): boolean {
+        return !(value === undefined || value === null);
+    },
 };
