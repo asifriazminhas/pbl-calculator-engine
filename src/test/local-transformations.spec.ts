@@ -113,6 +113,7 @@ function testCovariateTransformations(
     inputData: Data[],
     expectedOutputs: (number | null)[],
     userFunctions: Cox['userFunctions'],
+    tables: Cox['tables'],
 ) {
     if (!covariate.derivedField) {
         return;
@@ -125,7 +126,7 @@ function testCovariateTransformations(
             derivedField,
             currentInputData,
             userFunctions,
-            {},
+            tables,
         );
         let expectedOutput = expectedOutputs[index];
         let diffError: number;
@@ -162,7 +163,7 @@ function testLocalTransformationsForModel(
             {
                 columns: true,
             },
-        );
+        ).slice(65400);
         (model.algorithm as RegressionAlgorithmTypes).covariates.forEach(
             covariate => {
                 const {
@@ -175,6 +176,7 @@ function testLocalTransformationsForModel(
                     inputData,
                     expectedOutputs,
                     model.algorithm.userFunctions,
+                    model.algorithm.tables,
                 );
 
                 t.pass(
@@ -218,6 +220,7 @@ function testLocalTransformationsForModel(
                             inputData,
                             expectedOutputs,
                             algorithmForCurrentGender.userFunctions,
+                            algorithmForCurrentGender.tables,
                         );
 
                         t.pass(
@@ -232,8 +235,11 @@ function testLocalTransformationsForModel(
     }
 }
 
-test(`Testing local transformations`, async function(t) {
-    const namesOfAlgorithmsToTest = getAlgorithmNamesToTest(['Sodium']);
+test.only(`Testing local transformations`, async function(t) {
+    const namesOfAlgorithmsToTest = getAlgorithmNamesToTest([
+        'MPoRT',
+        'Sodium',
+    ]);
     const models = await Promise.all(
         namesOfAlgorithmsToTest.map(algorithmName => {
             return getModelObjFromAlgorithmName(algorithmName);
