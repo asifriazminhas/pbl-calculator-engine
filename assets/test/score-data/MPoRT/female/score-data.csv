@@ -1,4 +1,4 @@
-id,Age_cont,Age_spline,QSLightCont_df,QSHeavyCont_df,BMI_spline,PhysicalActivity_cont,DietScore_cont,DIABETES,Diabetes_cat,HEARTDIS,HeartDis_cat,CANCER,Cancer_cat,STROKE,Stroke_cat,Alcohol,AlcoholHeavy_cat,AlcoholMod_cat,AlcoholLight_cat,DepIndex3,DepIndLow_cat,DepIndMod_cat,DepIndHigh_cat,educat,EduNoGrad_cat,EduHSGrad_cat ,EduPSGrad_cat ,ImEth,ImmigNon_cat,Immig0to15_cat,Immig16to30_cat,Immig31to45_cat,score,s
+id,Age_cont,Age_spline,QSLightCont_df,QSHeavyCont_df,BMI_spline,PhysicalActivityLog_cont,DietScore_cont,DIABETES,Diabetes_cat,HEARTDIS,HeartDis_cat,CANCER,Cancer_cat,STROKE,Stroke_cat,Alcohol,AlcoholHeavy_cat,AlcoholMod_cat,AlcoholLight_cat,DepIndex3,DepIndLow_cat,DepIndMod_cat,DepIndHigh_cat,educat,EduNoGrad_cat,EduHSGrad_cat,EduPSGrad_cat,ImEth,ImmigNon_cat,Immig0to15_cat,Immig16to30_cat,Immig31to45_cat,score,s
 1,75,10,0.793922658,0,0,0,3.5,1,1,1,1,1,1,2,0,3,0,0,1,2,0,1,0,2,0,1,0,1,1,0,0,0,9.258120995,0.85571039
 2,70,5,0,0,0,0,4.1,1,1,1,1,1,1,2,0,3,0,0,1,1,1,0,0,3,0,0,1,1,1,0,0,0,8.229925066,0.94579404
 3,80,15,0,0,0,0.380211242,4.3,1,1,1,1,1,1,2,0,3,0,0,1,2,0,1,0,3,0,0,1,1,1,0,0,0,8.479065471,0.930998299
