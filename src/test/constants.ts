@@ -1,3 +1,4 @@
 import * as path from 'path';
 
-export const TestAssetsDirPath = path.join(__dirname, '../../assets/test');
+export const TestAssetsFolderPath = path.join(__dirname, '../../assets/test');
+export const TestAlgorithmsFolderPath = `${TestAssetsFolderPath}/algorithms`;

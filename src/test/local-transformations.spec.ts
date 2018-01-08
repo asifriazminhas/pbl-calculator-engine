@@ -3,7 +3,6 @@ import 'source-map-support/register';
 import * as test from 'tape';
 import * as fs from 'fs';
 import * as path from 'path';
-import { SurvivalModelBuilder } from '../engine/survival-model-builder/survival-model-builder';
 import { Data } from '../engine/data';
 import { Covariate } from '../engine/covariate';
 import {
@@ -17,27 +16,10 @@ const csvParse = require('csv-parse/lib/sync');
 import { Cox } from '../engine/cox/cox';
 import { expect } from 'chai';
 import { RegressionAlgorithmTypes } from '../engine/regression-algorithm/regression-algorithm-types';
+import { getModelsToTest } from './test-utils';
 
 const TestAssetsFolderPath = path.join(__dirname, '../../assets/test');
-const TestAlgorithmsFolderPath = `${TestAssetsFolderPath}/algorithms`;
 const TransformationsTestingDataFolderPath = `${TestAssetsFolderPath}/local-transformations`;
-
-function getAlgorithmNamesToTest(excludeAlgorithms: string[]): string[] {
-    return fs
-        .readdirSync(TestAlgorithmsFolderPath)
-        .filter(
-            algorithmName => excludeAlgorithms.indexOf(algorithmName) === -1,
-        )
-        .filter(algorithmName => algorithmName !== '.DS_Store');
-}
-
-async function getModelObjFromAlgorithmName(
-    algorithmName: string,
-): Promise<ModelTypes> {
-    return (await SurvivalModelBuilder.buildFromAssetsFolder(
-        `${TestAlgorithmsFolderPath}/${algorithmName}`,
-    )).getModel();
-}
 
 function formatTestingDataCsvColumn(column: any): string | number | null {
     if (column === 'NA') {
@@ -233,25 +215,13 @@ function testLocalTransformationsForModel(
 }
 
 test(`Testing local transformations`, async function(t) {
-    const namesOfAlgorithmsToTest = getAlgorithmNamesToTest(['Sodium']);
-    const models = await Promise.all(
-        namesOfAlgorithmsToTest.map(algorithmName => {
-            return getModelObjFromAlgorithmName(algorithmName);
-        }),
-    );
+    const modelsToTest = await getModelsToTest(['Sodium']);
 
-    models.forEach((model, index) => {
-        t.test(
-            `Testing local transformations for algorithm ${namesOfAlgorithmsToTest[
-                index
-            ]}`,
-            function(t) {
-                testLocalTransformationsForModel(
-                    model,
-                    namesOfAlgorithmsToTest[index],
-                    t,
-                );
-            },
-        );
+    modelsToTest.forEach(({ model, name }) => {
+        t.test(`Testing local transformations for algorithm ${name}`, function(
+            t,
+        ) {
+            testLocalTransformationsForModel(model, name, t);
+        });
     });
 });
