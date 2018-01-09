@@ -122,8 +122,8 @@ function testScoreForModel(t: test.Test, model: ModelTypes, modelName: string) {
     }
 }
 
-test(`Testing Scoring`, async t => {
-    const modelsToTest = await getModelsToTest(['Sodium']);
+test.skip(`Testing Scoring`, async t => {
+    const modelsToTest = await getModelsToTest(['Sodium', 'CVDPoRTReduced']);
 
     modelsToTest.forEach(({ model, name }) => {
         t.test(`Testing ${name} model`, t => {
