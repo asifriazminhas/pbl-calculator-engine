@@ -139,6 +139,8 @@ function testCovariateTransformations(
         return;
     }
 
+    // tslint:disable-next-line
+    isSameData;
     /*const DataToDebug = [
         { name: 'age', coefficent: 39 },
         { name: 'smk', coefficent: 'smk1' },
