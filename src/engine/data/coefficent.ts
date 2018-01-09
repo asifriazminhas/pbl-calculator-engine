@@ -12,19 +12,16 @@ export type Coefficent =
 export function formatCoefficentForComponent(
     coefficent: Coefficent,
     covariate: Covariate,
-): number {
-    if (
+): number | undefined {
+    if (coefficent instanceof moment || coefficent instanceof Date) {
+        throw new Error(`Coefficent is not a number ${covariate.name}`);
+    } else if (
         coefficent === null ||
         coefficent === undefined ||
-        coefficent === 'NA'
+        coefficent === 'NA' ||
+        isNaN(coefficent as number)
     ) {
         return covariate.referencePoint;
-    } else if (
-        coefficent instanceof moment ||
-        coefficent instanceof Date ||
-        isNaN(Number(coefficent))
-    ) {
-        throw new Error(`Coefficent is not a number ${covariate.name}`);
     } else {
         return Number(coefficent);
     }

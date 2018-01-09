@@ -95,5 +95,10 @@ export function calculateCoefficent(
         );
     }
 
-    return formatCoefficentForComponent(coefficent, covariate);
+    const formattedCoefficent = formatCoefficentForComponent(
+        coefficent,
+        covariate,
+    );
+
+    return formattedCoefficent === undefined ? 0 : formattedCoefficent;
 }

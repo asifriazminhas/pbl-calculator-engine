@@ -23,24 +23,21 @@ test(`Coefficent.formatCoefficent`, t => {
         referencePoint: 0,
     };
 
-    const coefficentsForReferenceTest = [null, undefined, 'NA'];
+    const coefficentsForReferenceTest = [null, undefined, 'NA', 'a'];
     coefficentsForReferenceTest.forEach(coefficent => {
         expect(formatCoefficentForComponent(coefficent, covariate)).to.eql(
             covariate.referencePoint,
         );
     });
-    t.pass(
-        `should return covariate reference if coefficent is null, undefined or NA`,
-    );
+    t.pass(`Correctly returns reference point`);
 
-    const coefficentsForErrorTest = [moment(), new Date(), 'as', NaN];
+    const coefficentsForErrorTest = [moment(), new Date()];
     coefficentsForErrorTest.forEach(coefficent => {
         expect(() => {
             formatCoefficentForComponent(coefficent, covariate);
         }).to.throw();
     });
-    t.pass(oneLine`should throw an error if the coefficent is an instanceof
-            moment Date or is a value that cannot be coerced into a number`);
+    t.pass(oneLine`Correctly throws an error`);
 
     const coefficentsForNumberTest = [1, '23'];
     coefficentsForNumberTest.forEach(coefficent => {
@@ -48,7 +45,7 @@ test(`Coefficent.formatCoefficent`, t => {
             Number(coefficent),
         );
     });
-    t.pass(`should return the coefficent as a number if it can be one`);
+    t.pass(`Correctly returns a number`);
 
     t.end();
 });

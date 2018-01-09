@@ -1,8 +1,8 @@
 export interface IParameter {
     $: {
-        name: string
+        name: string;
         //Human readable name
-        label: string
-        referencePoint: string
-    }
+        label: string;
+        referencePoint?: string;
+    };
 }
