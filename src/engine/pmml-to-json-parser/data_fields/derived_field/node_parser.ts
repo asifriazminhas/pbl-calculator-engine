@@ -96,7 +96,7 @@ const ApplyOperatorExceptions: {
  */
 export function getASTForConstant(
     constant: IConstant,
-): IUnaryExpressionAST | ILiteralAST {
+): IUnaryExpressionAST | ILiteralAST | IIdentifierAST {
     //If the constant's dataType is a string or the dataType is not given
     if (!constant.$ || constant.$.dataType === 'string') {
         return getLiteralAST(constant._);
@@ -112,7 +112,7 @@ export function getASTForConstant(
             return getLiteralAST(value);
         }
     } else if (constant.$.dataType === 'NA') {
-        return getLiteralAST(null);
+        return getIdentifierAST('undefined');
     } else if (constant.$.dataType === 'boolean') {
         return getLiteralAST(constant._ === 'true' ? true : false);
     } else {
