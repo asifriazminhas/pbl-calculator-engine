@@ -4,6 +4,10 @@ function ifelse(booleanOne: boolean, whenTrue: any, whenFalse: any): any {
     return booleanOne ? whenTrue : whenFalse;
 }
 
+function shouldReturnUndefined(value: any): boolean {
+    return isNaN(value) || value === undefined;
+}
+
 export default {
     exp: function(value: number) {
         return Math.exp(value);
@@ -12,7 +16,7 @@ export default {
         return Math.log(value);
     },
     'is.na': function(value: any) {
-        return value === null;
+        return value === null || value === undefined;
     },
     not: function(value: boolean) {
         return !value;
@@ -50,8 +54,10 @@ export default {
     floor: function(decimal: number): number {
         return Math.floor(decimal);
     },
-    pmax: function(num1: number, num2: number): number {
-        return num1 > num2 ? num1 : num2;
+    pmax: function(num1: number, num2: number): number | undefined {
+        return shouldReturnUndefined(num1) || shouldReturnUndefined(num2)
+            ? undefined
+            : num1 > num2 ? num1 : num2;
     },
     exists: function(value: any): boolean {
         return !(value === undefined || value === null);
