@@ -57,6 +57,7 @@
         "webpack": "1.13.3"
     },
     "dependencies": {
+        "@ottawamhealth/pbl-calculator-engine-assets": "^1.4.1-beta.2",
         "@ottawamhealth/pbl-limesurvey-engine": "0.1.2",
         "ast-types": "0.9.12",
         "bluebird": "3.4.6",

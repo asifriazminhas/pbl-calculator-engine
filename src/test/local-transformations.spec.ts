@@ -20,16 +20,51 @@ import { RegressionAlgorithmTypes } from '../engine/regression-algorithm/regress
 import { Stream } from 'stream';
 import { TestAlgorithmsFolderPath } from './constants';
 import { SurvivalModelBuilder } from '../index';
-const TestAssetsFolderPath = path.join(__dirname, '../../assets/test');
-const TransformationsTestingDataFolderPath = `${TestAssetsFolderPath}/local-transformations`;
+import { oneLine } from 'common-tags';
+const TestAssetsFolderPath = path.join(
+    __dirname,
+    '../../node_modules/@ottawamhealth/pbl-calculator-engine-assets',
+);
+const TransformationsTestingDataFolderPath = `/validation-data/local-transformations`;
+
+function getLocalTransformationsDataPathForModelAndGender(
+    model: ModelTypes,
+    modelName: string,
+    gender: 'male' | 'female' | undefined,
+) {
+    if (model.modelType === ModelType.SingleAlgorithm) {
+        return `${TestAssetsFolderPath}/${modelName}${TransformationsTestingDataFolderPath}/local-transformations.csv`;
+    } else {
+        return oneLine`
+        ${TestAssetsFolderPath}/${modelName}${TransformationsTestingDataFolderPath}/${gender}/local-transformations.csv
+        `;
+    }
+}
 
 function getAlgorithmNamesToTest(excludeAlgorithms: string[]): string[] {
-    return fs
-        .readdirSync(TestAlgorithmsFolderPath)
-        .filter(
-            algorithmName => excludeAlgorithms.indexOf(algorithmName) === -1,
-        )
-        .filter(algorithmName => algorithmName !== '.DS_Store');
+    return (
+        fs
+            /* Get the names of all files and folders in the directory with the
+            assets */
+            .readdirSync(TestAlgorithmsFolderPath)
+            /* Filter out all files and keep only directories */
+            .filter(algorithmFolderFileName => {
+                return fs
+                    .lstatSync(
+                        path.join(
+                            TestAssetsFolderPath,
+                            algorithmFolderFileName,
+                        ),
+                    )
+                    .isDirectory();
+            })
+            /* Filter out all algorithm we don't want to test as specified in
+            the excludeAlgorithms arg*/
+            .filter(
+                algorithmName =>
+                    excludeAlgorithms.indexOf(algorithmName) === -1,
+            )
+    );
 }
 
 async function getModelObjFromAlgorithmName(
@@ -202,7 +237,11 @@ function testLocalTransformationsForModel(
 ) {
     if (model.modelType === ModelType.SingleAlgorithm) {
         const testingDataFileStream = fs.createReadStream(
-            `${TransformationsTestingDataFolderPath}/${modelName}/testing-data.csv`,
+            getLocalTransformationsDataPathForModelAndGender(
+                model,
+                modelName,
+                undefined,
+            ),
         );
         const csvParseStream = createCsvParseStream({
             columns: true,
@@ -250,15 +289,17 @@ function testLocalTransformationsForModel(
             t.end();
         });
     } else if (model.modelType === ModelType.MultipleAlgorithm) {
-        const genders = ['female', 'male'];
+        const genders: Array<'male' | 'female'> = ['female', 'male'];
 
         genders.forEach(gender => {
             t.test(`Testing ${gender} algorithm`, t => {
-                if (
-                    !fs.existsSync(
-                        `${TransformationsTestingDataFolderPath}/${modelName}/${gender}/testing-data.csv`,
-                    )
-                ) {
+                const localTransformationsDataFilePath = getLocalTransformationsDataPathForModelAndGender(
+                    model,
+                    modelName,
+                    gender,
+                );
+
+                if (!fs.existsSync(localTransformationsDataFilePath)) {
                     t.comment(
                         `No testing data found for ${gender} ${modelName} model. Skipping test`,
                     );
@@ -266,7 +307,7 @@ function testLocalTransformationsForModel(
                 }
 
                 const testingDataFileStream = fs.createReadStream(
-                    `${TransformationsTestingDataFolderPath}/${modelName}/${gender}/testing-data.csv`,
+                    localTransformationsDataFilePath,
                 );
                 const testingDataCsvStream = createCsvParseStream({
                     columns: true,
@@ -324,7 +365,10 @@ function testLocalTransformationsForModel(
 }
 
 test(`Testing local transformations`, async t => {
-    const namesOfAlgorithmsToTest = getAlgorithmNamesToTest(['Sodium']);
+    const namesOfAlgorithmsToTest = getAlgorithmNamesToTest([
+        'Sodium',
+        'sport',
+    ]);
     const models = await Promise.all(
         namesOfAlgorithmsToTest.map(algorithmName => {
             return getModelObjFromAlgorithmName(algorithmName);
