@@ -365,10 +365,7 @@ function testLocalTransformationsForModel(
 }
 
 test(`Testing local transformations`, async t => {
-    const namesOfAlgorithmsToTest = getAlgorithmNamesToTest([
-        'Sodium',
-        'sport',
-    ]);
+    const namesOfAlgorithmsToTest = getAlgorithmNamesToTest(['Sodium']);
     const models = await Promise.all(
         namesOfAlgorithmsToTest.map(algorithmName => {
             return getModelObjFromAlgorithmName(algorithmName);
