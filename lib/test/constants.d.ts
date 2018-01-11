@@ -1,1 +1,2 @@
-export declare const TestAssetsDirPath: string;
+export declare const TestAssetsFolderPath: string;
+export declare const TestAlgorithmsFolderPath: string;

@@ -8,7 +8,7 @@ import { IMapValues } from '../../../pmml/local_transformations/derived_field';
  * @param {Constant} constant
  * @returns {(IUnaryExpressionAST | ILiteralAST)}
  */
-export declare function getASTForConstant(constant: IConstant): IUnaryExpressionAST | ILiteralAST;
+export declare function getASTForConstant(constant: IConstant): IUnaryExpressionAST | ILiteralAST | IIdentifierAST;
 /**
  * Parses a FieldRef node
  *

@@ -13,6 +13,7 @@ declare const _default: {
     ifelse: (booleanOne: boolean, whenTrue: any, whenFalse: any) => any;
     ifelse2: (booleanOne: boolean, whenTrue: any, whenFalse: any) => any;
     floor: (decimal: number) => number;
-    pmax: (num1: number, num2: number) => number;
+    pmax: (num1: number, num2: number) => number | undefined;
+    exists: (value: any) => boolean;
 };
 export default _default;

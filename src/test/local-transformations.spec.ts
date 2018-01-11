@@ -3,7 +3,6 @@ import 'source-map-support/register';
 import * as test from 'tape';
 import * as fs from 'fs';
 import * as path from 'path';
-import { SurvivalModelBuilder } from '../engine/survival-model-builder/survival-model-builder';
 import { Data } from '../engine/data';
 import { Covariate } from '../engine/covariate';
 import {
@@ -13,22 +12,59 @@ import {
 import { ModelType } from '../engine/model/model-type';
 import { ModelTypes } from '../engine/model/model-types';
 import { getAlgorithmForData } from '../engine/multiple-algorithm-model';
-const csvParse = require('csv-parse/lib/sync');
+// tslint:disable-next-line
+const createCsvParseStream = require('csv-parse');
 import { Cox } from '../engine/cox/cox';
 import { expect } from 'chai';
 import { RegressionAlgorithmTypes } from '../engine/regression-algorithm/regression-algorithm-types';
+import { Stream } from 'stream';
+import { TestAlgorithmsFolderPath } from './constants';
+import { SurvivalModelBuilder } from '../index';
+import { oneLine } from 'common-tags';
+const TestAssetsFolderPath = path.join(
+    __dirname,
+    '../../node_modules/@ottawamhealth/pbl-calculator-engine-assets',
+);
+const TransformationsTestingDataFolderPath = `/validation-data/local-transformations`;
 
-const TestAssetsFolderPath = path.join(__dirname, '../../assets/test');
-const TestAlgorithmsFolderPath = `${TestAssetsFolderPath}/algorithms`;
-const TransformationsTestingDataFolderPath = `${TestAssetsFolderPath}/local-transformations`;
+function getLocalTransformationsDataPathForModelAndGender(
+    model: ModelTypes,
+    modelName: string,
+    gender: 'male' | 'female' | undefined,
+) {
+    if (model.modelType === ModelType.SingleAlgorithm) {
+        return `${TestAssetsFolderPath}/${modelName}${TransformationsTestingDataFolderPath}/local-transformations.csv`;
+    } else {
+        return oneLine`
+        ${TestAssetsFolderPath}/${modelName}${TransformationsTestingDataFolderPath}/${gender}/local-transformations.csv
+        `;
+    }
+}
 
 function getAlgorithmNamesToTest(excludeAlgorithms: string[]): string[] {
-    return fs
-        .readdirSync(TestAlgorithmsFolderPath)
-        .filter(
-            algorithmName => excludeAlgorithms.indexOf(algorithmName) === -1,
-        )
-        .filter(algorithmName => algorithmName !== '.DS_Store');
+    return (
+        fs
+            /* Get the names of all files and folders in the directory with the
+            assets */
+            .readdirSync(TestAlgorithmsFolderPath)
+            /* Filter out all files and keep only directories */
+            .filter(algorithmFolderFileName => {
+                return fs
+                    .lstatSync(
+                        path.join(
+                            TestAssetsFolderPath,
+                            algorithmFolderFileName,
+                        ),
+                    )
+                    .isDirectory();
+            })
+            /* Filter out all algorithm we don't want to test as specified in
+            the excludeAlgorithms arg*/
+            .filter(
+                algorithmName =>
+                    excludeAlgorithms.indexOf(algorithmName) === -1,
+            )
+    );
 }
 
 async function getModelObjFromAlgorithmName(
@@ -39,9 +75,9 @@ async function getModelObjFromAlgorithmName(
     )).getModel();
 }
 
-function formatTestingDataCsvColumn(column: any): string | number | null {
+function formatTestingDataCsvColumn(column: any): string | number | undefined {
     if (column === 'NA') {
-        return null;
+        return undefined;
     } else if (isNaN(column)) {
         return column;
     } else {
@@ -64,88 +100,134 @@ function getDataFromTestingDataCsvRow(testingDataCsvRow: {
 
 function getTestingDataForCovariate(
     covariate: Covariate,
-    testingDataCsv: { [index: string]: string }[],
+    testingDataCsvRow: { [index: string]: string },
 ): {
-    inputData: Data[];
-    expectedOutputs: (number | null)[];
+    inputData: Data;
+    expectedOutput: number | null;
 } {
     if (covariate.derivedField) {
         const leafFields = getLeafFieldsForDerivedField(covariate.derivedField);
         const leadFieldNames = leafFields.map(leafField => leafField.name);
 
-        const inputData = testingDataCsv.map(testingDataCsvRow => {
-            const testingDataCsvRowColumns = Object.keys(testingDataCsvRow);
+        const testingDataCsvRowColumns = Object.keys(testingDataCsvRow);
 
-            const obj: { [index: string]: string } = {};
+        const obj: { [index: string]: string } = {};
 
-            testingDataCsvRowColumns
-                .filter(testingDataCsvRowColumn => {
-                    return leadFieldNames.indexOf(testingDataCsvRowColumn) > -1;
-                })
-                .forEach(testingDataCsvRowColumn => {
-                    obj[testingDataCsvRowColumn] =
-                        testingDataCsvRow[testingDataCsvRowColumn];
-                });
+        testingDataCsvRowColumns
+            .filter(testingDataCsvRowColumn => {
+                return leadFieldNames.indexOf(testingDataCsvRowColumn) > -1;
+            })
+            .forEach(testingDataCsvRowColumn => {
+                obj[testingDataCsvRowColumn] =
+                    testingDataCsvRow[testingDataCsvRowColumn];
+            });
 
-            return getDataFromTestingDataCsvRow(obj);
-        });
+        const inputData = getDataFromTestingDataCsvRow(obj);
 
-        const expectedOutputs = testingDataCsv.map(testingDataCsvRow => {
-            return formatTestingDataCsvColumn(
-                testingDataCsvRow[covariate.name],
-            ) as number | null;
-        });
+        const expectedOutput = formatTestingDataCsvColumn(
+            testingDataCsvRow[covariate.name],
+        ) as number | null;
 
         return {
             inputData,
-            expectedOutputs,
+            expectedOutput,
         };
     } else {
         return {
             inputData: [],
-            expectedOutputs: [],
+            expectedOutput: null,
         };
     }
 }
 
+function isSameData(dataOne: Data, dataTwo: Data): boolean {
+    if (dataOne.length !== dataTwo.length) {
+        return false;
+    }
+
+    return dataOne.find(dataOneDatum => {
+        const equivalentDataTwoDatumForCurrentDateOneDatum = dataTwo.find(
+            dataTwoDatum => dataTwoDatum.name === dataOneDatum.name,
+        );
+
+        if (!equivalentDataTwoDatumForCurrentDateOneDatum) {
+            return true;
+        }
+
+        return !(
+            equivalentDataTwoDatumForCurrentDateOneDatum.coefficent ===
+            dataOneDatum.coefficent
+        );
+    })
+        ? false
+        : true;
+}
+
 function testCovariateTransformations(
     covariate: Covariate,
-    inputData: Data[],
-    expectedOutputs: (number | null)[],
+    inputData: Data,
+    expectedOutput: number | null,
     userFunctions: Cox['userFunctions'],
+    tables: Cox['tables'],
 ) {
     if (!covariate.derivedField) {
         return;
     }
 
+    // tslint:disable-next-line
+    isSameData;
+    /*const DataToDebug = [
+        { name: 'age', coefficent: 39 },
+        { name: 'smk', coefficent: 'smk1' },
+        { name: 'evd', coefficent: undefined },
+        { name: 's100', coefficent: 's1001' },
+        { name: 'wcig', coefficent: undefined },
+        { name: 'stpo', coefficent: undefined },
+        { name: 'stpoy', coefficent: undefined },
+        { name: 'agecigd', coefficent: 11 },
+        { name: 'cigdayd', coefficent: 75 },
+        { name: 'cigdayf', coefficent: undefined },
+        { name: 'cigdayo', coefficent: undefined },
+        { name: 'dayocc', coefficent: undefined },
+        { name: 'agec1', coefficent: 9 },
+    ];
+    const CovariateToDebug = 'PackYearsC_rcs1';
+    if (
+        !isSameData(DataToDebug, inputData) ||
+        covariate.name !== CovariateToDebug
+    ) {
+        return;
+    }*/
+
     const derivedField = covariate.derivedField;
 
-    inputData.forEach((currentInputData, index) => {
-        const actualOutput = calculateCoefficent(
-            derivedField,
-            currentInputData,
-            userFunctions,
-            {},
-        );
-        let expectedOutput = expectedOutputs[index];
-        let diffError: number;
-        if (expectedOutput === null && actualOutput === null) {
-            diffError = 0;
-        } else {
-            diffError =
-                ((expectedOutput as number) - (actualOutput as number)) /
-                (expectedOutput as number);
-            if (expectedOutput == 0 && actualOutput == 0) {
-                diffError = 0;
-            }
-        }
+    const actualOutput = calculateCoefficent(
+        derivedField,
+        inputData,
+        userFunctions,
+        tables,
+    );
 
-        expect(
-            diffError < 0.00001 || diffError === 0,
-            `DerivedField ${(derivedField as any).name}. Input Row: ${index +
-                2}. Actual Output: ${actualOutput}. ExpectedOutput: ${expectedOutput}. DiffError: ${diffError}`,
-        ).to.be.true;
-    });
+    if (isNaN(actualOutput as number) && expectedOutput === undefined) {
+        return;
+    }
+    if ((actualOutput as number) === 0 && (expectedOutput as number) === 0) {
+        return;
+    }
+
+    const diffError =
+        ((expectedOutput as number) - (actualOutput as number)) /
+        (expectedOutput as number);
+
+    // tslint:disable-next-line
+    expect(
+        diffError < 0.00001 || diffError === 0,
+        `Derived Field: ${(derivedField as any).name}
+        Input Data: ${JSON.stringify(inputData)}
+        Actual Output: ${actualOutput}
+        ExpectedOutput: ${expectedOutput}
+        DiffError: ${diffError}`,
+    ).to.be.true;
 }
 
 function testLocalTransformationsForModel(
@@ -154,70 +236,38 @@ function testLocalTransformationsForModel(
     t: test.Test,
 ) {
     if (model.modelType === ModelType.SingleAlgorithm) {
-        const testingCsvData = csvParse(
-            fs.readFileSync(
-                `${TransformationsTestingDataFolderPath}/${modelName}/testing-data.csv`,
-                'utf8',
+        const testingDataFileStream = fs.createReadStream(
+            getLocalTransformationsDataPathForModelAndGender(
+                model,
+                modelName,
+                undefined,
             ),
-            {
-                columns: true,
-            },
         );
-        (model.algorithm as RegressionAlgorithmTypes).covariates.forEach(
-            covariate => {
-                const {
-                    inputData,
-                    expectedOutputs,
-                } = getTestingDataForCovariate(covariate, testingCsvData);
+        const csvParseStream = createCsvParseStream({
+            columns: true,
+        });
 
-                testCovariateTransformations(
-                    covariate,
-                    inputData,
-                    expectedOutputs,
-                    model.algorithm.userFunctions,
-                );
+        const testingDataStream = testingDataFileStream.pipe(csvParseStream);
 
-                t.pass(
-                    `Testing transformations for covariate ${covariate.name}`,
-                );
-            },
-        );
-    } else if (model.modelType === ModelType.MultipleAlgorithm) {
-        const genders = ['male', 'female'];
-
-        genders.forEach(gender => {
-            t.test(`Testing ${gender} algorithm`, t => {
-                const testingCsvData = csvParse(
-                    fs.readFileSync(
-                        `${TransformationsTestingDataFolderPath}/${modelName}/${gender}/testing-data.csv`,
-                        'utf8',
-                    ),
-                    {
-                        columns: true,
-                    },
-                );
-                const algorithmForCurrentGender = getAlgorithmForData(model, [
-                    {
-                        name: 'sex',
-                        coefficent: gender,
-                    },
-                ]);
-
-                (algorithmForCurrentGender as RegressionAlgorithmTypes).covariates.forEach(
+        testingDataStream.on(
+            'data',
+            (testingDataRow: { [index: string]: string }) => {
+                (model.algorithm as RegressionAlgorithmTypes).covariates.forEach(
                     covariate => {
                         const {
                             inputData,
-                            expectedOutputs,
+                            expectedOutput,
                         } = getTestingDataForCovariate(
                             covariate,
-                            testingCsvData,
+                            testingDataRow,
                         );
 
                         testCovariateTransformations(
                             covariate,
                             inputData,
-                            expectedOutputs,
-                            algorithmForCurrentGender.userFunctions,
+                            expectedOutput,
+                            model.algorithm.userFunctions,
+                            model.algorithm.tables,
                         );
 
                         t.pass(
@@ -225,14 +275,96 @@ function testLocalTransformationsForModel(
                         );
                     },
                 );
+            },
+        );
 
-                t.end();
+        testingDataStream.on('error', (error: Error) => {
+            t.end(error);
+        });
+
+        testingDataStream.on('end', () => {
+            t.pass(
+                `Local transformations for ${modelName} model correctly calculated`,
+            );
+            t.end();
+        });
+    } else if (model.modelType === ModelType.MultipleAlgorithm) {
+        const genders: Array<'male' | 'female'> = ['female', 'male'];
+
+        genders.forEach(gender => {
+            t.test(`Testing ${gender} algorithm`, t => {
+                const localTransformationsDataFilePath = getLocalTransformationsDataPathForModelAndGender(
+                    model,
+                    modelName,
+                    gender,
+                );
+
+                if (!fs.existsSync(localTransformationsDataFilePath)) {
+                    t.comment(
+                        `No testing data found for ${gender} ${modelName} model. Skipping test`,
+                    );
+                    return t.end();
+                }
+
+                const testingDataFileStream = fs.createReadStream(
+                    localTransformationsDataFilePath,
+                );
+                const testingDataCsvStream = createCsvParseStream({
+                    columns: true,
+                });
+
+                const testingDataStream: Stream = testingDataFileStream.pipe(
+                    testingDataCsvStream,
+                );
+
+                const algorithmForCurrentGender = getAlgorithmForData(model, [
+                    {
+                        name: 'sex',
+                        coefficent: gender,
+                    },
+                ]);
+
+                testingDataStream.on(
+                    'data',
+                    (testingDataRow: { [index: string]: string }) => {
+                        (algorithmForCurrentGender as RegressionAlgorithmTypes).covariates.forEach(
+                            covariate => {
+                                const {
+                                    inputData,
+                                    expectedOutput,
+                                } = getTestingDataForCovariate(
+                                    covariate,
+                                    testingDataRow,
+                                );
+
+                                testCovariateTransformations(
+                                    covariate,
+                                    inputData,
+                                    expectedOutput,
+                                    algorithmForCurrentGender.userFunctions,
+                                    algorithmForCurrentGender.tables,
+                                );
+                            },
+                        );
+                    },
+                );
+
+                testingDataStream.on('error', (error: Error) => {
+                    t.end(error);
+                });
+
+                testingDataStream.on('end', () => {
+                    t.pass(
+                        `Local transformations for ${gender} ${modelName} model correctly calculated`,
+                    );
+                    t.end();
+                });
             });
         });
     }
 }
 
-test(`Testing local transformations`, async function(t) {
+test(`Testing local transformations`, async t => {
     const namesOfAlgorithmsToTest = getAlgorithmNamesToTest(['Sodium']);
     const models = await Promise.all(
         namesOfAlgorithmsToTest.map(algorithmName => {
@@ -245,7 +377,7 @@ test(`Testing local transformations`, async function(t) {
             `Testing local transformations for algorithm ${namesOfAlgorithmsToTest[
                 index
             ]}`,
-            function(t) {
+            t => {
                 testLocalTransformationsForModel(
                     model,
                     namesOfAlgorithmsToTest[index],

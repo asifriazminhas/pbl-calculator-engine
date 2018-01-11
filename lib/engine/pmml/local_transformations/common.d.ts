@@ -1,3 +1,4 @@
+import { IMapValues } from './derived_field';
 export interface IApply {
     '#name': 'Apply';
     $: {
@@ -18,4 +19,4 @@ export interface IFieldRef {
         field: string;
     };
 }
-export declare type IApplyChildNode = IApply | IConstant | IFieldRef;
+export declare type IApplyChildNode = IApply | IConstant | IFieldRef | IMapValues;

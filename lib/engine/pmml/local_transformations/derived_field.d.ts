@@ -10,6 +10,7 @@ export interface IMapValues {
     $: {
         outputColumn: string;
     };
+    '#name': string;
     FieldColumnPair: IFieldColumnPair | IFieldColumnPair[];
     TableLocator: {
         $: {

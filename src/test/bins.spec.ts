@@ -10,16 +10,16 @@ const csvParse = require('csv-parse/lib/sync');
 import * as fs from 'fs';
 import { expect } from 'chai';
 import { throwErrorIfUndefined } from '../engine/undefined/undefined';
-import { TestAssetsDirPath } from './constants';
+import { TestAssetsFolderPath } from './constants';
 import { ICoxWithBins, getRiskToTimeForCoxWithBins } from '../engine/cox/cox';
 import { AlgorithmType } from '../engine/algorithm/algorithm-type';
 import { TimeMetric } from '../engine/cox/time-metric';
 const binsLookupCsvString = fs.readFileSync(
-    `${TestAssetsDirPath}/bins/bins-lookup.csv`,
+    `${TestAssetsFolderPath}/bins/bins-lookup.csv`,
     'utf8',
 );
 const binsDataCsvString = fs.readFileSync(
-    `${TestAssetsDirPath}/bins/bins-data.csv`,
+    `${TestAssetsFolderPath}/bins/bins-data.csv`,
     'utf8',
 );
 import * as moment from 'moment';
