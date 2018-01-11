@@ -62,7 +62,7 @@
     },
     "dependencies": {
         "@ottawamhealth/pbl-calculator-engine-assets":
-            "git+ssh://git@bitbucket.org:ottawamhealth/pbl-calculator-engine-assets.git#v1.4.1-dist",
+            "git+ssh://git@bitbucket.org:ottawamhealth/pbl-calculator-engine-assets.git#v1.4.1",
         "@ottawamhealth/pbl-limesurvey-engine":
             "git+ssh://git@bitbucket.org:ottawamhealth/pbl-limesurvey-engine.git#v0.1.5-dist",
         "ast-types": "0.9.12",
