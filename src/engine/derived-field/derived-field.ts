@@ -184,7 +184,7 @@ export function calculateDataToCalculateCoefficent(
 
                 if (!datumFound) {
                     return {
-                        name: derivedField.name,
+                        name: derivedFromItem.name,
                         coefficent: null,
                     };
                 } else {
