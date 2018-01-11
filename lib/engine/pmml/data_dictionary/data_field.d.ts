@@ -1,0 +1,31 @@
+import { BasePmmlNode } from '../common';
+export interface IBaseDataField<T> extends BasePmmlNode {
+    $: {
+        name: string;
+        displayName: string;
+        optype: T;
+        dataType: string;
+    };
+}
+export interface IValue {
+    $: {
+        value: string;
+        displayName: string;
+        description: string;
+    };
+}
+export interface ICategoricalDataField extends IBaseDataField<'continuous'> {
+    Value: Array<IValue> | IValue;
+}
+export interface IInterval {
+    $: {
+        closure: 'openOpen' | 'openClosed' | 'closedOpen' | 'closedClosed';
+        leftMargin: string;
+        rightMargin: string;
+    };
+}
+export interface IContinuousDataField extends IBaseDataField<'categorical'> {
+    Interval: IInterval;
+}
+export declare type IDataField = IContinuousDataField | ICategoricalDataField;
+export declare const mergeDataFields: (arrayOne: IDataField[], arrayTwo: IDataField[]) => IDataField[];
