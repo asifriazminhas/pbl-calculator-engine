@@ -59,11 +59,13 @@
     "dependencies": {
         "@ottawamhealth/pbl-calculator-engine-assets": "^1.4.1",
         "@ottawamhealth/pbl-limesurvey-engine": "0.1.2",
+        "@types/esprima": "^4.0.1",
         "ast-types": "0.9.12",
         "bluebird": "3.4.6",
         "common-tags": "1.4.0",
         "csv-parse": "1.1.7",
         "escodegen": "1.8.1",
+        "esprima": "^4.0.0",
         "exceljs": "0.4.10",
         "lodash": "4.17.4",
         "moment": "2.17.1",
