@@ -3,6 +3,7 @@ import { IDatum } from '../engine/data';
 import { getAlgorithmJsonForModelAndData } from '../engine/model/json-model-types';
 import { MultipleAlgorithmModelJson } from '../engine/multiple-algorithm-model/multiple-algorithm-model-json';
 import { ICoxJson } from '../engine/cox/cox-json';
+import { PmmlParser } from '../engine/pmml/parser';
 // tslint:disable-next-line
 var csvParse = require('csv-parse/lib/sync');
 
@@ -133,10 +134,19 @@ function checkGeneratedCauseEffectJson(
                         return covariate.name === datum.name;
                     },
                 );
+                const derivedFieldFoundForCurrentDatum = algorithmJsonForCurrentGender.derivedFields.find(
+                    derivedField => {
+                        return derivedField.name === datum.name;
+                    },
+                );
 
-                if (!covariateFoundForCurrentDatum) {
+                if (
+                    !covariateFoundForCurrentDatum &&
+                    !derivedFieldFoundForCurrentDatum
+                ) {
                     throw new Error(
-                        `No covariate with name ${datum.name} found in ${genderKey} ${modelName} model `,
+                        // tslint:disable-next-line
+                        `No covariate or derived field with name ${datum.name} found in ${genderKey} ${modelName} model `,
                     );
                 }
             });
