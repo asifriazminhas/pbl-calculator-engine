@@ -3,7 +3,6 @@ import { IDatum } from '../engine/data';
 import { getAlgorithmJsonForModelAndData } from '../engine/model/json-model-types';
 import { MultipleAlgorithmModelJson } from '../engine/multiple-algorithm-model/multiple-algorithm-model-json';
 import { ICoxJson } from '../engine/cox/cox-json';
-import { PmmlParser } from '../engine/pmml/parser';
 // tslint:disable-next-line
 var csvParse = require('csv-parse/lib/sync');
 
