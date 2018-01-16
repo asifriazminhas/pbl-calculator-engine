@@ -1,5 +1,8 @@
 import { IGenderCauseEffectRef } from '../engine/cause-effect';
 import { IDatum } from '../engine/data';
+import { getAlgorithmJsonForModelAndData } from '../engine/model/json-model-types';
+import { MultipleAlgorithmModelJson } from '../engine/multiple-algorithm-model/multiple-algorithm-model-json';
+import { ICoxJson } from '../engine/cox/cox-json';
 // tslint:disable-next-line
 var csvParse = require('csv-parse/lib/sync');
 
@@ -107,18 +110,67 @@ function reduceToGenderCauseEffectRefObject(
     return causeEffectRef;
 }
 
+function checkGeneratedCauseEffectJson(
+    causeEffectJson: IGenderCauseEffectRef,
+    model: MultipleAlgorithmModelJson,
+    modelName: string,
+): IGenderCauseEffectRef {
+    Object.keys(causeEffectJson).forEach(genderKey => {
+        const algorithmJsonForCurrentGender = getAlgorithmJsonForModelAndData(
+            model,
+            [
+                {
+                    name: 'sex',
+                    coefficent: genderKey,
+                },
+            ],
+        );
+
+        Object.keys(causeEffectJson[genderKey]).forEach(riskFactor => {
+            causeEffectJson[genderKey][riskFactor].forEach(datum => {
+                const covariateFoundForCurrentDatum = (algorithmJsonForCurrentGender as ICoxJson).covariates.find(
+                    covariate => {
+                        return covariate.name === datum.name;
+                    },
+                );
+                const derivedFieldFoundForCurrentDatum = algorithmJsonForCurrentGender.derivedFields.find(
+                    derivedField => {
+                        return derivedField.name === datum.name;
+                    },
+                );
+
+                if (
+                    !covariateFoundForCurrentDatum &&
+                    !derivedFieldFoundForCurrentDatum
+                ) {
+                    throw new Error(
+                        // tslint:disable-next-line
+                        `No covariate or derived field with name ${datum.name} found in ${genderKey} ${modelName} model `,
+                    );
+                }
+            });
+        });
+    });
+
+    return causeEffectJson;
+}
 export function convertCauseEffectCsvToGenderCauseEffectRefForAlgorithm(
-    algorithm: string,
+    model: MultipleAlgorithmModelJson,
+    modelName: string,
     causeEffectCsvString: string,
 ): IGenderCauseEffectRef {
     const causeEffectCsv: CauseEffectCsv = csvParse(causeEffectCsvString, {
         columns: true,
     });
 
-    return causeEffectCsv
-        .filter(filterOutRowsNotForAlgorithm(algorithm))
-        .reduce(reduceToGenderCauseEffectRefObject, {
-            male: {},
-            female: {},
-        });
+    return checkGeneratedCauseEffectJson(
+        causeEffectCsv
+            .filter(filterOutRowsNotForAlgorithm(modelName))
+            .reduce(reduceToGenderCauseEffectRefObject, {
+                male: {},
+                female: {},
+            }),
+        model,
+        modelName,
+    );
 }

@@ -17,6 +17,7 @@ import { RegressionAlgorithmJsonTypes } from '../regression-algorithm/regression
 import { ISimpleAlgorithmJson } from '../simple-algorithm/simple-algorithm-json';
 import { IAlgorithmJson } from '../algorithm/algorithm-json';
 import { IOutput } from '../pmml/pmml';
+import { optimizeModel } from './optimizations';
 
 function getAlgorithmTypeFromGeneralRegressionModel(
     generalRegressionModel: IGeneralRegressionModel,
@@ -100,20 +101,21 @@ export async function pmmlXmlStringsToJson(
         ),
     );
 
-    if (parsedAlgorithms.length === 1) {
-        return {
-            modelType: ModelType.SingleAlgorithm,
-            algorithm: parsedAlgorithms[0],
-        };
-    } else {
-        return {
-            modelType: ModelType.MultipleAlgorithm,
-            algorithms: parsedAlgorithms.map((parsedAlgorithm, index) => {
-                return {
-                    algorithm: parsedAlgorithm,
-                    predicate: predicates[index],
-                };
-            }),
-        };
-    }
+    const modelJson: JsonModelTypes =
+        parsedAlgorithms.length === 1
+            ? {
+                  modelType: ModelType.SingleAlgorithm,
+                  algorithm: parsedAlgorithms[0],
+              }
+            : {
+                  modelType: ModelType.MultipleAlgorithm,
+                  algorithms: parsedAlgorithms.map((parsedAlgorithm, index) => {
+                      return {
+                          algorithm: parsedAlgorithm,
+                          predicate: predicates[index],
+                      };
+                  }),
+              };
+
+    return optimizeModel(modelJson);
 }
