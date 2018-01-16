@@ -1,7 +1,8 @@
 import { ModelTypes, getAlgorithmForModelAndData } from '../model';
 import { ReferencePopulation } from './reference-population';
 import { getHealthAge } from './health-age';
-import { Data } from '../data';
+// @ts-ignore
+import { Data, IDatum } from '../data';
 import { Cox } from '../cox';
 
 export class RefPopFunctions {
@@ -13,10 +14,10 @@ export class RefPopFunctions {
         this.refPop = refPop;
     }
 
-    public getHealthAge(data: Data): number {
+    public getHealthAge = (data: Data): number => {
         return getHealthAge(this.refPop, data, getAlgorithmForModelAndData(
             this.model,
             data,
         ) as Cox);
-    }
+    };
 }
