@@ -45197,11 +45197,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	const health_age_1 = __webpack_require__(601);
 	class RefPopFunctions {
 	    constructor(model, refPop) {
+	        this.getHealthAge = (data) => {
+	            return health_age_1.getHealthAge(this.refPop, data, model_1.getAlgorithmForModelAndData(this.model, data));
+	        };
 	        this.model = model;
 	        this.refPop = refPop;
-	    }
-	    getHealthAge(data) {
-	        return health_age_1.getHealthAge(this.refPop, data, model_1.getAlgorithmForModelAndData(this.model, data));
 	    }
 	}
 	exports.RefPopFunctions = RefPopFunctions;
