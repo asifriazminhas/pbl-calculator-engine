@@ -10,9 +10,4 @@ export {
     findDerivedFieldJsonWithName,
     parseDerivedFieldJsonToDerivedField,
 } from './json-derived-field';
-export {
-    DerivedField,
-    calculateCoefficent,
-    calculateDataToCalculateCoefficent,
-} from './derived-field';
 export { DerivedFrom } from './derived-from';

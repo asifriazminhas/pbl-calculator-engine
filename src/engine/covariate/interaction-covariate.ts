@@ -5,7 +5,7 @@ import {
 } from './generic-covariate';
 import { Covariate } from './covariate';
 import { IBaseCovariate } from './base-covariate';
-import { DerivedField } from '../derived-field';
+import { DerivedField } from '../derived-field/derived-field';
 import { IDatum, Data, datumFromCovariateReferencePointFactory } from '../data';
 import { NonInteractionCovariate } from './non-interaction-covariate';
 import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForCovariate } from './base-covariate';

@@ -1,6 +1,9 @@
 import { Algorithm, AlgorithmType } from '../algorithm';
 import { IGenericSimpleAlgorithm } from './generic-simple-algorithm';
-import { DerivedField, calculateCoefficent } from '../derived-field';
+import {
+    DerivedField,
+    calculateCoefficent,
+} from '../derived-field/derived-field';
 import { Data } from '../data';
 
 export interface ISimpleAlgorithm
