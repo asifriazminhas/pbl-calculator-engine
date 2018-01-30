@@ -5,3 +5,4 @@ export const TestAlgorithmsFolderPath = path.join(
     __dirname,
     '../../node_modules/@ottawamhealth/pbl-calculator-engine-assets',
 );
+export const ValidationDataFolderName = 'validation-data';
