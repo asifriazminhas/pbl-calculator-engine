@@ -3,7 +3,7 @@ export interface IRestrictedCubicSplinePCell {
     $: {
         parameterName: string;
         knotLocations: string;
-    }
+    };
 }
 
 /**
@@ -13,5 +13,5 @@ export interface IRestrictedCubicSplinePCell {
  * @interface RestrictedCubicSpline
  */
 export interface IRestrictedCubicSpline {
-    PCell: Array<IRestrictedCubicSplinePCell>;
+    PCell: Array<IRestrictedCubicSplinePCell> | IRestrictedCubicSplinePCell;
 }
