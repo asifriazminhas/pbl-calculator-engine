@@ -4,7 +4,7 @@ import { DefineFunction, mergeDefineFunctions } from './define-function';
 
 export interface ILocalTransformations {
     DerivedField: Array<IDerivedField> | IDerivedField;
-    DefineFunction: Array<DefineFunction>;
+    DefineFunction?: Array<DefineFunction>;
 }
 
 export function mergeLocalTransformations(
