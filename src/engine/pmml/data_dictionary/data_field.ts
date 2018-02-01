@@ -3,11 +3,11 @@ import { getMergeArraysFunction } from '../../merge';
 
 export interface IBaseDataField<T> extends BasePmmlNode {
     $: {
-        name: string
+        name: string;
         displayName: string;
-        optype: T
-        dataType: string
-    }
+        optype: T;
+        dataType: string;
+    };
 }
 
 export interface IValue {
@@ -15,11 +15,11 @@ export interface IValue {
         value: string;
         displayName: string;
         description: string;
-    }
+    };
 }
 
 export interface ICategoricalDataField extends IBaseDataField<'continuous'> {
-    Value: Array<IValue> | IValue;
+    Value?: IValue[] | IValue;
 }
 
 export interface IInterval {
@@ -27,7 +27,7 @@ export interface IInterval {
         closure: 'openOpen' | 'openClosed' | 'closedOpen' | 'closedClosed';
         leftMargin: string;
         rightMargin: string;
-    }
+    };
 }
 
 export interface IContinuousDataField extends IBaseDataField<'categorical'> {
@@ -39,5 +39,5 @@ export type IDataField = IContinuousDataField | ICategoricalDataField;
 export const mergeDataFields = getMergeArraysFunction(
     (dataField: IDataField) => {
         return dataField.$.name;
-    }
+    },
 );
