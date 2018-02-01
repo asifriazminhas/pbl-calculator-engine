@@ -18,6 +18,7 @@ import { ISimpleAlgorithmJson } from '../simple-algorithm/simple-algorithm-json'
 import { IAlgorithmJson } from '../algorithm/algorithm-json';
 import { IOutput } from '../pmml/pmml';
 import { optimizeModel } from './optimizations';
+import { returnEmptyArrayIfUndefined } from '../undefined/undefined';
 
 function getAlgorithmTypeFromGeneralRegressionModel(
     generalRegressionModel: IGeneralRegressionModel,
@@ -50,9 +51,9 @@ async function pmmlStringsToJson(
 ): Promise<AlgorithmJsonTypes> {
     const pmml = await PmmlParser.parsePmmlFromPmmlXmlStrings(pmmlXmlStrings);
 
-    const allDefineFunctionNames = pmml.pmmlXml.PMML.LocalTransformations.DefineFunction.map(
-        defineFunction => defineFunction.$.name,
-    );
+    const allDefineFunctionNames = returnEmptyArrayIfUndefined(
+        pmml.pmmlXml.PMML.LocalTransformations.DefineFunction,
+    ).map(defineFunction => defineFunction.$.name);
 
     const baseAlgorithm: IAlgorithmJson<AlgorithmType.Unknown> = {
         algorithmType: AlgorithmType.Unknown,
@@ -60,7 +61,9 @@ async function pmmlStringsToJson(
         version: pmml.pmmlXml.PMML.Header.Extension.Version,
         description: pmml.pmmlXml.PMML.Header.$.description,
         derivedFields: parseDerivedFields(pmml, allDefineFunctionNames),
-        userFunctions: pmml.pmmlXml.PMML.LocalTransformations.DefineFunction
+        userFunctions: returnEmptyArrayIfUndefined(
+            pmml.pmmlXml.PMML.LocalTransformations.DefineFunction,
+        )
             .map(defineFunction =>
                 parseDefineFunction(defineFunction, allDefineFunctionNames),
             )
