@@ -3,6 +3,7 @@ const csvParse = require('csv-parse/lib/sync');
 import * as xmlBuilder from 'xmlbuilder';
 import { returnEmptyStringIfUndefined } from '../undefined';
 import { GeneralRegressionModelType } from '../pmml/general_regression_model/general_regression_model';
+import { IAlgorithmInfoCsvRow } from './algorithm-info';
 
 // The type for the VariableType column in the PHIAT csv
 export type VariableType = 'continuous' | 'categorical' | 'Reference';
@@ -234,11 +235,7 @@ export function transformPhiatDictionaryToPmml(
     algorithmName: string,
     phiatCsvString: string,
     webSpecificationsCategories: string,
-    algorithmInfo: {
-        GenderSpecific: 'true' | 'false';
-        BaselineHazard: string;
-        RegressionType: GeneralRegressionModelType;
-    },
+    algorithmInfo: IAlgorithmInfoCsvRow,
     gender: 'Male' | 'Female' | 'both',
     addMeans: boolean,
     addBetas: boolean,
