@@ -14,6 +14,13 @@ import { ModelTypes } from '../model/model-types';
 import { Cox } from '../cox/index';
 import { GeneralRegressionModelType } from '../pmml/general_regression_model/general_regression_model';
 import { IAlgorithmInfoCsvRow } from '../pmml-transformers/algorithm-info';
+import {
+    BinsLookup,
+    convertBinsDataCsvToBinsData,
+    convertBinsLookupCsvToBinsLookup,
+    IBinsData,
+} from '../cox/bins';
+import { AlgorithmType } from '../algorithm/algorithm-type';
 
 export type BuildFromAssetsFolderFunction = (
     assetsFolderPath: string,
@@ -40,6 +47,26 @@ function getPmmlFileStringsSortedByPriorityInFolder(
         .map(pmmlFileName =>
             fs.readFileSync(`${assetsFolderPath}/${pmmlFileName}.xml`, 'utf8'),
         );
+}
+
+function getBinsDataAndLookup(
+    algorithmDirectoryPath: string,
+): { binsData?: IBinsData; binsLookup?: BinsLookup } {
+    const binsDataCsvPath = `${algorithmDirectoryPath}/bins-data.csv`;
+    const binsLookupCsvPath = `${algorithmDirectoryPath}/bin-lookup.csv`;
+
+    return {
+        binsData: fs.existsSync(binsDataCsvPath)
+            ? convertBinsDataCsvToBinsData(
+                  fs.readFileSync(binsDataCsvPath, 'utf8'),
+              )
+            : undefined,
+        binsLookup: fs.existsSync(binsLookupCsvPath)
+            ? convertBinsLookupCsvToBinsLookup(
+                  fs.readFileSync(binsLookupCsvPath, 'utf8'),
+              )
+            : undefined,
+    };
 }
 
 async function buildSingleAlgorithmModelJson(
@@ -70,7 +97,7 @@ async function buildSingleAlgorithmModelJson(
     }
 
     // Return SingleAlgorithmModelJson
-    return (await pmmlXmlStringsToJson(
+    const singleAlgorithmJson = (await pmmlXmlStringsToJson(
         [
             pmmlFileStrings
                 .concat(webSpecificationsPmml ? webSpecificationsPmml : [])
@@ -78,6 +105,18 @@ async function buildSingleAlgorithmModelJson(
         ],
         [],
     )) as SingleAlgorithmModelJson;
+
+    if (singleAlgorithmJson.algorithm.algorithmType === AlgorithmType.Cox) {
+        return Object.assign({}, singleAlgorithmJson, {
+            algorithm: Object.assign(
+                {},
+                singleAlgorithmJson.algorithm,
+                getBinsDataAndLookup(assetsFolderPath),
+            ),
+        });
+    } else {
+        return singleAlgorithmJson;
+    }
 }
 
 async function buildMultipleAlgorithmModelJson(
