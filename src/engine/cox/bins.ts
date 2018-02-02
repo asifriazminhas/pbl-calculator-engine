@@ -24,6 +24,11 @@ export interface IBinsDataCsvRow {
     [index: string]: string;
 }
 
+export interface IBins {
+    binsData: IBinsData;
+    binsLookup: BinsLookup;
+}
+
 export type BinsDataCsv = IBinsDataCsvRow[];
 
 export interface IBinsLookupCsvRow {
