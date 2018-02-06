@@ -3,8 +3,8 @@ import { Data } from '../data';
 import {
     calculateScore,
     IRegressionAlgorithm,
-    getBaselineForData,
 } from '../regression-algorithm/regression-algorithm';
+import { getBaselineForData } from '../regression-algorithm/baseline/baseline';
 
 export interface ILogisticRegression
     extends IRegressionAlgorithm<AlgorithmType.LogisticRegression> {

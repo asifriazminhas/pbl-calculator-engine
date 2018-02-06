@@ -12,8 +12,8 @@ import * as moment from 'moment';
 import {
     INewPredictorTypes,
     addPredictor,
-    IBaselineObject,
 } from '../regression-algorithm/regression-algorithm';
+import { IBaselineMixin } from '../regression-algorithm/baseline/baseline';
 
 export type CalibrationObjects = Array<{ age: number; baseline: number }>;
 
@@ -127,7 +127,7 @@ export class SurvivalModelFunctions {
 
     private convertCalibrationObjectsToBaselineObject(
         calibrationObjects: CalibrationObjects,
-    ): IBaselineObject {
+    ): IBaselineMixin {
         return calibrationObjects.reduce(
             (baselineObject, currentCalibrationObject) => {
                 return Object.assign({}, baselineObject, {
@@ -135,7 +135,7 @@ export class SurvivalModelFunctions {
                         currentCalibrationObject.baseline,
                 });
             },
-            {} as IBaselineObject,
+            {} as IBaselineMixin,
         );
     }
 }

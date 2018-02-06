@@ -8,10 +8,10 @@ import { sortedIndex, isUndefined } from 'lodash';
 import { NoBinFoundError } from '../errors';
 import { AlgorithmType } from '../algorithm/algorithm-type';
 import {
-    getBaselineForData,
     IRegressionAlgorithm,
     calculateScore,
 } from '../regression-algorithm/regression-algorithm';
+import { getBaselineForData } from '../regression-algorithm/baseline/baseline';
 
 export interface Cox
     extends IBaseCox,

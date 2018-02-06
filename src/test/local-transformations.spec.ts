@@ -363,7 +363,11 @@ function testLocalTransformationsForModel(
 }
 
 test(`Testing local transformations`, async t => {
-    const modelsAndNames = await getModelsToTest(['Sodium', 'MPoRT']);
+    const modelsAndNames = await getModelsToTest([
+        'Sodium',
+        'SPoRT',
+        'RESPECT',
+    ]);
 
     modelsAndNames.forEach(({ model, name }) => {
         t.test(`Testing local transformations for algorithm ${name}`, t => {

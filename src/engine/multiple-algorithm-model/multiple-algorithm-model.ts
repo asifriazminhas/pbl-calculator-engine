@@ -4,12 +4,10 @@ import { Data } from '../data';
 import { getPredicateResult } from './predicate';
 import { throwErrorIfUndefined } from '../undefined';
 import { NoBaselineFoundForAlgorithm } from '../errors';
-import {
-    IBaselineObject,
-    updateBaseline,
-} from '../regression-algorithm/regression-algorithm';
+import { updateBaseline } from '../regression-algorithm/regression-algorithm';
 import { RegressionAlgorithmTypes } from '../regression-algorithm/regression-algorithm-types';
 import { AlgorithmTypes } from '../algorithm/algorithm-types';
+import { IBaselineMixin } from '../regression-algorithm/baseline/baseline';
 
 export type MultipleAlgorithmModel<
     U extends AlgorithmTypes = AlgorithmTypes
@@ -34,7 +32,7 @@ export function getAlgorithmForData(
 
 export type NewBaseline = Array<{
     predicateData: Data;
-    newBaseline: IBaselineObject;
+    newBaseline: IBaselineMixin;
 }>;
 export function updateBaselineForModel(
     model: MultipleAlgorithmModel<RegressionAlgorithmTypes>,
@@ -49,7 +47,10 @@ export function updateBaselineForModel(
                 new NoBaselineFoundForAlgorithm(algorithm.name),
             );
 
-            return updateBaseline(algorithm, newBaselineForCurrentAlgorithm);
+            return updateBaseline(
+                algorithm,
+                newBaselineForCurrentAlgorithm.newBaseline,
+            );
         }),
     });
 }
