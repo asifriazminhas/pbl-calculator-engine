@@ -111,7 +111,9 @@ export function getSurvivalToTimeWithBins(
         },
     );
 
-    return binDataForScore[binDataForTimeIndex - 1].survivalPercent / 100;
+    return binDataForTimeIndex === 0
+        ? 0.99
+        : binDataForScore[binDataForTimeIndex - 1].survivalPercent / 100;
 }
 
 export function getRiskToTime(
