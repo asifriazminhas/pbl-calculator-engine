@@ -12,14 +12,15 @@ import { parseModelJsonToModel } from '../model';
 import { SurvivalModelFunctions } from './survival-model-functions';
 import { ModelTypes } from '../model/model-types';
 import { Cox } from '../cox/index';
-import { GeneralRegressionModelType } from '../pmml/general_regression_model/general_regression_model';
-import { IAlgorithmInfoCsvRow } from '../pmml-transformers/algorithm-info';
 import {
-    BinsLookup,
-    convertBinsDataCsvToBinsData,
-    convertBinsLookupCsvToBinsLookup,
-    IBinsData,
-} from '../cox/bins';
+    IAlgorithmInfoCsvRow,
+    AlgorithmInfoCsv,
+} from '../pmml-transformers/algorithm-info';
+import { convertBinsDataCsvToBinsData, IBinsData } from '../cox/bins/bins';
+import {
+    convertBinsLookupCsvToBinsLookupJson,
+    IBinsLookupJsonItem,
+} from '../cox/bins/bins-json';
 import { AlgorithmType } from '../algorithm/algorithm-type';
 
 export type BuildFromAssetsFolderFunction = (
@@ -51,7 +52,7 @@ function getPmmlFileStringsSortedByPriorityInFolder(
 
 function getBinsDataAndLookup(
     algorithmDirectoryPath: string,
-): { binsData?: IBinsData; binsLookup?: BinsLookup } {
+): { binsData?: IBinsData; binsLookup?: IBinsLookupJsonItem[] } {
     const binsDataCsvPath = `${algorithmDirectoryPath}/bins-data.csv`;
     const binsLookupCsvPath = `${algorithmDirectoryPath}/bin-lookup.csv`;
 
@@ -62,7 +63,7 @@ function getBinsDataAndLookup(
               )
             : undefined,
         binsLookup: fs.existsSync(binsLookupCsvPath)
-            ? convertBinsLookupCsvToBinsLookup(
+            ? convertBinsLookupCsvToBinsLookupJson(
                   fs.readFileSync(binsLookupCsvPath, 'utf8'),
               )
             : undefined,
@@ -112,6 +113,10 @@ async function buildSingleAlgorithmModelJson(
                 {},
                 singleAlgorithmJson.algorithm,
                 getBinsDataAndLookup(assetsFolderPath),
+                {
+                    timeMetric: algorithmInfo.TimeMetric,
+                    maximumTime: Number(algorithmInfo.MaximumTime),
+                },
             ),
         });
     } else {
@@ -226,12 +231,7 @@ export function getBuildFromAssetsFolder(): IBuildFromAssetsFolder {
             }
 
             // Parse the algorithm info csv file
-            const algorithmsInfoTable: Array<{
-                AlgorithmName: string;
-                GenderSpecific: 'true' | 'false';
-                BaselineHazard: string;
-                RegressionType: GeneralRegressionModelType;
-            }> = csvParse(
+            const algorithmsInfoTable: AlgorithmInfoCsv = csvParse(
                 fs.readFileSync(
                     `${assetsFolderPath}/algorithm_info.csv`,
                     'utf8',

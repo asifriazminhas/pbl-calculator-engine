@@ -8,6 +8,7 @@ import {
 } from '../algorithm/algorithm-json';
 import { IRegressionAlgorithmJson } from './regression-algorithm-json';
 import { AlgorithmType } from '../algorithm/algorithm-type';
+import { getBinsLookupFromBinsLookupJson } from '../cox/bins/bins';
 
 export type RegressionAlgorithmJsonTypes = ICoxJson | ILogisticRegressionJson;
 
@@ -19,7 +20,7 @@ export function parseRegressionAlgorithmJson(
         ...coxJsonWithoutDerivedFields,
     } = regressionAlgorithmJson;
 
-    return {
+    const regressionAlgorithm = {
         ...coxJsonWithoutDerivedFields,
         covariates: regressionAlgorithmJson.covariates.map(covariateJson => {
             return parseCovariateJsonToCovariate(
@@ -32,6 +33,18 @@ export function parseRegressionAlgorithmJson(
             regressionAlgorithmJson.userFunctions,
         ),
     };
+
+    if (regressionAlgorithmJson.algorithmType === AlgorithmType.Cox) {
+        return Object.assign({}, regressionAlgorithm, {
+            binsLookup: regressionAlgorithmJson.binsLookup
+                ? getBinsLookupFromBinsLookupJson(
+                      regressionAlgorithmJson.binsLookup,
+                  )
+                : undefined,
+        });
+    } else {
+        return regressionAlgorithm;
+    }
 }
 
 export function isRegressionAlgorithmJson(

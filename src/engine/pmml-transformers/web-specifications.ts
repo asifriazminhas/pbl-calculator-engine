@@ -127,12 +127,12 @@ function addHeaderNode(pmmlNode: any) {
 function addGeneralRegressionModelNode(
     pmmlNode: any,
     webSpecificationsCsv: IBaseDataField[],
-    baseline: number,
+    baselineHazard: number,
     outputName: string,
     modelType: GeneralRegressionModelType,
 ) {
     const generalRegressionModelNode = pmmlNode.ele('GeneralRegressionModel', {
-        baseline,
+        baselineHazard,
         modelType,
     });
 
