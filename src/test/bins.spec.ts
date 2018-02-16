@@ -1,69 +1,153 @@
 import * as test from 'tape';
 import {
-    BinsLookupCsv,
-    convertBinsLookupCsvToBinsLookup,
     convertBinsDataCsvToBinsData,
-    BinsDataCsv,
-} from '../engine/cox/bins';
+    getBinDataForScore,
+    IBinData,
+} from '../engine/cox/bins/bins';
+
 // tslint:disable-next-line
 const csvParse = require('csv-parse/lib/sync');
 import * as fs from 'fs';
 import { expect } from 'chai';
 import { throwErrorIfUndefined } from '../engine/undefined/undefined';
 import { TestAssetsFolderPath } from './constants';
-import { ICoxWithBins, getRiskToTimeForCoxWithBins } from '../engine/cox/cox';
-import { AlgorithmType } from '../engine/algorithm/algorithm-type';
-import { TimeMetric } from '../engine/cox/time-metric';
-const binsLookupCsvString = fs.readFileSync(
-    `${TestAssetsFolderPath}/bins/bins-lookup.csv`,
-    'utf8',
-);
 const binsDataCsvString = fs.readFileSync(
     `${TestAssetsFolderPath}/bins/bins-data.csv`,
     'utf8',
 );
-import * as moment from 'moment';
+import {
+    IBinsLookupCsvRow,
+    convertBinsLookupCsvToBinsLookupJson,
+    IBinsLookupJsonItem,
+    NegativeInfinityString,
+    PositiveInfinityString,
+} from '../engine/cox/bins/bins-json';
+import {
+    getBinsLookupFromBinsLookupJson,
+    IBinsDataCsvRow,
+    IBins,
+} from '../engine/cox/bins/bins';
+import { NoBinFoundError } from '../engine/errors/no-bin-found-error';
 
-test(`convertBinsLookupCsvToBinsLookup function`, t => {
-    const binsLookupCsv: BinsLookupCsv = csvParse(binsLookupCsvString, {
-        columns: true,
+test(`convertBinsLookupCsvToBinsLookupJson function`, t => {
+    t.test(`When the csv file is correct`, t => {
+        const binsLookupCsvString = fs.readFileSync(
+            `${TestAssetsFolderPath}/bins/valid-bins-lookup.csv`,
+            'utf8',
+        );
+        const binsLookupCsv: IBinsLookupCsvRow[] = csvParse(
+            binsLookupCsvString,
+            {
+                columns: true,
+            },
+        );
+
+        const binsLookup = convertBinsLookupCsvToBinsLookupJson(
+            binsLookupCsvString,
+        );
+
+        expect(binsLookupCsv.length).to.equal(binsLookup.length);
+        t.pass(
+            `It should have the same number of items as the number of rows in the csv file`,
+        );
+
+        binsLookupCsv.forEach(binsLookupCsvRow => {
+            const currentRowInBinsLookup = throwErrorIfUndefined(
+                binsLookup.find(binLookupItem => {
+                    return (
+                        binLookupItem.binNumber ===
+                        Number(binsLookupCsvRow.BinNumber)
+                    );
+                }),
+                new Error(
+                    `No bin found in bins lookup for number ${binsLookupCsvRow.BinNumber}`,
+                ),
+            );
+
+            expect(
+                isNaN(Number(binsLookupCsvRow.MaxXscore))
+                    ? binsLookupCsvRow.MaxXscore
+                    : Number(binsLookupCsvRow.MaxXscore),
+            ).to.equal(currentRowInBinsLookup.maxScore);
+            expect(
+                isNaN(Number(binsLookupCsvRow.MinXscore))
+                    ? binsLookupCsvRow.MinXscore
+                    : Number(binsLookupCsvRow.MinXscore),
+            ).to.equal(currentRowInBinsLookup.minScore);
+            expect(Number(binsLookupCsvRow.BinNumber)).to.equal(
+                currentRowInBinsLookup.binNumber,
+            );
+        });
+        t.pass(`It should corrrectly set the value of each item`);
+
+        t.end();
     });
 
-    const binsLookup = convertBinsLookupCsvToBinsLookup(binsLookupCsvString);
-
-    expect(binsLookupCsv.length).to.equal(binsLookup.length);
-    t.pass(`Bins lookup has same number of items as bins lookup csv`);
-
-    binsLookupCsv.forEach(binsLookupCsvRow => {
-        const currentRowInBinsLookup = throwErrorIfUndefined(
-            binsLookup.find(binLookupItem => {
-                return (
-                    binLookupItem.binNumber ===
-                    Number(binsLookupCsvRow.BinNumber)
+    t.test(`When the csv file is incorrect`, t => {
+        t.test(
+            `When a value in the MinXscore column is not a number and is not a valid infinity string`,
+            t => {
+                const invalidBinsLookupCsvString = fs.readFileSync(
+                    `${TestAssetsFolderPath}/bins/invalid-bins-lookup-MinXscore.csv`,
+                    'utf8',
                 );
-            }),
-            new Error(
-                `No bin found in bins lookup for number ${binsLookupCsvRow.BinNumber}`,
-            ),
+
+                expect(
+                    convertBinsLookupCsvToBinsLookupJson.bind(
+                        null,
+                        invalidBinsLookupCsvString,
+                    ),
+                ).throw(Error);
+
+                t.pass(`It should throw an Error`);
+                t.end();
+            },
         );
 
-        expect(Number(binsLookupCsvRow.MaxRisk)).to.equal(
-            currentRowInBinsLookup.maxRisk,
+        t.test(
+            `When a value in the MaxXscore column is not a valid number and is not a valid infinity string`,
+            t => {
+                const invalidBinsLookupCsvString = fs.readFileSync(
+                    `${TestAssetsFolderPath}/bins/invalid-bins-lookup-MaxXscore.csv`,
+                    'utf8',
+                );
+
+                expect(
+                    convertBinsLookupCsvToBinsLookupJson.bind(
+                        null,
+                        invalidBinsLookupCsvString,
+                    ),
+                ).throw(Error);
+
+                t.pass(`It should throw an Error`);
+                t.end();
+            },
         );
-        expect(Number(binsLookupCsvRow.MinRisk)).to.equal(
-            currentRowInBinsLookup.minRisk,
-        );
-        expect(Number(binsLookupCsvRow.BinNumber)).to.equal(
-            currentRowInBinsLookup.binNumber,
+
+        t.test(
+            `When a value in the BinNumber column is not a valid number`,
+            t => {
+                const invalidBinsLookupCsvString = fs.readFileSync(
+                    `${TestAssetsFolderPath}/bins/invalid-bins-lookup-BinNumber.csv`,
+                    'utf8',
+                );
+
+                expect(
+                    convertBinsLookupCsvToBinsLookupJson.bind(
+                        null,
+                        invalidBinsLookupCsvString,
+                    ),
+                ).throw(Error);
+
+                t.pass(`It should throw an Error`);
+                t.end();
+            },
         );
     });
-    t.pass(`Bins lookup items has same data as bins lookup csv`);
-
-    t.end();
 });
 
 test(`convertBinsDataCsvToBinsData function`, t => {
-    const binsDataCsv: BinsDataCsv = csvParse(binsDataCsvString, {
+    const binsDataCsv: IBinsDataCsvRow[] = csvParse(binsDataCsvString, {
         columns: true,
     });
 
@@ -73,27 +157,41 @@ test(`convertBinsDataCsvToBinsData function`, t => {
 
     const numberOfBinsInBinsDataCsv = Object.keys(binsDataCsv[0]).length - 1;
 
-    expect(numberOfBinsInBinsDataCsv).to.equal(binsDataBins.length);
+    expect(binsDataBins.length).to.equal(
+        numberOfBinsInBinsDataCsv,
+        'Incorrect number of bins',
+    );
     t.pass(`Number of bins in bins data is the same as the csv`);
 
     binsDataBins.forEach(binsDataBinNumber => {
-        const percents = Object.keys(binsData[binsDataBinNumber]).map(Number);
+        const binDataForCurrentBin = binsData[binsDataBinNumber];
 
-        percents.forEach(percent => {
-            const csvDataForCurrentPercent = throwErrorIfUndefined(
-                binsDataCsv.find(binsDataCsvRow => {
-                    return Number(binsDataCsvRow.Percent) === percent;
-                }),
-                new Error(`No bins data csv row found for percent ${percent}`),
+        binsDataCsv.forEach(binsDataCsvRow => {
+            const binDataRowForCurrentSurvivalPercent = binDataForCurrentBin.find(
+                binDataRow => {
+                    return (
+                        binDataRow.survivalPercent ===
+                        Number(binsDataCsvRow.Percent)
+                    );
+                },
             );
 
-            if (csvDataForCurrentPercent[String(binsDataBinNumber)] !== '.') {
+            // tslint:disable-next-line
+            expect(
+                binDataRowForCurrentSurvivalPercent,
+                `No bin data found for  ${binsDataCsvRow.Percent}`,
+            ).to.not.be.undefined;
+
+            if (isNaN(Number(binsDataCsvRow[String(binsDataBinNumber)]))) {
                 expect(
-                    Number(csvDataForCurrentPercent[String(binsDataBinNumber)]),
-                ).to.equal(binsData[binsDataBinNumber][percent]);
+                    (binDataRowForCurrentSurvivalPercent as IBinData).time,
+                    `time field should be undefined for bin number ${binsDataBinNumber} and survival percent ${binsDataCsvRow.Percent}`,
+                ).to.be.undefined;
             } else {
-                // tslint:disable-next-line
-                expect(binsData[binsDataBinNumber][percent]).to.be.undefined;
+                expect(
+                    (binDataRowForCurrentSurvivalPercent as IBinData).time,
+                    `Incorrect time field for bin ${binsDataBinNumber} and survival percent ${binsDataCsvRow.Percent}`,
+                ).to.equal(Number(binsDataCsvRow[String(binsDataBinNumber)]));
             }
         });
     });
@@ -102,46 +200,91 @@ test(`convertBinsDataCsvToBinsData function`, t => {
     t.end();
 });
 
-test(`getRiskToTimeForBins function`, t => {
-    const binsData = convertBinsDataCsvToBinsData(binsDataCsvString);
-
-    const coxWithBins: ICoxWithBins = {
-        binsLookup: convertBinsLookupCsvToBinsLookup(binsLookupCsvString),
-        binsData,
-        algorithmType: AlgorithmType.Cox,
-        name: '',
-        version: '',
-        description: '',
-        // No covariates meaning that the score will be zero
-        covariates: [],
-        // Since score is zero the calculated risk for the cox model will be the baseline
-        baseline: 0.6,
-        userFunctions: {},
-        timeMetric: TimeMetric.Days,
-        tables: {},
+test(`getBinDataForScore function`, t => {
+    const bins: IBins = {
+        binsLookup: [
+            {
+                minScore: 0,
+                maxScore: 1,
+                binNumber: 1,
+            },
+            {
+                minScore: 1,
+                maxScore: 2,
+                binNumber: 2,
+            },
+        ],
+        binsData: {
+            2: [
+                {
+                    survivalPercent: 100,
+                    time: 0,
+                },
+                {
+                    survivalPercent: 99,
+                    time: 180,
+                },
+            ],
+        },
     };
 
-    const DaysAdded = 50;
-    const timeOne = moment();
-    timeOne.add(DaysAdded, 'days');
-    const expectedRiskOne = 1 - 0.7;
+    t.test(`When a bin lookup was found`, t => {
+        expect(getBinDataForScore(bins, 2)).to.equal(
+            // @ts-ignore
+            bins.binsData['2'],
+        );
 
-    expect(expectedRiskOne).to.equal(
-        getRiskToTimeForCoxWithBins(coxWithBins, [], timeOne),
-    );
-    t.pass(`Expected risk equals calculated risk for simple case`);
+        t.pass(`It should return the right bin data`);
+        t.end();
+    });
 
-    // For testing days after everybody has died in that group
-    const NumOfDaysAfterWhichEveryoneIsDead = 1799;
-    const timeTwo = moment();
-    timeTwo.add(NumOfDaysAfterWhichEveryoneIsDead, 'days');
-    const expectedRiskTwo = 1;
-    expect(expectedRiskTwo).to.equal(
-        getRiskToTimeForCoxWithBins(coxWithBins, [], timeTwo),
-    );
-    t.pass(
-        `Expected risk equals calculated risk for case where time is after everyone has died`,
-    );
+    t.test(`When a bin lookup was not found`, t => {
+        expect(getBinDataForScore.bind(this, bins, 3)).to.throw(
+            NoBinFoundError,
+        );
 
+        t.pass(`It should throw a NoBinFoundError`);
+        t.end();
+    });
+});
+
+test(`getBinsLookupJsonToBinsLookup function`, t => {
+    const binsLookupJson: IBinsLookupJsonItem[] = [
+        {
+            minScore: NegativeInfinityString,
+            maxScore: 0,
+            binNumber: 1,
+        },
+        {
+            minScore: 0,
+            maxScore: 2,
+            binNumber: 2,
+        },
+        {
+            minScore: 2,
+            maxScore: PositiveInfinityString,
+            binNumber: 3,
+        },
+    ];
+
+    expect(getBinsLookupFromBinsLookupJson(binsLookupJson)).to.deep.equal([
+        {
+            minScore: -Infinity,
+            maxScore: 0,
+            binNumber: 1,
+        },
+        {
+            minScore: 0,
+            maxScore: 2,
+            binNumber: 2,
+        },
+        {
+            minScore: 2,
+            maxScore: Infinity,
+            binNumber: 3,
+        },
+    ]);
+
+    t.pass(`It should return a BinsLookupJson array`);
     t.end();
 });
