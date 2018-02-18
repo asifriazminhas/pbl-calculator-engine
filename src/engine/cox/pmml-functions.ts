@@ -66,10 +66,12 @@ export default {
         str: string,
         firstIndex: number,
         secondIndex: number,
-    ): string {
-        return str.substr(firstIndex - 1, secondIndex - 1);
+    ): string | undefined {
+        return str === undefined || str === null
+            ? undefined
+            : str.substr(firstIndex - 1, secondIndex - 1);
     },
-    nchar: function(str: string): number {
-        return str.length;
+    nchar: function(str: string): number | undefined {
+        return str === undefined || str === null ? undefined : str.length;
     },
 };
