@@ -62,4 +62,14 @@ export default {
     exists: function(value: any): boolean {
         return !(value === undefined || value === null);
     },
+    substr: function(
+        str: string,
+        firstIndex: number,
+        secondIndex: number,
+    ): string {
+        return str.substr(firstIndex - 1, secondIndex - 1);
+    },
+    nchar: function(str: string): number {
+        return str.length;
+    },
 };
