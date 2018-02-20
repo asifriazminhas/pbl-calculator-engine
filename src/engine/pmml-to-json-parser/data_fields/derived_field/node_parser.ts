@@ -252,6 +252,10 @@ export function getASTForBinaryExpressionApply(
             ) as BinaryExpressionASTLeftAndRight;
             break;
         }
+        case 'MapValues': {
+            left = getAstForMapValues(leftNode as IMapValues);
+            break;
+        }
         default: {
             throw new Error(
                 `Unhandled node type ${leftNode[
@@ -281,6 +285,10 @@ export function getASTForBinaryExpressionApply(
                 userDefinedFunctionNames,
                 wrapFieldRefInMemberExpressionAst,
             ) as BinaryExpressionASTLeftAndRight;
+            break;
+        }
+        case 'MapValues': {
+            right = getAstForMapValues(rightNode as IMapValues);
             break;
         }
         default: {
