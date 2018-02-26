@@ -53,8 +53,8 @@ const ApplyOperatorExceptions: {
         userDefinedFunctionNames,
         wrapFieldRefInMemberExpressionAst,
     ) {
-        if (!apply.$$[1]) {
-            const leftNode = apply.$$[0];
+        if (!apply.$$![1]) {
+            const leftNode = apply.$$![0];
             let leftNodeAst;
 
             if (leftNode['#name'] === 'Constant') {
@@ -231,7 +231,7 @@ export function getASTForBinaryExpressionApply(
     wrapFieldRefInMemberExpressionAst: boolean,
 ): IBinaryExpressionAST {
     var left: BinaryExpressionASTLeftAndRight;
-    var leftNode = apply.$$[0];
+    var leftNode = apply.$$![0];
     switch (leftNode['#name']) {
         case 'Constant': {
             left = getASTForConstant(leftNode as IConstant);
@@ -266,7 +266,7 @@ export function getASTForBinaryExpressionApply(
     }
 
     var right: BinaryExpressionASTLeftAndRight;
-    var rightNode = apply.$$[1];
+    var rightNode = apply.$$![1];
     switch (rightNode['#name']) {
         case 'Constant': {
             right = getASTForConstant(rightNode as IConstant);
@@ -331,54 +331,54 @@ export function getASTForLogicalExpressionApply(
     wrapFieldRefInMemberExpressionAst: boolean,
 ): ILogicalExpressionAST {
     var left: LogicalExpressionASTLeftAndRight;
-    switch (apply.$$[1]['#name']) {
+    switch (apply.$$![1]['#name']) {
         case 'Constant': {
-            left = getASTForConstant(apply.$$[0] as IConstant);
+            left = getASTForConstant(apply.$$![0] as IConstant);
             break;
         }
         case 'FieldRef': {
             left = getASTForFieldRef(
-                apply.$$[0] as IFieldRef,
+                apply.$$![0] as IFieldRef,
                 wrapFieldRefInMemberExpressionAst,
             );
             break;
         }
         case 'Apply': {
             left = getASTForApply(
-                apply.$$[0] as IApply,
+                apply.$$![0] as IApply,
                 userDefinedFunctionNames,
                 wrapFieldRefInMemberExpressionAst,
             ) as LogicalExpressionASTLeftAndRight;
             break;
         }
         default: {
-            throw new Error(`Unhandled node ${apply.$$[1]['#name']}`);
+            throw new Error(`Unhandled node ${apply.$$![1]['#name']}`);
         }
     }
 
     var right: LogicalExpressionASTLeftAndRight;
-    switch (apply.$$[1]['#name']) {
+    switch (apply.$$![1]['#name']) {
         case 'Constant': {
-            right = getASTForConstant(apply.$$[1] as IConstant);
+            right = getASTForConstant(apply.$$![1] as IConstant);
             break;
         }
         case 'FieldRef': {
             right = getASTForFieldRef(
-                apply.$$[1] as IFieldRef,
+                apply.$$![1] as IFieldRef,
                 wrapFieldRefInMemberExpressionAst,
             );
             break;
         }
         case 'Apply': {
             right = getASTForApply(
-                apply.$$[1] as IApply,
+                apply.$$![1] as IApply,
                 userDefinedFunctionNames,
                 wrapFieldRefInMemberExpressionAst,
             ) as LogicalExpressionASTLeftAndRight;
             break;
         }
         default: {
-            throw new Error(`Unhandled node ${apply.$$[1]['#name']}`);
+            throw new Error(`Unhandled node ${apply.$$![1]['#name']}`);
         }
     }
 
@@ -406,82 +406,84 @@ export function getASTForIfApply(
     wrapFieldRefInMemberExpressionAst: boolean,
 ): IConditionalExpressionAST {
     var test: AST;
-    switch (apply.$$[0]['#name']) {
+    switch (apply.$$![0]['#name']) {
         case 'Constant': {
-            test = getASTForConstant(apply.$$[0] as IConstant) as ILiteralAST;
+            test = getASTForConstant(apply.$$![0] as IConstant) as ILiteralAST;
             break;
         }
         case 'FieldRef': {
             test = getASTForFieldRef(
-                apply.$$[0] as IFieldRef,
+                apply.$$![0] as IFieldRef,
                 wrapFieldRefInMemberExpressionAst,
             );
             break;
         }
         case 'Apply': {
             test = getASTForApply(
-                apply.$$[0] as IApply,
+                apply.$$![0] as IApply,
                 userDefinedFunctionNames,
                 wrapFieldRefInMemberExpressionAst,
             );
             break;
         }
         default: {
-            throw new Error(`Unhandles node type ${apply.$$[0]['#name']}`);
+            throw new Error(`Unhandles node type ${apply.$$![0]['#name']}`);
         }
     }
 
     var consequent: AST;
-    switch (apply.$$[1]['#name']) {
+    switch (apply.$$![1]['#name']) {
         case 'Constant': {
-            consequent = getASTForConstant(apply
-                .$$[1] as IConstant) as ILiteralAST;
+            consequent = getASTForConstant(
+                apply.$$![1] as IConstant,
+            ) as ILiteralAST;
             break;
         }
         case 'FieldRef': {
             consequent = getASTForFieldRef(
-                apply.$$[1] as IFieldRef,
+                apply.$$![1] as IFieldRef,
                 wrapFieldRefInMemberExpressionAst,
             );
             break;
         }
         case 'Apply': {
             consequent = getASTForApply(
-                apply.$$[1] as IApply,
+                apply.$$![1] as IApply,
                 userDefinedFunctionNames,
                 wrapFieldRefInMemberExpressionAst,
             );
             break;
         }
         default: {
-            throw new Error(`Unhandles node type ${apply.$$[1]['#name']}`);
+            throw new Error(`Unhandles node type ${apply.$$![1]['#name']}`);
         }
     }
 
     var alternate: AST;
-    switch (apply.$$[2]['#name']) {
+    switch (apply.$$![2]['#name']) {
         case 'Constant': {
-            alternate = getASTForConstant(apply
-                .$$[2] as IConstant) as ILiteralAST;
+            alternate = getASTForConstant(
+                apply.$$![2] as IConstant,
+            ) as ILiteralAST;
             break;
         }
         case 'FieldRef': {
             alternate = getASTForFieldRef(
-                apply.$$[2] as IFieldRef,
+                apply.$$![2] as IFieldRef,
                 wrapFieldRefInMemberExpressionAst,
             );
             break;
         }
         case 'Apply': {
             alternate = getASTForApply(
-                apply.$$[2] as IApply,
+                apply.$$![2] as IApply,
                 userDefinedFunctionNames,
                 wrapFieldRefInMemberExpressionAst,
             );
             break;
         }
         default: {
-            throw new Error(`Unhandled node type ${apply.$$[2]['#name']}`);
+            throw new Error(`Unhandled node type ${apply.$$![2]['#name']}`);
         }
     }
 
@@ -507,29 +509,33 @@ export function getASTForCallExpressionApply(
     return getCallExpressionAST(
         getMemberExpressionAST(getLiteralAST(apply.$.function), 'func'),
         //Go through all the function arguments
-        apply.$$.map(apply => {
-            switch (apply['#name']) {
-                case 'Constant': {
-                    return getASTForConstant(apply as IConstant);
-                }
-                case 'FieldRef': {
-                    return getASTForFieldRef(
-                        apply as IFieldRef,
-                        wrapFieldRefInMemberExpressionAst,
-                    );
-                }
-                case 'Apply': {
-                    return getASTForApply(
-                        apply as IApply,
-                        userDefinedFunctionNames,
-                        wrapFieldRefInMemberExpressionAst,
-                    );
-                }
-                default: {
-                    throw new Error(`Unhandled node type ${apply['#name']}`);
-                }
-            }
-        }),
+        apply.$$
+            ? apply.$$.map(apply => {
+                  switch (apply['#name']) {
+                      case 'Constant': {
+                          return getASTForConstant(apply as IConstant);
+                      }
+                      case 'FieldRef': {
+                          return getASTForFieldRef(
+                              apply as IFieldRef,
+                              wrapFieldRefInMemberExpressionAst,
+                          );
+                      }
+                      case 'Apply': {
+                          return getASTForApply(
+                              apply as IApply,
+                              userDefinedFunctionNames,
+                              wrapFieldRefInMemberExpressionAst,
+                          );
+                      }
+                      default: {
+                          throw new Error(
+                              `Unhandled node type ${apply['#name']}`,
+                          );
+                      }
+                  }
+              })
+            : [],
     );
 }
 
@@ -554,40 +560,41 @@ export function getASTForUserDefinedFunctionApply(
             'userFunctions',
         ),
         //Go through all the function arguments
-        apply.$$
-            .map(apply => {
-                switch (apply['#name']) {
-                    case 'Constant': {
-                        return getASTForConstant(apply as IConstant);
-                    }
-                    case 'FieldRef': {
-                        return getASTForFieldRef(
-                            apply as IFieldRef,
-                            wrapFieldRefInMemberExpressionAst,
-                        );
-                    }
-                    case 'Apply': {
-                        return getASTForApply(
-                            apply as IApply,
-                            userDefinedFunctionNames,
-                            wrapFieldRefInMemberExpressionAst,
-                        );
-                    }
-                    case 'MapValues': {
-                        return getAstForMapValues(apply as IMapValues);
-                    }
-                    default: {
-                        throw new Error(
-                            `Unhandled node type ${apply['#name']}`,
-                        );
-                    }
-                }
-            })
-            .concat(
-                additionalFunctionPassedInArgs.map(functionArg =>
-                    getIdentifierAST(functionArg),
-                ),
+        (apply.$$
+            ? apply.$$.map(apply => {
+                  switch (apply['#name']) {
+                      case 'Constant': {
+                          return getASTForConstant(apply as IConstant);
+                      }
+                      case 'FieldRef': {
+                          return getASTForFieldRef(
+                              apply as IFieldRef,
+                              wrapFieldRefInMemberExpressionAst,
+                          );
+                      }
+                      case 'Apply': {
+                          return getASTForApply(
+                              apply as IApply,
+                              userDefinedFunctionNames,
+                              wrapFieldRefInMemberExpressionAst,
+                          );
+                      }
+                      case 'MapValues': {
+                          return getAstForMapValues(apply as IMapValues);
+                      }
+                      default: {
+                          throw new Error(
+                              `Unhandled node type ${apply['#name']}`,
+                          );
+                      }
+                  }
+              })
+            : []
+        ).concat(
+            additionalFunctionPassedInArgs.map(functionArg =>
+                getIdentifierAST(functionArg),
             ),
+        ),
     );
 }
 
