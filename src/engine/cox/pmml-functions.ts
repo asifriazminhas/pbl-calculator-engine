@@ -69,9 +69,12 @@ export default {
     ): string | undefined {
         return str === undefined || str === null
             ? undefined
-            : str.substr(firstIndex - 1, secondIndex - 1);
+            : String(str).substr(firstIndex - 1, secondIndex - 1);
     },
     nchar: function(str: string): number | undefined {
         return str === undefined || str === null ? undefined : str.length;
+    },
+    'as.numeric': function(variableToCoerce: any): number | undefined {
+        return variableToCoerce;
     },
 };
