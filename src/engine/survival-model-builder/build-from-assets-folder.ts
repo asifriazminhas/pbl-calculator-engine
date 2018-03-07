@@ -11,7 +11,7 @@ import { MultipleAlgorithmModelJson } from '../multiple-algorithm-model';
 import { parseModelJsonToModel } from '../model';
 import { SurvivalModelFunctions } from './survival-model-functions';
 import { ModelTypes } from '../model/model-types';
-import { Cox } from '../cox/index';
+import { Cox, ICoxJson } from '../cox/index';
 import {
     IAlgorithmInfoCsvRow,
     AlgorithmInfoCsv,
@@ -181,7 +181,7 @@ async function buildMultipleAlgorithmModelJson(
         .concat(limesurveyPmml ? limesurveyPmml : []);
 
     // Construct and return the MultipleAlgorithmJson object
-    return (await pmmlXmlStringsToJson(
+    const multipleAlgorithmModel = (await pmmlXmlStringsToJson(
         [maleAlgorithmPmmlFileString, femaleAlgorithmPmmlStrings],
         [
             {
@@ -194,6 +194,12 @@ async function buildMultipleAlgorithmModelJson(
             },
         ],
     )) as MultipleAlgorithmModelJson;
+    multipleAlgorithmModel.algorithms.forEach(({ algorithm }) => {
+        (algorithm as ICoxJson).timeMetric = algorithmInfo.TimeMetric;
+        (algorithm as ICoxJson).maximumTime = Number(algorithmInfo.MaximumTime);
+    });
+
+    return multipleAlgorithmModel;
 }
 
 export function getBuildFromAssetsFolder(): IBuildFromAssetsFolder {
