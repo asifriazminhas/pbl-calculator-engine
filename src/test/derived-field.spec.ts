@@ -1,5 +1,5 @@
 import * as test from 'tape';
-import { calculateCoefficent } from '../engine/derived-field';
+import { calculateCoefficent } from '../engine/derived-field/derived-field';
 import { Algorithm } from '../engine/algorithm/algorithm';
 import {
     IBaseDerivedField,

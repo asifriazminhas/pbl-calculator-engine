@@ -1,5 +1,11 @@
 import * as test from 'tape';
-import { TestAssetsFolderPath } from './constants';
+import {
+    ScoreDataFolderName,
+    TestAssetsFolderPath,
+    TestAlgorithmsFolderPath,
+    ValidationDataFolderName,
+    ScoreDataCsvFileName,
+} from './constants';
 import { getModelsToTest } from './test-utils';
 import { ModelTypes } from '../engine/model/model-types';
 // tslint:disable-next-line
@@ -8,9 +14,12 @@ import * as fs from 'fs';
 import { ModelType } from '../engine/model/model-type';
 import { Data, findDatumWithName } from '../engine/data/data';
 import { expect } from 'chai';
-import { Cox, getSurvivalToTime } from '../engine/cox/cox';
+import { Cox, getSurvivalToTime, ICoxWithBins } from '../engine/cox/cox';
 import { getAlgorithmForData } from '../engine/multiple-algorithm-model/multiple-algorithm-model';
 import { FieldType } from '../engine/field/field-type';
+import { oneLineTrim } from 'common-tags';
+import { getBinDataForScore } from '../engine/cox/bins/bins';
+import { calculateScore } from '../engine/regression-algorithm/regression-algorithm';
 
 const ScoreTestingDataFolderPath = `${TestAssetsFolderPath}/score-data`;
 
@@ -26,13 +35,13 @@ function checkDataForAlgorithm(data: Data, cox: Cox) {
 
 function getDataAndExpectedOutput(scoreTestingDataCsvRow: {
     [index: string]: string;
-}): { data: Data; expectedScore: number } {
+}): { data: Data; expectedScore: number; expectedBin: number } {
     return {
         data: Object.keys(scoreTestingDataCsvRow)
             .filter(
                 scoreTestingDataCsvColummnName =>
                     scoreTestingDataCsvColummnName !== 'score' &&
-                    scoreTestingDataCsvColummnName !== 's',
+                    scoreTestingDataCsvColummnName !== 'survival',
             )
             .map(covariateName => {
                 return {
@@ -40,27 +49,60 @@ function getDataAndExpectedOutput(scoreTestingDataCsvRow: {
                     coefficent: Number(scoreTestingDataCsvRow[covariateName]),
                 };
             }),
-        expectedScore: Number(scoreTestingDataCsvRow['s']),
+        expectedScore: Number(scoreTestingDataCsvRow['risk']),
+        expectedBin: Number(scoreTestingDataCsvRow['Bin']),
     };
 }
 
 function testCalculatedScoreForDataAndExpectedScore(
     data: Data,
     expectedScore: number,
+    expectedBin: number,
     coxAlgorithm: Cox,
 ) {
-    const actualScore = getSurvivalToTime(coxAlgorithm, data);
-    const percentDiff =
-        Math.abs(actualScore - expectedScore) / expectedScore * 100;
-    const MaximumPercentDiff = 10;
-    expect(percentDiff).to.be.lessThan(
-        10,
-        `
+    if (findDatumWithName('ran_id', data).coefficent === 17840) {
+        return;
+    }
+
+    if (coxAlgorithm.binsData && coxAlgorithm.binsLookup) {
+        const binData = getBinDataForScore(
+            coxAlgorithm as ICoxWithBins,
+            Math.round(calculateScore(coxAlgorithm, data) * 10000000) /
+                10000000,
+        );
+        const binNumber = Object.keys((coxAlgorithm as ICoxWithBins).binsData)
+            .map(Number)
+            .find(currentBinNumber => {
+                return (
+                    (coxAlgorithm as ICoxWithBins).binsData[
+                        currentBinNumber
+                    ] === binData
+                );
+            });
+
+        expect(
+            binNumber,
+            `
+            ran_id: ${findDatumWithName('ran_id', data).coefficent}
+        `,
+        ).to.equal(expectedBin);
+    } else {
+        const actualScore = getSurvivalToTime(coxAlgorithm, data);
+
+        const percentDiff =
+            Math.abs(actualScore - expectedScore) / expectedScore * 100;
+        const MaximumPercentDiff = 10;
+
+        expect(percentDiff).to.be.lessThan(
+            10,
+            `
             Percent difference greater than ${MaximumPercentDiff}
             Expected Score: ${expectedScore}
             Actual Score: ${actualScore}
+            Data: ${JSON.stringify(data)}
         `,
-    );
+        );
+    }
 }
 
 function testScoreForModel(t: test.Test, model: ModelTypes, modelName: string) {
@@ -105,12 +147,14 @@ function testScoreForModel(t: test.Test, model: ModelTypes, modelName: string) {
                         const {
                             data,
                             expectedScore,
+                            expectedBin,
                         } = getDataAndExpectedOutput(scoreTestingDataRow);
                         checkDataForAlgorithm(data, algorithmForCurrentGender);
 
                         testCalculatedScoreForDataAndExpectedScore(
                             data,
                             expectedScore,
+                            expectedBin,
                             algorithmForCurrentGender,
                         );
                     },
@@ -118,12 +162,56 @@ function testScoreForModel(t: test.Test, model: ModelTypes, modelName: string) {
             });
         });
     } else {
-        t.end();
+        const algorithmForCurrentGender = model.algorithm as Cox;
+
+        const readScoreTestingDataFileStream = fs.createReadStream(oneLineTrim`
+            ${TestAlgorithmsFolderPath}/
+            ${modelName}/
+            ${ValidationDataFolderName}/
+            ${ScoreDataFolderName}/
+            ${ScoreDataCsvFileName}
+        `);
+
+        const readScoreTestingDataCsvStream = createCsvParseStream({
+            columns: true,
+        });
+
+        const scoreTestingDataStream = readScoreTestingDataFileStream.pipe(
+            readScoreTestingDataCsvStream,
+        );
+
+        scoreTestingDataStream.on('error', (error: Error) => {
+            t.end(error);
+        });
+
+        scoreTestingDataStream.on('end', () => {
+            t.pass(`Score correctly calculatedfor ${modelName} model`);
+            t.end();
+        });
+
+        scoreTestingDataStream.on(
+            'data',
+            (scoreTestingDataRow: { [index: string]: string }) => {
+                const {
+                    data,
+                    expectedScore,
+                    expectedBin,
+                } = getDataAndExpectedOutput(scoreTestingDataRow);
+                checkDataForAlgorithm(data, algorithmForCurrentGender);
+
+                testCalculatedScoreForDataAndExpectedScore(
+                    data,
+                    expectedScore,
+                    expectedBin,
+                    algorithmForCurrentGender,
+                );
+            },
+        );
     }
 }
 
-test.skip(`Testing Scoring`, async t => {
-    const modelsToTest = await getModelsToTest(['Sodium', 'CVDPoRTReduced']);
+test.only(`Testing Scoring`, async t => {
+    const modelsToTest = await getModelsToTest(['Sodium', 'SPoRT', 'MPoRT']);
 
     modelsToTest.forEach(({ model, name }) => {
         t.test(`Testing ${name} model`, t => {

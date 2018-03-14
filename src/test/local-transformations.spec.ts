@@ -3,7 +3,7 @@ import 'source-map-support/register';
 import * as test from 'tape';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Data } from '../engine/data';
+import { Data, isEqual as isDataOneEqualToDataTwo } from '../engine/data/data';
 import { Covariate } from '../engine/covariate';
 import {
     getLeafFieldsForDerivedField,
@@ -18,9 +18,8 @@ import { Cox } from '../engine/cox/cox';
 import { expect } from 'chai';
 import { RegressionAlgorithmTypes } from '../engine/regression-algorithm/regression-algorithm-types';
 import { Stream } from 'stream';
-import { TestAlgorithmsFolderPath } from './constants';
-import { SurvivalModelBuilder } from '../index';
 import { oneLine } from 'common-tags';
+import { getModelsToTest } from './test-utils';
 const TestAssetsFolderPath = path.join(
     __dirname,
     '../../node_modules/@ottawamhealth/pbl-calculator-engine-assets',
@@ -39,40 +38,6 @@ function getLocalTransformationsDataPathForModelAndGender(
         ${TestAssetsFolderPath}/${modelName}${TransformationsTestingDataFolderPath}/${gender}/local-transformations.csv
         `;
     }
-}
-
-function getAlgorithmNamesToTest(excludeAlgorithms: string[]): string[] {
-    return (
-        fs
-            /* Get the names of all files and folders in the directory with the
-            assets */
-            .readdirSync(TestAlgorithmsFolderPath)
-            /* Filter out all files and keep only directories */
-            .filter(algorithmFolderFileName => {
-                return fs
-                    .lstatSync(
-                        path.join(
-                            TestAssetsFolderPath,
-                            algorithmFolderFileName,
-                        ),
-                    )
-                    .isDirectory();
-            })
-            /* Filter out all algorithm we don't want to test as specified in
-            the excludeAlgorithms arg*/
-            .filter(
-                algorithmName =>
-                    excludeAlgorithms.indexOf(algorithmName) === -1,
-            )
-    );
-}
-
-async function getModelObjFromAlgorithmName(
-    algorithmName: string,
-): Promise<ModelTypes> {
-    return (await SurvivalModelBuilder.buildFromAssetsFolder(
-        `${TestAlgorithmsFolderPath}/${algorithmName}`,
-    )).getModel();
 }
 
 function formatTestingDataCsvColumn(column: any): string | number | undefined {
@@ -140,29 +105,6 @@ function getTestingDataForCovariate(
     }
 }
 
-function isSameData(dataOne: Data, dataTwo: Data): boolean {
-    if (dataOne.length !== dataTwo.length) {
-        return false;
-    }
-
-    return dataOne.find(dataOneDatum => {
-        const equivalentDataTwoDatumForCurrentDateOneDatum = dataTwo.find(
-            dataTwoDatum => dataTwoDatum.name === dataOneDatum.name,
-        );
-
-        if (!equivalentDataTwoDatumForCurrentDateOneDatum) {
-            return true;
-        }
-
-        return !(
-            equivalentDataTwoDatumForCurrentDateOneDatum.coefficent ===
-            dataOneDatum.coefficent
-        );
-    })
-        ? false
-        : true;
-}
-
 function testCovariateTransformations(
     covariate: Covariate,
     inputData: Data,
@@ -175,25 +117,81 @@ function testCovariateTransformations(
     }
 
     // tslint:disable-next-line
-    isSameData;
-    /*const DataToDebug = [
-        { name: 'age', coefficent: 39 },
-        { name: 'smk', coefficent: 'smk1' },
-        { name: 'evd', coefficent: undefined },
-        { name: 's100', coefficent: 's1001' },
-        { name: 'wcig', coefficent: undefined },
-        { name: 'stpo', coefficent: undefined },
-        { name: 'stpoy', coefficent: undefined },
-        { name: 'agecigd', coefficent: 11 },
-        { name: 'cigdayd', coefficent: 75 },
-        { name: 'cigdayf', coefficent: undefined },
-        { name: 'cigdayo', coefficent: undefined },
-        { name: 'dayocc', coefficent: undefined },
-        { name: 'agec1', coefficent: 9 },
+    isDataOneEqualToDataTwo;
+    // tslint:disable-next-line
+    /*(const DataToDebug = [
+        { name: 'age', coefficent: 20 },
+        { name: 'lpa_lpa0', coefficent: 'Yes' },
+        { name: 'lpa_lpa1', coefficent: 'Yes' },
+        { name: 'lpam_lpa1', coefficent: 'lpa60' },
+        { name: 'lpat_lpa1', coefficent: 5 },
+        { name: 'lpa_lpa2', coefficent: 'Yes' },
+        { name: 'lpam_lpa2', coefficent: 'lpa61' },
+        { name: 'lpat_lpa2', coefficent: 70 },
+        { name: 'lpa_lpa3', coefficent: 'Yes' },
+        { name: 'lpam_lpa3', coefficent: 'lpa60' },
+        { name: 'lpat_lpa3', coefficent: 20 },
+        { name: 'lpa_lpa4', coefficent: 'Yes' },
+        { name: 'lpam_lpa4', coefficent: 'lpa30' },
+        { name: 'lpat_lpa4', coefficent: 70 },
+        { name: 'lpa_lpa5', coefficent: 'Yes' },
+        { name: 'lpam_lpa5', coefficent: 'lpa61' },
+        { name: 'lpat_lpa5', coefficent: 2 },
+        { name: 'lpa_lpa6', coefficent: 'Yes' },
+        { name: 'lpam_lpa6', coefficent: 'lpa30' },
+        { name: 'lpat_lpa6', coefficent: 20 },
+        { name: 'lpa_lpa7', coefficent: 'Yes' },
+        { name: 'lpam_lpa7', coefficent: 'lpa61' },
+        { name: 'lpat_lpa7', coefficent: 70 },
+        { name: 'lpa_lpa8', coefficent: 'Yes' },
+        { name: 'lpam_lpa8', coefficent: 'lpa60' },
+        { name: 'lpat_lpa8', coefficent: 5 },
+        { name: 'lpa_lpa9', coefficent: 'Yes' },
+        { name: 'lpam_lpa9', coefficent: 'lpa30' },
+        { name: 'lpat_lpa9', coefficent: 5 },
+        { name: 'lpa_lpa10', coefficent: 'Yes' },
+        { name: 'lpam_lpa10', coefficent: 'lpa30' },
+        { name: 'lpat_lpa10', coefficent: 15 },
+        { name: 'lpa_lpa11', coefficent: 'Yes' },
+        { name: 'lpam_lpa11', coefficent: 'lpa61' },
+        { name: 'lpat_lpa11', coefficent: 5 },
+        { name: 'lpa_lpa12', coefficent: 'Yes' },
+        { name: 'lpam_lpa12', coefficent: 'lpa61' },
+        { name: 'lpat_lpa12', coefficent: 4 },
+        { name: 'lpa_lpa13', coefficent: 'Yes' },
+        { name: 'lpam_lpa13', coefficent: 'lpa61' },
+        { name: 'lpat_lpa13', coefficent: 4 },
+        { name: 'lpa_lpa14', coefficent: 'Yes' },
+        { name: 'lpam_lpa14', coefficent: 'lpa61' },
+        { name: 'lpat_lpa14', coefficent: 1 },
+        { name: 'lpa_lpa15', coefficent: 'Yes' },
+        { name: 'lpam_lpa15', coefficent: 'lpa61' },
+        { name: 'lpat_lpa15', coefficent: 1 },
+        { name: 'lpa_lpa16', coefficent: 'Yes' },
+        { name: 'lpam_lpa16', coefficent: 'lpa60' },
+        { name: 'lpat_lpa16', coefficent: 10 },
+        { name: 'lpa_lpa17', coefficent: 'Yes' },
+        { name: 'lpam_lpa17', coefficent: 'lpa60' },
+        { name: 'lpat_lpa17', coefficent: 2 },
+        { name: 'lpa_lpa18', coefficent: 'Yes' },
+        { name: 'lpam_lpa18', coefficent: 'lpa30' },
+        { name: 'lpat_lpa18', coefficent: 2 },
+        { name: 'lpa_lpa19', coefficent: 'Yes' },
+        { name: 'lpam_lpa19', coefficent: 'lpa60' },
+        { name: 'lpat_lpa19', coefficent: 6 },
+        { name: 'lpa_lpa20', coefficent: 'Yes' },
+        { name: 'lpam_lpa20', coefficent: 'lpa30' },
+        { name: 'lpat_lpa20', coefficent: 3 },
+        { name: 'lpa_lpa21', coefficent: 'No' },
+        { name: 'lpam_lpa21' },
+        { name: 'lpat_lpa21' },
+        { name: 'lpa_lpa22', coefficent: 'Yes' },
+        { name: 'lpam_lpa22', coefficent: 'lpa30' },
+        { name: 'lpat_lpa22', coefficent: 2 },
     ];
-    const CovariateToDebug = 'PackYearsC_rcs1';
+    const CovariateToDebug = 'AgeCXPhysicalActivityC_int';
     if (
-        !isSameData(DataToDebug, inputData) ||
+        !isDataOneEqualToDataTwo(DataToDebug, inputData) ||
         covariate.name !== CovariateToDebug
     ) {
         return;
@@ -289,7 +287,7 @@ function testLocalTransformationsForModel(
             t.end();
         });
     } else if (model.modelType === ModelType.MultipleAlgorithm) {
-        const genders: Array<'male' | 'female'> = ['female', 'male'];
+        const genders: Array<'male' | 'female'> = ['male', 'female'];
 
         genders.forEach(gender => {
             t.test(`Testing ${gender} algorithm`, t => {
@@ -365,25 +363,15 @@ function testLocalTransformationsForModel(
 }
 
 test(`Testing local transformations`, async t => {
-    const namesOfAlgorithmsToTest = getAlgorithmNamesToTest(['Sodium']);
-    const models = await Promise.all(
-        namesOfAlgorithmsToTest.map(algorithmName => {
-            return getModelObjFromAlgorithmName(algorithmName);
-        }),
-    );
+    const modelsAndNames = await getModelsToTest([
+        'Sodium',
+        'SPoRT',
+        'RESPECT',
+    ]);
 
-    models.forEach((model, index) => {
-        t.test(
-            `Testing local transformations for algorithm ${namesOfAlgorithmsToTest[
-                index
-            ]}`,
-            t => {
-                testLocalTransformationsForModel(
-                    model,
-                    namesOfAlgorithmsToTest[index],
-                    t,
-                );
-            },
-        );
+    modelsAndNames.forEach(({ model, name }) => {
+        t.test(`Testing local transformations for algorithm ${name}`, t => {
+            testLocalTransformationsForModel(model, name, t);
+        });
     });
 });

@@ -10,8 +10,10 @@ export function isCategoricalDataField(
 
 export function parseCategories(
     categoricalDataFieldNode: ICategoricalDataField,
-): Array<Category> {
-    if (categoricalDataFieldNode.Value instanceof Array) {
+): Category[] {
+    if (!categoricalDataFieldNode.Value) {
+        return [];
+    } else if (categoricalDataFieldNode.Value instanceof Array) {
         return categoricalDataFieldNode.Value.map(value => {
             return {
                 value: value.$.value,

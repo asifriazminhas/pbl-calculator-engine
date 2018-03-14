@@ -2,32 +2,39 @@ import { IBaseCox } from './base-cox';
 import { Data } from '../data';
 import { shouldLogDebugInfo } from '../env';
 import * as moment from 'moment';
-import { BinsLookup, IBinsData } from './bins';
-import { throwErrorIfUndefined } from '../undefined';
-import { sortedIndex, isUndefined } from 'lodash';
-import { NoBinFoundError } from '../errors';
+import { sortedLastIndexBy } from 'lodash';
 import { AlgorithmType } from '../algorithm/algorithm-type';
 import {
-    getBaselineForData,
     IRegressionAlgorithm,
     calculateScore,
 } from '../regression-algorithm/regression-algorithm';
+import { getBaselineForData } from '../regression-algorithm/baseline/baseline';
+import { TimeMetric } from './time-metric';
+import { getBinDataForScore, IBins, IBinsData, BinsLookup } from './bins/bins';
+import { getCalibrationFactorForData } from '../regression-algorithm/calibration/calibration';
 
-export interface Cox extends IBaseCox, IRegressionAlgorithm<AlgorithmType.Cox> {
-    binsLookup?: BinsLookup;
-    binsData?: IBinsData;
-}
+export interface Cox
+    extends IBaseCox,
+        IRegressionAlgorithm<AlgorithmType.Cox>,
+        Partial<IBins> {}
 
 export interface ICoxWithBins extends Cox {
-    binsLookup: BinsLookup;
     binsData: IBinsData;
+    binsLookup: BinsLookup;
 }
 
-export function getTimeMultiplier(time: moment.Moment) {
-    return Math.abs(
-        moment()
-            .startOf('day')
-            .diff(time, 'years', true),
+export function getTimeMultiplier(
+    time: moment.Moment,
+    timeMetric: TimeMetric,
+    maximumTime: number,
+) {
+    return Math.min(
+        Math.abs(
+            moment()
+                .startOf('day')
+                .diff(time, timeMetric, true),
+        ) / maximumTime,
+        1,
     );
 }
 
@@ -37,10 +44,18 @@ export function getSurvivalToTime(
     data: Data,
     time?: Date | moment.Moment,
 ): number {
+    return 1 - getRiskToTime(cox, data, time);
+}
+
+export function getRiskToTimeWithoutBins(
+    cox: Cox,
+    data: Data,
+    time?: Date | moment.Moment,
+): number {
     let formattedTime: moment.Moment;
     if (!time) {
         formattedTime = moment().startOf('day');
-        formattedTime.add(1, 'year');
+        formattedTime.add(cox.maximumTime, cox.timeMetric);
     } else if (time instanceof Date) {
         formattedTime = moment(time).startOf('day');
     } else {
@@ -60,84 +75,60 @@ export function getSurvivalToTime(
     }
 
     const score = calculateScore(cox, data);
+    // baseline*calibration*e^score
+    const exponentiatedScoreTimesBaselineTimesCalibration =
+        getBaselineForData(cox, data) *
+        getCalibrationFactorForData(cox, data) *
+        Math.E ** score;
+    const maximumTimeRiskProbability =
+        1 - Math.E ** -exponentiatedScoreTimesBaselineTimesCalibration;
 
-    const oneYearSurvivalProbability =
-        1 - getBaselineForData(cox, data) * Math.pow(Math.E, score);
-
-    return oneYearSurvivalProbability * getTimeMultiplier(formattedTime);
+    return (
+        maximumTimeRiskProbability *
+        getTimeMultiplier(formattedTime, cox.timeMetric, cox.maximumTime)
+    );
 }
 
-export function getRiskToTimeForCoxWithBins(
-    cox: ICoxWithBins,
+export function getSurvivalToTimeWithBins(
+    coxWithBins: ICoxWithBins,
     data: Data,
     time?: Date | moment.Moment,
 ): number {
-    // Get the cox risk without any time modifications
-    const coxRisk = getRiskToTime(cox, data);
+    const score = calculateScore(coxWithBins, data);
 
-    // Get the bin number for the above cox risk and throw an error if nothing was found
-    const binNumberForCalculatedCoxRisk = throwErrorIfUndefined(
-        cox.binsLookup.find((binsLookupRow, index) => {
-            if (index !== cox.binsLookup.length - 1) {
-                return (
-                    coxRisk >= binsLookupRow.minRisk &&
-                    coxRisk < binsLookupRow.maxRisk
-                );
-            } else {
-                return (
-                    coxRisk >= binsLookupRow.minRisk &&
-                    coxRisk <= binsLookupRow.maxRisk
-                );
-            }
-        }),
-        new NoBinFoundError(coxRisk),
-    ).binNumber;
+    const binDataForScore = getBinDataForScore(coxWithBins, score);
 
-    /* Get the difference in time from the above passed in time using the
-    timeMetric field to decide what thje difference is */
+    const today = moment();
+    today.startOf('day');
+
+    const startOfDayForTimeArg = moment(time);
+    startOfDayForTimeArg.startOf('day');
+
     const timeDifference = Math.abs(
-        moment()
-            .startOf('day')
-            .diff(time, cox.timeMetric, true),
+        today.diff(startOfDayForTimeArg, coxWithBins.timeMetric),
     );
 
-    /* Get the bin data for the bin this person is in*/
-    const binData = cox.binsData[binNumberForCalculatedCoxRisk];
-    /* Get the list of percents for this binData */
-    const percents = Object.keys(binData).map(Number);
+    const binDataForTimeIndex = sortedLastIndexBy(
+        binDataForScore,
+        { time: timeDifference, survivalPercent: 0 },
+        binDataRow => {
+            return binDataRow.time ? binDataRow.time : coxWithBins.maximumTime;
+        },
+    );
 
-    /* Get the index of the percent value which is the closest to the
-    timeDifference */
-    const indexOfClosestValue =
-        // Subtract the length since we are reversing the array
-        percents.length -
-        // Reverse the array since we need to go from low to high values
-        sortedIndex(
-            percents
-                // Remove undefined as the sortedIndex will return a wrong value otherwise
-                .filter(percent => !isUndefined(binData[percent]))
-                .map(percent => {
-                    return binData[percent];
-                })
-                .reverse(),
-            timeDifference,
-        );
-
-    if (
-        (binData[percents[indexOfClosestValue]] as number) < timeDifference &&
-        isUndefined(binData[percents[indexOfClosestValue - 1]])
-    ) {
-        return 1;
-    }
-
-    // Return the percent as the risk. Do a minus one since the bins data has survival
-    return 1 - (percents[indexOfClosestValue] as number) / 100;
+    return binDataForTimeIndex === 0
+        ? 0.99
+        : binDataForScore[binDataForTimeIndex - 1].survivalPercent / 100;
 }
 
 export function getRiskToTime(
-    cox: Cox,
+    cox: Cox | ICoxWithBins,
     data: Data,
     time?: Date | moment.Moment,
-): number {
-    return 1 - getSurvivalToTime(cox, data, time);
+) {
+    if (cox.binsData && cox.binsLookup) {
+        return 1 - getSurvivalToTimeWithBins(cox as ICoxWithBins, data, time);
+    } else {
+        return getRiskToTimeWithoutBins(cox, data, time);
+    }
 }

@@ -35,3 +35,26 @@ export function findDatumWithName(name: string, data: Data): IDatum {
 export function updateDataWithDatum(data: Data, datumUpdate: IDatum): Data {
     return updateDataWithData(data, [datumUpdate]);
 }
+
+export function isEqual(dataOne: Data, dataTwo: Data): boolean {
+    if (dataOne.length !== dataTwo.length) {
+        return false;
+    }
+
+    return dataOne.find(dataOneDatum => {
+        const equivalentDataTwoDatumForCurrentDateOneDatum = dataTwo.find(
+            dataTwoDatum => dataTwoDatum.name === dataOneDatum.name,
+        );
+
+        if (!equivalentDataTwoDatumForCurrentDateOneDatum) {
+            return true;
+        }
+
+        return !(
+            equivalentDataTwoDatumForCurrentDateOneDatum.coefficent ===
+            dataOneDatum.coefficent
+        );
+    })
+        ? false
+        : true;
+}

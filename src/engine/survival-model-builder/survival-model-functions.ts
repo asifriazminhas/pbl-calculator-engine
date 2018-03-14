@@ -2,7 +2,6 @@ import {
     ModelTypes,
     getAlgorithmForModelAndData,
     ModelType,
-    updateBaselineForModel,
     JsonModelTypes,
 } from '../model';
 // @ts-ignore
@@ -12,8 +11,10 @@ import * as moment from 'moment';
 import {
     INewPredictorTypes,
     addPredictor,
-    IBaselineObject,
 } from '../regression-algorithm/regression-algorithm';
+import { CalibrationJson } from '../regression-algorithm/calibration/calibration-json';
+import { addCalibrationToAlgorithm } from '../regression-algorithm/calibration/calibration';
+import { getPredicateResult } from '../multiple-algorithm-model/predicate/predicate';
 
 export type CalibrationObjects = Array<{ age: number; baseline: number }>;
 
@@ -69,51 +70,48 @@ export class SurvivalModelFunctions {
     }
 
     public reCalibrateOutcome(
-        calibrationObjects:
-            | CalibrationObjects
-            | {
-                  male: CalibrationObjects;
-                  female: CalibrationObjects;
-              },
+        calibrationJson: CalibrationJson,
     ): SurvivalModelFunctions {
-        if (calibrationObjects instanceof Array) {
-            return new SurvivalModelFunctions(
-                updateBaselineForModel(
-                    this.model,
-                    this.convertCalibrationObjectsToBaselineObject(
-                        calibrationObjects,
-                    ),
-                ) as ModelTypes<Cox>,
-                this.modelJson,
-            );
+        if (this.model.modelType === ModelType.SingleAlgorithm) {
+            const calibratedModel = Object.assign({}, this.model, {
+                algorithm: addCalibrationToAlgorithm(
+                    this.model.algorithm,
+                    calibrationJson,
+                    [],
+                ),
+            });
+            return new SurvivalModelFunctions(calibratedModel, this.modelJson);
         } else {
-            return new SurvivalModelFunctions(
-                updateBaselineForModel(this.model, [
-                    {
-                        predicateData: [
-                            {
-                                name: 'sex',
-                                coefficent: 'male',
+            const predicateData = [
+                [{ name: 'sex', coefficent: 'male' }],
+                [{ name: 'sex', coefficent: 'female' }],
+            ];
+
+            const calibratedModel = Object.assign({}, this.model, {
+                algorithms: this.model.algorithms.map(
+                    ({ algorithm, predicate }) => {
+                        const predicateDataForCurrentPredicate = predicateData.find(
+                            currentPredicateData => {
+                                return getPredicateResult(
+                                    currentPredicateData,
+                                    predicate,
+                                );
                             },
-                        ],
-                        newBaseline: this.convertCalibrationObjectsToBaselineObject(
-                            calibrationObjects.male,
-                        ),
+                        ) as Data;
+
+                        return {
+                            algorithm: addCalibrationToAlgorithm(
+                                algorithm,
+                                calibrationJson,
+                                predicateDataForCurrentPredicate,
+                            ),
+                            predicate,
+                        };
                     },
-                    {
-                        predicateData: [
-                            {
-                                name: 'sex',
-                                coefficent: 'female',
-                            },
-                        ],
-                        newBaseline: this.convertCalibrationObjectsToBaselineObject(
-                            calibrationObjects.female,
-                        ),
-                    },
-                ]) as ModelTypes<Cox>,
-                this.modelJson,
-            );
+                ),
+            });
+
+            return new SurvivalModelFunctions(calibratedModel, this.modelJson);
         }
     }
 
@@ -123,19 +121,5 @@ export class SurvivalModelFunctions {
 
     public getModelJson(): JsonModelTypes {
         return this.modelJson;
-    }
-
-    private convertCalibrationObjectsToBaselineObject(
-        calibrationObjects: CalibrationObjects,
-    ): IBaselineObject {
-        return calibrationObjects.reduce(
-            (baselineObject, currentCalibrationObject) => {
-                return Object.assign({}, baselineObject, {
-                    [currentCalibrationObject.age]:
-                        currentCalibrationObject.baseline,
-                });
-            },
-            {} as IBaselineObject,
-        );
     }
 }

@@ -1,5 +1,8 @@
 import { GenericBaseCovariate } from './generic-covariate';
-import { DerivedField } from '../derived-field';
+import {
+    DerivedField,
+    calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForDerivedField,
+} from '../derived-field/derived-field';
 import { Covariate } from './covariate';
 import { shouldLogWarnings } from '../env';
 import {
@@ -10,8 +13,6 @@ import {
 import { getDatumForField } from '../field';
 // tslint:disable-next-line
 import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForRcsCustomFunction } from '../custom-function';
-// tslint:disable-next-line
-import { calculateDataToCalculateCoefficent as calculateDataToCalculateCoefficentForDerivedField } from '../derived-field';
 import { oneLine } from 'common-tags';
 import { Algorithm } from '../algorithm/algorithm';
 

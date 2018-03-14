@@ -4,8 +4,8 @@ import {
     findCovariateJsonWithName,
     parseCovariateJsonToCovariate,
 } from '../../covariate';
+import { DerivedField } from '../../derived-field/derived-field';
 import {
-    DerivedField,
     DerivedFrom,
     DerivedFieldJson,
     DerivedFromJson,

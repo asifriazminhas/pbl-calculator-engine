@@ -5,7 +5,7 @@ export interface IApply {
     $: {
         function: string;
     };
-    $$: Array<IApplyChildNode>;
+    $$?: Array<IApplyChildNode>;
 }
 
 export interface IConstant {

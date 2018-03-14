@@ -9,7 +9,7 @@ import { Data, formatCoefficentForComponent } from '../data';
 import { FieldType } from '../field';
 // tslint:disable-next-line
 import { calculateCoefficent as calculateCoefficentForRcsCustomFunction } from '../custom-function';
-import { calculateCoefficent as calculateCoefficentForDerivedField } from '../derived-field';
+import { calculateCoefficent as calculateCoefficentForDerivedField } from '../derived-field/derived-field';
 import { Algorithm } from '../algorithm';
 
 export type Covariate = InteractionCovariate | NonInteractionCovariate;

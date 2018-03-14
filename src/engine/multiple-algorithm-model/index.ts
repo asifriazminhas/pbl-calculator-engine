@@ -1,4 +1,4 @@
-export { Predicate } from './predicate';
+export { IPredicate } from './predicate/predicate';
 export {
     MultipleAlgorithmModel,
     getAlgorithmForData,

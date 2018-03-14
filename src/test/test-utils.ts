@@ -2,14 +2,36 @@ import * as fs from 'fs';
 import { TestAlgorithmsFolderPath } from './constants';
 import { SurvivalModelBuilder } from '../index';
 import { ModelTypes } from '../engine/model/index';
+import * as path from 'path';
 
 function getAlgorithmNamesToTest(excludeAlgorithms: string[]): string[] {
-    return fs
-        .readdirSync(TestAlgorithmsFolderPath)
-        .filter(
-            algorithmName => excludeAlgorithms.indexOf(algorithmName) === -1,
-        )
-        .filter(algorithmName => algorithmName !== '.DS_Store');
+    return (
+        fs
+            /* Get the names of all files and folders in the directory with the
+            assets */
+            .readdirSync(TestAlgorithmsFolderPath)
+            /* Filter out all files and keep only directories */
+            .filter(algorithmFolderFileName => {
+                return (
+                    fs
+                        .lstatSync(
+                            path.join(
+                                TestAlgorithmsFolderPath,
+                                algorithmFolderFileName,
+                            ),
+                        )
+                        .isDirectory() &&
+                    algorithmFolderFileName !== '.git' &&
+                    algorithmFolderFileName !== 'node_modules'
+                );
+            })
+            /* Filter out all algorithm we don't want to test as specified in
+            the excludeAlgorithms arg*/
+            .filter(
+                algorithmName =>
+                    excludeAlgorithms.indexOf(algorithmName) === -1,
+            )
+    );
 }
 
 async function getModelObjFromAlgorithmName(

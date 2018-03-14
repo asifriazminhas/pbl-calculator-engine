@@ -33,11 +33,9 @@ function mergePmml(
                 pmmlOne.PMML.Targets,
                 pmmlTwo.PMML.Targets,
             ),
-            Taxonomy: Object.assign(
-                {},
-                pmmlOne.PMML.Taxonomy,
-                pmmlTwo.PMML.Taxonomy,
-            ),
+            Taxonomy: pmmlTwo.PMML.Taxonomy
+                ? pmmlTwo.PMML.Taxonomy
+                : pmmlOne.PMML.Taxonomy ? pmmlOne.PMML.Taxonomy : [],
             DataDictionary: mergeDataDictionary(
                 pmmlOne.PMML.DataDictionary,
                 pmmlTwo.PMML.DataDictionary,

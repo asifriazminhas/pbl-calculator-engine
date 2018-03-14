@@ -3,8 +3,8 @@ import { returnEmptyArrayIfUndefined } from '../../undefined';
 import { DefineFunction, mergeDefineFunctions } from './define-function';
 
 export interface ILocalTransformations {
-    DerivedField: Array<IDerivedField> | IDerivedField;
-    DefineFunction: Array<DefineFunction>;
+    DerivedField: IDerivedField[] | IDerivedField;
+    DefineFunction?: DefineFunction[];
 }
 
 export function mergeLocalTransformations(

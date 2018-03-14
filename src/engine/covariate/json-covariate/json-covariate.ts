@@ -44,7 +44,9 @@ export function parseCovariateJsonToCovariate(
 
     if (covariateJson.fieldType === FieldType.InteractionCovariate) {
         if (!parsedDerivedField) {
-            throw new Error();
+            throw new Error(
+                `No derived field found for interaction covariate ${covariateJson.name}`,
+            );
         } else {
             return Object.assign({}, covariateJson, {
                 derivedField: parsedDerivedField,

@@ -1,8 +1,9 @@
 import { GenericMultipleAlgorithmModel } from './generic-multiple-algorithm-model';
 import { IAlgorithmJson } from '../algorithm';
 import { Data } from '../data';
-import { getPredicateResult } from './predicate';
+import { getFirstTruePredicateObject } from './predicate/predicate';
 import { AlgorithmJsonTypes } from '../algorithm/algorithm-json-types';
+import { NoPredicateObjectFoundError } from './predicate/predicate-errors';
 
 export type MultipleAlgorithmModelJson<
     U extends AlgorithmJsonTypes = AlgorithmJsonTypes
@@ -12,15 +13,16 @@ export function getAlgorithmJsonForData(
     multipleAlgorithmModel: MultipleAlgorithmModelJson,
     data: Data,
 ): IAlgorithmJson<any> {
-    const matchedAlgorithm = multipleAlgorithmModel.algorithms.find(
-        algorithmWithPredicate => {
-            return getPredicateResult(data, algorithmWithPredicate.predicate);
-        },
-    );
-
-    if (!matchedAlgorithm) {
-        throw new Error(`No matched algorithm found`);
+    try {
+        return getFirstTruePredicateObject(
+            multipleAlgorithmModel.algorithms,
+            data,
+        ).algorithm;
+    } catch (err) {
+        if (err instanceof NoPredicateObjectFoundError) {
+            throw new Error(`No matched algorithm found`);
+        } else {
+            throw err;
+        }
     }
-
-    return matchedAlgorithm.algorithm;
 }

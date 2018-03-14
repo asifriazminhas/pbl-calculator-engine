@@ -2,21 +2,18 @@ import { Algorithm } from '../algorithm';
 import { IGenericRegressionAlgorithm } from './generic-regression-algorithm';
 import { Covariate, getComponent, NonInteractionCovariate } from '../covariate';
 import { AlgorithmType } from '../algorithm/algorithm-type';
-import { Data, findDatumWithName } from '../data/index';
+import { Data } from '../data/index';
 import { add } from 'lodash';
-import { throwErrorIfUndefined } from '../undefined/index';
-import { NoBaselineFoundForAge } from '../errors/index';
 import { RegressionAlgorithmTypes } from './regression-algorithm-types';
 import { FieldType } from '../field/index';
 import { OpType } from '../op-type/index';
-
-export interface IBaselineObject {
-    [index: number]: number | undefined;
-}
+import { IBaselineMixin } from './baseline/baseline';
+import { ICalibratedMixin } from './calibration/calibration';
 
 export interface IRegressionAlgorithm<Z extends AlgorithmType>
     extends Algorithm<Z>,
-        IGenericRegressionAlgorithm<Covariate, () => any, IBaselineObject, Z> {}
+        IGenericRegressionAlgorithm<Covariate, () => any, Z>,
+        ICalibratedMixin {}
 
 export function calculateScore(
     algorithm: IRegressionAlgorithm<any>,
@@ -32,22 +29,6 @@ export function calculateScore(
             ),
         )
         .reduce(add, 0);
-}
-
-export function getBaselineForData(
-    algorithm: IRegressionAlgorithm<any>,
-    data: Data,
-): number {
-    if (typeof algorithm.baseline === 'number') {
-        return algorithm.baseline;
-    } else {
-        const ageDatum = findDatumWithName('age', data);
-
-        return throwErrorIfUndefined(
-            algorithm.baseline[Number(ageDatum.coefficent)],
-            new NoBaselineFoundForAge(ageDatum.coefficent as number),
-        );
-    }
 }
 
 export interface INewPredictor {
@@ -105,7 +86,7 @@ export function addPredictor<T extends RegressionAlgorithmTypes>(
 
 export function updateBaseline<T extends RegressionAlgorithmTypes>(
     algorithm: T,
-    newBaseline: number | IBaselineObject,
+    newBaseline: IBaselineMixin,
 ): T {
     return Object.assign({}, algorithm, {
         baseline: newBaseline,

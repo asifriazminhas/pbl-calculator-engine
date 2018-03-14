@@ -5,4 +5,4 @@ import { AlgorithmType } from '../algorithm/algorithm-type';
 
 export interface IRegressionAlgorithmJson<Z extends AlgorithmType>
     extends IAlgorithmJson<Z>,
-        IGenericRegressionAlgorithm<CovariateJson, string, number, Z> {}
+        IGenericRegressionAlgorithm<CovariateJson, string, Z> {}

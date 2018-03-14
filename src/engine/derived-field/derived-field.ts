@@ -185,7 +185,7 @@ export function calculateDataToCalculateCoefficent(
                 if (!datumFound) {
                     return {
                         name: derivedFromItem.name,
-                        coefficent: null,
+                        coefficent: undefined,
                     };
                 } else {
                     return datumFound;
