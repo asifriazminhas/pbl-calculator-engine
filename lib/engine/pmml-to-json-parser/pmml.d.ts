@@ -1,3 +1,3 @@
 import { JsonModelTypes } from '../model';
-import { Predicate } from '../multiple-algorithm-model';
-export declare function pmmlXmlStringsToJson(modelPmmlXmlStrings: string[][], predicates: Predicate[]): Promise<JsonModelTypes>;
+import { IPredicate } from '../multiple-algorithm-model';
+export declare function pmmlXmlStringsToJson(modelPmmlXmlStrings: string[][], predicates: IPredicate[]): Promise<JsonModelTypes>;

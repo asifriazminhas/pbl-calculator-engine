@@ -15,5 +15,8 @@ declare const _default: {
     floor: (decimal: number) => number;
     pmax: (num1: number, num2: number) => number | undefined;
     exists: (value: any) => boolean;
+    substr: (str: string, firstIndex: number, secondIndex: number) => string | undefined;
+    nchar: (str: string) => number | undefined;
+    'as.numeric': (variableToCoerce: any) => number | undefined;
 };
 export default _default;

@@ -1,7 +1,7 @@
 import { IDerivedField } from './derived_field';
 import { DefineFunction } from './define-function';
 export interface ILocalTransformations {
-    DerivedField: Array<IDerivedField> | IDerivedField;
-    DefineFunction: Array<DefineFunction>;
+    DerivedField: IDerivedField[] | IDerivedField;
+    DefineFunction?: DefineFunction[];
 }
 export declare function mergeLocalTransformations(localTransformationsOne: ILocalTransformations, localTransformationsTwo: ILocalTransformations): ILocalTransformations;

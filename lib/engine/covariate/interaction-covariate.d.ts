@@ -1,7 +1,7 @@
 import { GenericBaseInteractionCovariate, GenericCategoricalInteractionCovariate, GenericContinuousInteractionCovariate } from './generic-covariate';
 import { Covariate } from './covariate';
 import { IBaseCovariate } from './base-covariate';
-import { DerivedField } from '../derived-field';
+import { DerivedField } from '../derived-field/derived-field';
 import { IDatum, Data } from '../data';
 import { Algorithm } from '../algorithm';
 export interface IBaseInteractionCovariate extends GenericBaseInteractionCovariate<Covariate>, IBaseCovariate {

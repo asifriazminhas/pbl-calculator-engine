@@ -3,6 +3,7 @@ import { Data, IDatum } from '../data';
 import { Cox } from '../cox';
 import * as moment from 'moment';
 import { INewPredictorTypes } from '../regression-algorithm/regression-algorithm';
+import { CalibrationJson } from '../regression-algorithm/calibration/calibration-json';
 export declare type CalibrationObjects = Array<{
     age: number;
     baseline: number;
@@ -15,11 +16,7 @@ export declare class SurvivalModelFunctions {
     getRiskToTime: (data: IDatum[], time?: moment.Moment | Date | undefined) => number;
     getSurvivalToTime: (data: IDatum[], time?: moment.Moment | Date | undefined) => number;
     addPredictor(newPredictor: INewPredictorTypes): SurvivalModelFunctions;
-    reCalibrateOutcome(calibrationObjects: CalibrationObjects | {
-        male: CalibrationObjects;
-        female: CalibrationObjects;
-    }): SurvivalModelFunctions;
+    reCalibrateOutcome(calibrationJson: CalibrationJson): SurvivalModelFunctions;
     getModel(): ModelTypes;
     getModelJson(): JsonModelTypes;
-    private convertCalibrationObjectsToBaselineObject(calibrationObjects);
 }

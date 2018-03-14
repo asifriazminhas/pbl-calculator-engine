@@ -12,3 +12,4 @@ export declare function updateDataWithData(data: Data, dataUpdate: Data): Data;
  */
 export declare function findDatumWithName(name: string, data: Data): IDatum;
 export declare function updateDataWithDatum(data: Data, datumUpdate: IDatum): Data;
+export declare function isEqual(dataOne: Data, dataTwo: Data): boolean;

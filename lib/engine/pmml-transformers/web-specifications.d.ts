@@ -1,11 +1,12 @@
+import { IAlgorithmInfoCsvRow } from './algorithm-info';
 export declare type VariableType = 'continuous' | 'categorical' | 'Reference';
 export declare type Sex = 'Female' | 'Male';
-export interface WebSpecificationsAlgorithmInfoCsvRow {
+export interface IWebSpecificationsAlgorithmInfoCsvRow {
     AlgorithmName: string;
 }
 export declare const SupplementaryUsageType = "supplementary";
 export declare const ActiveUsageType = "active";
-export interface BaseDataField {
+export interface IBaseDataField {
     Name: string;
     variableType: VariableType;
     usageType: typeof SupplementaryUsageType | typeof ActiveUsageType;
@@ -19,5 +20,6 @@ export interface BaseDataField {
     Units: string;
     Recommended: string;
     betacoefficent: string;
+    knots: string;
 }
-export declare function transformPhiatDictionaryToPmml(algorithmName: string, phiatCsvString: string, webSpecificationsCategories: string, gender: 'Male' | 'Female' | 'both', addMeans: boolean, addBetas: boolean, baseline: number): string;
+export declare function transformPhiatDictionaryToPmml(algorithmName: string, phiatCsvString: string, webSpecificationsCategories: string, algorithmInfo: IAlgorithmInfoCsvRow, gender: 'Male' | 'Female' | 'both', addMeans: boolean, addBetas: boolean): string;

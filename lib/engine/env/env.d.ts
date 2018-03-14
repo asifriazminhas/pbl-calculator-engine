@@ -7,10 +7,10 @@ export declare function isEnvironmentDebugging(): boolean;
 export declare function shouldLogWarnings(): boolean;
 export declare function shouldLogDebugInfo(): boolean;
 export declare const env: {
-    setEnvironmentToProduction: () => void;
-    setEnvironmentToDevelopment: () => void;
-    setEnvironmentToDebugging: () => void;
-    isEnvironmentProduction: () => boolean;
-    isEnvironmentDevelopment: () => boolean;
-    isEnvironmentDebugging: () => boolean;
+    setEnvironmentToProduction: typeof setEnvironmentToProduction;
+    setEnvironmentToDevelopment: typeof setEnvironmentToDevelopment;
+    setEnvironmentToDebugging: typeof setEnvironmentToDebugging;
+    isEnvironmentProduction: typeof isEnvironmentProduction;
+    isEnvironmentDevelopment: typeof isEnvironmentDevelopment;
+    isEnvironmentDebugging: typeof isEnvironmentDebugging;
 };

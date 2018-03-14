@@ -1,5 +1,5 @@
 import { GenericBaseCovariate } from './generic-covariate';
-import { DerivedField } from '../derived-field';
+import { DerivedField } from '../derived-field/derived-field';
 import { Covariate } from './covariate';
 import { Data } from '../data';
 import { Algorithm } from '../algorithm/algorithm';

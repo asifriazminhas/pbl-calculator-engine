@@ -1,1 +1,1 @@
-export { throwErrorIfUndefined, returnEmptyArrayIfUndefined } from './undefined';
+export { throwErrorIfUndefined, returnEmptyArrayIfUndefined, returnEmptyStringIfUndefined } from './undefined';

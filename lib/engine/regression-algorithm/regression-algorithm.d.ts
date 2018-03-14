@@ -4,13 +4,11 @@ import { Covariate } from '../covariate';
 import { AlgorithmType } from '../algorithm/algorithm-type';
 import { Data } from '../data/index';
 import { RegressionAlgorithmTypes } from './regression-algorithm-types';
-export interface IBaselineObject {
-    [index: number]: number | undefined;
-}
-export interface IRegressionAlgorithm<Z extends AlgorithmType> extends Algorithm<Z>, IGenericRegressionAlgorithm<Covariate, () => any, IBaselineObject, Z> {
+import { IBaselineMixin } from './baseline/baseline';
+import { ICalibratedMixin } from './calibration/calibration';
+export interface IRegressionAlgorithm<Z extends AlgorithmType> extends Algorithm<Z>, IGenericRegressionAlgorithm<Covariate, () => any, Z>, ICalibratedMixin {
 }
 export declare function calculateScore(algorithm: IRegressionAlgorithm<any>, data: Data): number;
-export declare function getBaselineForData(algorithm: IRegressionAlgorithm<any>, data: Data): number;
 export interface INewPredictor {
     name: string;
     betaCoefficent: number;
@@ -30,4 +28,4 @@ export interface INewContinuousPredictor extends INewPredictor {
 }
 export declare type INewPredictorTypes = INewCategoricalPredictor | INewContinuousPredictor;
 export declare function addPredictor<T extends RegressionAlgorithmTypes>(algorithm: T, predictor: INewPredictorTypes): T;
-export declare function updateBaseline<T extends RegressionAlgorithmTypes>(algorithm: T, newBaseline: number | IBaselineObject): T;
+export declare function updateBaseline<T extends RegressionAlgorithmTypes>(algorithm: T, newBaseline: IBaselineMixin): T;

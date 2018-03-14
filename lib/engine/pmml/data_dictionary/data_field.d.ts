@@ -15,7 +15,7 @@ export interface IValue {
     };
 }
 export interface ICategoricalDataField extends IBaseDataField<'continuous'> {
-    Value: Array<IValue> | IValue;
+    Value?: IValue[] | IValue;
 }
 export interface IInterval {
     $: {

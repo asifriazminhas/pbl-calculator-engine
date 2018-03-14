@@ -11,5 +11,5 @@ export interface IRestrictedCubicSplinePCell {
  * @interface RestrictedCubicSpline
  */
 export interface IRestrictedCubicSpline {
-    PCell: Array<IRestrictedCubicSplinePCell>;
+    PCell: IRestrictedCubicSplinePCell[] | IRestrictedCubicSplinePCell;
 }
