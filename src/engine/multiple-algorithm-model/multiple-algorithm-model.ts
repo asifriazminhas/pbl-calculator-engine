@@ -1,13 +1,17 @@
 import { GenericMultipleAlgorithmModel } from './generic-multiple-algorithm-model';
 import { Algorithm } from '../algorithm';
 import { Data } from '../data';
-import { getPredicateResult } from './predicate';
+import {
+    getFirstTruePredicateObject,
+    getPredicateResult,
+} from './predicate/predicate';
 import { throwErrorIfUndefined } from '../undefined';
 import { NoBaselineFoundForAlgorithm } from '../errors';
 import { updateBaseline } from '../regression-algorithm/regression-algorithm';
 import { RegressionAlgorithmTypes } from '../regression-algorithm/regression-algorithm-types';
 import { AlgorithmTypes } from '../algorithm/algorithm-types';
 import { IBaselineMixin } from '../regression-algorithm/baseline/baseline';
+import { NoPredicateObjectFoundError } from './predicate/predicate-errors';
 
 export type MultipleAlgorithmModel<
     U extends AlgorithmTypes = AlgorithmTypes
@@ -17,17 +21,18 @@ export function getAlgorithmForData(
     multipleAlgorithmModel: MultipleAlgorithmModel,
     data: Data,
 ): Algorithm<any> {
-    const matchedAlgorithm = multipleAlgorithmModel.algorithms.find(
-        algorithmWithPredicate => {
-            return getPredicateResult(data, algorithmWithPredicate.predicate);
-        },
-    );
+    try {
+        return getFirstTruePredicateObject(
+            multipleAlgorithmModel.algorithms,
+            data,
+        ).algorithm;
+    } catch (err) {
+        if (err instanceof NoPredicateObjectFoundError) {
+            throw new Error(`No matched algorithm found`);
+        }
 
-    if (!matchedAlgorithm) {
-        throw new Error(`No matched algorithm found`);
+        throw err;
     }
-
-    return matchedAlgorithm.algorithm;
 }
 
 export type NewBaseline = Array<{

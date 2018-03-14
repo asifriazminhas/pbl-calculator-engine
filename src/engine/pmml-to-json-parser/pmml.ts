@@ -8,7 +8,7 @@ import {
 } from '../pmml';
 import { parseDefineFunction } from './define-function/define-function';
 import { JsonModelTypes, ModelType } from '../model';
-import { Predicate } from '../multiple-algorithm-model';
+import { IPredicate } from '../multiple-algorithm-model';
 import { AlgorithmType } from '../algorithm';
 import { UnknownRegressionType } from '../errors';
 import { AlgorithmJsonTypes } from '../algorithm/algorithm-json-types';
@@ -96,7 +96,7 @@ async function pmmlStringsToJson(
 
 export async function pmmlXmlStringsToJson(
     modelPmmlXmlStrings: string[][],
-    predicates: Predicate[],
+    predicates: IPredicate[],
 ): Promise<JsonModelTypes> {
     const parsedAlgorithms = await Promise.all(
         modelPmmlXmlStrings.map(pmmlXmlStrings =>

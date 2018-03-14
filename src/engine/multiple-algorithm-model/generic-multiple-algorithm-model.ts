@@ -1,4 +1,4 @@
-import { Predicate } from '../multiple-algorithm-model/predicate';
+import { IPredicate } from '../multiple-algorithm-model/predicate/predicate';
 import { ModelType } from '../model';
 import { IGenericAlgorithm } from '../algorithm';
 
@@ -8,6 +8,6 @@ export interface GenericMultipleAlgorithmModel<
     modelType: ModelType.MultipleAlgorithm;
     algorithms: Array<{
         algorithm: U;
-        predicate: Predicate;
+        predicate: IPredicate;
     }>;
 }
