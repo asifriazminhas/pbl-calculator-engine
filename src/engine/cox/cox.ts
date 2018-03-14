@@ -11,6 +11,7 @@ import {
 import { getBaselineForData } from '../regression-algorithm/baseline/baseline';
 import { TimeMetric } from './time-metric';
 import { getBinDataForScore, IBins, IBinsData, BinsLookup } from './bins/bins';
+import { getCalibrationFactorForData } from '../regression-algorithm/calibration/calibration';
 
 export interface Cox
     extends IBaseCox,
@@ -74,9 +75,13 @@ export function getRiskToTimeWithoutBins(
     }
 
     const score = calculateScore(cox, data);
-
+    // baseline*calibration*e^score
+    const exponentiatedScoreTimesBaselineTimesCalibration =
+        getBaselineForData(cox, data) *
+        getCalibrationFactorForData(cox, data) *
+        Math.E ** score;
     const maximumTimeRiskProbability =
-        getBaselineForData(cox, data) * Math.pow(Math.E, score);
+        1 - Math.E ** -exponentiatedScoreTimesBaselineTimesCalibration;
 
     return (
         maximumTimeRiskProbability *
