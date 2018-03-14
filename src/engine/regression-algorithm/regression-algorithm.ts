@@ -8,10 +8,12 @@ import { RegressionAlgorithmTypes } from './regression-algorithm-types';
 import { FieldType } from '../field/index';
 import { OpType } from '../op-type/index';
 import { IBaselineMixin } from './baseline/baseline';
+import { ICalibratedMixin } from './calibration/calibration';
 
 export interface IRegressionAlgorithm<Z extends AlgorithmType>
     extends Algorithm<Z>,
-        IGenericRegressionAlgorithm<Covariate, () => any, Z> {}
+        IGenericRegressionAlgorithm<Covariate, () => any, Z>,
+        ICalibratedMixin {}
 
 export function calculateScore(
     algorithm: IRegressionAlgorithm<any>,
