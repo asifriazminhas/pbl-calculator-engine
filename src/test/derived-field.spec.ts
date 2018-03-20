@@ -154,7 +154,7 @@ test(`.calculateDataToCalculateCoefficent`, t => {
             expect(actualData).to.deep.equal([
                 {
                     name: derivedFromDataField.name,
-                    coefficent: null,
+                    coefficent: undefined,
                 },
             ]);
             t.pass(
