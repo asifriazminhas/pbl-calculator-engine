@@ -12,11 +12,17 @@ import {
     INewPredictorTypes,
     addPredictor,
 } from '../regression-algorithm/regression-algorithm';
-import { CalibrationJson } from '../regression-algorithm/calibration/calibration-json';
+import {
+    CalibrationJson,
+    ICalibrationFactorJsonObject,
+} from '../regression-algorithm/calibration/calibration-json';
 import { addCalibrationToAlgorithm } from '../regression-algorithm/calibration/calibration';
 import { getPredicateResult } from '../multiple-algorithm-model/predicate/predicate';
 
-export type CalibrationObjects = Array<{ age: number; baseline: number }>;
+export interface IGenderCalibrationObjects {
+    male: ICalibrationFactorJsonObject[];
+    female: ICalibrationFactorJsonObject[];
+}
 
 export class SurvivalModelFunctions {
     private model: ModelTypes<Cox>;
@@ -70,13 +76,36 @@ export class SurvivalModelFunctions {
     }
 
     public reCalibrateOutcome(
-        calibrationJson: CalibrationJson,
+        calibrationJson: CalibrationJson | IGenderCalibrationObjects,
     ): SurvivalModelFunctions {
+        let calibrationJsonToUse: CalibrationJson;
+        // If the calibrationJson is of type IGenderCalibrationObjects
+        if ('male' in calibrationJson) {
+            calibrationJsonToUse = [
+                {
+                    calibrationFactorObjects: calibrationJson.male,
+                    predicate: {
+                        equation: `predicateResult = obj["sex"] === "male"`,
+                        variables: ['sex'],
+                    },
+                },
+                {
+                    calibrationFactorObjects: calibrationJson.female,
+                    predicate: {
+                        equation: `predicateResult = obj["sex"] === "male"`,
+                        variables: ['sex'],
+                    },
+                },
+            ];
+        } else {
+            calibrationJsonToUse = calibrationJson;
+        }
+
         if (this.model.modelType === ModelType.SingleAlgorithm) {
             const calibratedModel = Object.assign({}, this.model, {
                 algorithm: addCalibrationToAlgorithm(
                     this.model.algorithm,
-                    calibrationJson,
+                    calibrationJsonToUse,
                     [],
                 ),
             });
@@ -102,7 +131,7 @@ export class SurvivalModelFunctions {
                         return {
                             algorithm: addCalibrationToAlgorithm(
                                 algorithm,
-                                calibrationJson,
+                                calibrationJsonToUse,
                                 predicateDataForCurrentPredicate,
                             ),
                             predicate,
