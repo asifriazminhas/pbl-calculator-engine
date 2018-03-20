@@ -49,7 +49,7 @@ function getDataAndExpectedOutput(scoreTestingDataCsvRow: {
                     coefficent: Number(scoreTestingDataCsvRow[covariateName]),
                 };
             }),
-        expectedScore: Number(scoreTestingDataCsvRow['risk']),
+        expectedScore: Number(scoreTestingDataCsvRow['s']),
         expectedBin: Number(scoreTestingDataCsvRow['Bin']),
     };
 }
@@ -60,9 +60,10 @@ function testCalculatedScoreForDataAndExpectedScore(
     expectedBin: number,
     coxAlgorithm: Cox,
 ) {
-    if (findDatumWithName('ran_id', data).coefficent === 17840) {
+    // Debugging code
+    /*if (findDatumWithName('ran_id', data).coefficent === 17840) {
         return;
-    }
+    }*/
 
     if (coxAlgorithm.binsData && coxAlgorithm.binsLookup) {
         const binData = getBinDataForScore(
@@ -210,8 +211,8 @@ function testScoreForModel(t: test.Test, model: ModelTypes, modelName: string) {
     }
 }
 
-test.only(`Testing Scoring`, async t => {
-    const modelsToTest = await getModelsToTest(['Sodium', 'SPoRT', 'MPoRT']);
+test(`Testing Scoring`, async t => {
+    const modelsToTest = await getModelsToTest(['Sodium', 'SPoRT']);
 
     modelsToTest.forEach(({ model, name }) => {
         t.test(`Testing ${name} model`, t => {
