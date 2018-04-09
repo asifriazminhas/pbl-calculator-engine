@@ -21,7 +21,9 @@ export function parseRcsCustomFunctionJsonToRcsCustomFunction(
     );
 
     if (!firstVariableCovariate) {
-        throw new Error(``);
+        throw new Error(
+            `No first variable covariate ${rcsCustomFunctionJson.firstVariableCovariate} found`,
+        );
     }
 
     return Object.assign({}, rcsCustomFunctionJson, {
