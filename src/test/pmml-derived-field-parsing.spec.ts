@@ -3,7 +3,7 @@ import { PmmlParser } from '../engine/pmml';
 import { parseDerivedFields } from '../engine/pmml-to-json-parser/data_fields/derived_field/derived_field';
 import { expect } from 'chai';
 import { Pmml } from '../engine/pmml/pmml';
-import { DerivedFieldJson } from '../engine/derived-field/json-derived-field/json-derived-field';
+import { IDerivedFieldJson } from '../parsers/json/json-derived-field';
 import { DataField } from '../engine/data-field/data-field';
 
 process.on('unhandledRejection', (error: Error) => {
@@ -64,7 +64,7 @@ async function getPmmlForTest({
 
 function doAssertions(
     t: test.Test,
-    derivedFieldsToTest: DerivedFieldJson[],
+    derivedFieldsToTest: IDerivedFieldJson[],
     fieldColumnPairs: FieldColumnPair[],
     tableName: string,
     outputColumn: string,

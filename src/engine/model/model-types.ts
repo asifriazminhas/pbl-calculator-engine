@@ -11,7 +11,7 @@ import {
 } from '../multiple-algorithm-model';
 import { Data } from '../data';
 import { ModelType } from './model-type';
-import { Algorithm } from '../algorithm';
+import { IAlgorithm } from '../algorithm';
 import { AlgorithmTypes } from '../algorithm/algorithm-types';
 import { RegressionAlgorithmTypes } from '../regression-algorithm/regression-algorithm-types';
 
@@ -22,7 +22,7 @@ export type ModelTypes<U extends AlgorithmTypes = AlgorithmTypes> =
 export function getAlgorithmForModelAndData(
     model: ModelTypes,
     data: Data,
-): Algorithm<any> {
+): IAlgorithm<any> {
     if (model.modelType === ModelType.SingleAlgorithm) {
         return model.algorithm;
     } else {

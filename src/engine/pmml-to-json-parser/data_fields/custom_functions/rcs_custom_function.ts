@@ -1,6 +1,5 @@
 import { IRestrictedCubicSpline, IParameter } from '../../../pmml';
-import { CustomFunctionType } from '../../../custom-function';
-import { RcsCustomFunctionJson } from '../../../custom-function';
+import { IRcsCustomFunctionJson } from '../../../../parsers/json/json-rcs-custom-function';
 
 /**
  * Given a the label field for a Parameter XML node it checks if this predictor
@@ -86,7 +85,7 @@ function parseFirstVariableName(parameterLabel: string): string {
 export function parseRcsSpline(
     parameter: IParameter,
     restrictedCubicSpline: IRestrictedCubicSpline,
-): RcsCustomFunctionJson | undefined {
+): IRcsCustomFunctionJson | undefined {
     const splineVariableNumber = getSplineVariableNumber(parameter.$.label);
 
     /* If it's 1 then we don't have to apply the spline function on it since
@@ -114,7 +113,6 @@ export function parseRcsSpline(
         } else {
             // Otherwise Return the Spline object
             return {
-                customFunctionType: CustomFunctionType.RcsCustomFunction,
                 knots: parseKnotLocations(
                     restrictedCubicSplinePCell.$.knotLocations,
                 ),

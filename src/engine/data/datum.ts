@@ -1,7 +1,6 @@
 import {} from '../cox/covariate';
 import { Coefficent } from './coefficent';
-import { IBaseCovariate } from '../covariate';
-
+import { Covariate } from '../data-field/covariate/covariate';
 export interface IDatum {
     name: string;
     coefficent: Coefficent;
@@ -15,7 +14,7 @@ export function datumFactory(name: string, coefficent: Coefficent): IDatum {
 }
 
 export function datumFromCovariateReferencePointFactory(
-    covariate: IBaseCovariate,
+    covariate: Covariate,
 ): IDatum {
     return {
         coefficent: covariate.referencePoint,

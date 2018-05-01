@@ -1,6 +1,7 @@
 import { parseCustomFunction } from './custom_functions/custom_function';
-import { CovariateJson } from '../../covariate';
-import { RcsCustomFunctionJson } from '../../custom-function';
+import { ICovariateJson } from '../../../parsers/json/json-covariate';
+import { IRcsCustomFunctionJson } from '../../../parsers/json/json-rcs-custom-function';
+import { DataFieldType } from '../../../parsers/json/data-field-type';
 import { Pmml, IDataField, IParameter, IPCell, IPredictor } from '../../pmml';
 import { parseDataFieldFromDataFieldPmmlNode } from './data_field';
 import { parseExtensions } from '../extensions';
@@ -10,7 +11,7 @@ import {
     NoParameterNodeFoundWithLabel,
     NoPCellNodeFoundWithParameterName,
 } from '../errors';
-import { FieldType } from '../../field';
+
 import { IGeneralRegressionModel } from '../../pmml/general_regression_model/general_regression_model';
 
 /**
@@ -33,11 +34,11 @@ function isCovariateWithNameAnInteractionCovariate(
  */
 function getCovariateType(
     name: string,
-): FieldType.InteractionCovariate | FieldType.NonInteractionCovariate {
+): DataFieldType.InteractionCovariate | DataFieldType.NonInteractionCovariate {
     if (isCovariateWithNameAnInteractionCovariate(name)) {
-        return FieldType.InteractionCovariate;
+        return DataFieldType.InteractionCovariate;
     } else {
-        return FieldType.NonInteractionCovariate;
+        return DataFieldType.NonInteractionCovariate;
     }
 }
 
@@ -48,7 +49,7 @@ function getCovariateType(
  * @param {DataField} dataField DataField node whose name field matches with the predictor's name field
  * @param {Parameter} parameter Parameter node whose label field matches with the predictor's name field
  * @param {PCell} pCell PCell node whose parameterName field matches with the parameter's name field
- * @param {(RcsCustomFunctionJson | null)} customFunctionJson The custom function is any for this covariate
+ * @param {(IRcsCustomFunctionJson | null)} customFunctionJson The custom function is any for this covariate
  * @returns {CovariateJson} 
  */
 function parseCovariateFromPredictor(
@@ -56,12 +57,12 @@ function parseCovariateFromPredictor(
     dataField: IDataField,
     parameter: IParameter,
     pCell: IPCell,
-    customFunctionJson: RcsCustomFunctionJson | undefined,
-): CovariateJson {
+    customFunctionJson: IRcsCustomFunctionJson | undefined,
+): ICovariateJson {
     return Object.assign({}, parseDataFieldFromDataFieldPmmlNode(dataField), {
-        fieldType: getCovariateType(
+        dataFieldType: getCovariateType(
             predictor.$.name,
-        ) as FieldType.NonInteractionCovariate,
+        ) as DataFieldType.NonInteractionCovariate,
         name: predictor.$.name,
         beta: Number(pCell.$.beta),
         referencePoint: Number(parameter.$.referencePoint),
@@ -77,7 +78,7 @@ function parseCovariateFromPredictor(
  * @param {CustomPmmlXml} pmml 
  * @returns {Array<CovariateJson>} 
  */
-export function parseCovariates(pmml: Pmml): Array<CovariateJson> {
+export function parseCovariates(pmml: Pmml): Array<ICovariateJson> {
     //Each Predictor Node in the CovariateList node is a covariate
     return (pmml.pmmlXml.PMML
         .GeneralRegressionModel as IGeneralRegressionModel).CovariateList.Predictor.map(

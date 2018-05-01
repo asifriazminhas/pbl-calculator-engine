@@ -8,20 +8,21 @@ import { expect } from 'chai';
 import { oneLine } from 'common-tags';
 
 import { formatCoefficentForComponent } from '../engine/data';
-import { Covariate } from '../engine/covariate';
 import * as moment from 'moment';
+import { Covariate } from '../engine/data-field/covariate/covariate';
+import { NonInteractionCovariate } from '../engine/data-field/covariate/non-interaction-covariats/non-interaction-covariate';
 
 test(`Coefficent.formatCoefficent`, t => {
-    const covariate: Covariate = {
-        name: '',
-        displayName: '',
-        extensions: {},
-        fieldType: 0,
-        derivedField: undefined,
-        customFunction: undefined,
-        beta: 0,
-        referencePoint: 0,
-    };
+    const covariate: Covariate = new NonInteractionCovariate(
+        {
+            name: '',
+            dataFieldType: 0,
+            beta: 0,
+            referencePoint: 0,
+        },
+        undefined,
+        undefined,
+    );
 
     const coefficentsForReferenceTest = [null, undefined, 'NA', 'a'];
     coefficentsForReferenceTest.forEach(coefficent => {

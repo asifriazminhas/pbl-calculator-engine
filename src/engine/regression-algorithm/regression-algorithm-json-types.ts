@@ -1,7 +1,7 @@
 import { ICoxJson } from '../cox';
 import { ILogisticRegressionJson } from '../logistic-regression';
 import { RegressionAlgorithmTypes } from './regression-algorithm-types';
-import { parseCovariateJsonToCovariate } from '../covariate/index';
+import { parseCovariateJsonToCovariate } from '../../parsers/json/json-covariate';
 import {
     parseUserFunctions,
     IAlgorithmJson,

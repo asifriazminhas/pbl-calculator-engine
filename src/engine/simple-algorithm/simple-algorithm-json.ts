@@ -1,9 +1,9 @@
 import { IAlgorithmJson, AlgorithmType } from '../algorithm';
 import { IGenericSimpleAlgorithm } from './generic-simple-algorithm';
 import {
-    DerivedFieldJson,
+    IDerivedFieldJson,
     parseDerivedFieldJsonToDerivedField,
-} from '../derived-field';
+} from '../../parsers/json/json-derived-field';
 import { ISimpleAlgorithm } from './simple-algorithm';
 import { parseUserFunctions } from '../algorithm/algorithm-json';
 import { throwErrorIfUndefined } from '../undefined';
@@ -12,7 +12,7 @@ import { NoDerivedFieldFoundError } from '../errors';
 export interface ISimpleAlgorithmJson
     extends IAlgorithmJson<AlgorithmType.SimpleAlgorithm>,
         IGenericSimpleAlgorithm<string, string> {
-    derivedFields: DerivedFieldJson[];
+    derivedFields: IDerivedFieldJson[];
 }
 
 export function parseSimpleAlgorithmJsonToSimpleAlgorithm(

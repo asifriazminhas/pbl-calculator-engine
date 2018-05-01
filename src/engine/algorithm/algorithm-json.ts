@@ -1,19 +1,19 @@
 import { IGenericAlgorithm } from './generic-algorithm';
-import { DerivedFieldJson } from '../derived-field';
 import { IAlgorithmJson } from './algorithm-json';
-import { Algorithm } from './algorithm';
+import { IAlgorithm } from './algorithm';
 import { AlgorithmType } from './algorithm-type';
+import { IDerivedFieldJson } from '../../parsers/json/json-derived-field';
 
 export interface IAlgorithmJson<Z extends AlgorithmType>
     extends IGenericAlgorithm<string, Z> {
-    derivedFields: DerivedFieldJson[];
+    derivedFields: IDerivedFieldJson[];
 }
 
 export function parseUserFunctions(
     userFunctionsJson: IAlgorithmJson<any>['userFunctions'],
-): Algorithm<any>['userFunctions'] {
+): IAlgorithm<any>['userFunctions'] {
     // tslint:disable-next-line
-    let userFunctions: Algorithm<any>['userFunctions'] = {};
+    let userFunctions: IAlgorithm<any>['userFunctions'] = {};
 
     Object.keys(userFunctionsJson).forEach(userFunctionJsonKey => {
         eval(userFunctionsJson[userFunctionJsonKey]);

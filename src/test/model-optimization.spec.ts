@@ -6,8 +6,7 @@ import { optimizeModel } from '../engine/pmml-to-json-parser/optimizations';
 import { AlgorithmJsonTypes } from '../engine/algorithm/algorithm-json-types';
 import { ISimpleAlgorithmJson } from '../engine/simple-algorithm/simple-algorithm-json';
 import { AlgorithmType } from '../engine/algorithm/algorithm-type';
-import { FieldType } from '../engine/field/field-type';
-import { DerivedFieldJson } from '../engine/derived-field/json-derived-field/json-derived-field';
+import { IDerivedFieldJson } from '../parsers/json/json-derived-field';
 import { ModelType } from '../engine/model/model-type';
 import { MultipleAlgorithmModelJson } from '../engine/multiple-algorithm-model/multiple-algorithm-model-json';
 
@@ -84,32 +83,23 @@ test(`Model optimizations`, t => {
         testFunctionThree: '',
     };
 
-    const DerivedFields: DerivedFieldJson[] = [
+    const DerivedFields: IDerivedFieldJson[] = [
         {
-            fieldType: FieldType.DerivedField,
             // tslint:disable-next-line
             equation: `derived = getValueFromTable(tables['tableOne'], 'outputColumn', { 'columnOne': 'Age_cont' });`,
             derivedFrom: [],
             name: 'derivedFieldOne',
-            displayName: '',
-            extensions: {},
         },
         {
-            fieldType: FieldType.DerivedField,
             // tslint:disable-next-line
             equation: `derived = getValueFromTable(tables['tableTwo'], 'outputColumn', { 'columnTwo': 'Age_cont' });`,
             derivedFrom: [],
             name: 'derivedFieldTwo',
-            displayName: '',
-            extensions: {},
         },
         {
-            fieldType: FieldType.DerivedField,
             equation: `derived = userFunctions['testFunctionOne']()`,
             derivedFrom: [],
             name: 'derivedFieldThree',
-            displayName: '',
-            extensions: {},
         },
     ];
 

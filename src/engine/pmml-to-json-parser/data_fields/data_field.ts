@@ -1,18 +1,10 @@
-import { Field, FieldType } from '../../field';
 import { IDataField } from '../../pmml';
-import { addCategoricalOrContinuousFields } from '../op_type/op_type';
-import { parseExtensions } from '../extensions';
+import { IDataFieldJson } from '../../../parsers/json/json-data-field';
 
 export function parseDataFieldFromDataFieldPmmlNode(
-    dataFieldNode: IDataField
-): Field {
-    return addCategoricalOrContinuousFields(
-        {
-            name: dataFieldNode.$.name,
-            displayName: dataFieldNode.$.displayName,
-            extensions: parseExtensions(dataFieldNode),
-            fieldType: FieldType.DataField
-        },
-        dataFieldNode,
-    );
+    dataFieldNode: IDataField,
+): IDataFieldJson {
+    return {
+        name: dataFieldNode.$.name,
+    };
 }

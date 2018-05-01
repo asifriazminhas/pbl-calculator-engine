@@ -3,27 +3,24 @@ import { expect } from 'chai';
 
 import { AlgorithmType } from '../engine/algorithm';
 import { TimeMetric } from '../engine/cox/time-metric';
-import { FieldType } from '../engine/field';
-import { NonInteractionCovariate } from '../engine/covariate';
-import { OpType } from '../engine/op-type';
+import { DataFieldType } from '../parsers/json/data-field-type';
 import { Data } from '../engine/data';
 import { ICoxWithBins, getSurvivalToTimeWithBins } from '../engine/cox/cox';
 import * as moment from 'moment';
+/* tslint:disable-next-line */
+import { NonInteractionCovariate } from '../engine/data-field/covariate/non-interaction-covariats/non-interaction-covariate';
 
 test(`getSurvivalToTimeForCoxWithBins function`, t => {
-    const covariate: NonInteractionCovariate = {
-        fieldType: FieldType.NonInteractionCovariate,
-        beta: 10,
-        referencePoint: undefined,
-        customFunction: undefined,
-        name: 'covariateOne',
-        displayName: '',
-        extensions: {},
-        opType: OpType.Continuous,
-        min: -Infinity,
-        max: Infinity,
-        derivedField: undefined,
-    };
+    const covariate = new NonInteractionCovariate(
+        {
+            dataFieldType: DataFieldType.NonInteractionCovariate,
+            beta: 10,
+            referencePoint: undefined,
+            name: 'covariateOne',
+        },
+        undefined,
+        undefined,
+    );
 
     const maximumTime = 1800;
 

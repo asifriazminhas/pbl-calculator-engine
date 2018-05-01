@@ -1,5 +1,5 @@
 import { GenericMultipleAlgorithmModel } from './generic-multiple-algorithm-model';
-import { Algorithm } from '../algorithm';
+import { IAlgorithm } from '../algorithm';
 import { Data } from '../data';
 import {
     getFirstTruePredicateObject,
@@ -20,7 +20,7 @@ export type MultipleAlgorithmModel<
 export function getAlgorithmForData(
     multipleAlgorithmModel: MultipleAlgorithmModel,
     data: Data,
-): Algorithm<any> {
+): IAlgorithm<any> {
     try {
         return getFirstTruePredicateObject(
             multipleAlgorithmModel.algorithms,

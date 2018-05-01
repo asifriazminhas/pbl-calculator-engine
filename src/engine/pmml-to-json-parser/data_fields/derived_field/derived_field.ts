@@ -1,5 +1,4 @@
-import { DerivedFieldJson } from '../../../derived-field';
-import { getOpTypeFromPmmlOpType } from '../../op_type/op_type';
+import { IDerivedFieldJson } from '../../../../parsers/json/json-derived-field';
 import { IDerivedField, Pmml } from '../../../pmml';
 import { IExpressionStatementAST } from '../../interfaces/ast';
 import * as escodegen from 'escodegen';
@@ -10,8 +9,8 @@ import {
     getAstForMapValues,
 } from './node_parser';
 import { parseDataFieldFromDataFieldPmmlNode } from '../data_field';
-import { DataField } from '../../../data-field';
-import { FieldType } from '../../../field';
+import { DataFieldType } from '../../../../parsers/json/data-field-type';
+import { IDataFieldJson } from '../../../../parsers/json/json-data-field';
 // tslint:disable-next-line
 const astTypes = require('ast-types');
 
@@ -56,7 +55,7 @@ function getAstForDerivedField(
 function getDerivedFromForAst(
     ast: IExpressionStatementAST,
     pmml: Pmml,
-): Array<string | DataField> {
+): Array<string | IDataFieldJson> {
     const derivedFrom: string[] = [];
     const ObjIdentifier = 'obj';
     const IdentifiersToNotInclude = [
@@ -124,12 +123,12 @@ function getDerivedFromForAst(
                                 dataFieldForCurrentDerivedField,
                             ),
                             {
-                                fieldType: FieldType.DataField as FieldType.DataField,
+                                fieldType: DataFieldType.DataField as DataFieldType.DataField,
                             },
                         );
                     } else {
                         return {
-                            fieldType: FieldType.DataField as FieldType.DataField,
+                            fieldType: DataFieldType.DataField as DataFieldType.DataField,
                             name: derivedFromItem,
                             displayName: '',
                             extensions: {},
@@ -143,7 +142,7 @@ function getDerivedFromForAst(
 export function parseDerivedFields(
     pmml: Pmml,
     userDefinedFunctionNames: string[],
-): DerivedFieldJson[] {
+): IDerivedFieldJson[] {
     if (pmml.pmmlXml.PMML.LocalTransformations.DerivedField) {
         const DerivedField =
             pmml.pmmlXml.PMML.LocalTransformations.DerivedField instanceof Array
@@ -162,9 +161,8 @@ export function parseDerivedFields(
 
             return Object.assign(
                 {
-                    fieldType: FieldType.DerivedField as FieldType.DerivedField,
+                    fieldType: DataFieldType.DerivedField as DataFieldType.DerivedField,
                     name: derivedField.$.name,
-                    opType: getOpTypeFromPmmlOpType(derivedField.$.optype),
                     equation: escodegen.generate(ast),
                     derivedFrom: getDerivedFromForAst(ast, pmml),
                     displayName: '',
@@ -176,7 +174,7 @@ export function parseDerivedFields(
                       )
                     : {},
                 {
-                    fieldType: FieldType.DerivedField as FieldType.DerivedField,
+                    fieldType: DataFieldType.DerivedField as DataFieldType.DerivedField,
                 },
             );
         });

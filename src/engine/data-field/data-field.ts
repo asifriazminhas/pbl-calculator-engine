@@ -1,5 +1,19 @@
-import { BaseDataField } from './base-data-field';
-import { CategoricalDataField } from './categorical-data-field';
-import { ContinuousDataField } from './continuous-data-field';
+import { Data, IDatum } from '../data';
+import { autobind } from 'core-decorators';
 
-export type DataField = BaseDataField | CategoricalDataField | ContinuousDataField;
+@autobind
+export class DataField {
+    name: string;
+
+    constructor(fieldJson: { name: string }) {
+        this.name = fieldJson.name;
+    }
+
+    getDatumForField(data: Data): IDatum | undefined {
+        return data.find(datum => datum.name === this.name);
+    }
+
+    isFieldWithName(name: string): boolean {
+        return this.name === name;
+    }
+}

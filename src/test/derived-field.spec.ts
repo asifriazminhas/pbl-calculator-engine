@@ -1,23 +1,18 @@
 import * as test from 'tape';
-import { calculateCoefficent } from '../engine/derived-field/derived-field';
-import { Algorithm } from '../engine/algorithm/algorithm';
+import { IAlgorithm } from '../engine/algorithm/algorithm';
+import { expect } from 'chai';
 import {
-    IBaseDerivedField,
     DerivedField,
     findDescendantDerivedField,
-    calculateDataToCalculateCoefficent,
-} from '../engine/derived-field/derived-field';
-import { FieldType } from '../engine/field/field-type';
+} from '../engine/data-field/derived-field/derived-field';
 import { DataField } from '../engine/data-field/data-field';
-import { expect } from 'chai';
-import { OpType } from '../engine/op-type/op-type';
 
 test(`.calculateCoefficent`, t => {
-    const userFunctions: Algorithm<any>['userFunctions'] = {};
+    const userFunctions: IAlgorithm<any>['userFunctions'] = {};
     const tableName = 'tableOne';
     const outputColumn = 'out';
 
-    const tables: Algorithm<any>['tables'] = {
+    const tables: IAlgorithm<any>['tables'] = {
         [tableName]: [
             {
                 columnOne: 'a',
@@ -31,25 +26,24 @@ test(`.calculateCoefficent`, t => {
             },
         ],
     };
-    const derivedField: IBaseDerivedField = {
-        fieldType: FieldType.DerivedField,
-        name: 'derivedField',
-        equation: `derived = getValueFromTable(
+    const derivedField: DerivedField = new DerivedField(
+        {
+            name: 'derivedField',
+            equation: `derived = getValueFromTable(
             tables['${tableName}'],
             '${outputColumn}', {
                 'columnOne': obj['fieldOne'],
                 'columnTwo': 'b'
-            }
+            },
         )`,
-        derivedFrom: [
-            {
-                fieldType: FieldType.DataField,
+            derivedFrom: [],
+        },
+        [
+            new DataField({
                 name: 'fieldOne',
-            } as DataField,
+            }),
         ],
-        displayName: '',
-        extensions: {},
-    };
+    );
     const data = [
         {
             name: 'fieldOne',
@@ -58,7 +52,7 @@ test(`.calculateCoefficent`, t => {
     ];
 
     expect(
-        calculateCoefficent(derivedField, data, userFunctions, tables),
+        derivedField.calculateCoefficent(data, userFunctions, tables),
     ).to.equal('1');
     t.pass(`Correctly calculated coefficent with table condition`);
 
@@ -67,50 +61,50 @@ test(`.calculateCoefficent`, t => {
 
 test(`.getDerivedFieldWithName`, t => {
     const childFields: DerivedField[] = [
-        {
-            fieldType: FieldType.DerivedField,
-            equation: '',
-            derivedFrom: [
-                {
-                    fieldType: FieldType.DerivedField,
-                    equation: '',
-                    derivedFrom: [
-                        {
-                            fieldType: FieldType.DerivedField,
-                            equation: '',
-                            derivedFrom: [],
-                            name: '',
-                            displayName: '',
-                            extensions: {},
-                        },
+        new DerivedField(
+            {
+                equation: '',
+                name: '',
+                derivedFrom: [],
+            },
+            [
+                new DerivedField(
+                    {
+                        equation: '',
+                        derivedFrom: [],
+                        name: 'fieldToFind',
+                    },
+                    [
+                        new DerivedField(
+                            {
+                                equation: '',
+                                derivedFrom: [],
+                                name: '',
+                            },
+                            [],
+                        ),
                     ],
-                    displayName: '',
-                    extensions: {},
-                    name: 'fieldToFind',
-                },
-            ] as DerivedField[],
-            name: '',
-            displayName: '',
-            extensions: {},
-        },
-        {
-            fieldType: FieldType.DerivedField,
-            name: '',
-            displayName: '',
-            extensions: {},
-            equation: '',
-            derivedFrom: [],
-        },
+                ),
+            ],
+        ),
+        new DerivedField(
+            {
+                name: '',
+                equation: '',
+                derivedFrom: [],
+            },
+            [],
+        ),
     ];
 
-    const derivedField: DerivedField = {
-        fieldType: FieldType.DerivedField,
-        equation: '',
-        derivedFrom: childFields,
-        name: '',
-        displayName: '',
-        extensions: {},
-    };
+    const derivedField: DerivedField = new DerivedField(
+        {
+            equation: '',
+            derivedFrom: [],
+            name: '',
+        },
+        childFields,
+    );
 
     expect(
         findDescendantDerivedField(
@@ -125,27 +119,20 @@ test(`.getDerivedFieldWithName`, t => {
 
 test(`.calculateDataToCalculateCoefficent`, t => {
     t.test(`When the derived from item is a DataField`, t => {
-        const derivedFromDataField: DataField = {
-            fieldType: FieldType.DataField,
+        const derivedFromDataField = new DataField({
             name: 'testOne',
-            displayName: '',
-            extensions: {},
-        };
-        const derivedField: DerivedField = {
-            name: '',
-            fieldType: FieldType.DerivedField,
-            equation: '',
-            derivedFrom: [derivedFromDataField],
-            displayName: '',
-            extensions: {},
-            opType: OpType.Continuous,
-            min: null,
-            max: null,
-        };
+        });
+        const derivedField: DerivedField = new DerivedField(
+            {
+                name: '',
+                equation: '',
+                derivedFrom: [],
+            },
+            [derivedFromDataField],
+        );
 
         t.test(`When the DataField is not in the data argument`, t => {
-            const actualData = calculateDataToCalculateCoefficent(
-                derivedField,
+            const actualData = derivedField.calculateDataToCalculateCoefficent(
                 [],
                 {},
                 {},

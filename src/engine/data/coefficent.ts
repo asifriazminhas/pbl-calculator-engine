@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import { Covariate } from '../covariate';
+import { Covariate } from '../data-field/covariate/covariate';
 
 export type Coefficent =
     | string
