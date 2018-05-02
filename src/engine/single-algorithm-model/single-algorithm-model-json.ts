@@ -1,6 +1,6 @@
 import { GenericSingleAlgorithmModel } from './generic-single-algorithm-model';
-import { AlgorithmJsonTypes } from '../algorithm/algorithm-json-types';
+import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-algorithm';
 
-export type SingleAlgorithmModelJson<
-    U extends AlgorithmJsonTypes = AlgorithmJsonTypes
-> = GenericSingleAlgorithmModel<U>;
+export type SingleAlgorithmModelJson = GenericSingleAlgorithmModel<
+    ICoxSurvivalAlgorithmJson
+>;

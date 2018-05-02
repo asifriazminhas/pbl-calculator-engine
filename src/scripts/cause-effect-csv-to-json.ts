@@ -2,7 +2,7 @@ import { IGenderCauseEffectRef } from '../engine/cause-effect';
 import { IDatum } from '../engine/data';
 import { getAlgorithmJsonForModelAndData } from '../engine/model/json-model-types';
 import { MultipleAlgorithmModelJson } from '../engine/multiple-algorithm-model/multiple-algorithm-model-json';
-import { ICoxJson } from '../engine/cox/cox-json';
+import { ICoxSurvivalAlgorithmJson } from '../parsers/json/json-cox-survival-algorithm';
 // tslint:disable-next-line
 var csvParse = require('csv-parse/lib/sync');
 
@@ -128,7 +128,7 @@ function checkGeneratedCauseEffectJson(
 
         Object.keys(causeEffectJson[genderKey]).forEach(riskFactor => {
             causeEffectJson[genderKey][riskFactor].forEach(datum => {
-                const covariateFoundForCurrentDatum = (algorithmJsonForCurrentGender as ICoxJson).covariates.find(
+                const covariateFoundForCurrentDatum = (algorithmJsonForCurrentGender as ICoxSurvivalAlgorithmJson).covariates.find(
                     covariate => {
                         return covariate.name === datum.name;
                     },

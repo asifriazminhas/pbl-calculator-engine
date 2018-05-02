@@ -1,9 +1,4 @@
 import * as test from 'tape';
-import {
-    convertBinsDataCsvToBinsData,
-    getBinDataForScore,
-    IBinData,
-} from '../engine/cox/bins/bins';
 
 // tslint:disable-next-line
 const csvParse = require('csv-parse/lib/sync');
@@ -15,19 +10,23 @@ const binsDataCsvString = fs.readFileSync(
     `${TestAssetsFolderPath}/bins/bins-data.csv`,
     'utf8',
 );
+import { NoBinFoundError } from '../engine/errors/no-bin-found-error';
 import {
+    IBinsDataCsvRow,
+    convertBinsDataCsvToBinsData,
     IBinsLookupCsvRow,
     convertBinsLookupCsvToBinsLookupJson,
-    IBinsLookupJsonItem,
-    NegativeInfinityString,
-    PositiveInfinityString,
-} from '../engine/cox/bins/bins-json';
+} from '../engine/survival-model-builder/build-from-assets-folder';
 import {
-    getBinsLookupFromBinsLookupJson,
-    IBinsDataCsvRow,
-    IBins,
-} from '../engine/cox/bins/bins';
-import { NoBinFoundError } from '../engine/errors/no-bin-found-error';
+    IBinData,
+    Bins,
+} from '../engine/algorithm/regression-algorithm/cox-survival-algorithm/bins/bins';
+import {
+    PositiveInfinityString,
+    NegativeInfinityString,
+    IBinsLookupJsonItem,
+    parseBinsLookupFromBinsJson,
+} from '../parsers/json/json-bins';
 
 test(`convertBinsLookupCsvToBinsLookupJson function`, t => {
     t.test(`When the csv file is correct`, t => {
@@ -201,19 +200,7 @@ test(`convertBinsDataCsvToBinsData function`, t => {
 });
 
 test(`getBinDataForScore function`, t => {
-    const bins: IBins = {
-        binsLookup: [
-            {
-                minScore: 0,
-                maxScore: 1,
-                binNumber: 1,
-            },
-            {
-                minScore: 1,
-                maxScore: 2,
-                binNumber: 2,
-            },
-        ],
+    const bins: Bins = new Bins({
         binsData: {
             2: [
                 {
@@ -226,10 +213,22 @@ test(`getBinDataForScore function`, t => {
                 },
             ],
         },
-    };
+        binsLookup: [
+            {
+                minScore: 0,
+                maxScore: 1,
+                binNumber: 1,
+            },
+            {
+                minScore: 1,
+                maxScore: 2,
+                binNumber: 2,
+            },
+        ],
+    });
 
     t.test(`When a bin lookup was found`, t => {
-        expect(getBinDataForScore(bins, 2)).to.equal(
+        expect(bins.getBinDataForScore(2)).to.equal(
             // @ts-ignore
             bins.binsData['2'],
         );
@@ -239,16 +238,21 @@ test(`getBinDataForScore function`, t => {
     });
 
     t.test(`When a bin lookup was not found`, t => {
-        expect(getBinDataForScore.bind(this, bins, 3)).to.throw(
-            NoBinFoundError,
-        );
+        try {
+            bins.getBinDataForScore(3);
+        } catch (err) {
+            expect(err).to.be.an.instanceof(NoBinFoundError);
 
-        t.pass(`It should throw a NoBinFoundError`);
-        t.end();
+            t.pass(`It should throw a NoBinFoundError`);
+            return t.end();
+        }
+
+        t.error('NoBinFoundError not thrown');
+        return t.end();
     });
 });
 
-test(`getBinsLookupJsonToBinsLookup function`, t => {
+test(`getBinsFromBinsJson function`, t => {
     const binsLookupJson: IBinsLookupJsonItem[] = [
         {
             minScore: NegativeInfinityString,
@@ -267,7 +271,12 @@ test(`getBinsLookupJsonToBinsLookup function`, t => {
         },
     ];
 
-    expect(getBinsLookupFromBinsLookupJson(binsLookupJson)).to.deep.equal([
+    expect(
+        parseBinsLookupFromBinsJson({
+            binsData: [],
+            binsLookup: binsLookupJson,
+        }),
+    ).to.deep.equal([
         {
             minScore: -Infinity,
             maxScore: 0,

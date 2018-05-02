@@ -11,18 +11,14 @@ import {
 } from '../multiple-algorithm-model';
 import { Data } from '../data';
 import { ModelType } from './model-type';
-import { IAlgorithm } from '../algorithm';
-import { AlgorithmTypes } from '../algorithm/algorithm-types';
-import { RegressionAlgorithmTypes } from '../regression-algorithm/regression-algorithm-types';
+import { CoxSurvivalAlgorithm } from '../algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
 
-export type ModelTypes<U extends AlgorithmTypes = AlgorithmTypes> =
-    | SingleAlgorithmModel<U>
-    | MultipleAlgorithmModel<U>;
+export type ModelTypes = SingleAlgorithmModel | MultipleAlgorithmModel;
 
 export function getAlgorithmForModelAndData(
     model: ModelTypes,
     data: Data,
-): IAlgorithm<any> {
+): CoxSurvivalAlgorithm {
     if (model.modelType === ModelType.SingleAlgorithm) {
         return model.algorithm;
     } else {
@@ -31,12 +27,12 @@ export function getAlgorithmForModelAndData(
 }
 
 export function updateBaselineForModel(
-    model: ModelTypes<RegressionAlgorithmTypes>,
+    model: ModelTypes,
     newBaseline:
         | number
         | SingleAlgorithmModelNewBaseline
         | MultipleAlgorithmModelNewBaseline,
-): ModelTypes<RegressionAlgorithmTypes> {
+): ModelTypes {
     if (model.modelType === ModelType.SingleAlgorithm) {
         return updateBaselineForSingleAlgorithmModel(
             model,

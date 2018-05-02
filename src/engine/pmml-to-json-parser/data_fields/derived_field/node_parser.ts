@@ -37,7 +37,7 @@ import {
     IFieldColumnPair,
 } from '../../../pmml/local_transformations/derived_field';
 
-import PmmlFunctions from '../../../cox/pmml-functions';
+import PmmlFunctions from '../../../data-field/derived-field/pmml-functions';
 
 //Object for oeprators that don't meet the normal parsing conditions
 const ApplyOperatorExceptions: {

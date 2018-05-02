@@ -1,19 +1,21 @@
 import { GenericSingleAlgorithmModel } from './generic-single-algorithm-model';
-import { updateBaseline } from '../regression-algorithm/regression-algorithm';
-import { RegressionAlgorithmTypes } from '../regression-algorithm/regression-algorithm-types';
-import { AlgorithmTypes } from '../algorithm/algorithm-types';
-import { IBaselineMixin } from '../regression-algorithm/baseline/baseline';
+import { CoxSurvivalAlgorithm } from '../algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
 
-export type SingleAlgorithmModel<
-    U extends AlgorithmTypes = AlgorithmTypes
-> = GenericSingleAlgorithmModel<U>;
+export type SingleAlgorithmModel = GenericSingleAlgorithmModel<
+    CoxSurvivalAlgorithm
+>;
 
-export type NewBaseline = IBaselineMixin;
+export type NewBaseline =
+    | number
+    | {
+          [index: number]: number;
+      };
 
-export function updateBaselineForModel<
-    T extends SingleAlgorithmModel<RegressionAlgorithmTypes>
->(model: T, newBaseline: NewBaseline): T {
+export function updateBaselineForModel(
+    model: SingleAlgorithmModel,
+    newBaseline: NewBaseline,
+): SingleAlgorithmModel {
     return Object.assign({}, model, {
-        algorithm: updateBaseline(model.algorithm, newBaseline),
+        algorithm: model.algorithm.updateBaseline(newBaseline),
     });
 }

@@ -14,16 +14,15 @@ import * as fs from 'fs';
 import { ModelType } from '../engine/model/model-type';
 import { Data, findDatumWithName } from '../engine/data/data';
 import { expect } from 'chai';
-import { Cox, getSurvivalToTime, ICoxWithBins } from '../engine/cox/cox';
 import { getAlgorithmForData } from '../engine/multiple-algorithm-model/multiple-algorithm-model';
 import { oneLineTrim } from 'common-tags';
-import { getBinDataForScore } from '../engine/cox/bins/bins';
-import { calculateScore } from '../engine/regression-algorithm/regression-algorithm';
 import { InteractionCovariate } from '../engine/data-field/covariate/interaction-covariate/interaction-covariate';
+// tslint:disable-next-line:max-line-length
+import { CoxSurvivalAlgorithm } from '../engine/algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
 
 const ScoreTestingDataFolderPath = `${TestAssetsFolderPath}/score-data`;
 
-function checkDataForAlgorithm(data: Data, cox: Cox) {
+function checkDataForAlgorithm(data: Data, cox: CoxSurvivalAlgorithm) {
     cox.covariates
         .filter(covariate => !(covariate instanceof InteractionCovariate))
         .forEach(covariate => {
@@ -56,26 +55,22 @@ function testCalculatedScoreForDataAndExpectedScore(
     data: Data,
     expectedScore: number,
     expectedBin: number,
-    coxAlgorithm: Cox,
+    coxAlgorithm: CoxSurvivalAlgorithm,
 ) {
     // Debugging code
     /*if (findDatumWithName('ran_id', data).coefficent === 17840) {
         return;
     }*/
 
-    if (coxAlgorithm.binsData && coxAlgorithm.binsLookup) {
-        const binData = getBinDataForScore(
-            coxAlgorithm as ICoxWithBins,
-            Math.round(calculateScore(coxAlgorithm, data) * 10000000) /
-                10000000,
+    if (coxAlgorithm.bins) {
+        const binData = coxAlgorithm.bins.getBinDataForScore(
+            Math.round(coxAlgorithm.calculateScore(data) * 10000000) / 10000000,
         );
-        const binNumber = Object.keys((coxAlgorithm as ICoxWithBins).binsData)
+        const binNumber = Object.keys(coxAlgorithm.bins.binsData)
             .map(Number)
             .find(currentBinNumber => {
                 return (
-                    (coxAlgorithm as ICoxWithBins).binsData[
-                        currentBinNumber
-                    ] === binData
+                    coxAlgorithm.bins!.binsData[currentBinNumber] === binData
                 );
             });
 
@@ -86,7 +81,7 @@ function testCalculatedScoreForDataAndExpectedScore(
         `,
         ).to.equal(expectedBin);
     } else {
-        const actualScore = getSurvivalToTime(coxAlgorithm, data);
+        const actualScore = coxAlgorithm.getSurvivalToTime(data);
 
         const percentDiff =
             Math.abs(actualScore - expectedScore) / expectedScore * 100;
@@ -115,7 +110,7 @@ function testScoreForModel(t: test.Test, model: ModelTypes, modelName: string) {
                         name: 'sex',
                         coefficent: gender,
                     },
-                ]) as Cox;
+                ]) as CoxSurvivalAlgorithm;
 
                 const readScoreTestingDataFileStream = fs.createReadStream(
                     `${ScoreTestingDataFolderPath}/${modelName}/${gender}/score-data.csv`,
@@ -161,7 +156,7 @@ function testScoreForModel(t: test.Test, model: ModelTypes, modelName: string) {
             });
         });
     } else {
-        const algorithmForCurrentGender = model.algorithm as Cox;
+        const algorithmForCurrentGender = model.algorithm;
 
         const readScoreTestingDataFileStream = fs.createReadStream(oneLineTrim`
             ${TestAlgorithmsFolderPath}/

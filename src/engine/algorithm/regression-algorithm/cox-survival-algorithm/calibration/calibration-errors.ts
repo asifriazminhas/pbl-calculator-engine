@@ -1,6 +1,6 @@
 // tslint:disable:max-classes-per-file
 
-import { Data } from '../../data';
+import { Data } from '../../../../data/data';
 
 export class NoCalibrationFactorFoundError extends Error {
     constructor(age: number) {

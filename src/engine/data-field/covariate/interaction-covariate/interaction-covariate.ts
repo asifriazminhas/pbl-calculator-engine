@@ -2,9 +2,10 @@ import { Covariate } from '../covariate';
 import { autobind } from 'core-decorators';
 import { DerivedField } from '../../derived-field/derived-field';
 import { Data } from '../../../data/data';
-import { IAlgorithm } from '../../../algorithm/algorithm';
 import { datumFromCovariateReferencePointFactory, IDatum } from '../../../data';
 import { NonInteractionCovariate } from '../non-interaction-covariats/non-interaction-covariate';
+import { IUserFunctions } from '../../../algorithm/user-functions/user-functions';
+import { ITables } from '../../../algorithm/tables/tables';
 
 @autobind
 export class InteractionCovariate extends Covariate {
@@ -12,8 +13,8 @@ export class InteractionCovariate extends Covariate {
 
     calculateDataToCalculateCoefficent(
         data: Data,
-        userDefinedFunctions: IAlgorithm<any>['userFunctions'],
-        tables: IAlgorithm<any>['tables'],
+        userDefinedFunctions: IUserFunctions,
+        tables: ITables,
     ): Data {
         const coefficentData = super.calculateDataToCalculateCoefficent(
             data,

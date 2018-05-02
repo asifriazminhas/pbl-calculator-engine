@@ -1,5 +1,4 @@
 import { GenericMultipleAlgorithmModel } from './generic-multiple-algorithm-model';
-import { IAlgorithm } from '../algorithm';
 import { Data } from '../data';
 import {
     getFirstTruePredicateObject,
@@ -7,20 +6,17 @@ import {
 } from './predicate/predicate';
 import { throwErrorIfUndefined } from '../undefined';
 import { NoBaselineFoundForAlgorithm } from '../errors';
-import { updateBaseline } from '../regression-algorithm/regression-algorithm';
-import { RegressionAlgorithmTypes } from '../regression-algorithm/regression-algorithm-types';
-import { AlgorithmTypes } from '../algorithm/algorithm-types';
-import { IBaselineMixin } from '../regression-algorithm/baseline/baseline';
 import { NoPredicateObjectFoundError } from './predicate/predicate-errors';
+import { CoxSurvivalAlgorithm } from '../algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
 
-export type MultipleAlgorithmModel<
-    U extends AlgorithmTypes = AlgorithmTypes
-> = GenericMultipleAlgorithmModel<U>;
+export type MultipleAlgorithmModel = GenericMultipleAlgorithmModel<
+    CoxSurvivalAlgorithm
+>;
 
 export function getAlgorithmForData(
     multipleAlgorithmModel: MultipleAlgorithmModel,
     data: Data,
-): IAlgorithm<any> {
+): CoxSurvivalAlgorithm {
     try {
         return getFirstTruePredicateObject(
             multipleAlgorithmModel.algorithms,
@@ -37,12 +33,16 @@ export function getAlgorithmForData(
 
 export type NewBaseline = Array<{
     predicateData: Data;
-    newBaseline: IBaselineMixin;
+    newBaseline:
+        | number
+        | {
+              [index: number]: number;
+          };
 }>;
 export function updateBaselineForModel(
-    model: MultipleAlgorithmModel<RegressionAlgorithmTypes>,
+    model: MultipleAlgorithmModel,
     newBaselines: NewBaseline,
-): MultipleAlgorithmModel<RegressionAlgorithmTypes> {
+): MultipleAlgorithmModel {
     return Object.assign({}, model, {
         algorithms: model.algorithms.map(({ predicate, algorithm }) => {
             const newBaselineForCurrentAlgorithm = throwErrorIfUndefined(
@@ -52,8 +52,7 @@ export function updateBaselineForModel(
                 new NoBaselineFoundForAlgorithm(algorithm.name),
             );
 
-            return updateBaseline(
-                algorithm,
+            return algorithm.updateBaseline(
                 newBaselineForCurrentAlgorithm.newBaseline,
             );
         }),

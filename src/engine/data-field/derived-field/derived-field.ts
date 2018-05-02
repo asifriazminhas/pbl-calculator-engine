@@ -6,13 +6,13 @@ import { autobind } from 'core-decorators';
 import { Covariate } from '../covariate/covariate';
 import { throwErrorIfUndefined } from '../../undefined';
 import { NoTableRowFoundError } from '../../errors';
-import { Cox } from '../../cox';
-import { IAlgorithm } from '../../algorithm';
-import PmmlFunctions from '../../cox/pmml-functions';
+import PmmlFunctions from './pmml-functions';
 import { shouldLogDebugInfo } from '../../env';
 import { NonInteractionCovariate } from '../covariate/non-interaction-covariats/non-interaction-covariate';
 import { InteractionCovariate } from '../covariate/interaction-covariate/interaction-covariate';
 import { IDerivedFieldJson } from '../../../parsers/json/json-derived-field';
+import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
+import { ITables } from '../../algorithm/tables/tables';
 
 function getValueFromTable(
     table: Array<{ [index: string]: string }>,
@@ -118,8 +118,8 @@ export class DerivedField extends DataField {
         obj: {
             [index: string]: any;
         },
-        userFunctions: Cox['userFunctions'],
-        tables: IAlgorithm<any>['tables'],
+        userFunctions: IUserFunctions,
+        tables: ITables,
     ): any {
         // tslint:disable-next-line
         obj;
@@ -142,8 +142,8 @@ export class DerivedField extends DataField {
 
     calculateCoefficent(
         data: Data,
-        userDefinedFunctions: IAlgorithm<any>['userFunctions'],
-        tables: IAlgorithm<any>['tables'],
+        userDefinedFunctions: IUserFunctions,
+        tables: ITables,
     ): Coefficent {
         /*Check if there is a datum for this intermediate predictor. If there is then we don't need to go further*/
         const datumForCurrentDerivedField = this.getDatumForField(data);
@@ -201,8 +201,8 @@ export class DerivedField extends DataField {
 
     calculateDataToCalculateCoefficent(
         data: Data,
-        userDefinedFunctions: Cox['userFunctions'],
-        tables: IAlgorithm<any>['tables'],
+        userDefinedFunctions: IUserFunctions,
+        tables: ITables,
     ): Data {
         /*Go through each explanatory predictor and calculate the coefficent for
         each which will be used for the evaluation*/

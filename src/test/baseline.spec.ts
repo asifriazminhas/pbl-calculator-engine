@@ -1,35 +1,33 @@
 import * as test from 'tape';
 import { expect } from 'chai';
-import {
-    IBaselineMixin,
-    getBaselineForData,
-} from '../engine/regression-algorithm/baseline/baseline';
 import { NoBaselineFoundForAge } from '../engine/errors/no-baseline-hazard-found';
+import { Baseline } from '../engine/algorithm/regression-algorithm/baseline/baseline';
 
 test(`getBaselineForData function`, t => {
     t.test(`When baseline is a number`, t => {
-        const baseline: IBaselineMixin = {
-            baseline: 1,
-        };
+        const baseline = 1;
 
-        expect(getBaselineForData(baseline, [])).to.equal(baseline.baseline);
+        expect(new Baseline(baseline).getBaselineForData([])).to.equal(
+            baseline,
+        );
 
         t.pass(`Should return the value of the baseline field`);
         t.end();
     });
 
     t.test(`When the baseline is an object`, t => {
-        const baseline: IBaselineMixin = {
+        const baseline = {
             baseline: {
                 29: 1,
             },
         };
+        const baselineInstance = new Baseline(baseline.baseline);
 
         t.test(
             `When the baseline object does not have a value for the coefficient of the found age datum`,
             t => {
                 expect(
-                    getBaselineForData.bind(null, baseline, [
+                    baselineInstance.getBaselineForData.bind(baselineInstance, [
                         {
                             name: 'age',
                             coefficent: 30,
@@ -46,7 +44,7 @@ test(`getBaselineForData function`, t => {
             `When the baseline object has a number value for the coefficient of the found age datum`,
             t => {
                 expect(
-                    getBaselineForData(baseline, [
+                    baselineInstance.getBaselineForData([
                         {
                             name: 'age',
                             coefficent: 29,

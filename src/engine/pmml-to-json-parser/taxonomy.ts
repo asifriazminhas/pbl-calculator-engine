@@ -1,7 +1,7 @@
-import { ITables } from '../algorithm';
 import { ICustomPmml } from '../pmml';
 import { ITaxonomy } from '../pmml/taxonomy';
 import { isUndefined, isEmpty } from 'lodash';
+import { ITables } from '../algorithm/tables/tables';
 
 function reduceRowToTableRow(
     tableRow: { [index: string]: string },

@@ -1,4 +1,4 @@
-import { IPredicateMixin } from '../../multiple-algorithm-model/predicate/predicate';
+import { IPredicateMixin } from '../../engine/multiple-algorithm-model/predicate/predicate';
 
 export interface ICalibrationFactorJsonObject {
     age: number;

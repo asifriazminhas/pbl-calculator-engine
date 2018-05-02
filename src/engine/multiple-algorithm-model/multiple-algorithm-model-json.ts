@@ -1,18 +1,17 @@
 import { GenericMultipleAlgorithmModel } from './generic-multiple-algorithm-model';
-import { IAlgorithmJson } from '../algorithm';
 import { Data } from '../data';
 import { getFirstTruePredicateObject } from './predicate/predicate';
-import { AlgorithmJsonTypes } from '../algorithm/algorithm-json-types';
 import { NoPredicateObjectFoundError } from './predicate/predicate-errors';
+import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-algorithm';
 
-export type MultipleAlgorithmModelJson<
-    U extends AlgorithmJsonTypes = AlgorithmJsonTypes
-> = GenericMultipleAlgorithmModel<U>;
+export type MultipleAlgorithmModelJson = GenericMultipleAlgorithmModel<
+    ICoxSurvivalAlgorithmJson
+>;
 
 export function getAlgorithmJsonForData(
     multipleAlgorithmModel: MultipleAlgorithmModelJson,
     data: Data,
-): IAlgorithmJson<any> {
+): ICoxSurvivalAlgorithmJson {
     try {
         return getFirstTruePredicateObject(
             multipleAlgorithmModel.algorithms,

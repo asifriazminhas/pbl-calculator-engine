@@ -1,8 +1,9 @@
 import { Covariate } from '../covariate';
-import { IAlgorithm } from '../../../algorithm';
 import { Data, IDatum } from '../../../data';
 import { autobind } from 'core-decorators';
 import { IRcsCustomFunctionJson } from '../../../../parsers/json/json-rcs-custom-function';
+import { IUserFunctions } from '../../../algorithm/user-functions/user-functions';
+import { ITables } from '../../../algorithm/tables/tables';
 
 @autobind
 export class RcsCustomFunction {
@@ -21,8 +22,8 @@ export class RcsCustomFunction {
 
     calculateCoefficient(
         data: Data,
-        userDefinedFunctions: IAlgorithm<any>['userFunctions'],
-        tables: IAlgorithm<any>['tables'],
+        userDefinedFunctions: IUserFunctions,
+        tables: ITables,
     ): number {
         const datumValue = this.calculateDataToCalculateCoefficent(
             data,
@@ -39,8 +40,8 @@ export class RcsCustomFunction {
 
     private calculateDataToCalculateCoefficent(
         data: Data,
-        userDefinedFunctions: IAlgorithm<any>['userFunctions'],
-        tables: IAlgorithm<any>['tables'],
+        userDefinedFunctions: IUserFunctions,
+        tables: ITables,
     ): [IDatum] {
         return [
             {

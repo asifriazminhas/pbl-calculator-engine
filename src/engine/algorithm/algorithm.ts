@@ -1,17 +1,11 @@
-import { IGenericAlgorithm, ITables } from './generic-algorithm';
-import { AlgorithmType } from './algorithm-type';
+import { ITables } from './tables/tables';
+import { IUserFunctions } from './user-functions/user-functions';
+import { Data } from '../data';
 
-export type IAlgorithm<Z extends AlgorithmType> = IGenericAlgorithm<
-    () => any,
-    Z
->;
-
-export class Algorithm<Z extends AlgorithmType>
-    implements IGenericAlgorithm<() => any, Z> {
-    algorithmType: Z;
+export abstract class Algorithm {
     name: string;
-    version: string;
-    description: string;
-    userFunctions: { [index: string]: () => any };
+    userFunctions: IUserFunctions;
     tables: ITables;
+
+    abstract evaluate(data: Data): number;
 }

@@ -3,15 +3,14 @@ import { expect } from 'chai';
 import { SingleAlgorithmModelJson } from '../engine/single-algorithm-model/single-algorithm-model-json';
 import { omit } from 'lodash';
 import { optimizeModel } from '../engine/pmml-to-json-parser/optimizations';
-import { AlgorithmJsonTypes } from '../engine/algorithm/algorithm-json-types';
-import { ISimpleAlgorithmJson } from '../engine/simple-algorithm/simple-algorithm-json';
-import { AlgorithmType } from '../engine/algorithm/algorithm-type';
 import { IDerivedFieldJson } from '../parsers/json/json-derived-field';
 import { ModelType } from '../engine/model/model-type';
 import { MultipleAlgorithmModelJson } from '../engine/multiple-algorithm-model/multiple-algorithm-model-json';
+import { ICoxSurvivalAlgorithmJson } from '../parsers/json/json-cox-survival-algorithm';
+import { TimeMetric } from '../engine/algorithm/regression-algorithm/cox-survival-algorithm/time-metric';
 
 function doRemoveUnsedColumnsAsertions(
-    actualOptimizedAlgorithmJson: AlgorithmJsonTypes,
+    actualOptimizedAlgorithmJson: ICoxSurvivalAlgorithmJson,
     tables: { [index: string]: Array<{ [index: string]: string }> },
     t: test.Test,
 ) {
@@ -36,7 +35,7 @@ function doRemoveUnsedColumnsAsertions(
 }
 
 function doRemoveUnusedFunctionsAssertions(
-    optimizedAlgorithm: AlgorithmJsonTypes,
+    optimizedAlgorithm: ICoxSurvivalAlgorithmJson,
     userFunctions: { [index: string]: string },
     t: test.Test,
 ) {
@@ -103,15 +102,15 @@ test(`Model optimizations`, t => {
         },
     ];
 
-    const AlgorithmJson: ISimpleAlgorithmJson = {
+    const AlgorithmJson: ICoxSurvivalAlgorithmJson = {
         name: '',
-        algorithmType: AlgorithmType.SimpleAlgorithm,
         derivedFields: DerivedFields,
-        version: '',
-        description: '',
         userFunctions: UserFunctions,
         tables: Tables,
-        output: '',
+        covariates: [],
+        baseline: {},
+        timeMetric: TimeMetric.Years,
+        maximumTime: 5,
     };
 
     t.test(`Testing single algorithm model`, t => {

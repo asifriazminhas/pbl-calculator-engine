@@ -11,17 +11,18 @@ import { MultipleAlgorithmModelJson } from '../multiple-algorithm-model';
 import { parseModelJsonToModel } from '../model';
 import { SurvivalModelFunctions } from './survival-model-functions';
 import { ModelTypes } from '../model/model-types';
-import { Cox, ICoxJson } from '../cox/index';
 import {
     IAlgorithmInfoCsvRow,
     AlgorithmInfoCsv,
 } from '../pmml-transformers/algorithm-info';
-import { convertBinsDataCsvToBinsData, IBinsData } from '../cox/bins/bins';
 import {
-    convertBinsLookupCsvToBinsLookupJson,
+    IBinsJson,
     IBinsLookupJsonItem,
-} from '../cox/bins/bins-json';
-import { AlgorithmType } from '../algorithm/algorithm-type';
+    PositiveInfinityString,
+    NegativeInfinityString,
+} from '../../parsers/json/json-bins';
+import { IBinsData } from '../algorithm/regression-algorithm/cox-survival-algorithm/bins/bins';
+import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-algorithm';
 
 export type BuildFromAssetsFolderFunction = (
     assetsFolderPath: string,
@@ -29,6 +30,121 @@ export type BuildFromAssetsFolderFunction = (
 
 export interface IBuildFromAssetsFolder {
     buildFromAssetsFolder: BuildFromAssetsFolderFunction;
+}
+
+export type BinsDataCsv = IBinsDataCsvRow[];
+
+export interface IBinsDataCsvRow {
+    Percent: string;
+    [index: string]: string;
+}
+
+export function convertBinsDataCsvToBinsData(
+    binsDataCsvString: string,
+): IBinsData {
+    const binsDataCsv: BinsDataCsv = csvParse(binsDataCsvString, {
+        columns: true,
+    });
+
+    /* This object has all the bins numbers as the field names but the actual
+    values are just empty objects i.e. the data for each percent is not in there */
+    const binsDataWithoutPercents: IBinsData =
+        /* Start with getting all the column names in the first csv row */
+        Object.keys(binsDataCsv[0])
+            /* Remove the Percent column. All the other colums are the bin
+            numbers as strings */
+            .filter(binsDataCsvColumn => binsDataCsvColumn !== 'Percent')
+            /* Convert them to a number */
+            .map(Number)
+            /* Convert it to the object */
+            .reduce(
+                (currentBinsData, currentBinDataCsvBinNumber) => {
+                    /* Return an object which is a concatination of the
+                    previous objects along with the current bin number */
+                    return {
+                        ...currentBinsData,
+                        [currentBinDataCsvBinNumber]: [],
+                    };
+                },
+                {} as IBinsData,
+            );
+
+    const binNumbers = Object.keys(binsDataCsv[0])
+        .filter(binsDataCsvColumn => {
+            return binsDataCsvColumn !== 'Percent';
+        })
+        .map(Number);
+
+    binsDataCsv.forEach(binsDataCsvRow => {
+        binNumbers.forEach(binNumber => {
+            binsDataWithoutPercents[binNumber].push({
+                survivalPercent: Number(binsDataCsvRow.Percent),
+                time: isNaN(Number(binsDataCsvRow[String(binNumber)]))
+                    ? undefined
+                    : Number(binsDataCsvRow[String(binNumber)]),
+            });
+        });
+    });
+
+    return binsDataWithoutPercents;
+}
+
+export interface IBinsLookupCsvRow {
+    BinNumber: string;
+    MinXscore: string;
+    MaxXscore: string;
+}
+
+function validateBinsLookupCsvRowScore(score: string): boolean {
+    return !isNaN(Number(score))
+        ? true
+        : score === PositiveInfinityString || score === NegativeInfinityString;
+}
+
+function validateBinsLookupCsvRowBinNumber(
+    binNumber: IBinsLookupCsvRow['BinNumber'],
+): boolean {
+    return !isNaN(Number(binNumber));
+}
+
+export function convertBinsLookupCsvToBinsLookupJson(
+    binsLookupCsvString: string,
+): IBinsLookupJsonItem[] {
+    const binsLookupCsv: IBinsLookupCsvRow[] = csvParse(binsLookupCsvString, {
+        columns: true,
+    });
+
+    return binsLookupCsv.map((binsLookupCsvRow, index) => {
+        const rowNumber = index + 2;
+
+        if (!validateBinsLookupCsvRowScore(binsLookupCsvRow.MaxXscore)) {
+            throw new Error(
+                `Invalid MaxXscore value ${binsLookupCsvRow.MaxXscore} in row ${rowNumber}`,
+            );
+        }
+
+        if (!validateBinsLookupCsvRowScore(binsLookupCsvRow.MinXscore)) {
+            throw new Error(
+                `Invalid MinXscore value ${binsLookupCsvRow.MinXscore} in row ${rowNumber}`,
+            );
+        }
+
+        if (!validateBinsLookupCsvRowBinNumber(binsLookupCsvRow.BinNumber)) {
+            throw new Error(
+                `Invalid Bin Number value ${binsLookupCsvRow.BinNumber} in row ${rowNumber}`,
+            );
+        }
+
+        return {
+            binNumber: Number(binsLookupCsvRow.BinNumber),
+            minScore: isNaN(Number(binsLookupCsvRow.MinXscore))
+                ? binsLookupCsvRow.MinXscore as 'infinity'
+                : Number(binsLookupCsvRow.MinXscore),
+            maxScore: isNaN(Number(binsLookupCsvRow.MaxXscore))
+                ? binsLookupCsvRow.MaxXscore as 'infinity'
+                : Number(binsLookupCsvRow.MaxXscore),
+        };
+    });
 }
 
 function getPmmlFileStringsSortedByPriorityInFolder(
@@ -52,21 +168,21 @@ function getPmmlFileStringsSortedByPriorityInFolder(
 
 function getBinsDataAndLookup(
     algorithmDirectoryPath: string,
-): { binsData?: IBinsData; binsLookup?: IBinsLookupJsonItem[] } {
+): IBinsJson | undefined {
     const binsDataCsvPath = `${algorithmDirectoryPath}/bins-data.csv`;
     const binsLookupCsvPath = `${algorithmDirectoryPath}/bin-lookup.csv`;
 
+    if (!fs.existsSync(binsDataCsvPath)) {
+        return undefined;
+    }
+
     return {
-        binsData: fs.existsSync(binsDataCsvPath)
-            ? convertBinsDataCsvToBinsData(
-                  fs.readFileSync(binsDataCsvPath, 'utf8'),
-              )
-            : undefined,
-        binsLookup: fs.existsSync(binsLookupCsvPath)
-            ? convertBinsLookupCsvToBinsLookupJson(
-                  fs.readFileSync(binsLookupCsvPath, 'utf8'),
-              )
-            : undefined,
+        binsData: convertBinsDataCsvToBinsData(
+            fs.readFileSync(binsDataCsvPath, 'utf8'),
+        ),
+        binsLookup: convertBinsLookupCsvToBinsLookupJson(
+            fs.readFileSync(binsLookupCsvPath, 'utf8'),
+        ),
     };
 }
 
@@ -107,21 +223,17 @@ async function buildSingleAlgorithmModelJson(
         [],
     )) as SingleAlgorithmModelJson;
 
-    if (singleAlgorithmJson.algorithm.algorithmType === AlgorithmType.Cox) {
-        return Object.assign({}, singleAlgorithmJson, {
-            algorithm: Object.assign(
-                {},
-                singleAlgorithmJson.algorithm,
-                getBinsDataAndLookup(assetsFolderPath),
-                {
-                    timeMetric: algorithmInfo.TimeMetric,
-                    maximumTime: Number(algorithmInfo.MaximumTime),
-                },
-            ),
-        });
-    } else {
-        return singleAlgorithmJson;
-    }
+    return Object.assign({}, singleAlgorithmJson, {
+        algorithm: Object.assign(
+            {},
+            singleAlgorithmJson.algorithm,
+            getBinsDataAndLookup(assetsFolderPath),
+            {
+                timeMetric: algorithmInfo.TimeMetric,
+                maximumTime: Number(algorithmInfo.MaximumTime),
+            },
+        ),
+    });
 }
 
 async function buildMultipleAlgorithmModelJson(
@@ -195,8 +307,11 @@ async function buildMultipleAlgorithmModelJson(
         ],
     )) as MultipleAlgorithmModelJson;
     multipleAlgorithmModel.algorithms.forEach(({ algorithm }) => {
-        (algorithm as ICoxJson).timeMetric = algorithmInfo.TimeMetric;
-        (algorithm as ICoxJson).maximumTime = Number(algorithmInfo.MaximumTime);
+        (algorithm as ICoxSurvivalAlgorithmJson).timeMetric =
+            algorithmInfo.TimeMetric;
+        (algorithm as ICoxSurvivalAlgorithmJson).maximumTime = Number(
+            algorithmInfo.MaximumTime,
+        );
     });
 
     return multipleAlgorithmModel;
@@ -283,10 +398,7 @@ export function getBuildFromAssetsFolder(): IBuildFromAssetsFolder {
 
             const model = parseModelJsonToModel(modelJson);
 
-            return new SurvivalModelFunctions(
-                model as ModelTypes<Cox>,
-                modelJson,
-            );
+            return new SurvivalModelFunctions(model as ModelTypes, modelJson);
         },
     };
 }

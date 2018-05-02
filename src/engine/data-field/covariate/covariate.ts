@@ -9,10 +9,11 @@ import {
 import * as moment from 'moment';
 import { DerivedField } from '../derived-field/derived-field';
 import { oneLine } from 'common-tags';
-import { IAlgorithm } from '../../algorithm';
 import { shouldLogWarnings, shouldLogDebugInfo } from '../../env';
 import { autobind } from 'core-decorators';
 import { ICovariateJson } from '../../../parsers/json/json-covariate';
+import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
+import { ITables } from '../../algorithm/tables/tables';
 
 @autobind
 export abstract class Covariate extends DataField {
@@ -36,8 +37,8 @@ export abstract class Covariate extends DataField {
 
     getComponent(
         data: Data,
-        userFunctions: IAlgorithm<any>['userFunctions'],
-        tables: IAlgorithm<any>['tables'],
+        userFunctions: IUserFunctions,
+        tables: ITables,
     ): number {
         if (shouldLogWarnings()) {
             console.groupCollapsed(`${this.name}`);
@@ -58,8 +59,8 @@ export abstract class Covariate extends DataField {
 
     calculateCoefficient(
         data: Data,
-        userDefinedFunctions: IAlgorithm<any>['userFunctions'],
-        tables: IAlgorithm<any>['tables'],
+        userDefinedFunctions: IUserFunctions,
+        tables: ITables,
     ): Coefficent {
         let coefficent: any = 0;
 
@@ -99,8 +100,8 @@ export abstract class Covariate extends DataField {
 
     protected calculateDataToCalculateCoefficent(
         data: Data,
-        userDefinedFunctions: IAlgorithm<any>['userFunctions'],
-        tables: IAlgorithm<any>['tables'],
+        userDefinedFunctions: IUserFunctions,
+        tables: ITables,
     ): Data {
         // Try to find a datum with the same name field in the data arg
         const datumFound = this.getDatumForField(data);

@@ -1,18 +1,19 @@
 import * as test from 'tape';
-import { IAlgorithm } from '../engine/algorithm/algorithm';
 import { expect } from 'chai';
 import {
     DerivedField,
     findDescendantDerivedField,
 } from '../engine/data-field/derived-field/derived-field';
 import { DataField } from '../engine/data-field/data-field';
+import { IUserFunctions } from '../engine/algorithm/user-functions/user-functions';
+import { ITables } from '../engine/algorithm/tables/tables';
 
 test(`.calculateCoefficent`, t => {
-    const userFunctions: IAlgorithm<any>['userFunctions'] = {};
+    const userFunctions: IUserFunctions = {};
     const tableName = 'tableOne';
     const outputColumn = 'out';
 
-    const tables: IAlgorithm<any>['tables'] = {
+    const tables: ITables = {
         [tableName]: [
             {
                 columnOne: 'a',

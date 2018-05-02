@@ -10,13 +10,13 @@ import { ModelTypes } from '../engine/model/model-types';
 import { getAlgorithmForData } from '../engine/multiple-algorithm-model';
 // tslint:disable-next-line
 const createCsvParseStream = require('csv-parse');
-import { Cox } from '../engine/cox/cox';
 import { expect } from 'chai';
-import { RegressionAlgorithmTypes } from '../engine/regression-algorithm/regression-algorithm-types';
 import { Stream } from 'stream';
 import { oneLine } from 'common-tags';
 import { getModelsToTest } from './test-utils';
 import { Covariate } from '../engine/data-field/covariate/covariate';
+import { IUserFunctions } from '../engine/algorithm/user-functions/user-functions';
+import { ITables } from '../engine/algorithm/tables/tables';
 const TestAssetsFolderPath = path.join(
     __dirname,
     '../../node_modules/@ottawamhealth/pbl-calculator-engine-assets',
@@ -106,8 +106,8 @@ function testCovariateTransformations(
     covariate: Covariate,
     inputData: Data,
     expectedOutput: number | null,
-    userFunctions: Cox['userFunctions'],
-    tables: Cox['tables'],
+    userFunctions: IUserFunctions,
+    tables: ITables,
 ) {
     if (!covariate.derivedField) {
         return;
@@ -246,29 +246,24 @@ function testLocalTransformationsForModel(
         testingDataStream.on(
             'data',
             (testingDataRow: { [index: string]: string }) => {
-                (model.algorithm as RegressionAlgorithmTypes).covariates.forEach(
-                    covariate => {
-                        const {
-                            inputData,
-                            expectedOutput,
-                        } = getTestingDataForCovariate(
-                            covariate,
-                            testingDataRow,
-                        );
+                model.algorithm.covariates.forEach(covariate => {
+                    const {
+                        inputData,
+                        expectedOutput,
+                    } = getTestingDataForCovariate(covariate, testingDataRow);
 
-                        testCovariateTransformations(
-                            covariate,
-                            inputData,
-                            expectedOutput,
-                            model.algorithm.userFunctions,
-                            model.algorithm.tables,
-                        );
+                    testCovariateTransformations(
+                        covariate,
+                        inputData,
+                        expectedOutput,
+                        model.algorithm.userFunctions,
+                        model.algorithm.tables,
+                    );
 
-                        t.pass(
-                            `Testing transformations for covariate ${covariate.name}`,
-                        );
-                    },
-                );
+                    t.pass(
+                        `Testing transformations for covariate ${covariate.name}`,
+                    );
+                });
             },
         );
 
@@ -321,7 +316,7 @@ function testLocalTransformationsForModel(
                 testingDataStream.on(
                     'data',
                     (testingDataRow: { [index: string]: string }) => {
-                        (algorithmForCurrentGender as RegressionAlgorithmTypes).covariates.forEach(
+                        algorithmForCurrentGender.covariates.forEach(
                             covariate => {
                                 const {
                                     inputData,

@@ -1,6 +1,5 @@
 import { JsonModelTypes } from '../model/json-model-types';
 import { ModelType } from '../model/model-type';
-import { AlgorithmJsonTypes } from '../algorithm/algorithm-json-types';
 import {
     ILiteralAST,
     ICallExpressionAST,
@@ -11,7 +10,9 @@ import {
 // tslint:disable-next-line
 const astTypes = require('ast-types');
 import { parseScript } from 'esprima';
-import { IAlgorithmJson } from '../algorithm/algorithm-json';
+import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-algorithm';
+import { ITables } from '../algorithm/tables/tables';
+import { IUserFunctions } from '../algorithm/user-functions/user-functions';
 
 function isUserFunctionsFunctionCall(node: ICallExpressionAST) {
     return (
@@ -38,9 +39,7 @@ function getTableColumnsUsedFromTableCallExpression(
     return otherColumns.concat(outputColumn);
 }
 
-function optimizeTables(
-    algorithm: AlgorithmJsonTypes,
-): IAlgorithmJson<any>['tables'] {
+function optimizeTables(algorithm: ICoxSurvivalAlgorithmJson): ITables {
     return Object.keys(
         algorithm.tables,
     ).reduce((newTables, currentTableName) => {
@@ -105,8 +104,8 @@ function optimizeTables(
 }
 
 function optimizeUserFunctions(
-    algorithm: AlgorithmJsonTypes,
-): IAlgorithmJson<any>['userFunctions'] {
+    algorithm: ICoxSurvivalAlgorithmJson,
+): IUserFunctions {
     return Object.keys(algorithm.userFunctions)
         .filter(userFunctionNameToCheck => {
             let isUserFunctionUsed: boolean = false;
@@ -166,7 +165,9 @@ function optimizeUserFunctions(
         }, {});
 }
 
-function optimizeAlgorithm(algorithm: AlgorithmJsonTypes): AlgorithmJsonTypes {
+function optimizeAlgorithm(
+    algorithm: ICoxSurvivalAlgorithmJson,
+): ICoxSurvivalAlgorithmJson {
     return Object.assign({}, algorithm, {
         tables: optimizeTables(algorithm),
         userFunctions: optimizeUserFunctions(algorithm),

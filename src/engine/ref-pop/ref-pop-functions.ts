@@ -6,9 +6,9 @@ import {
 import { getHealthAge } from './health-age';
 // @ts-ignore
 import { Data, IDatum } from '../data';
-import { Cox } from '../cox';
 import { getFirstTruePredicateObject } from '../multiple-algorithm-model/predicate/predicate';
 import { NoPredicateObjectFoundError } from '../multiple-algorithm-model/predicate/predicate-errors';
+import { CoxSurvivalAlgorithm } from '../algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
 
 export class RefPopFunctions {
     private model: ModelTypes;
@@ -50,6 +50,6 @@ export class RefPopFunctions {
         return getHealthAge(refPopToUse, data, getAlgorithmForModelAndData(
             this.model,
             data,
-        ) as Cox);
+        ) as CoxSurvivalAlgorithm);
     };
 }
