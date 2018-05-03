@@ -2,13 +2,13 @@ import { parseCovariates } from './data_fields/covariate';
 import { parseDerivedFields } from './data_fields/derived_field/derived_field';
 import { PmmlParser, IGeneralRegressionModel } from '../pmml';
 import { parseDefineFunction } from './define-function/define-function';
-import { JsonModelTypes, ModelType } from '../model';
-import { IPredicate } from '../multiple-algorithm-model';
 import { parseTaxonomy } from './taxonomy';
 import { optimizeModel } from './optimizations';
 import { returnEmptyArrayIfUndefined } from '../undefined/undefined';
 import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-algorithm';
 import { TimeMetric } from '../algorithm/regression-algorithm/cox-survival-algorithm/time-metric';
+import { IModelJson } from '../../parsers/json/json-model';
+import { PredicateJson } from '../../parsers/json/json-predicate';
 
 function parseBaselineFromPmmlXml(
     generalRegressionModel: IGeneralRegressionModel,
@@ -50,29 +50,22 @@ async function pmmlStringsToJson(
 
 export async function pmmlXmlStringsToJson(
     modelPmmlXmlStrings: string[][],
-    predicates: IPredicate[],
-): Promise<JsonModelTypes> {
+    predicates: PredicateJson[],
+): Promise<IModelJson> {
     const parsedAlgorithms = await Promise.all(
         modelPmmlXmlStrings.map(pmmlXmlStrings =>
             pmmlStringsToJson(pmmlXmlStrings),
         ),
     );
 
-    const modelJson: JsonModelTypes =
-        parsedAlgorithms.length === 1
-            ? {
-                  modelType: ModelType.SingleAlgorithm,
-                  algorithm: parsedAlgorithms[0],
-              }
-            : {
-                  modelType: ModelType.MultipleAlgorithm,
-                  algorithms: parsedAlgorithms.map((parsedAlgorithm, index) => {
-                      return {
-                          algorithm: parsedAlgorithm,
-                          predicate: predicates[index],
-                      };
-                  }),
-              };
+    const modelJson: IModelJson = {
+        algorithms: parsedAlgorithms.map((currentParsedAlgorithm, index) => {
+            return {
+                algorithm: currentParsedAlgorithm,
+                predicate: predicates[index],
+            };
+        }),
+    };
 
     return optimizeModel(modelJson);
 }

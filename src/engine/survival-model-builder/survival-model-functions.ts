@@ -1,13 +1,7 @@
-import {
-    ModelTypes,
-    getAlgorithmForModelAndData,
-    ModelType,
-    JsonModelTypes,
-} from '../model';
+import { Model } from '../model/model';
 // @ts-ignore
 import { Data, IDatum } from '../data';
 import * as moment from 'moment';
-import { getPredicateResult } from '../multiple-algorithm-model/predicate/predicate';
 import {
     CoxSurvivalAlgorithm,
     INewPredictor,
@@ -16,6 +10,7 @@ import {
     ICalibrationFactorJsonObject,
     CalibrationJson,
 } from '../../parsers/json/json-calibration';
+import { IModelJson } from '../../parsers/json/json-model';
 
 export interface IGenderCalibrationObjects {
     male: ICalibrationFactorJsonObject[];
@@ -23,16 +18,16 @@ export interface IGenderCalibrationObjects {
 }
 
 export class SurvivalModelFunctions {
-    private model: ModelTypes;
-    private modelJson: JsonModelTypes;
+    private model: Model;
+    private modelJson: IModelJson;
 
-    constructor(model: ModelTypes, modelJson: JsonModelTypes) {
+    constructor(model: Model, modelJson: IModelJson) {
         this.model = model;
         this.modelJson = modelJson;
     }
 
     public getAlgorithmForData(data: Data): CoxSurvivalAlgorithm {
-        return getAlgorithmForModelAndData(this.model, data);
+        return this.model.getAlgorithmForData(data);
     }
 
     public getRiskToTime = (data: Data, time?: Date | moment.Moment) => {
@@ -44,27 +39,18 @@ export class SurvivalModelFunctions {
     };
 
     public addPredictor(newPredictor: INewPredictor): SurvivalModelFunctions {
-        if (this.model.modelType === ModelType.SingleAlgorithm) {
-            return new SurvivalModelFunctions(
-                Object.assign({}, this.model, {
-                    algorithm: this.model.algorithm.addPredictor(newPredictor),
+        return new SurvivalModelFunctions(
+            Object.assign({}, this.model, {
+                algorithms: this.model.algorithms.map(algorithm => {
+                    return Object.assign({}, algorithm, {
+                        algorithms: algorithm.algorithm.addPredictor(
+                            newPredictor,
+                        ),
+                    });
                 }),
-                this.modelJson,
-            );
-        } else {
-            return new SurvivalModelFunctions(
-                Object.assign({}, this.model, {
-                    algorithms: this.model.algorithms.map(algorithm => {
-                        return Object.assign({}, algorithm, {
-                            algorithms: algorithm.algorithm.addPredictor(
-                                newPredictor,
-                            ),
-                        });
-                    }),
-                }),
-                this.modelJson,
-            );
-        }
+            }),
+            this.modelJson,
+        );
     }
 
     public reCalibrateOutcome(
@@ -93,9 +79,9 @@ export class SurvivalModelFunctions {
             calibrationJsonToUse = calibrationJson;
         }
 
-        if (this.model.modelType === ModelType.SingleAlgorithm) {
+        if (this.model.algorithms.length === 0) {
             const calibratedModel = Object.assign({}, this.model, {
-                algorithm: this.model.algorithm.addCalibrationToAlgorithm(
+                algorithm: this.model.algorithms[0].algorithm.addCalibrationToAlgorithm(
                     calibrationJsonToUse,
                     [],
                 ),
@@ -112,9 +98,8 @@ export class SurvivalModelFunctions {
                     ({ algorithm, predicate }) => {
                         const predicateDataForCurrentPredicate = predicateData.find(
                             currentPredicateData => {
-                                return getPredicateResult(
+                                return predicate.getPredicateResult(
                                     currentPredicateData,
-                                    predicate,
                                 );
                             },
                         ) as Data;
@@ -134,11 +119,11 @@ export class SurvivalModelFunctions {
         }
     }
 
-    public getModel(): ModelTypes {
+    public getModel(): Model {
         return this.model;
     }
 
-    public getModelJson(): JsonModelTypes {
+    public getModelJson(): IModelJson {
         return this.modelJson;
     }
 }

@@ -1,8 +1,7 @@
 import * as fs from 'fs';
 import { TestAlgorithmsFolderPath } from './constants';
-import { SurvivalModelBuilder } from '../index';
-import { ModelTypes } from '../engine/model/index';
 import * as path from 'path';
+import { Model } from '../engine/model/model';
 
 function getAlgorithmNamesToTest(excludeAlgorithms: string[]): string[] {
     return (
@@ -36,15 +35,15 @@ function getAlgorithmNamesToTest(excludeAlgorithms: string[]): string[] {
 
 async function getModelObjFromAlgorithmName(
     algorithmName: string,
-): Promise<ModelTypes> {
-    return (await SurvivalModelBuilder.buildFromAssetsFolder(
-        `${TestAlgorithmsFolderPath}/${algorithmName}`,
-    )).getModel();
+): Promise<Model> {
+    return new Model(
+        require(`${TestAlgorithmsFolderPath}/${algorithmName}/model.json`),
+    );
 }
 
 export async function getModelsToTest(
     modelsToExclude: string[],
-): Promise<Array<{ model: ModelTypes; name: string }>> {
+): Promise<Array<{ model: Model; name: string }>> {
     const modelNames = getAlgorithmNamesToTest(modelsToExclude);
     const models = await Promise.all(
         modelNames.map(algorithmName => {

@@ -3,7 +3,7 @@ import {
     RefPopsWithPredicate,
 } from './reference-population';
 import { RefPopFunctions } from './ref-pop-functions';
-import { ModelTypes } from '../model';
+import { Model } from '../model/model';
 
 export interface IWithRefPopBuilderFunction {
     withRefPop: (
@@ -12,7 +12,7 @@ export interface IWithRefPopBuilderFunction {
 }
 
 export interface IRefPopFunctionsBuilder {
-    withModel: (model: ModelTypes) => IWithRefPopBuilderFunction;
+    withModel: (model: Model) => IWithRefPopBuilderFunction;
 }
 
 export const RefPopFunctionsBuilder: IRefPopFunctionsBuilder = {

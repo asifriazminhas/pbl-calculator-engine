@@ -1,13 +1,11 @@
 import * as test from 'tape';
 import { expect } from 'chai';
-import { SingleAlgorithmModelJson } from '../engine/single-algorithm-model/single-algorithm-model-json';
 import { omit } from 'lodash';
 import { optimizeModel } from '../engine/pmml-to-json-parser/optimizations';
 import { IDerivedFieldJson } from '../parsers/json/json-derived-field';
-import { ModelType } from '../engine/model/model-type';
-import { MultipleAlgorithmModelJson } from '../engine/multiple-algorithm-model/multiple-algorithm-model-json';
 import { ICoxSurvivalAlgorithmJson } from '../parsers/json/json-cox-survival-algorithm';
 import { TimeMetric } from '../engine/algorithm/regression-algorithm/cox-survival-algorithm/time-metric';
+import { IModelJson } from '../parsers/json/json-model';
 
 function doRemoveUnsedColumnsAsertions(
     actualOptimizedAlgorithmJson: ICoxSurvivalAlgorithmJson,
@@ -114,18 +112,25 @@ test(`Model optimizations`, t => {
     };
 
     t.test(`Testing single algorithm model`, t => {
-        const singleAlgorithmModelJson: SingleAlgorithmModelJson = {
-            modelType: ModelType.SingleAlgorithm,
-            algorithm: AlgorithmJson,
+        const singleAlgorithmModelJson = {
+            algorithms: [
+                {
+                    algorithm: AlgorithmJson,
+                    predicate: {
+                        equation: 'true',
+                        variables: [],
+                    },
+                },
+            ],
         };
 
         const optimizedSingleAlgorithmModelJson = optimizeModel(
             singleAlgorithmModelJson,
-        ) as SingleAlgorithmModelJson;
+        );
 
         t.test(`Removing unused columns from table`, t => {
             doRemoveUnsedColumnsAsertions(
-                optimizedSingleAlgorithmModelJson.algorithm,
+                optimizedSingleAlgorithmModelJson.algorithms[0].algorithm,
                 Tables,
                 t,
             );
@@ -134,7 +139,7 @@ test(`Model optimizations`, t => {
 
         t.test(`Removing unused functions`, t => {
             doRemoveUnusedFunctionsAssertions(
-                optimizedSingleAlgorithmModelJson.algorithm,
+                optimizedSingleAlgorithmModelJson.algorithms[0].algorithm,
                 UserFunctions,
                 t,
             );
@@ -143,8 +148,7 @@ test(`Model optimizations`, t => {
     });
 
     t.test(`Testing multiple algorithm model`, t => {
-        const multipleAlgorithmModelJson: MultipleAlgorithmModelJson = {
-            modelType: ModelType.MultipleAlgorithm,
+        const multipleAlgorithmModelJson: IModelJson = {
             algorithms: [
                 {
                     algorithm: AlgorithmJson,
@@ -165,7 +169,7 @@ test(`Model optimizations`, t => {
 
         const optimizedMultipleAlgorithmModelJson = optimizeModel(
             multipleAlgorithmModelJson,
-        ) as MultipleAlgorithmModelJson;
+        ) as IModelJson;
         t.test(`Removing unused columns`, t => {
             optimizedMultipleAlgorithmModelJson.algorithms.forEach(
                 algorithm => {

@@ -1,9 +1,9 @@
-import { parseModelJsonToModel, JsonModelTypes } from '../model';
 import { SurvivalModelFunctions } from './survival-model-functions';
-import { ModelTypes } from '../model/model-types';
+import { Model } from '../model/model';
+import { IModelJson } from '../../parsers/json/json-model';
 
 export type BuildFromModelJsonFunction = (
-    modelJson: JsonModelTypes,
+    modelJson: IModelJson,
 ) => SurvivalModelFunctions;
 
 export interface IBuildFromModelJson {
@@ -13,9 +13,9 @@ export interface IBuildFromModelJson {
 export function getBuildFromModelJsonFunction(): IBuildFromModelJson {
     return {
         buildFromModelJson: modelJson => {
-            const model = parseModelJsonToModel(modelJson);
+            const model = new Model(modelJson);
 
-            return new SurvivalModelFunctions(model as ModelTypes, modelJson);
+            return new SurvivalModelFunctions(model, modelJson);
         },
     };
 }

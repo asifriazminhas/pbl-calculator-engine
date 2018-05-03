@@ -1,5 +1,3 @@
-import { JsonModelTypes } from '../model/json-model-types';
-import { ModelType } from '../model/model-type';
 import {
     ILiteralAST,
     ICallExpressionAST,
@@ -13,6 +11,7 @@ import { parseScript } from 'esprima';
 import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-algorithm';
 import { ITables } from '../algorithm/tables/tables';
 import { IUserFunctions } from '../algorithm/user-functions/user-functions';
+import { IModelJson } from '../../parsers/json/json-model';
 
 function isUserFunctionsFunctionCall(node: ICallExpressionAST) {
     return (
@@ -174,20 +173,12 @@ function optimizeAlgorithm(
     });
 }
 
-export function optimizeModel(model: JsonModelTypes): JsonModelTypes {
-    if (model.modelType === ModelType.SingleAlgorithm) {
-        return Object.assign({}, model, {
-            algorithm: optimizeAlgorithm(model.algorithm),
-        });
-    } else {
-        return Object.assign({}, model, {
-            algorithms: model.algorithms.map(algorithmAndPredicate => {
-                return Object.assign({}, algorithmAndPredicate, {
-                    algorithm: optimizeAlgorithm(
-                        algorithmAndPredicate.algorithm,
-                    ),
-                });
-            }),
-        });
-    }
+export function optimizeModel(model: IModelJson): IModelJson {
+    return Object.assign({}, model, {
+        algorithms: model.algorithms.map(algorithm => {
+            return Object.assign({}, algorithm, {
+                algorithm: optimizeAlgorithm(algorithm.algorithm),
+            });
+        }),
+    });
 }

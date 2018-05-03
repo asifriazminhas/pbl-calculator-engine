@@ -1,4 +1,4 @@
-import { Data } from '../../data';
+import { Data } from '../data/data';
 
 export class NoPredicateObjectFoundError extends Error {
     constructor(data: Data) {

@@ -5,9 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Data, isEqual as isDataOneEqualToDataTwo } from '../engine/data/data';
 import { getLeafFieldsForDerivedField } from '../engine/data-field/derived-field/derived-field';
-import { ModelType } from '../engine/model/model-type';
-import { ModelTypes } from '../engine/model/model-types';
-import { getAlgorithmForData } from '../engine/multiple-algorithm-model';
+import { Model } from '../engine/model/model';
 // tslint:disable-next-line
 const createCsvParseStream = require('csv-parse');
 import { expect } from 'chai';
@@ -24,11 +22,11 @@ const TestAssetsFolderPath = path.join(
 const TransformationsTestingDataFolderPath = `/validation-data/local-transformations`;
 
 function getLocalTransformationsDataPathForModelAndGender(
-    model: ModelTypes,
+    model: Model,
     modelName: string,
     gender: 'male' | 'female' | undefined,
 ) {
-    if (model.modelType === ModelType.SingleAlgorithm) {
+    if (model.algorithms.length === 0) {
         return `${TestAssetsFolderPath}/${modelName}${TransformationsTestingDataFolderPath}/local-transformations.csv`;
     } else {
         return oneLine`
@@ -225,11 +223,13 @@ function testCovariateTransformations(
 }
 
 function testLocalTransformationsForModel(
-    model: ModelTypes,
+    model: Model,
     modelName: string,
     t: test.Test,
 ) {
-    if (model.modelType === ModelType.SingleAlgorithm) {
+    if (model.algorithms.length === 1) {
+        const algorithm = model.algorithms[0].algorithm;
+
         const testingDataFileStream = fs.createReadStream(
             getLocalTransformationsDataPathForModelAndGender(
                 model,
@@ -246,7 +246,7 @@ function testLocalTransformationsForModel(
         testingDataStream.on(
             'data',
             (testingDataRow: { [index: string]: string }) => {
-                model.algorithm.covariates.forEach(covariate => {
+                algorithm.covariates.forEach(covariate => {
                     const {
                         inputData,
                         expectedOutput,
@@ -256,8 +256,8 @@ function testLocalTransformationsForModel(
                         covariate,
                         inputData,
                         expectedOutput,
-                        model.algorithm.userFunctions,
-                        model.algorithm.tables,
+                        algorithm.userFunctions,
+                        algorithm.tables,
                     );
 
                     t.pass(
@@ -277,7 +277,7 @@ function testLocalTransformationsForModel(
             );
             t.end();
         });
-    } else if (model.modelType === ModelType.MultipleAlgorithm) {
+    } else {
         const genders: Array<'male' | 'female'> = ['male', 'female'];
 
         genders.forEach(gender => {
@@ -306,7 +306,7 @@ function testLocalTransformationsForModel(
                     testingDataCsvStream,
                 );
 
-                const algorithmForCurrentGender = getAlgorithmForData(model, [
+                const algorithmForCurrentGender = model.getAlgorithmForData([
                     {
                         name: 'sex',
                         coefficent: gender,

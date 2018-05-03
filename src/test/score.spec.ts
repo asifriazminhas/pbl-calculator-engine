@@ -7,18 +7,16 @@ import {
     ScoreDataCsvFileName,
 } from './constants';
 import { getModelsToTest } from './test-utils';
-import { ModelTypes } from '../engine/model/model-types';
 // tslint:disable-next-line
 const createCsvParseStream = require('csv-parse');
 import * as fs from 'fs';
-import { ModelType } from '../engine/model/model-type';
 import { Data, findDatumWithName } from '../engine/data/data';
 import { expect } from 'chai';
-import { getAlgorithmForData } from '../engine/multiple-algorithm-model/multiple-algorithm-model';
 import { oneLineTrim } from 'common-tags';
 import { InteractionCovariate } from '../engine/data-field/covariate/interaction-covariate/interaction-covariate';
 // tslint:disable-next-line:max-line-length
 import { CoxSurvivalAlgorithm } from '../engine/algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
+import { Model } from '../engine/model/model';
 
 const ScoreTestingDataFolderPath = `${TestAssetsFolderPath}/score-data`;
 
@@ -99,18 +97,18 @@ function testCalculatedScoreForDataAndExpectedScore(
     }
 }
 
-function testScoreForModel(t: test.Test, model: ModelTypes, modelName: string) {
-    if (model.modelType === ModelType.MultipleAlgorithm) {
+function testScoreForModel(t: test.Test, model: Model, modelName: string) {
+    if (model.algorithms.length > 1) {
         const Genders = ['male', 'female'];
 
         Genders.map(gender => {
             t.test(`Testing ${gender} ${modelName} model`, t => {
-                const algorithmForCurrentGender = getAlgorithmForData(model, [
+                const algorithmForCurrentGender = model.getAlgorithmForData([
                     {
                         name: 'sex',
                         coefficent: gender,
                     },
-                ]) as CoxSurvivalAlgorithm;
+                ]);
 
                 const readScoreTestingDataFileStream = fs.createReadStream(
                     `${ScoreTestingDataFolderPath}/${modelName}/${gender}/score-data.csv`,
@@ -156,7 +154,7 @@ function testScoreForModel(t: test.Test, model: ModelTypes, modelName: string) {
             });
         });
     } else {
-        const algorithmForCurrentGender = model.algorithm;
+        const algorithmForCurrentGender = model.algorithms[0].algorithm;
 
         const readScoreTestingDataFileStream = fs.createReadStream(oneLineTrim`
             ${TestAlgorithmsFolderPath}/

@@ -1,12 +1,13 @@
-import { IPredicateMixin } from '../../engine/multiple-algorithm-model/predicate/predicate';
+import { PredicateJson } from './json-predicate';
 
 export interface ICalibrationFactorJsonObject {
     age: number;
     factor: number;
 }
 
-export interface ICalibrationJsonObject extends IPredicateMixin {
+export interface ICalibrationJsonObject {
     calibrationFactorObjects: ICalibrationFactorJsonObject[];
+    predicate: PredicateJson;
 }
 
 export type CalibrationJson = ICalibrationJsonObject[];

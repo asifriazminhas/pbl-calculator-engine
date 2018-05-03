@@ -1,8 +1,9 @@
 import { IGenderCauseEffectRef } from '../engine/cause-effect';
 import { IDatum } from '../engine/data';
-import { getAlgorithmJsonForModelAndData } from '../engine/model/json-model-types';
-import { MultipleAlgorithmModelJson } from '../engine/multiple-algorithm-model/multiple-algorithm-model-json';
-import { ICoxSurvivalAlgorithmJson } from '../parsers/json/json-cox-survival-algorithm';
+import {
+    IModelJson,
+    getAlgorithmJsonForPredicateData,
+} from '../parsers/json/json-model';
 // tslint:disable-next-line
 var csvParse = require('csv-parse/lib/sync');
 
@@ -112,11 +113,11 @@ function reduceToGenderCauseEffectRefObject(
 
 function checkGeneratedCauseEffectJson(
     causeEffectJson: IGenderCauseEffectRef,
-    model: MultipleAlgorithmModelJson,
+    model: IModelJson,
     modelName: string,
 ): IGenderCauseEffectRef {
     Object.keys(causeEffectJson).forEach(genderKey => {
-        const algorithmJsonForCurrentGender = getAlgorithmJsonForModelAndData(
+        const algorithmJsonForCurrentGender = getAlgorithmJsonForPredicateData(
             model,
             [
                 {
@@ -128,7 +129,7 @@ function checkGeneratedCauseEffectJson(
 
         Object.keys(causeEffectJson[genderKey]).forEach(riskFactor => {
             causeEffectJson[genderKey][riskFactor].forEach(datum => {
-                const covariateFoundForCurrentDatum = (algorithmJsonForCurrentGender as ICoxSurvivalAlgorithmJson).covariates.find(
+                const covariateFoundForCurrentDatum = algorithmJsonForCurrentGender.covariates.find(
                     covariate => {
                         return covariate.name === datum.name;
                     },
@@ -155,7 +156,7 @@ function checkGeneratedCauseEffectJson(
     return causeEffectJson;
 }
 export function convertCauseEffectCsvToGenderCauseEffectRefForAlgorithm(
-    model: MultipleAlgorithmModelJson,
+    model: IModelJson,
     modelName: string,
     causeEffectCsvString: string,
 ): IGenderCauseEffectRef {

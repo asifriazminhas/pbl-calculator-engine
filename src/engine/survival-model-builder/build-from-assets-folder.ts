@@ -5,24 +5,20 @@ import { pmmlXmlStringsToJson } from '../pmml-to-json-parser/pmml';
 import * as path from 'path';
 // tslint:disable-next-line
 const csvParse = require('csv-parse/lib/sync');
-import { JsonModelTypes } from '../model';
-import { SingleAlgorithmModelJson } from '../single-algorithm-model';
-import { MultipleAlgorithmModelJson } from '../multiple-algorithm-model';
-import { parseModelJsonToModel } from '../model';
 import { SurvivalModelFunctions } from './survival-model-functions';
-import { ModelTypes } from '../model/model-types';
 import {
     IAlgorithmInfoCsvRow,
     AlgorithmInfoCsv,
 } from '../pmml-transformers/algorithm-info';
 import {
-    IBinsJson,
     IBinsLookupJsonItem,
     PositiveInfinityString,
     NegativeInfinityString,
 } from '../../parsers/json/json-bins';
 import { IBinsData } from '../algorithm/regression-algorithm/cox-survival-algorithm/bins/bins';
 import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-algorithm';
+import { Model } from '../model/model';
+import { IModelJson } from '../../parsers/json/json-model';
 
 export type BuildFromAssetsFolderFunction = (
     assetsFolderPath: string,
@@ -166,26 +162,6 @@ function getPmmlFileStringsSortedByPriorityInFolder(
         );
 }
 
-function getBinsDataAndLookup(
-    algorithmDirectoryPath: string,
-): IBinsJson | undefined {
-    const binsDataCsvPath = `${algorithmDirectoryPath}/bins-data.csv`;
-    const binsLookupCsvPath = `${algorithmDirectoryPath}/bin-lookup.csv`;
-
-    if (!fs.existsSync(binsDataCsvPath)) {
-        return undefined;
-    }
-
-    return {
-        binsData: convertBinsDataCsvToBinsData(
-            fs.readFileSync(binsDataCsvPath, 'utf8'),
-        ),
-        binsLookup: convertBinsLookupCsvToBinsLookupJson(
-            fs.readFileSync(binsLookupCsvPath, 'utf8'),
-        ),
-    };
-}
-
 async function buildSingleAlgorithmModelJson(
     assetsFolderPath: string,
     limesurveyPmmlString: string | undefined,
@@ -193,7 +169,7 @@ async function buildSingleAlgorithmModelJson(
     webSpecifictationsCategoriesCsvString: string | undefined,
     algorithmName: string,
     algorithmInfo: IAlgorithmInfoCsvRow,
-): Promise<SingleAlgorithmModelJson> {
+): Promise<IModelJson> {
     // Get the pmml file strings in the directory sorted by priority
     const pmmlFileStrings = getPmmlFileStringsSortedByPriorityInFolder(
         assetsFolderPath,
@@ -214,26 +190,21 @@ async function buildSingleAlgorithmModelJson(
     }
 
     // Return SingleAlgorithmModelJson
-    const singleAlgorithmJson = (await pmmlXmlStringsToJson(
+    const singleAlgorithmJson = await pmmlXmlStringsToJson(
         [
             pmmlFileStrings
                 .concat(webSpecificationsPmml ? webSpecificationsPmml : [])
                 .concat(limesurveyPmmlString ? limesurveyPmmlString : []),
         ],
-        [],
-    )) as SingleAlgorithmModelJson;
-
-    return Object.assign({}, singleAlgorithmJson, {
-        algorithm: Object.assign(
-            {},
-            singleAlgorithmJson.algorithm,
-            getBinsDataAndLookup(assetsFolderPath),
+        [
             {
-                timeMetric: algorithmInfo.TimeMetric,
-                maximumTime: Number(algorithmInfo.MaximumTime),
+                equation: 'true',
+                variables: [],
             },
-        ),
-    });
+        ],
+    );
+
+    return singleAlgorithmJson;
 }
 
 async function buildMultipleAlgorithmModelJson(
@@ -243,7 +214,7 @@ async function buildMultipleAlgorithmModelJson(
     limesurveyPmml: string | undefined,
     algorithmName: string,
     algorithmInfo: IAlgorithmInfoCsvRow,
-): Promise<MultipleAlgorithmModelJson> {
+): Promise<IModelJson> {
     // get the pmml file strings sorted by priority for the male algorithm
     const malePmmlFileStrings = getPmmlFileStringsSortedByPriorityInFolder(
         `${assetsFolderPath}/male`,
@@ -305,7 +276,7 @@ async function buildMultipleAlgorithmModelJson(
                 variables: ['sex'],
             },
         ],
-    )) as MultipleAlgorithmModelJson;
+    )) as IModelJson;
     multipleAlgorithmModel.algorithms.forEach(({ algorithm }) => {
         (algorithm as ICoxSurvivalAlgorithmJson).timeMetric =
             algorithmInfo.TimeMetric;
@@ -375,7 +346,7 @@ export function getBuildFromAssetsFolder(): IBuildFromAssetsFolder {
 
             /*Call the right method depending on whether it's a
             MultipleAlgorithm or a SingleAlgorithm type of model*/
-            let modelJson: JsonModelTypes;
+            let modelJson: IModelJson;
             if (currentAlgorithmInfoFile.GenderSpecific === 'true') {
                 modelJson = await buildMultipleAlgorithmModelJson(
                     assetsFolderPath,
@@ -396,9 +367,9 @@ export function getBuildFromAssetsFolder(): IBuildFromAssetsFolder {
                 );
             }
 
-            const model = parseModelJsonToModel(modelJson);
+            const model = new Model(modelJson);
 
-            return new SurvivalModelFunctions(model as ModelTypes, modelJson);
+            return new SurvivalModelFunctions(model, modelJson);
         },
     };
 }

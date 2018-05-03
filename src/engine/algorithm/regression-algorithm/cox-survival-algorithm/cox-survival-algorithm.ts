@@ -8,14 +8,14 @@ import { shouldLogDebugInfo } from '../../../env/env';
 import { Calibration } from './calibration/calibration';
 import { ICoxSurvivalAlgorithmJson } from '../../../../parsers/json/json-cox-survival-algorithm';
 import { Baseline } from '../baseline/baseline';
-import { getFirstTruePredicateObject } from '../../../multiple-algorithm-model/predicate/predicate';
-import { NoPredicateObjectFoundError } from '../../../multiple-algorithm-model/predicate/predicate-errors';
 import { parseCovariateJsonToCovariate } from '../../../../parsers/json/json-covariate';
 import { parseUserFunctions } from '../../../../parsers/json/json-user-functions';
 // tslint:disable-next-line:max-line-length
 import { NonInteractionCovariate } from '../../../data-field/covariate/non-interaction-covariats/non-interaction-covariate';
 import { CalibrationJson } from '../../../../parsers/json/json-calibration';
 import { NoCalibrationFoundError } from './calibration/calibration-errors';
+import { Predicate } from '../../../predicate/predicate';
+import { NoPredicateObjectFoundError } from '../../../predicate/predicate-errors';
 
 export interface INewPredictor {
     name: string;
@@ -118,8 +118,15 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         predicateData: Data,
     ): CoxSurvivalAlgorithm {
         try {
-            const calibrationFactorObjects = getFirstTruePredicateObject(
-                calibrationJson,
+            const calibrationFactorObjects = Predicate.getFirstTruePredicateObject(
+                calibrationJson.map(currentCalibrationJson => {
+                    return Object.assign({}, currentCalibrationJson, {
+                        predicate: new Predicate(
+                            currentCalibrationJson.predicate.equation,
+                            currentCalibrationJson.predicate.variables,
+                        ),
+                    });
+                }),
                 predicateData,
             ).calibrationFactorObjects;
 
