@@ -16,6 +16,7 @@ import { CalibrationJson } from '../../../../parsers/json/json-calibration';
 import { NoCalibrationFoundError } from './calibration/calibration-errors';
 import { Predicate } from '../../../predicate/predicate';
 import { NoPredicateObjectFoundError } from '../../../predicate/predicate-errors';
+import { BaselineJson } from '../../../../parsers/json/json-baseline';
 
 export interface INewPredictor {
     name: string;
@@ -28,6 +29,7 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
     maximumTime: number;
     bins?: Bins;
     calibration: Calibration;
+    baseline: Baseline;
 
     constructor(coxSurvivalAlgorithmJson: ICoxSurvivalAlgorithmJson) {
         super();
@@ -74,13 +76,7 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         return 1 - this.getRiskToTime(data, time);
     }
 
-    updateBaseline(
-        newBaseline:
-            | number
-            | {
-                  [index: number]: number;
-              },
-    ): CoxSurvivalAlgorithm {
+    updateBaseline(newBaseline: BaselineJson): CoxSurvivalAlgorithm {
         const updatedAlgorithm = Object.assign({}, this, {
             baseline: new Baseline(newBaseline),
         });
@@ -219,6 +215,7 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         const score = this.calculateScore(data);
         // baseline*calibration*e^score
         const exponentiatedScoreTimesBaselineTimesCalibration =
+            this.baseline.getBaselineForData(data) *
             this.calibration.getCalibrationFactorForData(data) *
             Math.E ** score;
         const maximumTimeRiskProbability =
