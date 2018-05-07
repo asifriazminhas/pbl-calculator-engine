@@ -16,12 +16,13 @@ test(`getBaselineForData function`, t => {
     });
 
     t.test(`When the baseline is an object`, t => {
-        const baseline = {
-            baseline: {
-                29: 1,
+        const baseline = [
+            {
+                age: 29,
+                baseline: 1,
             },
-        };
-        const baselineInstance = new Baseline(baseline.baseline);
+        ];
+        const baselineInstance = new Baseline(baseline);
 
         t.test(
             `When the baseline object does not have a value for the coefficient of the found age datum`,
@@ -50,10 +51,7 @@ test(`getBaselineForData function`, t => {
                             coefficent: 29,
                         },
                     ]),
-                ).to.equal(
-                    // @ts-ignore
-                    baseline.baseline[29],
-                );
+                ).to.equal(baseline[0].baseline);
 
                 t.pass(`Should return the number value`);
                 t.end();
