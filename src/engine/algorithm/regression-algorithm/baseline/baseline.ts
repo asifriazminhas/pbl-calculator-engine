@@ -11,7 +11,26 @@ export class Baseline {
           };
 
     constructor(baselineJson: BaselineJson) {
-        this.baseline = baselineJson;
+        if (baselineJson === null || baselineJson === undefined) {
+            this.baseline = 1;
+        } else if (typeof baselineJson === 'number') {
+            this.baseline = baselineJson;
+        } else {
+            this.baseline = baselineJson.reduce(
+                (
+                    baseline: {
+                        [index: number]: number;
+                    },
+                    currentBaselineJsonItem,
+                ) => {
+                    baseline[currentBaselineJsonItem.age] =
+                        currentBaselineJsonItem.baseline;
+
+                    return baseline;
+                },
+                {},
+            );
+        }
     }
 
     getBaselineForData(data: Data): number {
