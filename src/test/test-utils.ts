@@ -21,15 +21,26 @@ function getAlgorithmNamesToTest(excludeAlgorithms: string[]): string[] {
                         )
                         .isDirectory() &&
                     algorithmFolderFileName !== '.git' &&
-                    algorithmFolderFileName !== 'node_modules'
+                    algorithmFolderFileName !== 'node_modules' &&
+                    algorithmFolderFileName !== 'build'
                 );
             })
             /* Filter out all algorithm we don't want to test as specified in
             the excludeAlgorithms arg*/
-            .filter(
-                algorithmName =>
-                    excludeAlgorithms.indexOf(algorithmName) === -1,
-            )
+            .filter(algorithmName => {
+                const includeAlgorithm =
+                    excludeAlgorithms.indexOf(algorithmName) === -1;
+
+                if (!includeAlgorithm) {
+                    console.warn(
+                        '\x1b[31m',
+                        ` Excluding model ${algorithmName}`,
+                        '\x1b[0m',
+                    );
+                }
+
+                return includeAlgorithm;
+            })
     );
 }
 
@@ -52,6 +63,8 @@ export async function getModelsToTest(
     );
 
     return models.map((model, index) => {
+        model.name = modelNames[index];
+
         return {
             model,
             name: modelNames[index],
@@ -179,4 +192,16 @@ export function getPmmlString(
         <CustomPMML>
         </CustomPMML>
     </PMML>`;
+}
+
+export function getRelativeDifference(num1: number, num2: number): number {
+    if (!Number(num1) && !Number(num2)) {
+        return 0;
+    }
+
+    if (Number(num1) === 0 && Number(num2) !== 0) {
+        return 100;
+    }
+
+    return Math.abs(num1 - num2) / Math.abs(num1) * 100;
 }
