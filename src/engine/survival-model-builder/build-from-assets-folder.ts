@@ -204,6 +204,17 @@ async function buildSingleAlgorithmModelJson(
         ],
     );
 
+    if (fs.existsSync(`${assetsFolderPath}/bins-data.csv`)) {
+        singleAlgorithmJson.algorithms[0].algorithm.bins = {
+            binsData: convertBinsDataCsvToBinsData(
+                fs.readFileSync(`${assetsFolderPath}/bins-data.csv`, 'utf8'),
+            ),
+            binsLookup: convertBinsLookupCsvToBinsLookupJson(
+                fs.readFileSync(`${assetsFolderPath}/bin-lookup.csv`, 'utf8'),
+            ),
+        };
+    }
+
     return singleAlgorithmJson;
 }
 
