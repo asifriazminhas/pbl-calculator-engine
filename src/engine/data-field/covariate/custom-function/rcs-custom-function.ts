@@ -1,5 +1,5 @@
 import { Covariate } from '../covariate';
-import { Data, IDatum } from '../../../data';
+import { Data, IDatum, findDatumWithName } from '../../../data';
 import { autobind } from 'core-decorators';
 import { IRcsCustomFunctionJson } from '../../../../parsers/json/json-rcs-custom-function';
 import { IUserFunctions } from '../../../algorithm/user-functions/user-functions';
@@ -20,25 +20,21 @@ export class RcsCustomFunction {
         this.firstVariableCovariate = firstVariableCovariate;
     }
 
-    calculateCoefficient(
-        data: Data,
-        userDefinedFunctions: IUserFunctions,
-        tables: ITables,
-    ): number {
-        const datumValue = this.calculateDataToCalculateCoefficent(
+    calculateCoefficient(data: Data): number {
+        const datumValue = findDatumWithName(
+            this.firstVariableCovariate.name,
             data,
-            userDefinedFunctions,
-            tables,
-        )[0].coefficent as number;
+        ).coefficent as number;
 
-        return (
+        const coefficent =
             this.getFirstTerm(datumValue) -
             this.getSecondTerm(datumValue) +
-            this.getThirdTerm(datumValue)
-        );
+            this.getThirdTerm(datumValue);
+
+        return coefficent;
     }
 
-    private calculateDataToCalculateCoefficent(
+    calculateDataToCalculateCoefficent(
         data: Data,
         userDefinedFunctions: IUserFunctions,
         tables: ITables,

@@ -63,32 +63,27 @@ export abstract class Covariate extends DataField {
         tables: ITables,
     ): Coefficent {
         let coefficent: any = 0;
+        const coefficientData = this.calculateDataToCalculateCoefficent(
+            data,
+            userDefinedFunctions,
+            tables,
+        );
 
-        if (this.customFunction) {
+        if (
+            coefficientData.length === 1 &&
+            coefficientData[0].name === this.name
+        ) {
+            coefficent = coefficientData[0].coefficent;
+        } else if (this.customFunction) {
             coefficent = this.customFunction.calculateCoefficient(
-                data,
+                coefficientData,
+            );
+        } else if (this.derivedField) {
+            coefficent = this.derivedField.calculateCoefficent(
+                coefficientData,
                 userDefinedFunctions,
                 tables,
             );
-        } else {
-            const coefficientData = this.calculateDataToCalculateCoefficent(
-                data,
-                userDefinedFunctions,
-                tables,
-            );
-
-            if (
-                coefficientData.length === 1 &&
-                coefficientData[0].name === this.name
-            ) {
-                coefficent = coefficientData[0].coefficent;
-            } else if (this.derivedField) {
-                coefficent = this.derivedField.calculateCoefficent(
-                    coefficientData,
-                    userDefinedFunctions,
-                    tables,
-                );
-            }
         }
 
         const formattedCoefficent = this.formatCoefficentForComponent(
@@ -109,8 +104,14 @@ export abstract class Covariate extends DataField {
         /* If we did not find anything then we need to calculate the coefficent
         using either a custom function or the coresponding derived field */
         if (!datumFound) {
-            // Custom function has higher priority
-            if (this.derivedField) {
+            if (this.customFunction) {
+                return this.customFunction.calculateDataToCalculateCoefficent(
+                    data,
+                    userDefinedFunctions,
+                    tables,
+                );
+            } else if (this.derivedField) {
+                // Custom function has higher priority
                 // Fall back to derived field
                 try {
                     return this.derivedField.calculateDataToCalculateCoefficent(
