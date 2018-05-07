@@ -1,5 +1,5 @@
 import { BasePmmlNode } from '../common';
-import { getMergeArraysFunction } from '../../merge';
+import { getMergeArraysFunction } from '../../../engine/merge';
 
 export interface IBaseDataField<T> extends BasePmmlNode {
     $: {

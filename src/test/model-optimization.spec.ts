@@ -1,7 +1,7 @@
 import * as test from 'tape';
 import { expect } from 'chai';
 import { omit } from 'lodash';
-import { optimizeModel } from '../engine/pmml-to-json-parser/optimizations';
+import { optimizeModel } from '../parsers/pmml-to-json-parser/optimizations';
 import { IDerivedFieldJson } from '../parsers/json/json-derived-field';
 import { ICoxSurvivalAlgorithmJson } from '../parsers/json/json-cox-survival-algorithm';
 import { TimeMetric } from '../engine/algorithm/regression-algorithm/cox-survival-algorithm/time-metric';

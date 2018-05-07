@@ -20,7 +20,7 @@ function testCalculatedScoreForDataAndExpectedScore(
     data: Data,
 ) {
     // Debugging code
-    /*if (findDatumWithName('ran_id', data).coefficent === 17840) {
+    /*if (expectedRisk !== 0.002523241) {
         return;
     }*/
 
@@ -73,9 +73,11 @@ function testCalculatedScoreForDataAndExpectedScore(
         expect(percentDiff).to.be.lessThan(
             10,
             `
-            Percent difference greater than ${MaximumPercentDiff}
+            Percent difference ${percentDiff} greater than ${MaximumPercentDiff}
             Expected Score: ${expectedScore}
             Actual Score: ${actualScore}
+            Expected Sum of Betas: ${expectedScore},
+            Actual Sum of Betas: ${coxAlgorithm.calculateScore(data)}
             Data: ${JSON.stringify(data)}
         `,
         );

@@ -9,8 +9,8 @@ import {
 const astTypes = require('ast-types');
 import { parseScript } from 'esprima';
 import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-algorithm';
-import { ITables } from '../algorithm/tables/tables';
-import { IUserFunctions } from '../algorithm/user-functions/user-functions';
+import { ITables } from '../../engine/algorithm/tables/tables';
+import { IUserFunctions } from '../../engine/algorithm/user-functions/user-functions';
 import { IModelJson } from '../../parsers/json/json-model';
 
 function isUserFunctionsFunctionCall(node: ICallExpressionAST) {

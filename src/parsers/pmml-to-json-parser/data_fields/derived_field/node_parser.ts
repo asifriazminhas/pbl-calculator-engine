@@ -1,9 +1,5 @@
 //interfaces
-import {
-    IApply,
-    IFieldRef,
-    IConstant,
-} from '../../../pmml/local_transformations/common';
+
 import {
     ILiteralAST,
     BinaryExpressionASTLeftAndRight,
@@ -32,12 +28,13 @@ import {
     getObjectExpressionAst,
     getPropertyAst,
 } from './ast';
+
+import PmmlFunctions from '../../../../engine/data-field/derived-field/pmml-functions';
+import { IApply, IFieldRef, IConstant } from '../../../pmml';
 import {
     IMapValues,
     IFieldColumnPair,
 } from '../../../pmml/local_transformations/derived_field';
-
-import PmmlFunctions from '../../../data-field/derived-field/pmml-functions';
 
 //Object for oeprators that don't meet the normal parsing conditions
 const ApplyOperatorExceptions: {

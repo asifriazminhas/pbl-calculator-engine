@@ -1,6 +1,6 @@
 import * as test from 'tape';
 import { getPmmlString } from './test-utils';
-import { pmmlXmlStringsToJson } from '../engine/pmml-to-json-parser/pmml';
+import { pmmlXmlStringsToJson } from '../parsers/pmml-to-json-parser/pmml';
 import { expect } from 'chai';
 import { omit } from 'lodash';
 import { IModelJson } from '../parsers/json/json-model';

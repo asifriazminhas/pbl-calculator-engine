@@ -4,9 +4,9 @@ import { PmmlParser, IGeneralRegressionModel } from '../pmml';
 import { parseDefineFunction } from './define-function/define-function';
 import { parseTaxonomy } from './taxonomy';
 import { optimizeModel } from './optimizations';
-import { returnEmptyArrayIfUndefined } from '../undefined/undefined';
+import { returnEmptyArrayIfUndefined } from '../../engine/undefined/undefined';
 import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-algorithm';
-import { TimeMetric } from '../algorithm/regression-algorithm/cox-survival-algorithm/time-metric';
+import { TimeMetric } from '../../engine/algorithm/regression-algorithm/cox-survival-algorithm/time-metric';
 import { IModelJson } from '../../parsers/json/json-model';
 import { PredicateJson } from '../../parsers/json/json-predicate';
 

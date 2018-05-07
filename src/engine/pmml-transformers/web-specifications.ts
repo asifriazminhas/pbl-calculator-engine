@@ -2,8 +2,8 @@
 const csvParse = require('csv-parse/lib/sync');
 import * as xmlBuilder from 'xmlbuilder';
 import { returnEmptyStringIfUndefined } from '../undefined';
-import { GeneralRegressionModelType } from '../pmml/general_regression_model/general_regression_model';
 import { IAlgorithmInfoCsvRow } from './algorithm-info';
+import { GeneralRegressionModelType } from '../../parsers/pmml/general_regression_model/general_regression_model';
 
 // The type for the VariableType column in the PHIAT csv
 export type VariableType = 'continuous' | 'categorical' | 'Reference';

@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import { transformPhiatDictionaryToPmml } from '../pmml-transformers/web-specifications';
 import { limesurveyTxtStringToPmmlString } from '../pmml-transformers/limesurvey';
-import { pmmlXmlStringsToJson } from '../pmml-to-json-parser/pmml';
 import * as path from 'path';
 // tslint:disable-next-line
 const csvParse = require('csv-parse/lib/sync');
@@ -19,6 +18,7 @@ import { IBinsData } from '../algorithm/regression-algorithm/cox-survival-algori
 import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-algorithm';
 import { Model } from '../model/model';
 import { IModelJson } from '../../parsers/json/json-model';
+import { pmmlXmlStringsToJson } from '../../parsers/pmml-to-json-parser/pmml';
 
 export type BuildFromAssetsFolderFunction = (
     assetsFolderPath: string,

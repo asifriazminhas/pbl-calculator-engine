@@ -2,17 +2,22 @@ import { parseCustomFunction } from './custom_functions/custom_function';
 import { ICovariateJson } from '../../../parsers/json/json-covariate';
 import { IRcsCustomFunctionJson } from '../../../parsers/json/json-rcs-custom-function';
 import { DataFieldType } from '../../../parsers/json/data-field-type';
-import { Pmml, IDataField, IParameter, IPCell, IPredictor } from '../../pmml';
+import {
+    Pmml,
+    IDataField,
+    IParameter,
+    IPCell,
+    IPredictor,
+    IGeneralRegressionModel,
+} from '../../pmml';
 import { parseDataFieldFromDataFieldPmmlNode } from './data_field';
 import { parseExtensions } from '../extensions';
-import { throwErrorIfUndefined } from '../../undefined';
+import { throwErrorIfUndefined } from '../../../engine/undefined';
 import {
     NoDataFieldNodeFound,
     NoParameterNodeFoundWithLabel,
     NoPCellNodeFoundWithParameterName,
 } from '../errors';
-
-import { IGeneralRegressionModel } from '../../pmml/general_regression_model/general_regression_model';
 
 /**
  * 

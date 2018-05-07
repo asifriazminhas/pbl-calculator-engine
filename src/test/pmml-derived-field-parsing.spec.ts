@@ -1,8 +1,8 @@
 import * as test from 'tape';
-import { PmmlParser } from '../engine/pmml';
-import { parseDerivedFields } from '../engine/pmml-to-json-parser/data_fields/derived_field/derived_field';
+import { PmmlParser } from '../parsers/pmml';
+import { parseDerivedFields } from '../parsers/pmml-to-json-parser/data_fields/derived_field/derived_field';
 import { expect } from 'chai';
-import { Pmml } from '../engine/pmml/pmml';
+import { Pmml } from '../parsers/pmml/pmml';
 import { IDerivedFieldJson } from '../parsers/json/json-derived-field';
 import { DataField } from '../engine/data-field/data-field';
 
