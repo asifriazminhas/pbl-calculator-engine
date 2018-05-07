@@ -106,13 +106,14 @@ test(`Model optimizations`, t => {
         userFunctions: UserFunctions,
         tables: Tables,
         covariates: [],
-        baseline: {},
+        baseline: [],
         timeMetric: TimeMetric.Years,
         maximumTime: 5,
     };
 
     t.test(`Testing single algorithm model`, t => {
         const singleAlgorithmModelJson = {
+            name: '',
             algorithms: [
                 {
                     algorithm: AlgorithmJson,
@@ -149,6 +150,7 @@ test(`Model optimizations`, t => {
 
     t.test(`Testing multiple algorithm model`, t => {
         const multipleAlgorithmModelJson: IModelJson = {
+            name: '',
             algorithms: [
                 {
                     algorithm: AlgorithmJson,
