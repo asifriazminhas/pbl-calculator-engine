@@ -214,10 +214,12 @@ export function getRelativeDifference(num1: number, num2: number): number {
 
 function streamValidationCsvFile(
     filePath: string,
-    onData: (data: Data) => void,
+    onData: (data: Data, index: number) => void,
     onEnd: () => void,
     onError: (err: Error) => void,
 ) {
+    let index = 0;
+
     const readScoreTestingDataFileStream = fs.createReadStream(filePath);
 
     const readScoreTestingDataCsvStream = createCsvParseStream({
@@ -237,14 +239,18 @@ function streamValidationCsvFile(
     });
 
     scoreTestingDataStream.on('data', (csvRow: { [index: string]: string }) => {
-        return onData(
-            Object.keys(csvRow).map(currentColumnName => {
-                return {
-                    name: currentColumnName,
-                    coefficent: csvRow[currentColumnName],
-                };
-            }),
-        );
+        if (index === 10) {
+            onData(
+                Object.keys(csvRow).map(currentColumnName => {
+                    return {
+                        name: currentColumnName,
+                        coefficent: csvRow[currentColumnName],
+                    };
+                }),
+                index,
+            );
+        }
+        index += 1;
     });
 }
 
@@ -256,6 +262,7 @@ export async function runIntegrationTest(
     runTestForDataAndAlgorithm: (
         algorithm: CoxSurvivalAlgorithm,
         data: Data,
+        index: number,
     ) => void,
     t: test.Test,
 ) {
@@ -307,10 +314,11 @@ export async function runIntegrationTest(
                     t => {
                         streamValidationCsvFile(
                             validationCsvFilePaths[index],
-                            data => {
+                            (data, currentIndex) => {
                                 return runTestForDataAndAlgorithm(
                                     algorithm,
                                     data,
+                                    currentIndex,
                                 );
                             },
                             () => {
