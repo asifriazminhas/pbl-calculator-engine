@@ -2,6 +2,12 @@ import * as fs from 'fs';
 import { TestAlgorithmsFolderPath } from './constants';
 import * as path from 'path';
 import { Model } from '../engine/model/model';
+import * as test from 'tape';
+import { Data } from '../engine/data';
+// tslint:disable-next-line:max-line-length
+import { CoxSurvivalAlgorithm } from '../engine/algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
+// tslint:disable-next-line:no-var-requires
+const createCsvParseStream = require('csv-parse');
 
 function getAlgorithmNamesToTest(excludeAlgorithms: string[]): string[] {
     return (
@@ -204,4 +210,122 @@ export function getRelativeDifference(num1: number, num2: number): number {
     }
 
     return Math.abs(num1 - num2) / Math.abs(num1) * 100;
+}
+
+function streamValidationCsvFile(
+    filePath: string,
+    onData: (data: Data) => void,
+    onEnd: () => void,
+    onError: (err: Error) => void,
+) {
+    const readScoreTestingDataFileStream = fs.createReadStream(filePath);
+
+    const readScoreTestingDataCsvStream = createCsvParseStream({
+        columns: true,
+    });
+
+    const scoreTestingDataStream = readScoreTestingDataFileStream.pipe(
+        readScoreTestingDataCsvStream,
+    );
+
+    scoreTestingDataStream.on('error', (error: Error) => {
+        return onError(error);
+    });
+
+    scoreTestingDataStream.on('end', () => {
+        return onEnd();
+    });
+
+    scoreTestingDataStream.on('data', (csvRow: { [index: string]: string }) => {
+        return onData(
+            Object.keys(csvRow).map(currentColumnName => {
+                return {
+                    name: currentColumnName,
+                    coefficent: csvRow[currentColumnName],
+                };
+            }),
+        );
+    });
+}
+
+export async function runIntegrationTest(
+    validationFilesFolderName: string,
+    validationFileName: string,
+    testType: string,
+    modelsToExclude: string[],
+    runTestForDataAndAlgorithm: (
+        algorithm: CoxSurvivalAlgorithm,
+        data: Data,
+    ) => void,
+    t: test.Test,
+) {
+    const modelsToTest = await getModelsToTest(modelsToExclude);
+
+    modelsToTest.forEach(({ model }) => {
+        t.test(`Testing ${testType} for model ${model.name}`, t => {
+            const validationCsvFilePaths: string[] = [];
+            const modelPredicateDatas: Data[] = [];
+
+            if (model.algorithms.length === 1) {
+                validationCsvFilePaths.push(
+                    // tslint:disable-next-line:max-line-length
+                    `${TestAlgorithmsFolderPath}/${model.name}/validation-data/${validationFilesFolderName}/${validationFileName}.csv`,
+                );
+                modelPredicateDatas.push([]);
+            } else {
+                validationCsvFilePaths.push(
+                    // tslint:disable-next-line:max-line-length
+                    `${TestAlgorithmsFolderPath}/${model.name}/validation-data/${validationFilesFolderName}/male/${validationFileName}.csv`,
+                );
+                modelPredicateDatas.push([
+                    {
+                        name: 'sex',
+                        coefficent: 'male',
+                    },
+                ]);
+
+                validationCsvFilePaths.push(
+                    // tslint:disable-next-line:max-line-length
+                    `${TestAlgorithmsFolderPath}/${model.name}/validation-data/${validationFilesFolderName}/female/${validationFileName}.csv`,
+                );
+                modelPredicateDatas.push([
+                    {
+                        name: 'sex',
+                        coefficent: 'female',
+                    },
+                ]);
+            }
+
+            modelPredicateDatas.forEach((currentModelPredicateData, index) => {
+                const algorithm = model.getAlgorithmForData(
+                    currentModelPredicateData,
+                );
+
+                // tslint:disable-next-line:no-shadowed-variable
+                t.test(
+                    `Testing ${testType} for algorithm ${algorithm.name}`,
+                    t => {
+                        streamValidationCsvFile(
+                            validationCsvFilePaths[index],
+                            data => {
+                                return runTestForDataAndAlgorithm(
+                                    algorithm,
+                                    data,
+                                );
+                            },
+                            () => {
+                                t.pass(
+                                    `${testType} validated for algorithm ${algorithm.name}`,
+                                );
+                                t.end();
+                            },
+                            err => {
+                                t.end(err);
+                            },
+                        );
+                    },
+                );
+            });
+        });
+    });
 }
