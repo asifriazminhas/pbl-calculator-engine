@@ -229,7 +229,7 @@ export class DerivedField extends DataField {
                         ),
                     );
                 } else {
-                    const datumFound = this.getDatumForField(data);
+                    const datumFound = derivedFromItem.getDatumForField(data);
 
                     if (!datumFound) {
                         return {
