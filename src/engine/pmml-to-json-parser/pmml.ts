@@ -59,6 +59,7 @@ export async function pmmlXmlStringsToJson(
     );
 
     const modelJson: IModelJson = {
+        name: '',
         algorithms: parsedAlgorithms.map((currentParsedAlgorithm, index) => {
             return {
                 algorithm: currentParsedAlgorithm,

@@ -6,17 +6,15 @@ import { throwErrorIfUndefined } from '../undefined';
 import { NoBaselineFoundForAlgorithm } from '../errors';
 import { IModelJson } from '../../parsers/json/json-model';
 import { NoPredicateObjectFoundError } from '../predicate/predicate-errors';
+import { BaselineJson } from '../../parsers/json/json-baseline';
 
 export type NewBaseline = Array<{
     predicateData: Data;
-    newBaseline:
-        | number
-        | {
-              [index: number]: number;
-          };
+    newBaseline: BaselineJson;
 }>;
 
 export class Model {
+    name: string;
     algorithms: ModelAlgorithm[];
 
     constructor(modelJson: IModelJson) {
