@@ -3,7 +3,7 @@ import { getForRiskFactorFunction } from '../engine/cause-effect/cause-effect';
 import { SurvivalModelBuilder } from '../engine/survival-model-builder/survival-model-builder';
 import { expect } from 'chai';
 
-test.skip(`Cause Effect`, async t => {
+test(`Cause Effect`, async t => {
     // tslint:disable-next-line
     const MportCauseEffectReference = require('@ottawamhealth/pbl-calculator-engine-assets/MPoRT/cause-effect-ref.json');
     const MportModelJson = require('@ottawamhealth/pbl-calculator-engine-assets/MPoRT/model.json');
