@@ -15,7 +15,8 @@
         "declaration": true,
         "importHelpers": true,
         "noUnusedLocals": true,
-        "strictFunctionTypes": true
+        "strictFunctionTypes": true,
+        "strict": true
     },
     "include": ["./src/**/*.ts", "./typings/**/*.d.ts"],
     "exclude": ["node_modules", "lib"]

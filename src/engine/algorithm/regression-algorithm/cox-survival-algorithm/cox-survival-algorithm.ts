@@ -8,8 +8,6 @@ import { shouldLogDebugInfo } from '../../../env/env';
 import { Calibration } from './calibration/calibration';
 import { ICoxSurvivalAlgorithmJson } from '../../../../parsers/json/json-cox-survival-algorithm';
 import { Baseline } from '../baseline/baseline';
-import { parseCovariateJsonToCovariate } from '../../../../parsers/json/json-covariate';
-import { parseUserFunctions } from '../../../../parsers/json/json-user-functions';
 // tslint:disable-next-line:max-line-length
 import { NonInteractionCovariate } from '../../../data-field/covariate/non-interaction-covariats/non-interaction-covariate';
 import { CalibrationJson } from '../../../../parsers/json/json-calibration';
@@ -32,25 +30,13 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
     baseline: Baseline;
 
     constructor(coxSurvivalAlgorithmJson: ICoxSurvivalAlgorithmJson) {
-        super();
+        super(coxSurvivalAlgorithmJson);
 
-        this.name = coxSurvivalAlgorithmJson.name;
         this.maximumTime = coxSurvivalAlgorithmJson.maximumTime;
         this.baseline = new Baseline(coxSurvivalAlgorithmJson.baseline);
         this.bins = coxSurvivalAlgorithmJson.bins
             ? new Bins(coxSurvivalAlgorithmJson.bins)
             : undefined;
-        this.covariates = coxSurvivalAlgorithmJson.covariates.map(covariate => {
-            return parseCovariateJsonToCovariate(
-                covariate,
-                coxSurvivalAlgorithmJson.covariates,
-                coxSurvivalAlgorithmJson.derivedFields,
-            );
-        });
-        this.userFunctions = parseUserFunctions(
-            coxSurvivalAlgorithmJson.userFunctions,
-        );
-        this.tables = coxSurvivalAlgorithmJson.tables;
         this.timeMetric = coxSurvivalAlgorithmJson.timeMetric;
         this.calibration = new Calibration();
     }

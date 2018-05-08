@@ -3,7 +3,8 @@ import { DerivedField } from '../../data-field/derived-field/derived-field';
 import { Data } from '../../data/data';
 
 export class SimpleAlgorithm extends Algorithm {
-    output: DerivedField;
+    // TODO Fix the ! later
+    output!: DerivedField;
 
     evaluate(data: Data): number {
         return this.output.calculateCoefficent(

@@ -9,7 +9,8 @@ import { ITables } from '../../../algorithm/tables/tables';
 
 @autobind
 export class InteractionCovariate extends Covariate {
-    derivedField: DerivedField;
+    // Initialized in the covariate constructor
+    derivedField!: DerivedField;
 
     calculateDataToCalculateCoefficent(
         data: Data,
