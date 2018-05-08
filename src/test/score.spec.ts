@@ -36,7 +36,7 @@ function testCalculatedScoreForDataAndExpectedScore(
     }
     let expectedBin;
     try {
-        expectedBin = Number(findDatumWithName('bin', data).coefficent);
+        expectedBin = Number(findDatumWithName('Bin', data).coefficent);
     } catch (err) {
         if (!(err instanceof NoDatumFoundError)) {
             throw err;
@@ -89,7 +89,7 @@ test(`Testing Scoring`, async t => {
         'score-data',
         'score-data',
         'Scoring',
-        ['Sodium', 'SPoRT', 'RESPECT'],
+        ['Sodium', 'SPoRT'],
         testCalculatedScoreForDataAndExpectedScore,
         t,
     );
