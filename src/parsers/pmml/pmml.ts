@@ -8,7 +8,7 @@ import { IPCell } from './general_regression_model/p_cell';
 import { IHeader } from './header/header';
 import { ICustomHeader } from './custom/header';
 import { IRestrictedCubicSpline } from './custom/restricted_cubic_spline';
-import { buildXmlFromXml2JsObject } from '../../engine/xmlbuilder';
+import { buildXmlFromXml2JsObject } from '../../util/xmlbuilder';
 import { ITaxonomy } from './taxonomy';
 
 export interface IOutput {

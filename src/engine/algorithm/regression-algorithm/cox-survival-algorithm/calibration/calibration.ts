@@ -1,5 +1,5 @@
 import { Data, findDatumWithName } from '../../../../data';
-import { throwErrorIfUndefined } from '../../../../undefined';
+import { throwErrorIfUndefined } from '../../../../../util/undefined';
 import { NoDatumFoundError } from '../../../../errors';
 import { NoCalibrationFactorFoundError } from './calibration-errors';
 

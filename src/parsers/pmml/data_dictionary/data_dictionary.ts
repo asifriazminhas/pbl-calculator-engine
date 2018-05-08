@@ -1,5 +1,5 @@
 import { IDataField, mergeDataFields } from './data_field';
-import { returnEmptyArrayIfUndefined } from '../../../engine/undefined';
+import { returnEmptyArrayIfUndefined } from '../../../util/undefined';
 import { toString } from 'lodash';
 
 export interface IDataDictionary {

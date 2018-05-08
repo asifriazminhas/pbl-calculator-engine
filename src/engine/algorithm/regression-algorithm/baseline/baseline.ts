@@ -1,5 +1,5 @@
 import { Data, findDatumWithName } from '../../../data';
-import { throwErrorIfUndefined } from '../../../undefined';
+import { throwErrorIfUndefined } from '../../../../util/undefined';
 import { NoBaselineFoundForAge } from '../../../errors';
 import { BaselineJson } from '../../../../parsers/json/json-baseline';
 

@@ -1,6 +1,6 @@
 import { Data } from '../data/data';
 import { IDatum } from '../data/datum';
-import { throwErrorIfUndefined } from '../undefined/undefined';
+import { throwErrorIfUndefined } from '../../util/undefined/undefined';
 import { NoPredicateObjectFoundError } from './predicate-errors';
 
 export class Predicate {

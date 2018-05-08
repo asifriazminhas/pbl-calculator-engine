@@ -1,7 +1,7 @@
 // tslint:disable-next-line
 const csvParse = require('csv-parse/lib/sync');
 import * as xmlBuilder from 'xmlbuilder';
-import { returnEmptyStringIfUndefined } from '../undefined';
+import { returnEmptyStringIfUndefined } from '../../util/undefined';
 import { IAlgorithmInfoCsvRow } from './algorithm-info';
 import { GeneralRegressionModelType } from '../../parsers/pmml/general_regression_model/general_regression_model';
 

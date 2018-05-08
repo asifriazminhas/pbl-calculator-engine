@@ -1,4 +1,4 @@
-import { throwErrorIfUndefined } from '../../../../undefined/undefined';
+import { throwErrorIfUndefined } from '../../../../../util/undefined/undefined';
 import { NoBinFoundError } from '../../../../errors/no-bin-found-error';
 import {
     IBinsJson,

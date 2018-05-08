@@ -1,5 +1,5 @@
 import { IDatum } from './datum';
-import { throwErrorIfUndefined } from '../undefined/undefined';
+import { throwErrorIfUndefined } from '../../util/undefined/undefined';
 import { NoDatumFoundError } from '../errors';
 
 export type Data = IDatum[];

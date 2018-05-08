@@ -4,7 +4,7 @@ import { TimeMetric } from './time-metric';
 import { Data } from '../../../data/data';
 import * as moment from 'moment';
 import { sortedLastIndexBy } from 'lodash';
-import { shouldLogDebugInfo } from '../../../env/env';
+import { shouldLogDebugInfo } from '../../../../util/env';
 import { Calibration } from './calibration/calibration';
 import { ICoxSurvivalAlgorithmJson } from '../../../../parsers/json/json-cox-survival-algorithm';
 import { Baseline } from '../baseline/baseline';

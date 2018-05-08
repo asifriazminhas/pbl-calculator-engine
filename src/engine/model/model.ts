@@ -2,7 +2,7 @@ import { Predicate } from '../predicate/predicate';
 import { Data } from '../data';
 import { ModelAlgorithm } from './model-algorithm';
 import { CoxSurvivalAlgorithm } from '../algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
-import { throwErrorIfUndefined } from '../undefined';
+import { throwErrorIfUndefined } from '../../util/undefined';
 import { NoBaselineFoundForAlgorithm } from '../errors';
 import { IModelJson } from '../../parsers/json/json-model';
 import { NoPredicateObjectFoundError } from '../predicate/predicate-errors';

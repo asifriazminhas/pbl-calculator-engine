@@ -4,7 +4,7 @@ import * as test from 'tape';
 const csvParse = require('csv-parse/lib/sync');
 import * as fs from 'fs';
 import { expect } from 'chai';
-import { throwErrorIfUndefined } from '../engine/undefined/undefined';
+import { throwErrorIfUndefined } from '../util/undefined/undefined';
 import { TestAssetsFolderPath } from './constants';
 const binsDataCsvString = fs.readFileSync(
     `${TestAssetsFolderPath}/bins/bins-data.csv`,

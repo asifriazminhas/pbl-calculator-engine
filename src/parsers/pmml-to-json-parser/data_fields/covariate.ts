@@ -12,7 +12,7 @@ import {
 } from '../../pmml';
 import { parseDataFieldFromDataFieldPmmlNode } from './data_field';
 import { parseExtensions } from '../extensions';
-import { throwErrorIfUndefined } from '../../../engine/undefined';
+import { throwErrorIfUndefined } from '../../../util/undefined';
 import {
     NoDataFieldNodeFound,
     NoParameterNodeFoundWithLabel,
