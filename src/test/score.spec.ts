@@ -15,6 +15,24 @@ function checkDataForAlgorithm(data: Data, cox: CoxSurvivalAlgorithm) {
         });
 }
 
+function assertScore(expectedScore: number, actualScore: number, data: Data) {
+    const percentDiff = getRelativeDifference(
+        expectedScore as number,
+        actualScore,
+    );
+    const MaximumPercentDiff = 10;
+
+    expect(percentDiff).to.be.lessThan(
+        10,
+        `
+        Percent difference ${percentDiff} greater than ${MaximumPercentDiff}
+        Expected Score: ${expectedScore}
+        Actual Score: ${actualScore}
+        Data: ${JSON.stringify(data)}
+    `,
+    );
+}
+
 function testCalculatedScoreForDataAndExpectedScore(
     coxAlgorithm: CoxSurvivalAlgorithm,
     data: Data,
@@ -26,9 +44,17 @@ function testCalculatedScoreForDataAndExpectedScore(
 
     checkDataForAlgorithm(data, coxAlgorithm);
 
-    let expectedScore;
+    let expectedRisk;
     try {
-        expectedScore = Number(findDatumWithName('s', data).coefficent);
+        expectedRisk = Number(findDatumWithName('RISK_5', data).coefficent);
+    } catch (err) {
+        if (!(err instanceof NoDatumFoundError)) {
+            throw err;
+        }
+    }
+    let expectedSurvival;
+    try {
+        expectedSurvival = Number(findDatumWithName('s', data).coefficent);
     } catch (err) {
         if (!(err instanceof NoDatumFoundError)) {
             throw err;
@@ -62,25 +88,19 @@ function testCalculatedScoreForDataAndExpectedScore(
         `,
         ).to.equal(expectedBin);
     } else {
-        const actualScore = coxAlgorithm.getSurvivalToTime(data);
-
-        const percentDiff = getRelativeDifference(
-            expectedScore as number,
-            actualScore,
-        );
-        const MaximumPercentDiff = 10;
-
-        expect(percentDiff).to.be.lessThan(
-            10,
-            `
-            Percent difference ${percentDiff} greater than ${MaximumPercentDiff}
-            Expected Score: ${expectedScore}
-            Actual Score: ${actualScore}
-            Expected Sum of Betas: ${expectedScore},
-            Actual Sum of Betas: ${coxAlgorithm.calculateScore(data)}
-            Data: ${JSON.stringify(data)}
-        `,
-        );
+        if (expectedRisk !== undefined) {
+            return assertScore(
+                expectedRisk,
+                coxAlgorithm.getRiskToTime(data),
+                data,
+            );
+        } else {
+            return assertScore(
+                expectedSurvival as number,
+                coxAlgorithm.getSurvivalToTime(data),
+                data,
+            );
+        }
     }
 }
 
@@ -89,7 +109,7 @@ test(`Testing Scoring`, async t => {
         'score-data',
         'score-data',
         'Scoring',
-        ['Sodium', 'SPoRT'],
+        [],
         testCalculatedScoreForDataAndExpectedScore,
         t,
     );
