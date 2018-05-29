@@ -28,7 +28,8 @@ function getAlgorithmNamesToTest(excludeAlgorithms: string[]): string[] {
                         .isDirectory() &&
                     algorithmFolderFileName !== '.git' &&
                     algorithmFolderFileName !== 'node_modules' &&
-                    algorithmFolderFileName !== 'build'
+                    algorithmFolderFileName !== 'build' &&
+                    algorithmFolderFileName !== '.vscode'
                 );
             })
             /* Filter out all algorithm we don't want to test as specified in
@@ -62,6 +63,7 @@ export async function getModelsToTest(
     modelsToExclude: string[],
 ): Promise<Array<{ model: Model; name: string }>> {
     const modelNames = getAlgorithmNamesToTest(modelsToExclude);
+
     const models = await Promise.all(
         modelNames.map(algorithmName => {
             return getModelObjFromAlgorithmName(algorithmName);
@@ -218,7 +220,7 @@ function streamValidationCsvFile(
     onEnd: () => void,
     onError: (err: Error) => void,
 ) {
-    let index = 0;
+    let index = 2;
 
     const readScoreTestingDataFileStream = fs.createReadStream(filePath);
 
@@ -239,17 +241,15 @@ function streamValidationCsvFile(
     });
 
     scoreTestingDataStream.on('data', (csvRow: { [index: string]: string }) => {
-        if (index === 10) {
-            onData(
-                Object.keys(csvRow).map(currentColumnName => {
-                    return {
-                        name: currentColumnName,
-                        coefficent: csvRow[currentColumnName],
-                    };
-                }),
-                index,
-            );
-        }
+        onData(
+            Object.keys(csvRow).map(currentColumnName => {
+                return {
+                    name: currentColumnName,
+                    coefficent: csvRow[currentColumnName],
+                };
+            }),
+            index,
+        );
         index += 1;
     });
 }
@@ -270,19 +270,21 @@ export async function runIntegrationTest(
 
     modelsToTest.forEach(({ model }) => {
         t.test(`Testing ${testType} for model ${model.name}`, t => {
-            const validationCsvFilePaths: string[] = [];
+            const validationCsvFilePaths: string[][] = [];
             const modelPredicateDatas: Data[] = [];
 
             if (model.algorithms.length === 1) {
                 validationCsvFilePaths.push(
-                    // tslint:disable-next-line:max-line-length
-                    `${TestAlgorithmsFolderPath}/${model.name}/validation-data/${validationFilesFolderName}/${validationFileName}.csv`,
+                    getCsvFilePathsInFolder(
+                        `${TestAlgorithmsFolderPath}/${model.name}/validation-data/${validationFilesFolderName}`,
+                    ),
                 );
                 modelPredicateDatas.push([]);
             } else {
                 validationCsvFilePaths.push(
-                    // tslint:disable-next-line:max-line-length
-                    `${TestAlgorithmsFolderPath}/${model.name}/validation-data/${validationFilesFolderName}/male/${validationFileName}.csv`,
+                    getCsvFilePathsInFolder(
+                        `${TestAlgorithmsFolderPath}/${model.name}/validation-data/${validationFilesFolderName}/male`,
+                    ),
                 );
                 modelPredicateDatas.push([
                     {
@@ -292,8 +294,9 @@ export async function runIntegrationTest(
                 ]);
 
                 validationCsvFilePaths.push(
-                    // tslint:disable-next-line:max-line-length
-                    `${TestAlgorithmsFolderPath}/${model.name}/validation-data/${validationFilesFolderName}/female/${validationFileName}.csv`,
+                    getCsvFilePathsInFolder(
+                        `${TestAlgorithmsFolderPath}/${model.name}/validation-data/${validationFilesFolderName}/female`,
+                    ),
                 );
                 modelPredicateDatas.push([
                     {
@@ -312,28 +315,80 @@ export async function runIntegrationTest(
                 t.test(
                     `Testing ${testType} for algorithm ${algorithm.name}`,
                     t => {
-                        streamValidationCsvFile(
-                            validationCsvFilePaths[index],
-                            (data, currentIndex) => {
-                                return runTestForDataAndAlgorithm(
-                                    algorithm,
-                                    data,
-                                    currentIndex,
-                                );
-                            },
-                            () => {
-                                t.pass(
-                                    `${testType} validated for algorithm ${algorithm.name}`,
-                                );
-                                t.end();
-                            },
-                            err => {
-                                t.end(err);
-                            },
-                        );
+                        validationCsvFilePaths[
+                            index
+                        ].forEach(validationCsvFilePath => {
+                            testValidationFile(
+                                validationCsvFilePath,
+                                algorithm,
+                                runTestForDataAndAlgorithm,
+                                testType,
+                                t,
+                            );
+                        });
                     },
                 );
             });
         });
     });
+}
+
+function getCsvFilePathsInFolder(folderPath: string): string[] {
+    return fs
+        .readdirSync(folderPath)
+        .filter(fileOrFolderName => {
+            const fileOrFolderPath = `${folderPath}/${fileOrFolderName}`;
+
+            if (fs.statSync(`${folderPath}/${fileOrFolderName}`).isFile()) {
+                if (path.parse(fileOrFolderPath).ext === '.csv') {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        })
+        .map(csvFileName => {
+            return `${folderPath}/${csvFileName}`;
+        });
+}
+
+function testValidationFile(
+    validationCsvFilePath: string,
+    algorithm: CoxSurvivalAlgorithm,
+    runTestForDataAndAlgorithm: (
+        algorithm: CoxSurvivalAlgorithm,
+        data: Data,
+        index: number,
+    ) => void,
+    testType: string,
+    t: test.Test,
+) {
+    const fileName = path.parse(validationCsvFilePath).name;
+
+    t.test(
+        `Testing algorithm ${algorithm.name} for ${testType} for file ${fileName}`,
+        t => {
+            streamValidationCsvFile(
+                validationCsvFilePath,
+                (data, currentIndex) => {
+                    return runTestForDataAndAlgorithm(
+                        algorithm,
+                        data,
+                        currentIndex,
+                    );
+                },
+                () => {
+                    t.pass(
+                        `${testType} validated for algorithm ${algorithm.name} for file ${fileName}`,
+                    );
+                    t.end();
+                },
+                err => {
+                    t.end(err);
+                },
+            );
+        },
+    );
 }
