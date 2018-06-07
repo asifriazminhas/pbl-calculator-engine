@@ -209,7 +209,11 @@ export class DerivedField extends DataField {
         return flatten(
             this.derivedFrom.map(derivedFromItem => {
                 const fieldName = derivedFromItem.name;
+                const datumFound = derivedFromItem.getDatumForField(data);
 
+                if (datumFound) {
+                    return datumFound;
+                }
                 if (derivedFromItem instanceof Covariate) {
                     return datumFactory(
                         fieldName,
@@ -229,16 +233,10 @@ export class DerivedField extends DataField {
                         ),
                     );
                 } else {
-                    const datumFound = derivedFromItem.getDatumForField(data);
-
-                    if (!datumFound) {
-                        return {
-                            name: derivedFromItem.name,
-                            coefficent: undefined,
-                        };
-                    } else {
-                        return datumFound;
-                    }
+                    return {
+                        name: derivedFromItem.name,
+                        coefficent: undefined,
+                    };
                 }
             }),
         );
