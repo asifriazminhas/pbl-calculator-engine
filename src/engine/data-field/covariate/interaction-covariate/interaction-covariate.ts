@@ -39,7 +39,7 @@ export class InteractionCovariate extends Covariate {
         );
 
         if (!derivedFieldForDatum) {
-            throw new Error(`No derived field found for datum ${datum.name}`);
+            throw new Error(`No datum found for derived field ${this.derivedField.name}`);
         }
 
         return (
