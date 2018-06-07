@@ -266,6 +266,8 @@ export async function runIntegrationTest(
     ) => void,
     t: test.Test,
 ) {
+    validationFileName;
+
     const modelsToTest = await getModelsToTest(modelsToExclude);
 
     modelsToTest.forEach(({ model }) => {
