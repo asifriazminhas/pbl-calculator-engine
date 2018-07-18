@@ -5,16 +5,27 @@ import { CoxSurvivalAlgorithm } from '../engine/algorithm/regression-algorithm/c
 import { Data, findDatumWithName } from '../engine/data';
 import { expect } from 'chai';
 
-function testRcsForAlgorithm(algorithm: CoxSurvivalAlgorithm, data: Data) {
+function testRcsForAlgorithm(
+    algorithm: CoxSurvivalAlgorithm,
+    data: Data,
+    index: number,
+) {
     const notFirstVariableRcsCovariate = algorithm.covariates.filter(
         currentCovariate => {
             return currentCovariate.customFunction !== undefined;
         },
     );
+    const dataWithoutSecondVariableCovariates = data.filter(datum => {
+        return notFirstVariableRcsCovariate.find(covariate => {
+            return covariate.name === datum.name;
+        })
+            ? false
+            : true;
+    });
 
     notFirstVariableRcsCovariate.forEach(currentNotFirstVaribleRcsCovariate => {
         const actualCoefficient = currentNotFirstVaribleRcsCovariate.calculateCoefficient(
-            data,
+            dataWithoutSecondVariableCovariates,
             algorithm.userFunctions,
             algorithm.tables,
         ) as number;
@@ -26,16 +37,22 @@ function testRcsForAlgorithm(algorithm: CoxSurvivalAlgorithm, data: Data) {
 
         expect(
             getRelativeDifference(expectedCoefficient, actualCoefficient),
+            `
+                Name: ${currentNotFirstVaribleRcsCovariate.name}
+                Expected: ${expectedCoefficient}
+                Actual: ${actualCoefficient}
+                index: ${index}
+            `,
         ).to.be.lessThan(10);
     });
 }
 
-test(`RCS Function`, async t => {
+test.only(`RCS Function`, async t => {
     await runIntegrationTest(
         'score-data',
         'score-data',
         'RCS Function',
-        ['RESPECT', 'MPoRT'],
+        ['RESPECT', 'MPoRT', 'SPoRT', 'MPoRTv2'],
         testRcsForAlgorithm,
         t,
     );
