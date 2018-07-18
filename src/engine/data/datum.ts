@@ -1,4 +1,4 @@
-import {} from '../cox/covariate';
+// import {} from '../cox/covariate';
 import { Coefficent } from './coefficent';
 import { Covariate } from '../data-field/covariate/covariate';
 export interface IDatum {
