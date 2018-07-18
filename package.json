@@ -5,6 +5,7 @@
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "scripts": {
+        "build:dev": "npm run build-ts:watch",
         "build-umd": "webpack --config ./webpack/umd.config.js",
         "build-ts": "tsc",
         "build-ts:watch": "tsc -w",
