@@ -16,7 +16,7 @@ export default {
         return Math.log(value);
     },
     'is.na': function(value: any) {
-        return value === null || value === undefined || isNaN(value);
+        return value === null || value === undefined || Number.isNaN(value);
     },
     not: function(value: boolean) {
         return !value;
