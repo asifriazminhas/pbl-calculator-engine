@@ -525,6 +525,9 @@ export function getASTForCallExpressionApply(
                               wrapFieldRefInMemberExpressionAst,
                           );
                       }
+                      case 'MapValues': {
+                          return getAstForMapValues(apply as IMapValues);
+                      }
                       default: {
                           throw new Error(
                               `Unhandled node type ${apply['#name']}`,
