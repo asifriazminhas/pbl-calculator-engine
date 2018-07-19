@@ -23,9 +23,30 @@ export abstract class RegressionAlgorithm extends Algorithm {
     }
 
     calculateScore(data: Data): number {
+        /* Go through all the covariates and calculate the data needed to
+        calculate the coefficient for each one. On each loop we add the data
+        returned to the currentData variable so that we don't recalculate data
+        */
+        const componentCalculationData = this.covariates.reduce(
+            (currentData, covariate) => {
+                const dataForCurrentCovariate = covariate.calculateDataToCalculateCoefficent(
+                    currentData,
+                    this.userFunctions,
+                    this.tables,
+                );
+
+                return currentData.concat(dataForCurrentCovariate);
+            },
+            data,
+        );
+
         return this.covariates
             .map(covariate =>
-                covariate.getComponent(data, this.userFunctions, this.tables),
+                covariate.getComponent(
+                    componentCalculationData,
+                    this.userFunctions,
+                    this.tables,
+                ),
             )
             .reduce(add, 0);
     }

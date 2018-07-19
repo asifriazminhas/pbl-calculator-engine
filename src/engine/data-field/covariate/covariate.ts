@@ -63,24 +63,14 @@ export abstract class Covariate extends DataField {
         tables: ITables,
     ): Coefficent {
         let coefficent: any = 0;
-        const coefficientData = this.calculateDataToCalculateCoefficent(
-            data,
-            userDefinedFunctions,
-            tables,
-        );
 
-        if (
-            coefficientData.length === 1 &&
-            coefficientData[0].name === this.name
-        ) {
-            coefficent = coefficientData[0].coefficent;
+        if (data.length === 1 && data[0].name === this.name) {
+            coefficent = data[0].coefficent;
         } else if (this.customFunction) {
-            coefficent = this.customFunction.calculateCoefficient(
-                coefficientData,
-            );
+            coefficent = this.customFunction.calculateCoefficient(data);
         } else if (this.derivedField) {
             coefficent = this.derivedField.calculateCoefficent(
-                coefficientData,
+                data,
                 userDefinedFunctions,
                 tables,
             );
@@ -93,7 +83,7 @@ export abstract class Covariate extends DataField {
         return formattedCoefficent === undefined ? 0 : formattedCoefficent;
     }
 
-    protected calculateDataToCalculateCoefficent(
+    calculateDataToCalculateCoefficent(
         data: Data,
         userDefinedFunctions: IUserFunctions,
         tables: ITables,
