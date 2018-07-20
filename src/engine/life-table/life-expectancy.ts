@@ -42,14 +42,11 @@ export function getCompleteLifeTableForDataUsingAlgorithm(
     return getCompleteLifeTableWithStartAge(
         refLifeTable,
         age => {
-            return (
-                1 -
-                cox.getSurvivalToTime(
-                    dataWithoutAgeDatum.concat({
-                        name: 'age',
-                        coefficent: age,
-                    }),
-                )
+            return cox.getRiskToTime(
+                dataWithoutAgeDatum.concat({
+                    name: 'age',
+                    coefficent: age,
+                }),
             );
         },
         ageDatum.coefficent as number,
