@@ -69,7 +69,7 @@
         "esprima": "^4.0.0",
         "exceljs": "0.4.10",
         "lodash": "4.17.4",
-        "moment": "^2.19.3",
+        "moment": "^2.22.2",
         "source-map-support": "0.4.3",
         "tape": "4.8.0",
         "xml2js": "0.4.17",
