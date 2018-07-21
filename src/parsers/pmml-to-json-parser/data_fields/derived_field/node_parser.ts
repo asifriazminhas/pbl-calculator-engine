@@ -110,6 +110,8 @@ export function getASTForConstant(
         }
     } else if (constant.$.dataType === 'NA') {
         return getIdentifierAST('undefined');
+    } else if (constant.$.dataType === 'NULL') {
+        return getIdentifierAST('null');
     } else if (constant.$.dataType === 'boolean') {
         return getLiteralAST(constant._ === 'true' ? true : false);
     } else {
