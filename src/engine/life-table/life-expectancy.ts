@@ -5,6 +5,7 @@ import {
 } from './life-table';
 import { Data, findDatumWithName } from '../data';
 import { CoxSurvivalAlgorithm } from '../algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
+import * as moment from 'moment';
 
 /**
  * Returns the life expectancy at the age argument using the passed lifeTable argument
@@ -42,11 +43,15 @@ export function getCompleteLifeTableForDataUsingAlgorithm(
     return getCompleteLifeTableWithStartAge(
         refLifeTable,
         age => {
+            const now = moment();
+            now.add(1, 'year');
+
             return cox.getRiskToTime(
                 dataWithoutAgeDatum.concat({
                     name: 'age',
                     coefficent: age,
                 }),
+                now,
             );
         },
         ageDatum.coefficent as number,
