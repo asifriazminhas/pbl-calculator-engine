@@ -77,4 +77,7 @@ export default {
     'as.numeric': function(variableToCoerce: any): number | undefined {
         return variableToCoerce;
     },
+    'is.null': function(value: any): boolean {
+        return value === null;
+    },
 };
