@@ -2,6 +2,7 @@ export interface IRefLifeTableRow {
     age: number;
     ax: number;
     ex: number;
+    qx: number;
 }
 
 export type RefLifeTable = IRefLifeTableRow[];
@@ -133,7 +134,10 @@ export function getCompleteLifeTableWithStartAge(
     refLifeTableFromStartAge.forEach(refLifeTableRow => {
         refLifeTableWithQx.push(
             Object.assign({}, refLifeTableRow, {
-                qx: getPredictedRiskForAge(refLifeTableRow.age),
+                qx:
+                    refLifeTableRow.age < useLifeTableForExFromAge
+                        ? getPredictedRiskForAge(refLifeTableRow.age)
+                        : refLifeTableRow.qx,
             }),
         );
     });
