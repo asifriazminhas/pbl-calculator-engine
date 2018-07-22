@@ -34,6 +34,7 @@ export function getCompleteLifeTableForDataUsingAlgorithm(
     data: Data,
     cox: CoxSurvivalAlgorithm,
     useExFromLifeTableFromAge: number = 99,
+    getPredictedRiskForAge?: (age: number) => number,
 ): CompleteLifeTable {
     // TODO Change this to have an optional parameter called age
     const ageDatum = findDatumWithName('age', data);
@@ -43,16 +44,20 @@ export function getCompleteLifeTableForDataUsingAlgorithm(
     return getCompleteLifeTableWithStartAge(
         refLifeTable,
         age => {
-            const now = moment();
-            now.add(1, 'year');
+            if (getPredictedRiskForAge) {
+                return getPredictedRiskForAge(age);
+            } else {
+                const now = moment();
+                now.add(1, 'year');
 
-            return cox.getRiskToTime(
-                dataWithoutAgeDatum.concat({
-                    name: 'age',
-                    coefficent: age,
-                }),
-                now,
-            );
+                return cox.getRiskToTime(
+                    dataWithoutAgeDatum.concat({
+                        name: 'age',
+                        coefficent: age,
+                    }),
+                    now,
+                );
+            }
         },
         ageDatum.coefficent as number,
         useExFromLifeTableFromAge,
