@@ -14,10 +14,12 @@ import { autobind } from 'core-decorators';
 import { ICovariateJson } from '../../../parsers/json/json-covariate';
 import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
 import { ITables } from '../../algorithm/tables/tables';
+import { CovariateGroup } from './covariate-group';
 
 @autobind
 export abstract class Covariate extends DataField {
     beta: number;
+    groups: CovariateGroup[];
     referencePoint?: number;
     customFunction?: RcsCustomFunction;
     derivedField?: DerivedField;
@@ -30,6 +32,7 @@ export abstract class Covariate extends DataField {
         super(covariateJson);
 
         this.beta = covariateJson.beta;
+        this.groups = covariateJson.groups;
         this.referencePoint = covariateJson.referencePoint;
         this.customFunction = customFunction;
         this.derivedField = derivedField;
@@ -130,6 +133,10 @@ export abstract class Covariate extends DataField {
         } else {
             return [datumFound];
         }
+    }
+
+    getAllChildFields(): DataField[] {
+        return this.derivedField ? this.derivedField.getAllChildFields() : [];
     }
 
     private calculateComponent(coefficent: number): number {
