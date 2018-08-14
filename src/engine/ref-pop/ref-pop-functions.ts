@@ -4,8 +4,7 @@ import {
     RefPopsWithPredicate,
 } from './reference-population';
 import { getHealthAge } from './health-age';
-// @ts-ignore
-import { Data, IDatum } from '../data';
+import { Data } from '../data';
 import { Predicate } from '../predicate/predicate';
 import { NoPredicateObjectFoundError } from '../predicate/predicate-errors';
 
