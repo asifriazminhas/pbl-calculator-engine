@@ -1,6 +1,5 @@
-import { DataField } from '../data-field';
-
-import { flatten } from 'lodash';
+import { DataField, areDataFieldsEqual } from '../data-field';
+import { flatten, uniqWith } from 'lodash';
 import { Data, datumFactory, Coefficent } from '../../data';
 import { autobind } from 'core-decorators';
 import { Covariate } from '../covariate/covariate';
@@ -239,6 +238,27 @@ export class DerivedField extends DataField {
                     };
                 }
             }),
+        );
+    }
+
+    getAllChildFields(): DataField[] {
+        return uniqWith(
+            flatten(
+                this.derivedFrom.map(derivedFromItem => {
+                    if (derivedFromItem instanceof Covariate) {
+                        if (derivedFromItem.derivedField) {
+                            return derivedFromItem.derivedField.getAllChildFields();
+                        } else {
+                            return derivedFromItem;
+                        }
+                    } else if (derivedFromItem instanceof DerivedField) {
+                        return derivedFromItem.getAllChildFields();
+                    } else {
+                        return derivedFromItem;
+                    }
+                }),
+            ),
+            areDataFieldsEqual,
         );
     }
 }
