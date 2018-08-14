@@ -17,3 +17,10 @@ export class DataField {
         return this.name === name;
     }
 }
+
+export function areDataFieldsEqual(
+    dataFieldOne: DataField,
+    dataFieldTwo: DataField,
+) {
+    return dataFieldOne.name === dataFieldTwo.name;
+}
