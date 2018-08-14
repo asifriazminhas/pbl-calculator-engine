@@ -73,6 +73,7 @@ function parseCovariateFromPredictor(
         referencePoint: Number(parameter.$.referencePoint),
         customFunction: customFunctionJson,
         extensions: parseExtensions(dataField),
+        groups: [],
     });
 }
 
