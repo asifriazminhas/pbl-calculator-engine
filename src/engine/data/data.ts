@@ -72,6 +72,18 @@ export function filterDataForFields(data: Data, dataFields: DataField[]): Data {
     });
 }
 
+/**
+ * Removes all datum from the data arg that can be used to calculate the
+ * coefficient for the covariates in the group specified in the covariateGroup
+ * arg. For example, if covariateGroup is 'AGE' and one of the datum is 'age',
+ * it would be removed from the data argument
+ *
+ * @export
+ * @param {CovariateGroup} covariateGroup
+ * @param {CoxSurvivalAlgorithm} cox
+ * @param {Data} data
+ * @returns {Data}
+ */
 export function filterDataUsedToCalculateCoefficientsForCovariateGroup(
     covariateGroup: CovariateGroup,
     cox: CoxSurvivalAlgorithm,
