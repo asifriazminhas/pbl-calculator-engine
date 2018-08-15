@@ -18,7 +18,7 @@ export class DataField {
     }
 }
 
-export function areDataFieldsEqual(
+export function isSameDataField(
     dataFieldOne: DataField,
     dataFieldTwo: DataField,
 ) {
