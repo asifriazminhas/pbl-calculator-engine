@@ -15,7 +15,7 @@ export function convertBetasCsvStringToPmml(
     const referenceCsv = referenceCsvString
         ? csvParse(referenceCsvString, {
               columns: true,
-          })
+          }) as ReferenceCsv
         : undefined;
 
     const BaselineHazardColumnName = 'H0_5YR';
@@ -59,7 +59,7 @@ export function convertBetasCsvStringToPmml(
     const parameterListXmlNode = generalRegressionXmlNode.ele('ParameterList');
     dataFields.forEach((dataField, index) => {
         const referenceCsvRowFound = referenceCsv
-            ? referenceCsv.find((referenceCsvRow: any) => {
+            ? referenceCsv.find(referenceCsvRow => {
                   return referenceCsvRow['Variable'] === dataField;
               })
             : undefined;
@@ -108,3 +108,9 @@ function isDataFieldCategorical(dataFieldName: string): boolean {
 function getParameterNameForIndex(index: number): string {
     return `p${index}`;
 }
+
+interface ReferenceCsvRow {
+    Variable: string;
+    Mean: string;
+}
+type ReferenceCsv = ReferenceCsvRow[];
