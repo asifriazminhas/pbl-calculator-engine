@@ -5,7 +5,7 @@ import { add, uniqWith, flatten } from 'lodash';
 import { ICoxSurvivalAlgorithmJson } from '../../../parsers/json/json-cox-survival-algorithm';
 import { parseCovariateJsonToCovariate } from '../../../parsers/json/json-covariate';
 import { CovariateGroup } from '../../data-field/covariate/covariate-group';
-import { DataField, areDataFieldsEqual } from '../../data-field/data-field';
+import { DataField, isSameDataField } from '../../data-field/data-field';
 // tslint:disable-next-line
 import { NonInteractionCovariate } from '../../data-field/covariate/non-interaction-covariats/non-interaction-covariate';
 
@@ -57,33 +57,26 @@ export abstract class RegressionAlgorithm extends Algorithm {
 
     getCovariatesForGroup(group: CovariateGroup): Covariate[] {
         return this.covariates.filter(covariate => {
-            return covariate.groups.indexOf(group) > -1;
+            return covariate.isPartOfGroup(group);
         });
     }
 
     getCovariatesWithoutGroup(group: CovariateGroup): Covariate[] {
         return this.covariates.filter(covariate => {
-            return covariate.groups.indexOf(group) === -1;
+            return covariate.isPartOfGroup(group) === false;
         });
     }
 
     getAllFieldsForGroup(group: CovariateGroup): DataField[] {
         const covariatesForGroup = this.getCovariatesForGroup(group);
+
         return uniqWith(
             flatten(
-                covariatesForGroup
-                    .filter(currentCovariate => {
-                        return (
-                            currentCovariate instanceof
-                                NonInteractionCovariate ===
-                            true
-                        );
-                    })
-                    .map(currentCovariate => {
-                        return currentCovariate.getAllChildFields();
-                    }),
+                covariatesForGroup.map(currentCovariate => {
+                    return currentCovariate.getAllChildFields();
+                }),
             ),
-            areDataFieldsEqual,
+            isSameDataField,
         ).concat(covariatesForGroup);
     }
 }
