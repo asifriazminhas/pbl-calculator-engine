@@ -1,4 +1,4 @@
-import { DataField, areDataFieldsEqual } from '../data-field';
+import { DataField, isSameDataField } from '../data-field';
 import { flatten, uniqWith } from 'lodash';
 import { Data, datumFactory, Coefficent } from '../../data';
 import { autobind } from 'core-decorators';
@@ -247,18 +247,22 @@ export class DerivedField extends DataField {
                 this.derivedFrom.map(derivedFromItem => {
                     if (derivedFromItem instanceof Covariate) {
                         if (derivedFromItem.derivedField) {
-                            return derivedFromItem.derivedField.getAllChildFields();
+                            return derivedFromItem.derivedField
+                                .getAllChildFields()
+                                .concat(derivedFromItem);
                         } else {
                             return derivedFromItem;
                         }
                     } else if (derivedFromItem instanceof DerivedField) {
-                        return derivedFromItem.getAllChildFields();
+                        return derivedFromItem
+                            .getAllChildFields()
+                            .concat(derivedFromItem);
                     } else {
                         return derivedFromItem;
                     }
                 }),
             ),
-            areDataFieldsEqual,
+            isSameDataField,
         );
     }
 }
