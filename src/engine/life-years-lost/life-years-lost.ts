@@ -7,6 +7,7 @@ import {
     findDatumWithName,
     Data,
 } from '../data/data';
+import { getCauseEffectRefForData } from '../cause-effect/gender-cause-effect-ref';
 
 @autobind
 export class LifeYearsLost {
@@ -31,9 +32,6 @@ export class LifeYearsLost {
         const normalLifeExpectancy = this.lifeTable.getLifeExpectancy(data);
 
         // Calculate Cause Deleted LE
-        /* Get all the covariates whose groups field has the riskFactor argument */
-        /* Get all the derived fields which can be used to calculate the coefficient those covariates */
-        /* Filter out all the data which matches with any of the fields */
         const lifeExpectancyDataWithoutRiskFactorFields = filterDataUsedToCalculateCoefficientsForCovariateGroup(
             riskFactor,
             this.lifeTable.survivalFunctions.getAlgorithmForData(data),
@@ -41,9 +39,7 @@ export class LifeYearsLost {
         ).concat(ageDatum);
         /* Add the cause deleted ref to the filtered data */
         const causeDeletedLifeExpectancyData = lifeExpectancyDataWithoutRiskFactorFields.concat(
-            this.causeEffectRef[
-                findDatumWithName('sex', data).coefficent as 'male' | 'female'
-            ][riskFactor],
+            getCauseEffectRefForData(this.causeEffectRef, data)[riskFactor],
         );
         /* Use the new data to calculate cause deleted LE */
         const causeDeletedLifeExpectancy = this.lifeTable.getLifeExpectancy(
