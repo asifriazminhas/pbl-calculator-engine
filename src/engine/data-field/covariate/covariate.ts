@@ -139,6 +139,10 @@ export abstract class Covariate extends DataField {
         return this.derivedField ? this.derivedField.getAllChildFields() : [];
     }
 
+    isPartOfGroup(group: CovariateGroup): boolean {
+        return this.groups.indexOf(group) !== -1;
+    }
+
     private calculateComponent(coefficent: number): number {
         const component = coefficent * this.beta;
 
