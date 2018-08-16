@@ -1,11 +1,11 @@
 import { Algorithm } from '../algorithm';
 import { Covariate } from '../../data-field/covariate/covariate';
 import { Data } from '../../data/data';
-import { add, uniqWith, flatten } from 'lodash';
+import { add, flatten } from 'lodash';
 import { ICoxSurvivalAlgorithmJson } from '../../../parsers/json/json-cox-survival-algorithm';
 import { parseCovariateJsonToCovariate } from '../../../parsers/json/json-covariate';
 import { CovariateGroup } from '../../data-field/covariate/covariate-group';
-import { DataField, isSameDataField } from '../../data-field/data-field';
+import { DataField } from '../../data-field/data-field';
 
 export abstract class RegressionAlgorithm extends Algorithm {
     covariates: Covariate[];
@@ -68,13 +68,12 @@ export abstract class RegressionAlgorithm extends Algorithm {
     getAllFieldsForGroup(group: CovariateGroup): DataField[] {
         const covariatesForGroup = this.getCovariatesForGroup(group);
 
-        return uniqWith(
+        return DataField.getUniqueDataFields(
             flatten(
                 covariatesForGroup.map(currentCovariate => {
                     return currentCovariate.getDescendantFields();
                 }),
             ),
-            isSameDataField,
         ).concat(covariatesForGroup);
     }
 }

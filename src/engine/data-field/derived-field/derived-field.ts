@@ -1,5 +1,5 @@
-import { DataField, isSameDataField } from '../data-field';
-import { flatten, uniqWith } from 'lodash';
+import { DataField } from '../data-field';
+import { flatten } from 'lodash';
 import { Data, datumFactory, Coefficent } from '../../data';
 import { autobind } from 'core-decorators';
 import { Covariate } from '../covariate/covariate';
@@ -242,7 +242,7 @@ export class DerivedField extends DataField {
     }
 
     getDescendantFields(): DataField[] {
-        return uniqWith(
+        return DataField.getUniqueDataFields(
             flatten(
                 this.derivedFrom.map(derivedFromItem => {
                     if (derivedFromItem instanceof Covariate) {
@@ -262,7 +262,6 @@ export class DerivedField extends DataField {
                     }
                 }),
             ),
-            isSameDataField,
         );
     }
 }

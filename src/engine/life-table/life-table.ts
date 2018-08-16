@@ -3,8 +3,8 @@ import { CoxSurvivalAlgorithm } from '../algorithm/regression-algorithm/cox-surv
 import * as moment from 'moment';
 import { filterDataForFields } from '../data/data';
 import { NonInteractionCovariate } from '../data-field/covariate/non-interaction-covariats/non-interaction-covariate';
-import { isSameDataField } from '../data-field/data-field';
-import { flatten, uniqWith } from 'lodash';
+import { DataField } from '../data-field/data-field';
+import { flatten } from 'lodash';
 import { InteractionCovariate } from '../data-field/covariate/interaction-covariate/interaction-covariate';
 
 export interface IRefLifeTableRow {
@@ -204,7 +204,7 @@ export function getCompleteLifeTableForDataUsingAlgorithm(
             covariate.isPartOfGroup('AGE')
         );
     });
-    const allAgeFields = uniqWith(
+    const allAgeFields = DataField.getUniqueDataFields(
         flatten(
             ageNonInteractionCovariates
                 .map(covariate => {
@@ -213,7 +213,6 @@ export function getCompleteLifeTableForDataUsingAlgorithm(
                 .concat(ageInteractionCovariates)
                 .concat(ageNonInteractionCovariates),
         ),
-        isSameDataField,
     );
 
     const dataWithoutAgeFields = filterDataForFields(data, allAgeFields);
