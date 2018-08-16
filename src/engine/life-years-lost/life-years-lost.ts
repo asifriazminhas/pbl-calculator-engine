@@ -33,8 +33,8 @@ export class LifeYearsLost {
 
         // Calculate Cause Deleted LE
         /* We concat the age datum at the end since some covariates may need it
-        for their calculation and so it will get remove for the data but we
-        need it for the life expectancy calculations */
+        for their calculations and so it will get removed from the data but we
+        need it for life expectancy calculations */
         const lifeExpectancyDataWithoutRiskFactorFields = filterDataUsedToCalculateCoefficientsForCovariateGroup(
             riskFactor,
             this.lifeTable.survivalFunctions.getAlgorithmForData(data),
