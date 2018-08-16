@@ -14,13 +14,15 @@ import { DataFieldType } from './data-field-type';
 import { InteractionCovariate } from '../../engine/data-field/covariate/interaction-covariate/interaction-covariate';
 /* tslint:disable-next-line */
 import { NonInteractionCovariate } from '../../engine/data-field/covariate/non-interaction-covariats/non-interaction-covariate';
+import { JsonInterval } from './json-interval';
 
 export interface ICovariateJson
-    extends Omit<Jsonify<Covariate>, 'customFunction'> {
+    extends Omit<Jsonify<Covariate>, 'customFunction' | 'interval'> {
     dataFieldType:
         | DataFieldType.InteractionCovariate
         | DataFieldType.NonInteractionCovariate;
     customFunction?: IRcsCustomFunctionJson;
+    interval?: JsonInterval;
 }
 
 export function findCovariateJsonWithName(
