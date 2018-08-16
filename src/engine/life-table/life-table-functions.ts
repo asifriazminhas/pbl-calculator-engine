@@ -5,13 +5,12 @@ import {
 } from './life-table';
 import { getLifeExpectancyUsingRefLifeTable } from './life-expectancy';
 import { getSurvivalToAge } from './survival-to-age';
-// @ts-ignore
-import { Data, updateDataWithDatum, findDatumWithName, IDatum } from '../data';
+import { Data, updateDataWithDatum, findDatumWithName } from '../data';
 import { SurvivalModelFunctions } from '../survival-model-builder/survival-model-functions';
 import { NoLifeTableFoundError } from '../errors';
 
 export class LifeTableFunctions {
-    private survivalFunctions: SurvivalModelFunctions;
+    survivalFunctions: SurvivalModelFunctions;
     private genderSpecificRefLifeTable: IGenderSpecificRefLifeTable;
 
     constructor(

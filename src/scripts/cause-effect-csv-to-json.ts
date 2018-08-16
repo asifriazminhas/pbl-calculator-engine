@@ -4,12 +4,13 @@ import {
     IModelJson,
     getAlgorithmJsonForPredicateData,
 } from '../parsers/json/json-model';
+import { CovariateGroup } from '../engine/data-field/covariate/covariate-group';
 // tslint:disable-next-line
 var csvParse = require('csv-parse/lib/sync');
 
 export interface ICauseEffectCsvRow {
     Algorithm: string;
-    RiskFactor: string;
+    RiskFactor: CovariateGroup;
     Sex: 'Male' | 'Female' | 'Both';
     PredictorName: string;
     EngineRef: string | 'NA';
@@ -71,7 +72,7 @@ function getCauseEffectRefUpdateObjectForCauseEffectCsvRow(
 function updateGenderCauseEffectRef(
     GenderCauseEffectRef: IGenderCauseEffectRef,
     gender: keyof IGenderCauseEffectRef,
-    riskFactor: string,
+    riskFactor: CovariateGroup,
     update: IDatum | undefined,
 ): IGenderCauseEffectRef {
     if (!GenderCauseEffectRef[gender][riskFactor]) {
@@ -91,7 +92,7 @@ function reduceToGenderCauseEffectRefObject(
         updateGenderCauseEffectRef(
             causeEffectRef,
             'male',
-            currentCauseEffectCsvRow.RiskFactor,
+            currentCauseEffectCsvRow.RiskFactor as CovariateGroup,
             getCauseEffectRefUpdateObjectForCauseEffectCsvRow(
                 currentCauseEffectCsvRow,
             ),
@@ -101,7 +102,7 @@ function reduceToGenderCauseEffectRefObject(
         updateGenderCauseEffectRef(
             causeEffectRef,
             'female',
-            currentCauseEffectCsvRow.RiskFactor,
+            currentCauseEffectCsvRow.RiskFactor as CovariateGroup,
             getCauseEffectRefUpdateObjectForCauseEffectCsvRow(
                 currentCauseEffectCsvRow,
             ),
@@ -128,7 +129,9 @@ function checkGeneratedCauseEffectJson(
         );
 
         Object.keys(causeEffectJson[genderKey]).forEach(riskFactor => {
-            causeEffectJson[genderKey][riskFactor].forEach(datum => {
+            causeEffectJson[genderKey][
+                riskFactor as CovariateGroup
+            ].forEach(datum => {
                 const covariateFoundForCurrentDatum = algorithmJsonForCurrentGender.covariates.find(
                     covariate => {
                         return covariate.name === datum.name;
@@ -167,6 +170,9 @@ export function convertCauseEffectCsvToGenderCauseEffectRefForAlgorithm(
     return checkGeneratedCauseEffectJson(
         causeEffectCsv
             .filter(filterOutRowsNotForAlgorithm(modelName))
+            /* TODO Fix this later so that the male and female objects have
+            risk factors prefilled with empty Data arrays to fix this TS error.*/
+            // @ts-ignore
             .reduce(reduceToGenderCauseEffectRefObject, {
                 male: {},
                 female: {},

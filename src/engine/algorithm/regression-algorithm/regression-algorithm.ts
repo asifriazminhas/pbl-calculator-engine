@@ -1,9 +1,11 @@
 import { Algorithm } from '../algorithm';
 import { Covariate } from '../../data-field/covariate/covariate';
 import { Data } from '../../data/data';
-import { add } from 'lodash';
+import { add, flatten } from 'lodash';
 import { ICoxSurvivalAlgorithmJson } from '../../../parsers/json/json-cox-survival-algorithm';
 import { parseCovariateJsonToCovariate } from '../../../parsers/json/json-covariate';
+import { CovariateGroup } from '../../data-field/covariate/covariate-group';
+import { DataField } from '../../data-field/data-field';
 
 export abstract class RegressionAlgorithm extends Algorithm {
     covariates: Covariate[];
@@ -49,5 +51,29 @@ export abstract class RegressionAlgorithm extends Algorithm {
                 ),
             )
             .reduce(add, 0);
+    }
+
+    getCovariatesForGroup(group: CovariateGroup): Covariate[] {
+        return this.covariates.filter(covariate => {
+            return covariate.isPartOfGroup(group);
+        });
+    }
+
+    getCovariatesWithoutGroup(group: CovariateGroup): Covariate[] {
+        return this.covariates.filter(covariate => {
+            return covariate.isPartOfGroup(group) === false;
+        });
+    }
+
+    getAllFieldsForGroup(group: CovariateGroup): DataField[] {
+        const covariatesForGroup = this.getCovariatesForGroup(group);
+
+        return DataField.getUniqueDataFields(
+            flatten(
+                covariatesForGroup.map(currentCovariate => {
+                    return currentCovariate.getDescendantFields();
+                }),
+            ),
+        ).concat(covariatesForGroup);
     }
 }

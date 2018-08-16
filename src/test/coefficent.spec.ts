@@ -19,6 +19,7 @@ test(`Coefficent.formatCoefficent`, t => {
             dataFieldType: 0,
             beta: 0,
             referencePoint: 0,
+            groups: [],
         },
         undefined,
         undefined,

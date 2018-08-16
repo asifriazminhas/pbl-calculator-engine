@@ -1,5 +1,4 @@
 import { DataField } from '../data-field';
-
 import { flatten } from 'lodash';
 import { Data, datumFactory, Coefficent } from '../../data';
 import { autobind } from 'core-decorators';
@@ -239,6 +238,30 @@ export class DerivedField extends DataField {
                     };
                 }
             }),
+        );
+    }
+
+    getDescendantFields(): DataField[] {
+        return DataField.getUniqueDataFields(
+            flatten(
+                this.derivedFrom.map(derivedFromItem => {
+                    if (derivedFromItem instanceof Covariate) {
+                        if (derivedFromItem.derivedField) {
+                            return derivedFromItem.derivedField
+                                .getDescendantFields()
+                                .concat(derivedFromItem);
+                        } else {
+                            return derivedFromItem;
+                        }
+                    } else if (derivedFromItem instanceof DerivedField) {
+                        return derivedFromItem
+                            .getDescendantFields()
+                            .concat(derivedFromItem);
+                    } else {
+                        return derivedFromItem;
+                    }
+                }),
+            ),
         );
     }
 }

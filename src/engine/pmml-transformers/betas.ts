@@ -5,12 +5,18 @@ import * as xmlBuilder from 'xmlbuilder';
 export function convertBetasCsvStringToPmml(
     betasAndBaselineCsvString: string,
     modelName: string,
+    referenceCsvString?: string,
 ) {
     const betasAndBaselineCsv: Array<{
         [index: string]: string;
     }> = csvParse(betasAndBaselineCsvString, {
         columns: true,
     });
+    const referenceCsv = referenceCsvString
+        ? csvParse(referenceCsvString, {
+              columns: true,
+          }) as ReferenceCsv
+        : undefined;
 
     const BaselineHazardColumnName = 'H0_5YR';
 
@@ -52,9 +58,18 @@ export function convertBetasCsvStringToPmml(
 
     const parameterListXmlNode = generalRegressionXmlNode.ele('ParameterList');
     dataFields.forEach((dataField, index) => {
+        const referenceCsvRowFound = referenceCsv
+            ? referenceCsv.find(referenceCsvRow => {
+                  return referenceCsvRow['Variable'] === dataField;
+              })
+            : undefined;
+
         parameterListXmlNode.ele('Parameter', {
             name: getParameterNameForIndex(index),
             label: dataField,
+            referencePoint: referenceCsvRowFound
+                ? referenceCsvRowFound['Mean']
+                : '',
         });
     });
 
@@ -93,3 +108,9 @@ function isDataFieldCategorical(dataFieldName: string): boolean {
 function getParameterNameForIndex(index: number): string {
     return `p${index}`;
 }
+
+interface ReferenceCsvRow {
+    Variable: string;
+    Mean: string;
+}
+type ReferenceCsv = ReferenceCsvRow[];
