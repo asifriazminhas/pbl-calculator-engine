@@ -241,21 +241,21 @@ export class DerivedField extends DataField {
         );
     }
 
-    getAllChildFields(): DataField[] {
+    getDescendantFields(): DataField[] {
         return uniqWith(
             flatten(
                 this.derivedFrom.map(derivedFromItem => {
                     if (derivedFromItem instanceof Covariate) {
                         if (derivedFromItem.derivedField) {
                             return derivedFromItem.derivedField
-                                .getAllChildFields()
+                                .getDescendantFields()
                                 .concat(derivedFromItem);
                         } else {
                             return derivedFromItem;
                         }
                     } else if (derivedFromItem instanceof DerivedField) {
                         return derivedFromItem
-                            .getAllChildFields()
+                            .getDescendantFields()
                             .concat(derivedFromItem);
                     } else {
                         return derivedFromItem;

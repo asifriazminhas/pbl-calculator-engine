@@ -208,7 +208,7 @@ export function getCompleteLifeTableForDataUsingAlgorithm(
         flatten(
             ageNonInteractionCovariates
                 .map(covariate => {
-                    return covariate.getAllChildFields();
+                    return covariate.getDescendantFields();
                 })
                 .concat(ageInteractionCovariates)
                 .concat(ageNonInteractionCovariates),

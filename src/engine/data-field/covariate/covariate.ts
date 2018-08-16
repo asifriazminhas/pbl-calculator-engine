@@ -135,8 +135,8 @@ export abstract class Covariate extends DataField {
         }
     }
 
-    getAllChildFields(): DataField[] {
-        return this.derivedField ? this.derivedField.getAllChildFields() : [];
+    getDescendantFields(): DataField[] {
+        return this.derivedField ? this.derivedField.getDescendantFields() : [];
     }
 
     isPartOfGroup(group: CovariateGroup): boolean {

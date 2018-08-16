@@ -71,7 +71,7 @@ export abstract class RegressionAlgorithm extends Algorithm {
         return uniqWith(
             flatten(
                 covariatesForGroup.map(currentCovariate => {
-                    return currentCovariate.getAllChildFields();
+                    return currentCovariate.getDescendantFields();
                 }),
             ),
             isSameDataField,
