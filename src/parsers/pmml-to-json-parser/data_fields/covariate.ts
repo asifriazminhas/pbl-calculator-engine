@@ -18,6 +18,7 @@ import {
     NoParameterNodeFoundWithLabel,
     NoPCellNodeFoundWithParameterName,
 } from '../errors';
+import { JsonInterval } from '../../json/json-interval';
 
 /**
  * 
@@ -73,8 +74,26 @@ function parseCovariateFromPredictor(
         referencePoint: Number(parameter.$.referencePoint),
         customFunction: customFunctionJson,
         extensions: parseExtensions(dataField),
+        interval: parseInterval(dataField),
         groups: [],
     });
+}
+
+function parseInterval(dataField: IDataField): JsonInterval | undefined {
+    if ('Interval' in dataField) {
+        return {
+            lowerMargin: {
+                margin: Number(dataField.Interval.$.leftMargin),
+                isOpen: false,
+            },
+            higherMargin: {
+                margin: Number(dataField.Interval.$.rightMargin),
+                isOpen: false,
+            },
+        };
+    } else {
+        return undefined;
+    }
 }
 
 /**

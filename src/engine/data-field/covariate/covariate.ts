@@ -14,6 +14,9 @@ import { autobind } from 'core-decorators';
 import { ICovariateJson } from '../../../parsers/json/json-covariate';
 import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
 import { ITables } from '../../algorithm/tables/tables';
+import { Interval } from './interval';
+import { Margin } from './margin';
+import { JsonMargin } from '../../../parsers/json/json-margin';
 import { CovariateGroup } from './covariate-group';
 
 @autobind
@@ -23,6 +26,7 @@ export abstract class Covariate extends DataField {
     referencePoint?: number;
     customFunction?: RcsCustomFunction;
     derivedField?: DerivedField;
+    interval?: Interval;
 
     constructor(
         covariateJson: ICovariateJson,
@@ -36,6 +40,16 @@ export abstract class Covariate extends DataField {
         this.referencePoint = covariateJson.referencePoint;
         this.customFunction = customFunction;
         this.derivedField = derivedField;
+
+        if (covariateJson.interval) {
+            const lowerMargin = this.constructMargin(
+                covariateJson.interval.lowerMargin,
+            );
+            const higherMargin = this.constructMargin(
+                covariateJson.interval.higherMargin,
+            );
+            this.interval = new Interval(lowerMargin, higherMargin);
+        }
     }
 
     getComponent(
@@ -173,7 +187,15 @@ export abstract class Covariate extends DataField {
         ) {
             return this.referencePoint;
         } else {
-            return Number(coefficent);
+            const formattedCoefficient = Number(coefficent);
+
+            return this.interval
+                ? this.interval.limitNumber(formattedCoefficient)
+                : formattedCoefficient;
         }
+    }
+
+    private constructMargin(margin?: JsonMargin): Margin | undefined {
+        return margin ? new Margin(margin) : undefined;
     }
 }
