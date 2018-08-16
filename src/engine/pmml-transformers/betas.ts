@@ -15,7 +15,7 @@ export function convertBetasCsvStringToPmml(
     const referenceCsv = referenceCsvString
         ? csvParse(referenceCsvString, {
               columns: true,
-          })
+          }) as ReferenceCsv
         : undefined;
 
     const BaselineHazardColumnName = 'H0_5YR';
@@ -32,13 +32,16 @@ export function convertBetasCsvStringToPmml(
     });
 
     dataFields.forEach(dataField => {
-        dataDictionaryXmlNode.ele('DataField', {
+        const dataFieldNode = dataDictionaryXmlNode.ele('DataField', {
             name: dataField,
             optype: isDataFieldCategorical(dataField)
                 ? 'categorical'
                 : 'continuous',
             dataType: isDataFieldCategorical(dataField) ? 'string' : 'number',
         });
+        if (referenceCsv) {
+            addIntervalNodeToDataField(dataFieldNode, dataField, referenceCsv);
+        }
     });
 
     const generalRegressionXmlNode = pmmlXml.ele('GeneralRegressionModel', {
@@ -59,7 +62,7 @@ export function convertBetasCsvStringToPmml(
     const parameterListXmlNode = generalRegressionXmlNode.ele('ParameterList');
     dataFields.forEach((dataField, index) => {
         const referenceCsvRowFound = referenceCsv
-            ? referenceCsv.find((referenceCsvRow: any) => {
+            ? referenceCsv.find(referenceCsvRow => {
                   return referenceCsvRow['Variable'] === dataField;
               })
             : undefined;
@@ -108,3 +111,39 @@ function isDataFieldCategorical(dataFieldName: string): boolean {
 function getParameterNameForIndex(index: number): string {
     return `p${index}`;
 }
+
+function addIntervalNodeToDataField(
+    dataFieldNode: any,
+    dataFieldName: string,
+    referenceCsv: ReferenceCsv,
+) {
+    referenceCsv.forEach(referenceCsvRow => {
+        if (referenceCsvRow.Variable === dataFieldName) {
+            const mean = Number(referenceCsvRow.Mean);
+
+            dataFieldNode.ele('Interval', {
+                closure: 'closedClosed',
+                leftMargin: formatMarginForInterval(
+                    Number(referenceCsvRow.Minimum),
+                    mean,
+                ),
+                rightMargin: formatMarginForInterval(
+                    Number(referenceCsvRow.Maximum),
+                    mean,
+                ),
+            });
+        }
+    });
+}
+
+function formatMarginForInterval(margin: number, mean: number): number {
+    return margin - mean;
+}
+
+interface ReferenceCsvRow {
+    Variable: string;
+    Minimum: string;
+    Maximum: string;
+    Mean: string;
+}
+type ReferenceCsv = ReferenceCsvRow[];
