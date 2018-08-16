@@ -75,6 +75,7 @@ function parseCovariateFromPredictor(
         customFunction: customFunctionJson,
         extensions: parseExtensions(dataField),
         interval: parseInterval(dataField),
+        groups: [],
     });
 }
 

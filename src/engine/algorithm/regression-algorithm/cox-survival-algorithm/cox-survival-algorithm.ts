@@ -82,6 +82,7 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
                     ? predictor.referencePoint
                     : 0,
                 name: predictor.name,
+                groups: [],
             },
             undefined,
             undefined,

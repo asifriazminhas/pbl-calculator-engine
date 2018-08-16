@@ -31,7 +31,7 @@ test(`Cause Effect`, async t => {
         data.concat(MportCauseEffectReference.male.Smoking),
     );
     const causeEffectRiskToTime = withMportRiskFactor
-        .withRiskFactor('Smoking')
+        .withRiskFactor('SMOKING')
         .getCauseEffect(mportModel.getRiskToTime)
         .withData(data);
 

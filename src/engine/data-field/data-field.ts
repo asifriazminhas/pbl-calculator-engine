@@ -1,5 +1,6 @@
 import { Data, IDatum } from '../data';
 import { autobind } from 'core-decorators';
+import { uniqWith } from 'lodash';
 
 @autobind
 export class DataField {
@@ -7,6 +8,14 @@ export class DataField {
 
     constructor(fieldJson: { name: string }) {
         this.name = fieldJson.name;
+    }
+
+    static getUniqueDataFields(dataFields: DataField[]): DataField[] {
+        return uniqWith(dataFields, DataField.isSameDataField);
+    }
+
+    static isSameDataField(dataFieldOne: DataField, dataFieldTwo: DataField) {
+        return dataFieldOne.name === dataFieldTwo.name;
     }
 
     getDatumForField(data: Data): IDatum | undefined {

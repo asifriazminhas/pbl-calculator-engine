@@ -1,9 +1,8 @@
 import { Data, findDatumWithName } from '../data';
 import { NoCauseEffectRefFound } from '../errors';
+import { CovariateGroup } from '../data-field/covariate/covariate-group';
 
-export interface IGenderSpecificCauseEffectRef {
-    [index: string]: Data;
-}
+export type IGenderSpecificCauseEffectRef = { [K in CovariateGroup]: Data };
 
 export interface IGenderCauseEffectRef {
     [index: string]: IGenderSpecificCauseEffectRef;
@@ -30,7 +29,7 @@ export function getCauseEffectRefForData(
 }
 
 export function getCauseEffectDataForRiskFactors(
-    riskFactors: string[],
+    riskFactors: CovariateGroup[],
     causeEffectRef: IGenderSpecificCauseEffectRef,
 ): Data {
     return riskFactors

@@ -17,10 +17,12 @@ import { ITables } from '../../algorithm/tables/tables';
 import { Interval } from './interval';
 import { Margin } from './margin';
 import { JsonMargin } from '../../../parsers/json/json-margin';
+import { CovariateGroup } from './covariate-group';
 
 @autobind
 export abstract class Covariate extends DataField {
     beta: number;
+    groups: CovariateGroup[];
     referencePoint?: number;
     customFunction?: RcsCustomFunction;
     derivedField?: DerivedField;
@@ -34,6 +36,7 @@ export abstract class Covariate extends DataField {
         super(covariateJson);
 
         this.beta = covariateJson.beta;
+        this.groups = covariateJson.groups;
         this.referencePoint = covariateJson.referencePoint;
         this.customFunction = customFunction;
         this.derivedField = derivedField;
@@ -144,6 +147,14 @@ export abstract class Covariate extends DataField {
         } else {
             return [datumFound];
         }
+    }
+
+    getDescendantFields(): DataField[] {
+        return this.derivedField ? this.derivedField.getDescendantFields() : [];
+    }
+
+    isPartOfGroup(group: CovariateGroup): boolean {
+        return this.groups.indexOf(group) !== -1;
     }
 
     private calculateComponent(coefficent: number): number {
