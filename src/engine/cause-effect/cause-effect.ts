@@ -4,6 +4,7 @@ import {
     getCauseEffectDataForRiskFactors,
 } from './gender-cause-effect-ref';
 import { Data, updateDataWithData } from '../data';
+import { CovariateGroup } from '../data-field/covariate/covariate-group';
 
 export interface IWithDataFunction {
     withData: (data: Data, ...otherArgs: any[]) => number;
@@ -11,7 +12,7 @@ export interface IWithDataFunction {
 
 function getWithDataFunction(
     genderCauseEffectRef: IGenderCauseEffectRef,
-    riskFactors: string[],
+    riskFactors: CovariateGroup[],
     func: (data: Data, ...otherArgs: any[]) => number,
 ): IWithDataFunction {
     return {
@@ -42,7 +43,7 @@ export interface IGetCauseEffectFunction {
 
 function getGetCauseEffectFunction(
     genderCauseEffectRef: IGenderCauseEffectRef,
-    riskFactors: string[],
+    riskFactors: CovariateGroup[],
 ): IGetCauseEffectFunction {
     return {
         getCauseEffect: func => {
@@ -52,10 +53,10 @@ function getGetCauseEffectFunction(
 }
 
 export type ForRiskFactorFunction = (
-    riskFactor: string,
+    riskFactor: CovariateGroup,
 ) => IGetCauseEffectFunction;
 export type ForRiskFactorsFunction = (
-    riskFactors: string[],
+    riskFactors: CovariateGroup[],
 ) => IGetCauseEffectFunction;
 
 export function getForRiskFactorFunction(

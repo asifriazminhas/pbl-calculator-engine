@@ -17,6 +17,7 @@ test(`getSurvivalToTimeForCoxWithBins function`, t => {
             beta: 10,
             referencePoint: undefined,
             name: 'covariateOne',
+            groups: [],
         },
         undefined,
         undefined,

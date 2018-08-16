@@ -6,8 +6,6 @@ import { ICoxSurvivalAlgorithmJson } from '../../../parsers/json/json-cox-surviv
 import { parseCovariateJsonToCovariate } from '../../../parsers/json/json-covariate';
 import { CovariateGroup } from '../../data-field/covariate/covariate-group';
 import { DataField, isSameDataField } from '../../data-field/data-field';
-// tslint:disable-next-line
-import { NonInteractionCovariate } from '../../data-field/covariate/non-interaction-covariats/non-interaction-covariate';
 
 export abstract class RegressionAlgorithm extends Algorithm {
     covariates: Covariate[];
