@@ -68,6 +68,7 @@ function getDerivedFromForAst(
         'getValueFromTable',
     ];
 
+    /* TODO Fix bug where undefined is being included as a field */
     astTypes.visit(ast, {
         // Code like obj['age'] is a MemberExpression so to extract for example age we need to visit them
         visitMemberExpression(path: any) {
