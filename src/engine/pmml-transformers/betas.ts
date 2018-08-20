@@ -32,16 +32,13 @@ export function convertBetasCsvStringToPmml(
     });
 
     dataFields.forEach(dataField => {
-        const dataFieldNode = dataDictionaryXmlNode.ele('DataField', {
+        dataDictionaryXmlNode.ele('DataField', {
             name: dataField,
             optype: isDataFieldCategorical(dataField)
                 ? 'categorical'
                 : 'continuous',
             dataType: isDataFieldCategorical(dataField) ? 'string' : 'number',
         });
-        if (referenceCsv) {
-            addIntervalNodeToDataField(dataFieldNode, dataField, referenceCsv);
-        }
     });
 
     const generalRegressionXmlNode = pmmlXml.ele('GeneralRegressionModel', {
@@ -110,34 +107,6 @@ function isDataFieldCategorical(dataFieldName: string): boolean {
 
 function getParameterNameForIndex(index: number): string {
     return `p${index}`;
-}
-
-function addIntervalNodeToDataField(
-    dataFieldNode: any,
-    dataFieldName: string,
-    referenceCsv: ReferenceCsv,
-) {
-    referenceCsv.forEach(referenceCsvRow => {
-        if (referenceCsvRow.Variable === dataFieldName) {
-            const mean = Number(referenceCsvRow.Mean);
-
-            dataFieldNode.ele('Interval', {
-                closure: 'closedClosed',
-                leftMargin: formatMarginForInterval(
-                    Number(referenceCsvRow.Minimum),
-                    mean,
-                ),
-                rightMargin: formatMarginForInterval(
-                    Number(referenceCsvRow.Maximum),
-                    mean,
-                ),
-            });
-        }
-    });
-}
-
-function formatMarginForInterval(margin: number, mean: number): number {
-    return margin - mean;
 }
 
 interface ReferenceCsvRow {
