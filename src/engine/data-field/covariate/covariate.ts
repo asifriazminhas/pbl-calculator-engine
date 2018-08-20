@@ -3,7 +3,6 @@ import { DataField } from '../data-field';
 import { RcsCustomFunction } from './custom-function/rcs-custom-function';
 import {
     Coefficent,
-    datumFactory,
     datumFromCovariateReferencePointFactory,
 } from '../../data';
 import * as moment from 'moment';
@@ -14,10 +13,8 @@ import { autobind } from 'core-decorators';
 import { ICovariateJson } from '../../../parsers/json/json-covariate';
 import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
 import { ITables } from '../../algorithm/tables/tables';
-import { Interval } from './interval';
-import { Margin } from './margin';
-import { JsonMargin } from '../../../parsers/json/json-margin';
 import { CovariateGroup } from './covariate-group';
+import { datumFactoryFromDataField } from '../../data/datum';
 
 @autobind
 export abstract class Covariate extends DataField {
@@ -26,7 +23,6 @@ export abstract class Covariate extends DataField {
     referencePoint?: number;
     customFunction?: RcsCustomFunction;
     derivedField?: DerivedField;
-    interval?: Interval;
 
     constructor(
         covariateJson: ICovariateJson,
@@ -40,16 +36,6 @@ export abstract class Covariate extends DataField {
         this.referencePoint = covariateJson.referencePoint;
         this.customFunction = customFunction;
         this.derivedField = derivedField;
-
-        if (covariateJson.interval) {
-            const lowerMargin = this.constructMargin(
-                covariateJson.interval.lowerMargin,
-            );
-            const higherMargin = this.constructMargin(
-                covariateJson.interval.higherMargin,
-            );
-            this.interval = new Interval(lowerMargin, higherMargin);
-        }
     }
 
     getComponent(
@@ -133,7 +119,9 @@ export abstract class Covariate extends DataField {
                             point`);
                     }
 
-                    return [datumFactory(this.name, this.referencePoint)];
+                    return [
+                        datumFactoryFromDataField(this, this.referencePoint),
+                    ];
                 }
             } else {
                 // Fall back to setting it to reference point
@@ -193,9 +181,5 @@ export abstract class Covariate extends DataField {
                 ? this.interval.limitNumber(formattedCoefficient)
                 : formattedCoefficient;
         }
-    }
-
-    private constructMargin(margin?: JsonMargin): Margin | undefined {
-        return margin ? new Margin(margin) : undefined;
     }
 }
