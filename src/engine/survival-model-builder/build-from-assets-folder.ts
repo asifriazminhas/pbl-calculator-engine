@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { transformPhiatDictionaryToPmml } from '../pmml-transformers/web-specifications';
+import { transformPhiatDictionaryToPmml } from '../pmml-transformers/web-spec/web-spec-v1';
 import { limesurveyTxtStringToPmmlString } from '../pmml-transformers/limesurvey';
 import * as path from 'path';
 // tslint:disable-next-line
