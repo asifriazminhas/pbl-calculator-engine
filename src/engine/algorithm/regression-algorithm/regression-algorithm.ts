@@ -1,11 +1,12 @@
 import { Algorithm } from '../algorithm';
 import { Covariate } from '../../data-field/covariate/covariate';
 import { Data } from '../../data/data';
-import { add, flatten } from 'lodash';
+import { add, flatten, memoize } from 'lodash';
 import { ICoxSurvivalAlgorithmJson } from '../../../parsers/json/json-cox-survival-algorithm';
 import { parseCovariateJsonToCovariate } from '../../../parsers/json/json-covariate';
 import { CovariateGroup } from '../../data-field/covariate/covariate-group';
 import { DataField } from '../../data-field/data-field';
+import { datumFactoryFromDataField } from '../../data/datum';
 
 export abstract class RegressionAlgorithm extends Algorithm {
     covariates: Covariate[];
@@ -39,7 +40,7 @@ export abstract class RegressionAlgorithm extends Algorithm {
 
                 return currentData.concat(dataForCurrentCovariate);
             },
-            data,
+            this.validateData(data),
         );
 
         return this.covariates
@@ -75,5 +76,33 @@ export abstract class RegressionAlgorithm extends Algorithm {
                 }),
             ),
         ).concat(covariatesForGroup);
+    }
+
+    private getAllFields = memoize((): DataField[] => {
+        return DataField.getUniqueDataFields(
+            flatten(
+                this.covariates.map(currentCovariate => {
+                    return currentCovariate.getDescendantFields();
+                }),
+            ),
+        );
+    });
+
+    private validateData(data: Data): Data {
+        const allDataFields = this.getAllFields();
+
+        return data.map(datum => {
+            const dataFieldForCurrentDatum = DataField.findDataFieldWithName(
+                allDataFields,
+                datum.name,
+            );
+
+            return dataFieldForCurrentDatum
+                ? datumFactoryFromDataField(
+                      dataFieldForCurrentDatum,
+                      datum.coefficent,
+                  )
+                : datum;
+        });
     }
 }
