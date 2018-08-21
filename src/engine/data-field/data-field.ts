@@ -2,14 +2,14 @@ import { Data, IDatum } from '../data';
 import { autobind } from 'core-decorators';
 import { uniqWith } from 'lodash';
 import { Interval } from './covariate/interval';
-import { JsonInterval } from '../../parsers/json/json-interval';
+import { IDataFieldJson } from '../../parsers/json/json-data-field';
 
 @autobind
 export class DataField {
     name: string;
     interval?: Interval;
 
-    constructor(fieldJson: { name: string; interval?: JsonInterval }) {
+    constructor(fieldJson: IDataFieldJson) {
         this.name = fieldJson.name;
         this.interval = fieldJson.interval
             ? new Interval(fieldJson.interval)
