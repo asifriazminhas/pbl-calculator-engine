@@ -11,6 +11,7 @@ import {
 import { parseDataFieldFromDataFieldPmmlNode } from '../data_field';
 import { DataFieldType } from '../../../../parsers/json/data-field-type';
 import { IDataFieldJson } from '../../../../parsers/json/json-data-field';
+import { IPredictor } from '../../../pmml/general_regression_model/predictor';
 // tslint:disable-next-line
 const astTypes = require('ast-types');
 
@@ -68,6 +69,7 @@ function getDerivedFromForAst(
         'getValueFromTable',
     ];
 
+    /* TODO Fix bug where undefined is being included as a field */
     astTypes.visit(ast, {
         // Code like obj['age'] is a MemberExpression so to extract for example age we need to visit them
         visitMemberExpression(path: any) {
@@ -108,8 +110,19 @@ function getDerivedFromForAst(
                 const derivedFieldForCurrentDerivedFrom = pmml.findDerivedFieldWithName(
                     derivedFromItem,
                 );
+                let covariateForCurrentDerivedFrom: IPredictor | undefined;
+                if (pmml.pmmlXml.PMML.GeneralRegressionModel) {
+                    // tslint:disable-next-line:max-line-length
+                    covariateForCurrentDerivedFrom = pmml.pmmlXml.PMML.GeneralRegressionModel.CovariateList.Predictor.find(
+                        predictor => {
+                            return predictor.$.name === derivedFromItem;
+                        },
+                    );
+                }
 
-                if (derivedFieldForCurrentDerivedFrom) {
+                if (covariateForCurrentDerivedFrom) {
+                    return derivedFromItem;
+                } else if (derivedFieldForCurrentDerivedFrom) {
                     return derivedFromItem;
                 } else {
                     const dataFieldForCurrentDerivedField = pmml.findDataFieldWithName(

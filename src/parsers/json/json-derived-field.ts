@@ -52,6 +52,7 @@ export function parseDerivedFromJsonToDerivedFrom(
                     covariatesJson,
                 );
             } else {
+                /* TODO Add error message */
                 throw new Error();
             }
         } else {

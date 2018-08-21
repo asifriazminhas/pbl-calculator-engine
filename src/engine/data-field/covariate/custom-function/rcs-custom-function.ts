@@ -4,6 +4,7 @@ import { autobind } from 'core-decorators';
 import { IRcsCustomFunctionJson } from '../../../../parsers/json/json-rcs-custom-function';
 import { IUserFunctions } from '../../../algorithm/user-functions/user-functions';
 import { ITables } from '../../../algorithm/tables/tables';
+import { datumFactoryFromDataField } from '../../../data/datum';
 
 @autobind
 export class RcsCustomFunction {
@@ -40,14 +41,14 @@ export class RcsCustomFunction {
         tables: ITables,
     ): [IDatum] {
         return [
-            {
-                name: this.firstVariableCovariate.name,
-                coefficent: this.firstVariableCovariate.calculateCoefficient(
+            datumFactoryFromDataField(
+                this.firstVariableCovariate,
+                this.firstVariableCovariate.calculateCoefficient(
                     data,
                     userDefinedFunctions,
                     tables,
                 ),
-            },
+            ),
         ];
     }
 

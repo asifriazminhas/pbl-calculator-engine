@@ -1,6 +1,6 @@
 import { DataField } from '../data-field';
 import { flatten } from 'lodash';
-import { Data, datumFactory, Coefficent } from '../../data';
+import { Data, Coefficent } from '../../data';
 import { autobind } from 'core-decorators';
 import { Covariate } from '../covariate/covariate';
 import { throwErrorIfUndefined } from '../../../util/undefined';
@@ -12,6 +12,7 @@ import { InteractionCovariate } from '../covariate/interaction-covariate/interac
 import { IDerivedFieldJson } from '../../../parsers/json/json-derived-field';
 import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
 import { ITables } from '../../algorithm/tables/tables';
+import { datumFactoryFromDataField } from '../../data/datum';
 
 function getValueFromTable(
     table: Array<{ [index: string]: string }>,
@@ -207,15 +208,14 @@ export class DerivedField extends DataField {
         each which will be used for the evaluation*/
         return flatten(
             this.derivedFrom.map(derivedFromItem => {
-                const fieldName = derivedFromItem.name;
                 const datumFound = derivedFromItem.getDatumForField(data);
 
                 if (datumFound) {
                     return datumFound;
                 }
                 if (derivedFromItem instanceof Covariate) {
-                    return datumFactory(
-                        fieldName,
+                    return datumFactoryFromDataField(
+                        derivedFromItem,
                         derivedFromItem.calculateCoefficient(
                             data,
                             userDefinedFunctions,
@@ -223,8 +223,8 @@ export class DerivedField extends DataField {
                         ),
                     );
                 } else if (derivedFromItem instanceof DerivedField) {
-                    return datumFactory(
-                        fieldName,
+                    return datumFactoryFromDataField(
+                        derivedFromItem,
                         derivedFromItem.calculateCoefficent(
                             data,
                             userDefinedFunctions,

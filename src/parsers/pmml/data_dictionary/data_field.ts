@@ -25,8 +25,8 @@ export interface ICategoricalDataField extends IBaseDataField<'continuous'> {
 export interface IInterval {
     $: {
         closure: 'openOpen' | 'openClosed' | 'closedOpen' | 'closedClosed';
-        leftMargin: string;
-        rightMargin: string;
+        leftMargin?: string;
+        rightMargin?: string;
     };
 }
 

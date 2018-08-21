@@ -1,12 +1,17 @@
 import { Margin } from './margin';
+import { JsonInterval } from '../../../parsers/json/json-interval';
 
 export class Interval {
     lowerMargin?: Margin;
     higherMargin?: Margin;
 
-    constructor(lowerMargin?: Margin, higherMargin?: Margin) {
-        this.lowerMargin = lowerMargin;
-        this.higherMargin = higherMargin;
+    constructor(intervalJson: JsonInterval) {
+        this.lowerMargin = intervalJson.lowerMargin
+            ? new Margin(intervalJson.lowerMargin)
+            : undefined;
+        this.higherMargin = intervalJson.higherMargin
+            ? new Margin(intervalJson.higherMargin)
+            : undefined;
     }
 
     limitNumber(num: number): number {
