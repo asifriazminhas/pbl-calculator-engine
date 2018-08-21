@@ -12,10 +12,6 @@ export function parseDataFieldFromDataFieldPmmlNode(
 }
 
 function parseInterval(dataField: IDataField): JsonInterval | undefined {
-    if (dataField.$.name === 'DrinksLastWeek_cont') {
-        console.log(dataField);
-    }
-
     if ('Interval' in dataField) {
         return Object.assign(
             {},
