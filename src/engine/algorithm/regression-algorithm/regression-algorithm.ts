@@ -88,6 +88,17 @@ export abstract class RegressionAlgorithm extends Algorithm {
         );
     });
 
+    /**
+     * Goes through each datum in the data arg and does the following checks:
+     * 1. Checks whether they are within the bounds defined by the interval
+     * field on the corresponding DataField object. If they aren't, sets them
+     * to either the lower or upper bound
+     *
+     * @private
+     * @param {Data} data
+     * @returns {Data}
+     * @memberof RegressionAlgorithm
+     */
     private validateData(data: Data): Data {
         const allDataFields = this.getAllFields();
 
