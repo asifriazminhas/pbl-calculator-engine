@@ -22,21 +22,23 @@ export function convertWebSpecV2CsvToPmml(
         },
     };
 
-    const numOfRowsWithMinOrMaxColumn = webSpecV2Csv.filter(webSpecV2CsvRow => {
-        const { min, max } = getGenderSpecificMinAndMaxValues(
-            webSpecV2CsvRow,
-            gender,
-        );
+    const numOfRowsDefinedWithMinOrMaxColumn = webSpecV2Csv.filter(
+        webSpecV2CsvRow => {
+            const { min, max } = getGenderSpecificMinAndMaxValues(
+                webSpecV2CsvRow,
+                gender,
+            );
 
-        return min || max;
-    }).length;
+            return min || max;
+        },
+    ).length;
 
     const DataDictionary: IDataDictionary = {
         DataField: webSpecV2Csv.map(webSpecV2CsvRow => {
-            return getDataField(webSpecV2CsvRow, gender);
+            return getDataFieldNode(webSpecV2CsvRow, gender);
         }),
         $: {
-            numberOfFields: `${numOfRowsWithMinOrMaxColumn}`,
+            numberOfFields: `${numOfRowsDefinedWithMinOrMaxColumn}`,
         },
     };
 
@@ -66,7 +68,7 @@ function isMaleGender(gender: 'male' | 'female'): boolean {
     return gender === 'male';
 }
 
-function getDataField(
+function getDataFieldNode(
     webSpecV2CsvRow: WebSpecV2CsvRow,
     gender: 'male' | 'female',
 ): IDataField {
@@ -88,7 +90,7 @@ function getDataField(
         },
         min || max
             ? {
-                  Interval: getPmmlInterval(min, max),
+                  Interval: getIntervalNode(min, max),
               }
             : undefined,
     );
@@ -108,7 +110,7 @@ function getGenderSpecificMinAndMaxValues(
     };
 }
 
-function getPmmlInterval(min?: string, max?: string): IInterval {
+function getIntervalNode(min?: string, max?: string): IInterval {
     return {
         $: Object.assign(
             {},
