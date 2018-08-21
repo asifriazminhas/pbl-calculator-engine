@@ -22,7 +22,7 @@ export function convertWebSpecV2CsvToPmml(
         },
     };
 
-    const numOfRowsDefinedWithMinOrMaxColumn = webSpecV2Csv.filter(
+    const numOfRowsWithDefinedMinOrMaxColumn = webSpecV2Csv.filter(
         webSpecV2CsvRow => {
             const { min, max } = getGenderSpecificMinAndMaxValues(
                 webSpecV2CsvRow,
@@ -38,7 +38,7 @@ export function convertWebSpecV2CsvToPmml(
             return getDataFieldNode(webSpecV2CsvRow, gender);
         }),
         $: {
-            numberOfFields: `${numOfRowsDefinedWithMinOrMaxColumn}`,
+            numberOfFields: `${numOfRowsWithDefinedMinOrMaxColumn}`,
         },
     };
 
