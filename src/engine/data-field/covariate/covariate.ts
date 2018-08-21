@@ -67,10 +67,10 @@ export abstract class Covariate extends DataField {
         userDefinedFunctions: IUserFunctions,
         tables: ITables,
     ): Coefficent {
-        let coefficent: any = 0;
+        let coefficent: Coefficent = 0;
 
         try {
-            coefficent = findDatumWithName(this.name, data);
+            coefficent = findDatumWithName(this.name, data).coefficent;
         } catch (err) {
             if (err instanceof NoDatumFoundError) {
                 if (this.customFunction) {
