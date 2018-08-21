@@ -15,6 +15,8 @@ import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
 import { ITables } from '../../algorithm/tables/tables';
 import { CovariateGroup } from './covariate-group';
 import { datumFactoryFromDataField } from '../../data/datum';
+import { findDatumWithName } from '../../data/data';
+import { NoDatumFoundError } from '../../errors';
 
 @autobind
 export abstract class Covariate extends DataField {
@@ -67,16 +69,22 @@ export abstract class Covariate extends DataField {
     ): Coefficent {
         let coefficent: any = 0;
 
-        if (data.length === 1 && data[0].name === this.name) {
-            coefficent = data[0].coefficent;
-        } else if (this.customFunction) {
-            coefficent = this.customFunction.calculateCoefficient(data);
-        } else if (this.derivedField) {
-            coefficent = this.derivedField.calculateCoefficent(
-                data,
-                userDefinedFunctions,
-                tables,
-            );
+        try {
+            coefficent = findDatumWithName(this.name, data);
+        } catch (err) {
+            if (err instanceof NoDatumFoundError) {
+                if (this.customFunction) {
+                    coefficent = this.customFunction.calculateCoefficient(data);
+                } else if (this.derivedField) {
+                    coefficent = this.derivedField.calculateCoefficent(
+                        data,
+                        userDefinedFunctions,
+                        tables,
+                    );
+                }
+            } else {
+                throw err;
+            }
         }
 
         const formattedCoefficent = this.formatCoefficentForComponent(
