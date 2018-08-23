@@ -37,7 +37,7 @@ export class LifeYearsLost {
         need it for life expectancy calculations */
         const lifeExpectancyDataWithoutRiskFactorFields = filterDataUsedToCalculateCoefficientsForCovariateGroup(
             riskFactor,
-            this.lifeTable.survivalFunctions.getAlgorithmForData(data),
+            this.lifeTable.model.getAlgorithmForData(data),
             data,
         ).concat(ageDatum);
         /* Add the cause deleted ref to the filtered data */
