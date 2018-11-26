@@ -29,10 +29,22 @@ export class LifeTableFunctions {
     }
 
     public getLifeExpectancy(data: Data): number {
-        return getLifeExpectancyForAge(
-            findDatumWithName('age', data).coefficent as number,
-            this.getCompleteLifeTable(data),
-        );
+        const algorithm = this.model.getAlgorithmForData(data);
+
+        if ('bins' in algorithm) {
+            const binData = algorithm.bins!.getBinDataForScore(
+                algorithm.calculateScore(data),
+            );
+
+            return binData.find(binDatum => {
+                return binDatum.survivalPercent === 50;
+            })!.time as number;
+        } else {
+            return getLifeExpectancyForAge(
+                findDatumWithName('age', data).coefficent as number,
+                this.getCompleteLifeTable(data),
+            );
+        }
     }
 
     public getSurvivalToAge(data: Data, toAge: number): number {
