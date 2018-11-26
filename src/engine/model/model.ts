@@ -18,7 +18,7 @@ export class Model {
     algorithms: ModelAlgorithm[];
 
     constructor(modelJson: IModelJson) {
-        this.name = '';
+        this.name = modelJson.name;
         this.algorithms = modelJson.algorithms.map(
             ({ algorithm, predicate }) => {
                 return new ModelAlgorithm(
