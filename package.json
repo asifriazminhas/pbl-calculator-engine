@@ -55,7 +55,8 @@
         "tslint": "5.8.0",
         "typescript": "^3.0.1",
         "utility-types": "^2.0.0",
-        "webpack": "1.13.3",
+        "webpack": "^4.26.1",
+        "webpack-cli": "^3.1.2",
         "xmlbuilder": "^8.2.2"
     },
     "dependencies": {
