@@ -15,5 +15,13 @@ export abstract class Algorithm {
         this.tables = algorithmJson.tables;
     }
 
-    abstract evaluate(data: Data): number;
+    public getSomething (headers: string[]) {
+        return {
+            errors: ['Age'],
+            warnings: ['Sex'],
+            ignored: ['Weight']
+        };
+    }
+
+    abstract evaluate (data: Data): number;
 }
