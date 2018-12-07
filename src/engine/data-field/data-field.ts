@@ -8,12 +8,14 @@ import { IDataFieldJson } from '../../parsers/json/json-data-field';
 export class DataField {
     name: string;
     interval?: Interval;
+    isRequired: boolean;
 
     constructor(fieldJson: IDataFieldJson) {
         this.name = fieldJson.name;
         this.interval = fieldJson.interval
             ? new Interval(fieldJson.interval)
             : undefined;
+        this.isRequired = fieldJson.isRequired;
     }
 
     static getUniqueDataFields(dataFields: DataField[]): DataField[] {
