@@ -48,13 +48,13 @@ export function convertBetasCsvStringToPmml(
         baselineHazard: betasAndBaselineCsv[0][BaselineHazardColumnName],
     });
 
-    const miningSchemaXmlNode = generalRegressionXmlNode.ele('MiningSchema');
+    /*const miningSchemaXmlNode = generalRegressionXmlNode.ele('MiningSchema');
     dataFields.forEach(dataField => {
         miningSchemaXmlNode.ele('MiningField', {
             name: dataField,
             usageType: 'active',
         });
-    });
+    });*/
 
     const parameterListXmlNode = generalRegressionXmlNode.ele('ParameterList');
     dataFields.forEach((dataField, index) => {
