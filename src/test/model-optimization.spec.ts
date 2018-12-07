@@ -86,17 +86,20 @@ test(`Model optimizations`, t => {
             equation: `derived = getValueFromTable(tables['tableOne'], 'outputColumn', { 'columnOne': 'Age_cont' });`,
             derivedFrom: [],
             name: 'derivedFieldOne',
+            isRequired: false,
         },
         {
             // tslint:disable-next-line
             equation: `derived = getValueFromTable(tables['tableTwo'], 'outputColumn', { 'columnTwo': 'Age_cont' });`,
             derivedFrom: [],
             name: 'derivedFieldTwo',
+            isRequired: false,
         },
         {
             equation: `derived = userFunctions['testFunctionOne']()`,
             derivedFrom: [],
             name: 'derivedFieldThree',
+            isRequired: false,
         },
     ];
 

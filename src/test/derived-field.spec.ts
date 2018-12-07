@@ -38,10 +38,12 @@ test(`.calculateCoefficent`, t => {
             },
         )`,
             derivedFrom: [],
+            isRequired: false,
         },
         [
             new DataField({
                 name: 'fieldOne',
+                isRequired: false,
             }),
         ],
     );
@@ -67,6 +69,7 @@ test(`.getDerivedFieldWithName`, t => {
                 equation: '',
                 name: '',
                 derivedFrom: [],
+                isRequired: false,
             },
             [
                 new DerivedField(
@@ -74,6 +77,7 @@ test(`.getDerivedFieldWithName`, t => {
                         equation: '',
                         derivedFrom: [],
                         name: 'fieldToFind',
+                        isRequired: false,
                     },
                     [
                         new DerivedField(
@@ -81,6 +85,7 @@ test(`.getDerivedFieldWithName`, t => {
                                 equation: '',
                                 derivedFrom: [],
                                 name: '',
+                                isRequired: false,
                             },
                             [],
                         ),
@@ -93,6 +98,7 @@ test(`.getDerivedFieldWithName`, t => {
                 name: '',
                 equation: '',
                 derivedFrom: [],
+                isRequired: false,
             },
             [],
         ),
@@ -103,6 +109,7 @@ test(`.getDerivedFieldWithName`, t => {
             equation: '',
             derivedFrom: [],
             name: '',
+            isRequired: false,
         },
         childFields,
     );
@@ -122,12 +129,14 @@ test(`.calculateDataToCalculateCoefficent`, t => {
     t.test(`When the derived from item is a DataField`, t => {
         const derivedFromDataField = new DataField({
             name: 'testOne',
+            isRequired: false,
         });
         const derivedField: DerivedField = new DerivedField(
             {
                 name: '',
                 equation: '',
                 derivedFrom: [],
+                isRequired: false,
             },
             [derivedFromDataField],
         );
