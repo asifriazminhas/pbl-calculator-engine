@@ -4,16 +4,10 @@ import { Data } from '../data';
 import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-algorithm';
 import { parseUserFunctions } from '../../parsers/json/json-user-functions';
 
-export enum Header {
-    Age = 'Age',
-    Sex = 'Sex',
-    PackYears = 'Pack years'
-}
-
 export interface FileReport {
-    valid: Header[];
-    errors: Header[];
-    warnings: Header[];
+    valid: string[];
+    errors: string[];
+    warnings: string[];
     ignored: string[];
 }
 
@@ -26,33 +20,7 @@ export abstract class Algorithm {
      * warning: optional and missing
      * ignored: extra, unnecessary headers
      */
-    public static getHeaderReport (headers: Header[]): FileReport {
-        const allHeaders = Object.values(Header);
-
-        const validHeaders = [];
-        const missingHeaders = [];
-        const warningHeaders = [Header.Sex];
-        const ignoredHeaders = [];
-
-        for (const header of headers) {
-            if (allHeaders.indexOf(header) >= 0) {
-                validHeaders.push(header);
-            } else {
-                ignoredHeaders.push(header);
-            }
-        }
-
-        for (const header of allHeaders) {
-            if (validHeaders.indexOf(header) < 0) missingHeaders.push(header);
-        }
-
-        return {
-            valid: validHeaders,
-            errors: missingHeaders,
-            warnings: warningHeaders,
-            ignored: ignoredHeaders
-        };
-    }
+    public abstract getHeaderReport (headers: string[]): FileReport;
 
     name: string;
     userFunctions: IUserFunctions;

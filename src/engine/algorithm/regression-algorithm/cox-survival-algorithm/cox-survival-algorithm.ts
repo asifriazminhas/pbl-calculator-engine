@@ -15,6 +15,7 @@ import { NoCalibrationFoundError } from './calibration/calibration-errors';
 import { Predicate } from '../../../predicate/predicate';
 import { NoPredicateObjectFoundError } from '../../../predicate/predicate-errors';
 import { BaselineJson } from '../../../../parsers/json/json-baseline';
+import { FileReport } from '../../algorithm';
 
 export interface INewPredictor {
     name: string;
@@ -39,6 +40,36 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
             : undefined;
         this.timeMetric = coxSurvivalAlgorithmJson.timeMetric;
         this.calibration = new Calibration();
+    }
+
+    public getHeaderReport (headers: string[]): FileReport {
+        const validHeaders: string[] = [];
+        const missingHeaders: string[] = [];
+        const warningHeaders: string[] = [];
+        const ignoredHeaders: string[] = [...headers];
+
+        for (const covariate of this.covariates) {
+            const { isRequired, name } = covariate;
+            const headerWasProvided = headers.includes(name);
+
+            if (headerWasProvided) {
+                validHeaders.push(name);
+                ignoredHeaders.splice(ignoredHeaders.indexOf(name), 1);
+            } else {
+                if (isRequired) {
+                    missingHeaders.push(name);
+                } else {
+                    warningHeaders.push(name);
+                }
+            }
+        }
+
+        return {
+            valid: validHeaders,
+            errors: missingHeaders,
+            warnings: warningHeaders,
+            ignored: ignoredHeaders
+        };
     }
 
     evaluate(data: Data, time?: Date | moment.Moment) {
