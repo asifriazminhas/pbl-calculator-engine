@@ -50,6 +50,7 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         const ignoredHeaders: string[] = [...headers];
 
         for (const covariate of this.covariates) {
+            if (covariate.customFunction) continue;
             if (covariate instanceof InteractionCovariate) continue;
 
             const { isRequired, name } = covariate;
