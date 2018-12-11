@@ -16,6 +16,7 @@ import { Predicate } from '../../../predicate/predicate';
 import { NoPredicateObjectFoundError } from '../../../predicate/predicate-errors';
 import { BaselineJson } from '../../../../parsers/json/json-baseline';
 import { FileReport } from '../../algorithm';
+import { InteractionCovariate } from '../../../data-field/covariate/interaction-covariate/interaction-covariate'
 
 export interface INewPredictor {
     name: string;
@@ -49,6 +50,8 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         const ignoredHeaders: string[] = [...headers];
 
         for (const covariate of this.covariates) {
+            if (covariate instanceof InteractionCovariate) continue;
+
             const { isRequired, name } = covariate;
             const headerWasProvided = headers.includes(name);
 
