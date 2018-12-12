@@ -12,16 +12,6 @@ export interface FileReport {
 }
 
 export abstract class Algorithm {
-    /**
-     * @description Build a report based on detected headers from a file. Build a list of headers
-     * that are:
-     * valid: required and found
-     * error: required and missing
-     * warning: optional and missing
-     * ignored: extra, unnecessary headers
-     */
-    public abstract getHeaderReport (headers: string[]): FileReport;
-
     name: string;
     userFunctions: IUserFunctions;
     tables: ITables;
@@ -31,6 +21,16 @@ export abstract class Algorithm {
         this.userFunctions = parseUserFunctions(algorithmJson.userFunctions);
         this.tables = algorithmJson.tables;
     }
+
+    /**
+     * @description Build a report based on detected headers from a file. Build a list of headers
+     * that are:
+     * valid: required and found
+     * error: required and missing
+     * warning: optional and missing
+     * ignored: extra, unnecessary headers
+     */
+    public abstract getHeaderReport (headers: string[]): FileReport;
 
     abstract evaluate (data: Data): number;
 }
