@@ -3,6 +3,7 @@ import { parseString } from 'xml2js';
 import { Pmml, ICustomPmmlXml } from './pmml';
 import { mergeDataDictionary } from './data_dictionary/data_dictionary';
 import { mergeLocalTransformations } from './local_transformations/local_transformations';
+import { mergeGeneralRegressionModel } from './general_regression_model/general_regression_model';
 
 const promisifiedParseXmlString: any = bluebird.promisify(parseString);
 
@@ -10,19 +11,10 @@ function mergePmml(
     pmmlOne: ICustomPmmlXml,
     pmmlTwo: ICustomPmmlXml,
 ): ICustomPmmlXml {
-    const mergedGeneralRegressionModel =
-        pmmlOne.PMML.GeneralRegressionModel ||
-        pmmlTwo.PMML.GeneralRegressionModel
-            ? Object.assign(
-                  {},
-                  pmmlOne.PMML.GeneralRegressionModel
-                      ? pmmlOne.PMML.GeneralRegressionModel
-                      : {},
-                  pmmlTwo.PMML.GeneralRegressionModel
-                      ? pmmlTwo.PMML.GeneralRegressionModel
-                      : {},
-              )
-            : {};
+    const mergedGeneralRegressionModel = mergeGeneralRegressionModel(
+        pmmlOne.PMML.GeneralRegressionModel,
+        pmmlTwo.PMML.GeneralRegressionModel,
+    );
 
     return Object.assign({}, pmmlOne, pmmlTwo, {
         PMML: {
@@ -49,6 +41,11 @@ function mergePmml(
                 {},
                 pmmlOne.PMML.CustomPMML ? pmmlOne.PMML.CustomPMML : {},
                 pmmlTwo.PMML.CustomPMML ? pmmlTwo.PMML.CustomPMML : {},
+            ),
+            MiningSchema: Object.assign(
+                {},
+                pmmlOne.PMML.MiningSchema,
+                pmmlTwo.PMML.MiningSchema,
             ),
         },
     });

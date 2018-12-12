@@ -18,6 +18,7 @@ import {
     NoParameterNodeFoundWithLabel,
     NoPCellNodeFoundWithParameterName,
 } from '../errors';
+import { IMiningField } from '../../pmml/mining-schema/mining-field';
 
 /**
  * 
@@ -62,19 +63,24 @@ function parseCovariateFromPredictor(
     dataField: IDataField,
     parameter: IParameter,
     pCell: IPCell,
-    customFunctionJson: IRcsCustomFunctionJson | undefined,
+    miningField?: IMiningField,
+    customFunctionJson?: IRcsCustomFunctionJson,
 ): ICovariateJson {
-    return Object.assign({}, parseDataFieldFromDataFieldPmmlNode(dataField), {
-        dataFieldType: getCovariateType(
-            predictor.$.name,
-        ) as DataFieldType.NonInteractionCovariate,
-        name: predictor.$.name,
-        beta: Number(pCell.$.beta),
-        referencePoint: Number(parameter.$.referencePoint),
-        customFunction: customFunctionJson,
-        extensions: parseExtensions(dataField),
-        groups: [],
-    });
+    return Object.assign(
+        {},
+        parseDataFieldFromDataFieldPmmlNode(dataField, miningField),
+        {
+            dataFieldType: getCovariateType(
+                predictor.$.name,
+            ) as DataFieldType.NonInteractionCovariate,
+            name: predictor.$.name,
+            beta: Number(pCell.$.beta),
+            referencePoint: Number(parameter.$.referencePoint),
+            customFunction: customFunctionJson,
+            extensions: parseExtensions(dataField),
+            groups: [],
+        },
+    );
 }
 
 /**
@@ -117,6 +123,9 @@ export function parseCovariates(pmml: Pmml): Array<ICovariateJson> {
                 dataFieldForCurrentPredictor,
                 parameterForCurrentPredictor,
                 pCellForCurrentParamater,
+                pmml.pmmlXml.PMML.MiningSchema.MiningField.find(miningField => {
+                    return miningField.$.name === predictor.$.name;
+                }),
                 parseCustomFunction(
                     parameterForCurrentPredictor,
                     pmml.pmmlXml.PMML.CustomPMML.RestrictedCubicSpline,

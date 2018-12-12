@@ -11,17 +11,15 @@
         "arrow-parens": false,
         "no-eval": false,
         "no-console": false,
-        "member-access": false,
         "interface-name": false,
-        "member-ordering": [
+        "space-before-function-paren": true,
+        "curly": [true, "ignore-same-line"],
+        "trailing-comma": [
             true,
             {
-                "order": [
-                    "fields-first",
-                    "static-field",
-                    "public-instance-method",
-                    "private-instance-method"
-                ]
+                "multiline": {
+                    "functions": "never"
+                }
             }
         ]
     },

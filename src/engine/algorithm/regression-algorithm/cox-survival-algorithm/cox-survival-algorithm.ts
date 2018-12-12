@@ -15,6 +15,8 @@ import { NoCalibrationFoundError } from './calibration/calibration-errors';
 import { Predicate } from '../../../predicate/predicate';
 import { NoPredicateObjectFoundError } from '../../../predicate/predicate-errors';
 import { BaselineJson } from '../../../../parsers/json/json-baseline';
+import { DataNameReport } from '../../algorithm';
+import { InteractionCovariate } from '../../../data-field/covariate/interaction-covariate/interaction-covariate'
 
 export interface INewPredictor {
     name: string;
@@ -29,7 +31,7 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
     calibration: Calibration;
     baseline: Baseline;
 
-    constructor(coxSurvivalAlgorithmJson: ICoxSurvivalAlgorithmJson) {
+    constructor (coxSurvivalAlgorithmJson: ICoxSurvivalAlgorithmJson) {
         super(coxSurvivalAlgorithmJson);
 
         this.maximumTime = coxSurvivalAlgorithmJson.maximumTime;
@@ -39,6 +41,39 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
             : undefined;
         this.timeMetric = coxSurvivalAlgorithmJson.timeMetric;
         this.calibration = new Calibration();
+    }
+
+    public buildDataNameReport (headers: string[]): DataNameReport {
+        const found: string[] = [];
+        const missingRequired: string[] = [];
+        const missingOptional: string[] = [];
+        const ignored: string[] = [...headers];
+
+        this.covariates.forEach(covariate => {
+            if (covariate.customFunction) return;
+            if (covariate instanceof InteractionCovariate) return;
+
+            const { isRequired, name } = covariate;
+            const headerWasProvided = headers.includes(name);
+
+            if (headerWasProvided) {
+                found.push(name);
+                ignored.splice(ignored.indexOf(name), 1);
+            } else {
+                if (isRequired) {
+                    missingRequired.push(name);
+                } else {
+                    missingOptional.push(name);
+                }
+            }
+        });
+
+        return {
+            found,
+            missingRequired,
+            missingOptional,
+            ignored
+        };
     }
 
     evaluate(data: Data, time?: Date | moment.Moment) {
@@ -83,6 +118,7 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
                     : 0,
                 name: predictor.name,
                 groups: [],
+                isRequired: false,
             },
             undefined,
             undefined,

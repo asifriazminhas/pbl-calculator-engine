@@ -9,11 +9,23 @@ export abstract class Algorithm {
     userFunctions: IUserFunctions;
     tables: ITables;
 
-    constructor(algorithmJson: ICoxSurvivalAlgorithmJson) {
+    constructor (algorithmJson: ICoxSurvivalAlgorithmJson) {
         this.name = algorithmJson.name;
         this.userFunctions = parseUserFunctions(algorithmJson.userFunctions);
         this.tables = algorithmJson.tables;
     }
 
-    abstract evaluate(data: Data): number;
+    /**
+     * @description Build a report based on provided data names
+     */
+    public abstract buildDataNameReport (headers: string[]): DataNameReport;
+
+    abstract evaluate (data: Data): number;
+}
+
+export interface DataNameReport {
+    found: string[];
+    missingRequired: string[];
+    missingOptional: string[];
+    ignored: string[];
 }

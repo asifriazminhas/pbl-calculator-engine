@@ -134,6 +134,7 @@ function getDerivedFromForAst(
                             {},
                             parseDataFieldFromDataFieldPmmlNode(
                                 dataFieldForCurrentDerivedField,
+                                undefined,
                             ),
                             {
                                 fieldType: DataFieldType.DataField as DataFieldType.DataField,
@@ -145,6 +146,7 @@ function getDerivedFromForAst(
                             name: derivedFromItem,
                             displayName: '',
                             extensions: {},
+                            isRequired: false,
                         };
                     }
                 }
@@ -180,10 +182,12 @@ export function parseDerivedFields(
                     derivedFrom: getDerivedFromForAst(ast, pmml),
                     displayName: '',
                     extensions: {},
+                    isRequired: false,
                 },
                 dataFieldForCurrentDerivedField
                     ? parseDataFieldFromDataFieldPmmlNode(
                           dataFieldForCurrentDerivedField,
+                          undefined,
                       )
                     : {},
                 {

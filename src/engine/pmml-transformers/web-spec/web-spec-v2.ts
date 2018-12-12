@@ -7,6 +7,9 @@ import {
     IDataField,
 } from '../../../parsers/pmml/data_dictionary/data_field';
 import { buildXmlFromXml2JsObject } from '../../../util/xmlbuilder';
+import { InvalidValueTreatment as PmmlInvalidValueTreatment } from '../../../parsers/pmml/mining-schema/invalid-value-treatment';
+import { MissingValueTreatment as PmmlMissingValueTreatment } from '../../../parsers/pmml/mining-schema/missing-value-treatment';
+import { IMiningSchema } from '../../../parsers/pmml/mining-schema/mining-schema';
 
 export function convertWebSpecV2CsvToPmml(
     webSpecV2CsvString: string,
@@ -42,12 +45,39 @@ export function convertWebSpecV2CsvToPmml(
         },
     };
 
+    const MiningSchema: IMiningSchema = {
+        MiningField: webSpecV2Csv.map(
+            ({ InvalidValueTreatment, Name, MissingValueReplacement }) => {
+                return {
+                    $: Object.assign(
+                        {
+                            name: Name,
+                            invalidValueTreatment:
+                                InvalidValueTreatment === 'asMissing'
+                                    ? PmmlInvalidValueTreatment.AsMissing
+                                    : InvalidValueTreatment === 'returnInvalid'
+                                      ? PmmlInvalidValueTreatment.ReturnInvalid
+                                      : PmmlInvalidValueTreatment.AsIs,
+                        },
+                        MissingValueReplacement === 'asMean'
+                            ? {
+                                  missingValueTreatment:
+                                      PmmlMissingValueTreatment.AsMean,
+                              }
+                            : undefined,
+                    ),
+                };
+            },
+        ),
+    };
+
     const pmml: IPmml = {
         Header,
         DataDictionary,
         LocalTransformations: {
             DerivedField: [],
         },
+        MiningSchema,
     };
 
     return buildXmlFromXml2JsObject({
@@ -61,6 +91,8 @@ interface WebSpecV2CsvRow {
     UserMin_female: string;
     UserMax_male: string;
     UserMax_female: string;
+    InvalidValueTreatment: 'returnInvalid' | 'asMissing' | '';
+    MissingValueReplacement: 'asMean' | '';
 }
 type WebSpecV2Csv = WebSpecV2CsvRow[];
 

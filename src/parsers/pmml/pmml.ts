@@ -10,6 +10,7 @@ import { ICustomHeader } from './custom/header';
 import { IRestrictedCubicSpline } from './custom/restricted_cubic_spline';
 import { buildXmlFromXml2JsObject } from '../../util/xmlbuilder';
 import { ITaxonomy } from './taxonomy';
+import { IMiningSchema } from './mining-schema/mining-schema';
 
 export interface IOutput {
     OutputField: {
@@ -25,6 +26,7 @@ export interface IPmml {
     DataDictionary: IDataDictionary;
     LocalTransformations: ILocalTransformations;
     GeneralRegressionModel?: IGeneralRegressionModel;
+    MiningSchema: IMiningSchema;
     Taxonomy?: ITaxonomy[] | ITaxonomy;
     Output?: IOutput;
     Targets?: {
