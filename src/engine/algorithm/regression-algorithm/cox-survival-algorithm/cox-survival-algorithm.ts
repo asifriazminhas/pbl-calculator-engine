@@ -15,7 +15,7 @@ import { NoCalibrationFoundError } from './calibration/calibration-errors';
 import { Predicate } from '../../../predicate/predicate';
 import { NoPredicateObjectFoundError } from '../../../predicate/predicate-errors';
 import { BaselineJson } from '../../../../parsers/json/json-baseline';
-import { FileReport } from '../../algorithm';
+import { DataNameReport } from '../../algorithm';
 import { InteractionCovariate } from '../../../data-field/covariate/interaction-covariate/interaction-covariate'
 
 export interface INewPredictor {
@@ -31,7 +31,7 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
     calibration: Calibration;
     baseline: Baseline;
 
-    constructor(coxSurvivalAlgorithmJson: ICoxSurvivalAlgorithmJson) {
+    constructor (coxSurvivalAlgorithmJson: ICoxSurvivalAlgorithmJson) {
         super(coxSurvivalAlgorithmJson);
 
         this.maximumTime = coxSurvivalAlgorithmJson.maximumTime;
@@ -43,36 +43,36 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         this.calibration = new Calibration();
     }
 
-    public getHeaderReport (headers: string[]): FileReport {
-        const validHeaders: string[] = [];
-        const missingHeaders: string[] = [];
-        const warningHeaders: string[] = [];
-        const ignoredHeaders: string[] = [...headers];
+    public buildDataNameReport (headers: string[]): DataNameReport {
+        const found: string[] = [];
+        const missingRequired: string[] = [];
+        const missingOptional: string[] = [];
+        const ignored: string[] = [...headers];
 
-        for (const covariate of this.covariates) {
-            if (covariate.customFunction) continue;
-            if (covariate instanceof InteractionCovariate) continue;
+        this.covariates.forEach(covariate => {
+            if (covariate.customFunction) return;
+            if (covariate instanceof InteractionCovariate) return;
 
             const { isRequired, name } = covariate;
             const headerWasProvided = headers.includes(name);
 
             if (headerWasProvided) {
-                validHeaders.push(name);
-                ignoredHeaders.splice(ignoredHeaders.indexOf(name), 1);
+                found.push(name);
+                ignored.splice(ignored.indexOf(name), 1);
             } else {
                 if (isRequired) {
-                    missingHeaders.push(name);
+                    missingRequired.push(name);
                 } else {
-                    warningHeaders.push(name);
+                    missingOptional.push(name);
                 }
             }
-        }
+        });
 
         return {
-            valid: validHeaders,
-            errors: missingHeaders,
-            warnings: warningHeaders,
-            ignored: ignoredHeaders
+            found,
+            missingRequired,
+            missingOptional,
+            ignored
         };
     }
 

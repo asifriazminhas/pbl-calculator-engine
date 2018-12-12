@@ -4,13 +4,6 @@ import { Data } from '../data';
 import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-algorithm';
 import { parseUserFunctions } from '../../parsers/json/json-user-functions';
 
-export interface FileReport {
-    valid: string[];
-    errors: string[];
-    warnings: string[];
-    ignored: string[];
-}
-
 export abstract class Algorithm {
     name: string;
     userFunctions: IUserFunctions;
@@ -23,14 +16,16 @@ export abstract class Algorithm {
     }
 
     /**
-     * @description Build a report based on detected headers from a file. Build a list of headers
-     * that are:
-     * valid: required and found
-     * error: required and missing
-     * warning: optional and missing
-     * ignored: extra, unnecessary headers
+     * @description Build a report based on provided data names
      */
-    public abstract getHeaderReport (headers: string[]): FileReport;
+    public abstract buildDataNameReport (headers: string[]): DataNameReport;
 
     abstract evaluate (data: Data): number;
+}
+
+export interface DataNameReport {
+    found: string[];
+    missingRequired: string[];
+    missingOptional: string[];
+    ignored: string[];
 }

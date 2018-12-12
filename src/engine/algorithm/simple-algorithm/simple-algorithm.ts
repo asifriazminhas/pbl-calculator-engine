@@ -1,4 +1,4 @@
-import { Algorithm, FileReport } from '../algorithm';
+import { Algorithm, DataNameReport } from '../algorithm';
 import { DerivedField } from '../../data-field/derived-field/derived-field';
 import { Data } from '../../data/data';
 
@@ -6,13 +6,8 @@ export class SimpleAlgorithm extends Algorithm {
     // TODO Fix the ! later
     output!: DerivedField;
 
-    public getHeaderReport (headers: string[]): FileReport {
-        return {
-            valid: headers,
-            errors: headers,
-            warnings: headers,
-            ignored: headers
-        };
+    public buildDataNameReport (headers: string[]): DataNameReport {
+        throw new Error(this.buildDataNameReport.name + ' is not implemented');
     }
 
     evaluate(data: Data): number {

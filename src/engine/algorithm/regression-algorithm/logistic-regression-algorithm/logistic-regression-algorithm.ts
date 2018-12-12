@@ -1,16 +1,11 @@
 import { RegressionAlgorithm } from '../regression-algorithm';
 import { Data } from '../../../data/data';
-import { FileReport } from '../../algorithm';
+import { DataNameReport } from '../../algorithm';
 
 export class LogsiticRegressionAlgorithm extends RegressionAlgorithm {
 
-    public getHeaderReport (headers: string[]): FileReport {
-        return {
-            valid: headers,
-            errors: headers,
-            warnings: headers,
-            ignored: headers
-        };
+    public buildDataNameReport (headers: string[]): DataNameReport {
+        throw new Error(this.buildDataNameReport.name + ' is not implemented');
     }
 
     getRisk(data: Data) {
