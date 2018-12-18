@@ -3,8 +3,7 @@ import { Data } from '../../../data/data';
 import { DataNameReport } from '../../algorithm';
 
 export class LogsiticRegressionAlgorithm extends RegressionAlgorithm {
-
-    public buildDataNameReport (headers: string[]): DataNameReport {
+    public buildDataNameReport(): DataNameReport {
         throw new Error(this.buildDataNameReport.name + ' is not implemented');
     }
 

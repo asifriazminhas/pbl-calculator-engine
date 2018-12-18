@@ -6,7 +6,7 @@ export class SimpleAlgorithm extends Algorithm {
     // TODO Fix the ! later
     output!: DerivedField;
 
-    public buildDataNameReport (headers: string[]): DataNameReport {
+    public buildDataNameReport (): DataNameReport {
         throw new Error(this.buildDataNameReport.name + ' is not implemented');
     }
 
