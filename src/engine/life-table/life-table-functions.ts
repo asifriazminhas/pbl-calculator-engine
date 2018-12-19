@@ -31,7 +31,7 @@ export class LifeTableFunctions {
     public getLifeExpectancy(data: Data): number {
         const algorithm = this.model.getAlgorithmForData(data);
 
-        if ('bins' in algorithm) {
+        if ('bins' in algorithm && algorithm.bins !== undefined) {
             const binData = algorithm.bins!.getBinDataForScore(
                 algorithm.calculateScore(data),
             );
@@ -41,7 +41,7 @@ export class LifeTableFunctions {
             })!.time as number;
         } else {
             return getLifeExpectancyForAge(
-                findDatumWithName('age', data).coefficent as number,
+                Number(findDatumWithName('age', data).coefficent as number),
                 this.getCompleteLifeTable(data),
             );
         }
