@@ -12,16 +12,8 @@
         "no-eval": false,
         "no-console": false,
         "interface-name": false,
-        "space-before-function-paren": true,
         "curly": [true, "ignore-same-line"],
-        "trailing-comma": [
-            true,
-            {
-                "multiline": {
-                    "functions": "never"
-                }
-            }
-        ]
+        "trailing-comma": [true]
     },
     "rulesDirectory": []
 }
