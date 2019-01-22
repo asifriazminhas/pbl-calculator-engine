@@ -123,9 +123,13 @@ export function parseCovariates(pmml: Pmml): Array<ICovariateJson> {
                 dataFieldForCurrentPredictor,
                 parameterForCurrentPredictor,
                 pCellForCurrentParamater,
-                pmml.pmmlXml.PMML.MiningSchema.MiningField.find(miningField => {
-                    return miningField.$.name === predictor.$.name;
-                }),
+                pmml.pmmlXml.PMML.MiningSchema.MiningField
+                    ? pmml.pmmlXml.PMML.MiningSchema.MiningField.find(
+                          miningField => {
+                              return miningField.$.name === predictor.$.name;
+                          },
+                      )
+                    : undefined,
                 parseCustomFunction(
                     parameterForCurrentPredictor,
                     pmml.pmmlXml.PMML.CustomPMML.RestrictedCubicSpline,
