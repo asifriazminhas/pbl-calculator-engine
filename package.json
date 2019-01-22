@@ -12,7 +12,7 @@
         "build-ts:watch": "tsc -w",
         "build":
             "rm -rf ./lib && rm -rf ./dist && npm run build-ts && npm run build-umd",
-        "prepublish": "npm install && npm run build",
+        "prepublish": "npm run build",
         "lifetable-csv-to-json": "node ./lib/scripts/lifetable-csv-to-json.js",
         "test":
             "tape -r source-map-support/register lib/test/**/*.js | tap-spec"
