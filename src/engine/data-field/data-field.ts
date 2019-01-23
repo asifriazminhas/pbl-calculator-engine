@@ -3,11 +3,20 @@ import { autobind } from 'core-decorators';
 import { uniqWith } from 'lodash';
 import { Interval } from './covariate/interval';
 import { IDataFieldJson } from '../../parsers/json/json-data-field';
+import { ICategory } from './category';
 
 @autobind
 export class DataField {
     name: string;
     interval?: Interval;
+    /**
+     * If the DataField is a categorical field, then this field will be set.
+     * Otherwise it will be undefined.
+     *
+     * @type {ICategory[]}
+     * @memberof DataField
+     */
+    categories?: ICategory[];
     isRequired: boolean;
 
     constructor(fieldJson: IDataFieldJson) {
