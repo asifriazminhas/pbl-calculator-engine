@@ -51,4 +51,15 @@ export class DataField {
     isFieldWithName(name: string): boolean {
         return this.name === name;
     }
+
+    /**
+     * Validates the Datum identical to this DataField using the interval and
+     * categories fields if present
+     *
+     * @param {Data[]} data
+     * @memberof DataField
+     */
+    validateData(data: Data[]) {
+        // TODO Luke
+    }
 }
