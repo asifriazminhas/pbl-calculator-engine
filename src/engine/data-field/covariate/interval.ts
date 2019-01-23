@@ -15,9 +15,12 @@ export class Interval {
     }
 
     limitNumber(num: number): number {
-        if (this.lowerMargin && num < this.lowerMargin.margin) {
+        if (this.lowerMargin && this.validateLowerMargin(num) !== true) {
             return this.lowerMargin.margin;
-        } else if (this.higherMargin && num > this.higherMargin.margin) {
+        } else if (
+            this.higherMargin &&
+            this.validateHigherMargin(num) !== true
+        ) {
             return this.higherMargin.margin;
         } else {
             return num;
