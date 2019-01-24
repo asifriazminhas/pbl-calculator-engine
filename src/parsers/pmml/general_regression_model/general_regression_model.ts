@@ -24,6 +24,10 @@ export interface IGeneralRegressionModel {
         baselineHazard: string;
         modelType: GeneralRegressionModelType;
     };
+    Extension: [
+        GeneralRegressionModelExtensions,
+        GeneralRegressionModelExtensions
+    ];
 }
 
 export function mergeGeneralRegressionModel(
@@ -75,3 +79,15 @@ export function mergeGeneralRegressionModel(
         return undefined;
     }
 }
+
+interface IMaximumTimeExtension {
+    name: 'maximumTime';
+    value: string;
+}
+interface ITimeMetricExtension {
+    name: 'timeMetric';
+    value: 'days' | 'years';
+}
+type GeneralRegressionModelExtensions =
+    | IMaximumTimeExtension
+    | ITimeMetricExtension;
