@@ -28,7 +28,7 @@ async function pmmlStringsToJson(
         .GeneralRegressionModel as IGeneralRegressionModel;
 
     const baseAlgorithm: ICoxSurvivalAlgorithmJson = {
-        name: pmml.pmmlXml.PMML.Header.Extension.ModelName,
+        name: pmml.pmmlXml.PMML.Header.Extension.value,
         derivedFields: parseDerivedFields(pmml, allDefineFunctionNames),
         userFunctions: returnEmptyArrayIfUndefined(
             pmml.pmmlXml.PMML.LocalTransformations.DefineFunction,
