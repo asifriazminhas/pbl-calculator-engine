@@ -24,9 +24,11 @@ async function pmmlStringsToJson(
     const allDefineFunctionNames = returnEmptyArrayIfUndefined(
         pmml.pmmlXml.PMML.LocalTransformations.DefineFunction,
     ).map(defineFunction => defineFunction.$.name);
+    const generalRegressionModel = pmml.pmmlXml.PMML
+        .GeneralRegressionModel as IGeneralRegressionModel;
 
     const baseAlgorithm: ICoxSurvivalAlgorithmJson = {
-        name: pmml.pmmlXml.PMML.Header.Extension.ModelName,
+        name: pmml.pmmlXml.PMML.Header.Extension.value,
         derivedFields: parseDerivedFields(pmml, allDefineFunctionNames),
         userFunctions: returnEmptyArrayIfUndefined(
             pmml.pmmlXml.PMML.LocalTransformations.DefineFunction,
@@ -38,11 +40,14 @@ async function pmmlStringsToJson(
                 return Object.assign({}, userFunctionObj, currentObject);
             }, {}),
         tables: parseTaxonomy(pmml.pmmlXml.PMML.Taxonomy),
-        baseline: parseBaselineFromPmmlXml(pmml.pmmlXml.PMML
-            .GeneralRegressionModel as IGeneralRegressionModel),
+        baseline: parseBaselineFromPmmlXml(generalRegressionModel),
         covariates: parseCovariates(pmml),
-        timeMetric: TimeMetric.Years,
-        maximumTime: 5,
+        timeMetric: parseTimeMetric(generalRegressionModel),
+        maximumTime: Number(
+            generalRegressionModel.Extension.find(extension => {
+                return extension.name === 'maximumTime';
+            })!.value,
+        ),
     };
 
     return baseAlgorithm;
@@ -69,4 +74,26 @@ export async function pmmlXmlStringsToJson(
     };
 
     return optimizeModel(modelJson);
+}
+
+function parseTimeMetric(
+    generalRegressionModel: IGeneralRegressionModel,
+): TimeMetric {
+    const pmmlTimeMetric = generalRegressionModel.Extension.find(({ name }) => {
+        return name === 'timeMetric';
+    })!.value;
+
+    switch (pmmlTimeMetric) {
+        case 'days': {
+            return TimeMetric.Days;
+        }
+        case 'years': {
+            return TimeMetric.Years;
+        }
+        default: {
+            throw new Error(
+                `Unknown time metric extension value ${pmmlTimeMetric}`,
+            );
+        }
+    }
 }
