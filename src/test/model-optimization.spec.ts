@@ -80,6 +80,10 @@ test(`Model optimizations`, t => {
         testFunctionThree: '',
     };
 
+    const metadata = {
+        label: '',
+        shortLabel: '',
+    };
     const DerivedFields: IDerivedFieldJson[] = [
         {
             // tslint:disable-next-line
@@ -87,6 +91,7 @@ test(`Model optimizations`, t => {
             derivedFrom: [],
             name: 'derivedFieldOne',
             isRequired: false,
+            metadata,
         },
         {
             // tslint:disable-next-line
@@ -94,12 +99,14 @@ test(`Model optimizations`, t => {
             derivedFrom: [],
             name: 'derivedFieldTwo',
             isRequired: false,
+            metadata,
         },
         {
             equation: `derived = userFunctions['testFunctionOne']()`,
             derivedFrom: [],
             name: 'derivedFieldThree',
             isRequired: false,
+            metadata,
         },
     ];
 

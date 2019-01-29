@@ -5,6 +5,7 @@ export interface IBaseDataField<T> extends BasePmmlNode {
     $: {
         name: string;
         displayName: string;
+        'X-shortLabel': string;
         optype: T;
         dataType: string;
     };

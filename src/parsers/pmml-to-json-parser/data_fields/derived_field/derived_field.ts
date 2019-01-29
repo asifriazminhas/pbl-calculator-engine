@@ -144,9 +144,12 @@ function getDerivedFromForAst(
                         return {
                             fieldType: DataFieldType.DataField as DataFieldType.DataField,
                             name: derivedFromItem,
-                            displayName: '',
                             extensions: {},
                             isRequired: false,
+                            metadata: {
+                                label: '',
+                                shortLabel: '',
+                            },
                         };
                     }
                 }
@@ -180,7 +183,6 @@ export function parseDerivedFields(
                     name: derivedField.$.name,
                     equation: escodegen.generate(ast),
                     derivedFrom: getDerivedFromForAst(ast, pmml),
-                    displayName: '',
                     extensions: {},
                     isRequired: false,
                 },
@@ -189,7 +191,12 @@ export function parseDerivedFields(
                           dataFieldForCurrentDerivedField,
                           undefined,
                       )
-                    : {},
+                    : {
+                          metadata: {
+                              label: '',
+                              shortLabel: '',
+                          },
+                      },
                 {
                     fieldType: DataFieldType.DerivedField as DataFieldType.DerivedField,
                 },

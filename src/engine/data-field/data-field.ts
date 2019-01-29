@@ -5,6 +5,7 @@ import { Interval } from './covariate/interval';
 import { IDataFieldJson } from '../../parsers/json/json-data-field';
 import { ICategory } from './category';
 import { ErrorCode } from './error-code';
+import { IMetadata } from './metadata';
 
 @autobind
 export class DataField {
@@ -19,6 +20,7 @@ export class DataField {
      */
     categories?: ICategory[];
     isRequired: boolean;
+    metadata: IMetadata;
 
     constructor(fieldJson: IDataFieldJson) {
         this.name = fieldJson.name;
@@ -26,6 +28,7 @@ export class DataField {
             ? new Interval(fieldJson.interval)
             : undefined;
         this.isRequired = fieldJson.isRequired;
+        this.metadata = fieldJson.metadata;
     }
 
     static getUniqueDataFields(dataFields: DataField[]): DataField[] {

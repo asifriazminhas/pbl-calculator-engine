@@ -16,7 +16,7 @@ import { Predicate } from '../../../predicate/predicate';
 import { NoPredicateObjectFoundError } from '../../../predicate/predicate-errors';
 import { BaselineJson } from '../../../../parsers/json/json-baseline';
 import { DataNameReport } from '../../algorithm';
-import { InteractionCovariate } from '../../../data-field/covariate/interaction-covariate/interaction-covariate'
+import { InteractionCovariate } from '../../../data-field/covariate/interaction-covariate/interaction-covariate';
 
 export interface INewPredictor {
     name: string;
@@ -31,7 +31,7 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
     calibration: Calibration;
     baseline: Baseline;
 
-    constructor (coxSurvivalAlgorithmJson: ICoxSurvivalAlgorithmJson) {
+    constructor(coxSurvivalAlgorithmJson: ICoxSurvivalAlgorithmJson) {
         super(coxSurvivalAlgorithmJson);
 
         this.maximumTime = coxSurvivalAlgorithmJson.maximumTime;
@@ -43,7 +43,7 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         this.calibration = new Calibration();
     }
 
-    public buildDataNameReport (headers: string[]): DataNameReport {
+    public buildDataNameReport(headers: string[]): DataNameReport {
         const found: string[] = [];
         const missingRequired: string[] = [];
         const missingOptional: string[] = [];
@@ -72,7 +72,7 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
             found,
             missingRequired,
             missingOptional,
-            ignored
+            ignored,
         };
     }
 
@@ -119,6 +119,10 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
                 name: predictor.name,
                 groups: [],
                 isRequired: false,
+                metadata: {
+                    label: '',
+                    shortLabel: '',
+                },
             },
             undefined,
             undefined,
