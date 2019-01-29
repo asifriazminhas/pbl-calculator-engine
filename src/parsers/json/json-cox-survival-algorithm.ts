@@ -1,6 +1,6 @@
 // tslint:disable-next-line:max-line-length
 import { CoxSurvivalAlgorithm } from '../../engine/algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
-import { Jsonify } from '../../util/types';
+import { JsonSerializable } from '../../util/types';
 import { Omit } from 'utility-types';
 import { ICovariateJson } from './json-covariate';
 import { IDerivedFieldJson } from './json-derived-field';
@@ -10,7 +10,7 @@ import { IBinsJson } from './json-bins';
 
 export interface ICoxSurvivalAlgorithmJson
     extends Omit<
-            Jsonify<CoxSurvivalAlgorithm>,
+            JsonSerializable<CoxSurvivalAlgorithm>,
             'covariates' | 'userFunctions' | 'baseline' | 'bins' | 'calibration'
         > {
     covariates: ICovariateJson[];

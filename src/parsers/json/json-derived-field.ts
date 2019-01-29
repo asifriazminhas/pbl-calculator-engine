@@ -1,5 +1,5 @@
 import { Omit } from 'utility-types';
-import { Jsonify } from '../../util/types';
+import { JsonSerializable } from '../../util/types';
 import { DerivedField } from '../../engine/data-field/derived-field/derived-field';
 import { IDataFieldJson } from './json-data-field';
 import {
@@ -8,10 +8,12 @@ import {
 } from './json-covariate';
 import { DataField } from '../../engine/data-field/data-field';
 import { findCovariateJsonWithName } from './json-covariate';
+import { JsonInterval } from './json-interval';
 
 export interface IDerivedFieldJson
-    extends Omit<Jsonify<DerivedField>, 'derivedFrom'> {
-    derivedFrom: Array<string | Jsonify<IDataFieldJson>>;
+    extends Omit<JsonSerializable<DerivedField>, 'derivedFrom' | 'interval'> {
+    derivedFrom: Array<string | JsonSerializable<IDataFieldJson>>;
+    interval?: JsonInterval;
 }
 
 export function findDerivedFieldJsonWithName(
@@ -24,7 +26,7 @@ export function findDerivedFieldJsonWithName(
 }
 
 export function parseDerivedFromJsonToDerivedFrom(
-    derivedFromJson: Array<string | Jsonify<IDataFieldJson>>,
+    derivedFromJson: Array<string | JsonSerializable<IDataFieldJson>>,
     derivedFieldJsons: IDerivedFieldJson[],
     covariatesJson: ICovariateJson[],
 ): DataField[] {
