@@ -1,4 +1,4 @@
-import { Jsonify } from '../../util/types';
+import { JsonSerializable } from '../../util/types';
 import { Covariate } from '../../engine/data-field/covariate/covariate';
 import {
     IRcsCustomFunctionJson,
@@ -17,7 +17,7 @@ import { NonInteractionCovariate } from '../../engine/data-field/covariate/non-i
 import { JsonInterval } from './json-interval';
 
 export interface ICovariateJson
-    extends Omit<Jsonify<Covariate>, 'customFunction' | 'interval'> {
+    extends Omit<JsonSerializable<Covariate>, 'customFunction' | 'interval'> {
     dataFieldType:
         | DataFieldType.InteractionCovariate
         | DataFieldType.NonInteractionCovariate;

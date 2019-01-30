@@ -1,5 +1,5 @@
 import { Omit } from 'utility-types';
-import { Jsonify } from '../../util/types';
+import { JsonSerializable } from '../../util/types';
 import { RcsCustomFunction } from '../../engine/data-field/covariate/custom-function/rcs-custom-function';
 import {
     ICovariateJson,
@@ -9,7 +9,10 @@ import {
 import { IDerivedFieldJson } from './json-derived-field';
 
 export interface IRcsCustomFunctionJson
-    extends Omit<Jsonify<RcsCustomFunction>, 'firstVariableCovariate'> {
+    extends Omit<
+            JsonSerializable<RcsCustomFunction>,
+            'firstVariableCovariate'
+        > {
     firstVariableCovariate: string;
 }
 

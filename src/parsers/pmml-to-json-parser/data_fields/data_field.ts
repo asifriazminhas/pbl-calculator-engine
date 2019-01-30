@@ -12,6 +12,10 @@ export function parseDataFieldFromDataFieldPmmlNode(
         name: dataFieldNode.$.name,
         interval: parseInterval(dataFieldNode),
         isRequired: parseIsRequired(miningField),
+        metadata: {
+            label: dataFieldNode.$.displayName,
+            shortLabel: dataFieldNode.$['X-shortLabel'],
+        },
     };
 }
 

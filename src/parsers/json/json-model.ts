@@ -1,12 +1,13 @@
 import { Model } from '../../engine/model/model';
-import { Jsonify } from '../../util/types';
+import { JsonSerializable } from '../../util/types';
 import { Omit } from 'utility-types';
 import { ICoxSurvivalAlgorithmJson } from './json-cox-survival-algorithm';
 import { PredicateJson } from './json-predicate';
 import { Data } from '../../engine/data';
 import { Predicate } from '../../engine/predicate/predicate';
 
-export interface IModelJson extends Omit<Jsonify<Model>, 'algorithms'> {
+export interface IModelJson
+    extends Omit<JsonSerializable<Model>, 'algorithms'> {
     algorithms: Array<{
         algorithm: ICoxSurvivalAlgorithmJson;
         predicate: PredicateJson;

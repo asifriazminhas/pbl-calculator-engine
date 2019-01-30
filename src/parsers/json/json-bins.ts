@@ -1,4 +1,4 @@
-import { Jsonify } from '../../util/types';
+import { JsonSerializable } from '../../util/types';
 import {
     Bins,
     BinsLookup,
@@ -19,7 +19,7 @@ export interface IBinsLookupJsonItem {
     maxScore: BinsLookupJsonScoreValue;
 }
 
-export interface IBinsJson extends Omit<Jsonify<Bins>, 'binsLookup'> {
+export interface IBinsJson extends Omit<JsonSerializable<Bins>, 'binsLookup'> {
     binsLookup: IBinsLookupJsonItem[];
 }
 

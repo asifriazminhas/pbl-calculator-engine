@@ -27,6 +27,10 @@ test(`.calculateCoefficent`, t => {
             },
         ],
     };
+    const metadata = {
+        label: '',
+        shortLabel: '',
+    };
     const derivedField: DerivedField = new DerivedField(
         {
             name: 'derivedField',
@@ -39,11 +43,13 @@ test(`.calculateCoefficent`, t => {
         )`,
             derivedFrom: [],
             isRequired: false,
+            metadata,
         },
         [
             new DataField({
                 name: 'fieldOne',
                 isRequired: false,
+                metadata,
             }),
         ],
     );
@@ -63,6 +69,11 @@ test(`.calculateCoefficent`, t => {
 });
 
 test(`.getDerivedFieldWithName`, t => {
+    const metadata = {
+        label: '',
+        shortLabel: '',
+    };
+
     const childFields: DerivedField[] = [
         new DerivedField(
             {
@@ -70,6 +81,7 @@ test(`.getDerivedFieldWithName`, t => {
                 name: '',
                 derivedFrom: [],
                 isRequired: false,
+                metadata,
             },
             [
                 new DerivedField(
@@ -78,6 +90,7 @@ test(`.getDerivedFieldWithName`, t => {
                         derivedFrom: [],
                         name: 'fieldToFind',
                         isRequired: false,
+                        metadata,
                     },
                     [
                         new DerivedField(
@@ -86,6 +99,7 @@ test(`.getDerivedFieldWithName`, t => {
                                 derivedFrom: [],
                                 name: '',
                                 isRequired: false,
+                                metadata,
                             },
                             [],
                         ),
@@ -99,6 +113,7 @@ test(`.getDerivedFieldWithName`, t => {
                 equation: '',
                 derivedFrom: [],
                 isRequired: false,
+                metadata,
             },
             [],
         ),
@@ -110,6 +125,7 @@ test(`.getDerivedFieldWithName`, t => {
             derivedFrom: [],
             name: '',
             isRequired: false,
+            metadata,
         },
         childFields,
     );
@@ -127,9 +143,14 @@ test(`.getDerivedFieldWithName`, t => {
 
 test(`.calculateDataToCalculateCoefficent`, t => {
     t.test(`When the derived from item is a DataField`, t => {
+        const metadata = {
+            label: '',
+            shortLabel: '',
+        };
         const derivedFromDataField = new DataField({
             name: 'testOne',
             isRequired: false,
+            metadata,
         });
         const derivedField: DerivedField = new DerivedField(
             {
@@ -137,6 +158,7 @@ test(`.calculateDataToCalculateCoefficent`, t => {
                 equation: '',
                 derivedFrom: [],
                 isRequired: false,
+                metadata,
             },
             [derivedFromDataField],
         );

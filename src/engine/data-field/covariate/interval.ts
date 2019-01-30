@@ -1,5 +1,6 @@
 import { Margin } from './margin';
 import { JsonInterval } from '../../../parsers/json/json-interval';
+import { ErrorCode } from '../error-code';
 
 export class Interval {
     lowerMargin?: Margin;
@@ -32,21 +33,19 @@ export class Interval {
      * greater than or equal to for a closed margin
      *
      * @param {number} num value to validate
-     * @param {string} [variableName=''] Optional name of the variable this
-     * value belongs to. Used in the error message string returned.
-     * @returns {(string | true)} Returns an error message if validation fails.
-     * True if validation passes.
+     * @returns {(ErrorCode | true)} Returns an ErrorCode if validation
+     * fails. True if validation passes.
      * @memberof Interval
      */
-    validateLowerMargin(num: number, variableName: string = ''): string | true {
+    validateLowerMargin(num: number): ErrorCode | true {
         if (this.lowerMargin) {
             const margin = this.lowerMargin.margin;
 
             if (this.lowerMargin.isOpen) {
                 if (num <= margin) {
-                    return `Datum value for variable ${variableName} should be greater than ${margin}`;
+                    return ErrorCode.LessThanOrEqualTo;
                 } else if (num < margin) {
-                    return `Datum value for variable ${variableName} should be greater than or equal to ${margin}`;
+                    return ErrorCode.LessThan;
                 }
             }
         }
@@ -58,24 +57,19 @@ export class Interval {
      * Validates whether the num arg is less than for an open margin or
      * less than or equal to for a closed margin
      * @param {number} num value to validate
-     * @param {string} [variableName=''] Optional name of the variable this
-     * value belongs to. Used in the error message string returned.
-     * @returns {(string | true)} Returns an error message if validation fails.
+     * @returns {(ErrorCode | true)} Returns an ErrorCode if validation fails.
      * True if validation passes.
      * @memberof Interval
      */
-    validateHigherMargin(
-        num: number,
-        variableName: string = '',
-    ): string | true {
+    validateHigherMargin(num: number): ErrorCode | true {
         if (this.higherMargin) {
             const margin = this.higherMargin.margin;
 
             if (this.higherMargin.isOpen) {
                 if (num >= margin) {
-                    return `Datum value for variable ${variableName} should be less than ${margin}`;
+                    return ErrorCode.GreaterThanOrEqualTo;
                 } else if (num > margin) {
-                    return `Datum value for variable ${variableName} should be less than or equal to ${margin}`;
+                    return ErrorCode.GreaterThan;
                 }
             }
         }
