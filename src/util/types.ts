@@ -24,7 +24,7 @@ export type JsonSerializable<T extends object> = {
     [U in keyof OmitByValue<T, Function>]: T[U] extends Array<infer R>
       ? R extends object
         ? Array<JsonSerializable<R>>
-        : R[]
+        : T[U]
       : T[U] extends object
       ? JsonSerializable<T[U]>
       : T[U]
