@@ -46,7 +46,7 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         this.calibration = new Calibration();
     }
 
-    buildDataNameReport (headers: string[]): DataNameReport {
+    buildDataNameReport(headers: string[]): DataNameReport {
         const found: Covariate[] = [];
         const missingRequired: Covariate[] = [];
         const missingOptional: Covariate[] = [];
