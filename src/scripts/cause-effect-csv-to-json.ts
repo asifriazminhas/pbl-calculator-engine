@@ -173,11 +173,9 @@ export function convertCauseEffectCsvToGenderCauseEffectRefForAlgorithm(
             /* TODO Fix this later so that the male and female objects have
             risk factors prefilled with empty Data arrays to fix this TS error.*/
             .reduce(reduceToGenderCauseEffectRefObject, {
-                // @ts-ignore
                 male: {},
-                // @ts-ignore
                 female: {},
-            }),
+            } as IGenderCauseEffectRef),
         model,
         modelName,
     );

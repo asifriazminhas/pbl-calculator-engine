@@ -3,7 +3,7 @@ import { IUserFunctions } from './user-functions/user-functions';
 import { Data } from '../data';
 import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-algorithm';
 import { parseUserFunctions } from '../../parsers/json/json-user-functions';
-import { Covariate } from '../data-field/covariate/covariate';
+import { DataField } from '../data-field/data-field';
 
 export abstract class Algorithm {
     name: string;
@@ -24,9 +24,9 @@ export abstract class Algorithm {
     abstract evaluate (data: Data): number;
 }
 
-export interface DataNameReport {
-    found: Covariate[];
-    missingRequired: Covariate[];
-    missingOptional: Covariate[];
+export interface DataNameReport<T extends DataField = DataField> {
+    found: T[];
+    missingRequired: T[];
+    missingOptional: T[];
     ignored: string[];
 }
