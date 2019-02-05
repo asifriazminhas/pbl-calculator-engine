@@ -17,6 +17,7 @@ import { NoPredicateObjectFoundError } from '../../../predicate/predicate-errors
 import { BaselineJson } from '../../../../parsers/json/json-baseline';
 import { DataNameReport } from '../../algorithm';
 import { InteractionCovariate } from '../../../data-field/covariate/interaction-covariate/interaction-covariate';
+import { Covariate } from '../../../data-field/covariate/covariate';
 
 export interface INewPredictor {
     name: string;
@@ -45,27 +46,26 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         this.calibration = new Calibration();
     }
 
-    public buildDataNameReport(headers: string[]): DataNameReport {
-        const found: string[] = [];
-        const missingRequired: string[] = [];
-        const missingOptional: string[] = [];
+    buildDataNameReport(headers: string[]): DataNameReport {
+        const found: Covariate[] = [];
+        const missingRequired: Covariate[] = [];
+        const missingOptional: Covariate[] = [];
         const ignored: string[] = [...headers];
 
         this.covariates.forEach(covariate => {
             if (covariate.customFunction) return;
             if (covariate instanceof InteractionCovariate) return;
 
-            const { isRequired, name } = covariate;
-            const headerWasProvided = headers.includes(name);
+            const headerWasProvided = headers.includes(covariate.name);
 
             if (headerWasProvided) {
-                found.push(name);
-                ignored.splice(ignored.indexOf(name), 1);
+                found.push(covariate);
+                ignored.splice(ignored.indexOf(covariate.name), 1);
             } else {
-                if (isRequired) {
-                    missingRequired.push(name);
+                if (covariate.isRequired) {
+                    missingRequired.push(covariate);
                 } else {
-                    missingOptional.push(name);
+                    missingOptional.push(covariate);
                 }
             }
         });
