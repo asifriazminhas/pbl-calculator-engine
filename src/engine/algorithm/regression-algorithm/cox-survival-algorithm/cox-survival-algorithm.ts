@@ -26,7 +26,6 @@ export interface INewPredictor {
 }
 
 export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
-    name: string;
     timeMetric: TimeMetric;
     maximumTime: number;
     bins?: Bins;
@@ -36,7 +35,6 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
     constructor(coxSurvivalAlgorithmJson: ICoxSurvivalAlgorithmJson) {
         super(coxSurvivalAlgorithmJson);
 
-        this.name = name;
         this.maximumTime = coxSurvivalAlgorithmJson.maximumTime;
         this.baseline = new Baseline(coxSurvivalAlgorithmJson.baseline);
         this.bins = coxSurvivalAlgorithmJson.bins
