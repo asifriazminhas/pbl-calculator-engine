@@ -1,4 +1,6 @@
-export interface IAbridgedLifeTableRow {
+import { IBaseRefLifeTableRow } from '../life-expectancy/life-expectancy';
+
+export interface IAbridgedLifeTableRow extends IBaseRefLifeTableRow {
     /**
      * The start age for this age group
      *
@@ -13,7 +15,6 @@ export interface IAbridgedLifeTableRow {
      * @memberof IAbridgedLifeTableRow
      */
     age_end: number;
-    ax: number;
 }
 
 export type AbridgedLifeTable = IAbridgedLifeTableRow[];
