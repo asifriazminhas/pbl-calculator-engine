@@ -72,8 +72,8 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
         completeLifeTable: Array<ICompleteLifeTableRow & IAbridgedLifeTableRow>,
         age: number,
     ) {
-        return completeLifeTable.find(({ age_start, age_end }) => {
-            return inRange(age, age_start, age_end) || age === age_end;
+        return completeLifeTable.find(lifeTableRow => {
+            return this.isInAgeGroup(lifeTableRow, age);
         });
     }
 
@@ -114,13 +114,7 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
                         const age = findDatumWithName(AgeDatumName, data)
                             .coefficent as number;
 
-                        return (
-                            inRange(
-                                age,
-                                lifeTableRow.age_start,
-                                lifeTableRow.age_end,
-                            ) || age === lifeTableRow.age_end
-                        );
+                        return this.isInAgeGroup(lifeTableRow, age);
                     },
                 );
 
@@ -199,5 +193,28 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
         return ageDifference === 0
             ? 1
             : age_end === undefined ? FinalRowNx : ageDifference + 1;
+    }
+
+    /**
+     * Check if an age is part of the age group for an abridged life table row
+     *
+     * @private
+     * @param {IAbridgedLifeTableRow} { age_end, age_start }
+     * @param {number} age
+     * @returns {boolean}
+     * @memberof AbridgedLifeExpectancy
+     */
+    private isInAgeGroup(
+        { age_end, age_start }: IAbridgedLifeTableRow,
+        age: number,
+    ): boolean {
+        // If the end age is not defined then this is the last life table row
+        // so check if the age is greater than the start age
+        // Otherwise check if it's within the range of the start age and end age
+        // inRange fails if age is equal to the end age so check that as the
+        // last condition
+        return age_end === undefined
+            ? age >= age_start
+            : inRange(age, age_start, age_end) || age === age_end;
     }
 }
