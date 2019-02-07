@@ -10,20 +10,19 @@ import { TestAssetsFolderPath } from './constants';
 
 test(`Life table calculations`, t => {
     t.test(`Abridged life table calculations`, t => {
+        // Reference life table
         // tslint:disable-next-line:max-line-length
-        const lifeTable = require(`${TestAssetsFolderPath}/life-table/abridged-life-table/ref-abridged-life-table.json`);
-
+        const refLifeTable = require(`${TestAssetsFolderPath}/life-table/abridged-life-table/ref-abridged-life-table.json`);
         const abridgedLifeExpectancy = new AbridgedLifeExpectancy(
             {} as Model,
-            lifeTable,
+            refLifeTable,
         );
 
         // tslint:disable-next-line:max-line-length
         const expectedLifeTable: CompleteLifeTable = require(`${TestAssetsFolderPath}/life-table/abridged-life-table/male-complete-life-table.json`);
-
         const actualLifeTable = abridgedLifeExpectancy[
             'getCompleteLifeTable'
-        ](lifeTable.male, 80, [80, 75]);
+        ](refLifeTable.male, 80, [80, 75]);
 
         expectedLifeTable.forEach((expectedLifeTableRow, index) => {
             expect(
