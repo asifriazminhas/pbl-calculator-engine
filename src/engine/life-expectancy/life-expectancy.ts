@@ -42,28 +42,32 @@ export abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
         refLifeTableWithQxAndNx: Array<T & { qx: number; nx: number }>,
         maxAge: number,
     ): Array<ICompleteLifeTableRow & T> {
-        const indexOfLifeTableRowForMaxAge = refLifeTableWithQxAndNx.indexOf(
+        // The complete life table we will return at the end
+        // Extend each row of the life table and set the lx, dx, Lx, Tx and
+        // ex fields to -1. They will be filled in later
+        let completeLifeTable = refLifeTableWithQxAndNx.map(lifeTableRow => {
+            return Object.assign({}, lifeTableRow, {
+                lx: -1,
+                dx: -1,
+                Lx: -1,
+                Tx: -1,
+                ex: -1,
+            });
+        });
+        // Get the index of the life table row for the maxAge arg
+        const indexOfLifeTableRowForMaxAge = completeLifeTable.indexOf(
             throwErrorIfUndefined(
-                this.getLifeTableRowForAge(refLifeTableWithQxAndNx, maxAge),
+                this.getLifeTableRowForAge(completeLifeTable, maxAge),
                 new Error(`No life table row found for age ${maxAge}`),
             ),
         );
-        // The complete life table we will return at the end
-        const completeLifeTable = refLifeTableWithQxAndNx
-            // We only need the first row and row which is applicable for the
-            // maxAge arg
-            .slice(0, indexOfLifeTableRowForMaxAge + 1)
-            // Extend each row of the life table and set the lx, dx, Lx, Tx and
-            // ex fields to -1. They will be filled in later
-            .map(lifeTableRow => {
-                return Object.assign({}, lifeTableRow, {
-                    lx: -1,
-                    dx: -1,
-                    Lx: -1,
-                    Tx: -1,
-                    ex: -1,
-                });
-            });
+        // We only need the first row and row which is applicable for the
+        // maxAge arg since all the qx values after that will not be
+        // valid
+        completeLifeTable = completeLifeTable.slice(
+            0,
+            indexOfLifeTableRowForMaxAge + 1,
+        );
 
         const lxForFirstRow = 100000;
         // Populate the lx, dx and Lx values in the life table
@@ -145,20 +149,20 @@ export abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
      * implementation class
      * @param {U[]} completeLifeTable
      * @param {number} age
-     * @returns {(U | undefined)} 
+     * @returns {(U | undefined)}
      * @memberof LifeExpectancy
      */
-    protected abstract getLifeTableRowForAge<U = T & ICompleteLifeTableRow>(
-        completeLifeTable: U[],
+    protected abstract getLifeTableRowForAge(
+        completeLifeTable: Array<T & ICompleteLifeTableRow>,
         age: number,
-    ): U | undefined;
+    ): (T & ICompleteLifeTableRow) | undefined;
 }
 
 export interface IBaseRefLifeTableRow {
     ax: number;
 }
 
-interface ICompleteLifeTableRow extends IBaseRefLifeTableRow {
+export interface ICompleteLifeTableRow extends IBaseRefLifeTableRow {
     ex: number;
     qx: number;
     lx: number;

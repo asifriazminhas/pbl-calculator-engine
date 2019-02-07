@@ -6,8 +6,10 @@ import {
     GenderedAbridgedLifeTable,
 } from './abridged-life-table';
 import { sum } from 'lodash';
-import { LifeExpectancy } from '../life-expectancy/life-expectancy';
-import { ICompleteLifeTableRow } from '../life-table/life-table';
+import {
+    LifeExpectancy,
+    ICompleteLifeTableRow,
+} from '../life-expectancy/life-expectancy';
 import { inRange } from 'lodash';
 
 /**
@@ -57,7 +59,6 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
         return (malePopLifeExpectancy + femalePopLifeExpectancy) / 2;
     }
 
-    // TODO Fix once this is resolved https://github.com/Microsoft/TypeScript/issues/29779
     /**
      * Returns the life table row where the age arg is between it's age group
      *
@@ -67,7 +68,6 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
      * @returns
      * @memberof AbridgedLifeExpectancy
      */
-    // @ts-ignore
     protected getLifeTableRowForAge(
         completeLifeTable: Array<ICompleteLifeTableRow & IAbridgedLifeTableRow>,
         age: number,

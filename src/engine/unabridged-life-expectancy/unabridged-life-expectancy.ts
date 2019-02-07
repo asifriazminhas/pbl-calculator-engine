@@ -4,14 +4,16 @@ import {
     IGenderedUnAbridgedLifeTable,
     IUnAbridgedLifeTableRow,
 } from './unabridged-life-table';
-import { LifeExpectancy } from '../life-expectancy/life-expectancy';
+import {
+    LifeExpectancy,
+    ICompleteLifeTableRow,
+} from '../life-expectancy/life-expectancy';
 import { InteractionCovariate } from '../data-field/covariate/interaction-covariate/interaction-covariate';
 import { NonInteractionCovariate } from '../data-field/covariate/non-interaction-covariats/non-interaction-covariate';
 import { DataField } from '../data-field/data-field';
 import { flatten } from 'lodash';
 import { filterDataForFields } from '../data/data';
 import { findDatumWithName } from '../data';
-import { ICompleteLifeTableRow } from '../life-table/life-table';
 
 export class UnABridgedLifeExpectancy extends LifeExpectancy<
     IUnAbridgedLifeTableRow
@@ -161,11 +163,9 @@ export class UnABridgedLifeExpectancy extends LifeExpectancy<
         }
     }
 
-    // @ts-ignore
-    // TODO Fix once this is resolved https://github.com/Microsoft/TypeScript/issues/29779
     protected getLifeTableRowForAge(
         completeLifeTable: Array<
-            ICompleteLifeTableRow & IUnAbridgedLifeTableRow
+            IUnAbridgedLifeTableRow & ICompleteLifeTableRow
         >,
         age: number,
     ) {
