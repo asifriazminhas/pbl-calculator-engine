@@ -1,9 +1,8 @@
 import { Data, findDatumWithName } from '../data';
 import { Model } from '../model';
 import {
-    IAbridgedLifeTableAndKnots,
     IAbridgedLifeTableRow,
-    GenderedAbridgedLifeTable,
+    IGenderedAbridgedLifeTable,
 } from './abridged-life-table';
 import { sum } from 'lodash';
 import {
@@ -25,13 +24,13 @@ import { inRange } from 'lodash';
 export class AbridgedLifeExpectancy extends LifeExpectancy<
     IAbridgedLifeTableRow
 > {
-    private genderedAbridgedLifeTable: GenderedAbridgedLifeTable;
+    private genderedAbridgedLifeTable: IGenderedAbridgedLifeTable;
 
     constructor(
         model: Model,
-        { genderedAbridgedLifeTable, knots }: IAbridgedLifeTableAndKnots,
+        genderedAbridgedLifeTable: IGenderedAbridgedLifeTable,
     ) {
-        super(model, knots);
+        super(model);
 
         this.model = model;
         this.genderedAbridgedLifeTable = genderedAbridgedLifeTable;
@@ -161,11 +160,20 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
                     nx: this.getnx(lifeTableRow),
                 });
             });
+        // Get the index of the life table row after which we need to
+        // stop calculating values
+        const lastValidLifeTableRowIndex = abridgedLifeTable.findIndex(
+            lifeTableRow => {
+                return lifeTableRow.age_start > ageMaxAllowableValue;
+            },
+        );
         const completeLifeTable = this.getCompleteLifeTable(
             refLifeTableWithQxAndNx,
-            abridgedLifeTable.find(lifeTableRow => {
-                return lifeTableRow.age_start > ageMaxAllowableValue;
-            })!.age_start,
+            abridgedLifeTable[lastValidLifeTableRowIndex].age_start,
+            [
+                abridgedLifeTable[lastValidLifeTableRowIndex].age_start,
+                abridgedLifeTable[lastValidLifeTableRowIndex - 1].age_start,
+            ],
         );
 
         // The age of which ex value we will use from the life table to calculate the LE for the population
@@ -186,7 +194,7 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
      * @memberof AbridgedLifeExpectancy
      */
     private getnx({ age_end, age_start }: IAbridgedLifeTableRow): number {
-        const FinalRowNx = 5;
+        const FinalRowNx = 1;
 
         const ageDifference = age_end - age_start;
 

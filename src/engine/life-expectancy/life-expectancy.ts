@@ -14,11 +14,9 @@ import { throwErrorIfUndefined } from '../../util/undefined';
  */
 export abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
     model: Model;
-    knots: [number, number];
 
-    constructor(model: Model, knots: [number, number]) {
+    constructor(model: Model) {
         this.model = model;
-        this.knots = knots;
     }
 
     /**
@@ -35,12 +33,16 @@ export abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
      * to get the value of Tx for the last life table row. This is the age
      * of the life table row immediately following the last one whose qx value
      * is valid
+     * @param {number} knotAges Age values to be used in the formula
+     * for calculating the second knot. Should be the age value in the last
+     * row of the life table followed by the age value in the row before
      * @returns {(Array<ICompleteLifeTableRow & T>)}
      * @memberof LifeExpectancy
      */
     protected getCompleteLifeTable(
         refLifeTableWithQxAndNx: Array<T & { qx: number; nx: number }>,
         maxAge: number,
+        knotAges: [number, number],
     ): Array<ICompleteLifeTableRow & T> {
         // The complete life table we will return at the end
         // Extend each row of the life table and set the lx, dx, Lx, Tx and
@@ -80,11 +82,13 @@ export abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
                     : abridgedLifeTable[index - 1].lx -
                       abridgedLifeTable[index - 1].dx;
             lifeTableRow.dx = lifeTableRow.lx * lifeTableRow.qx;
-            // Lx = nx*(lx-dx) + ax*dx*nx
+
+            // Lx = nx*(lx-dx) + ax*dx
             lifeTableRow.Lx =
                 lifeTableRow.nx * (lifeTableRow.lx - lifeTableRow.dx) +
-                lifeTableRow.ax * lifeTableRow.dx * lifeTableRow.nx;
+                lifeTableRow.ax * lifeTableRow.dx;
         });
+        const knots = this.getKnots(completeLifeTable, knotAges);
         // Reverse the life table since we need to start from the end to calculate Tx
         completeLifeTable.reverse().forEach((lifeTableRow, index) => {
             // If this is the last value (since we reversed it, last value is index==0)
@@ -92,10 +96,10 @@ export abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
             // Otherwise previousLifeTableTx+ Lx
             lifeTableRow.Tx =
                 index === 0
-                    ? this.knots[0] * maxAge ** 3 / 3 -
-                      this.knots[1] * maxAge ** 2 / 2 -
-                      this.knots[1] ** 2 * maxAge / (4 * this.knots[0]) -
-                      this.knots[1] ** 3 / (24 * this.knots[0 ** 2])
+                    ? -(knots[0] * maxAge ** 3) / 3 -
+                      knots[1] * maxAge ** 2 / 2 -
+                      knots[1] ** 2 * maxAge / (4 * knots[0]) -
+                      knots[1] ** 3 / (24 * knots[0] ** 2)
                     : completeLifeTable[index - 1].Tx + lifeTableRow.Lx;
             // ex = Tx/lx
             lifeTableRow.ex = lifeTableRow.Tx / lifeTableRow.lx;
@@ -156,6 +160,39 @@ export abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
         completeLifeTable: Array<T & ICompleteLifeTableRow>,
         age: number,
     ): (T & ICompleteLifeTableRow) | undefined;
+
+    /**
+     * Calculates the knots used in the calculation of Tx for the last
+     * row in the life table
+     *
+     * @private
+     * @param {ICompleteLifeTableRow[]} lifeTable A life table whose lx values
+     * are properly populated. The life table should end at the row whose Tx
+     * value needs to be calculated using splines
+     * @param {[number, number]} ages Age values to be used in the formula
+     * for calculating the second knot. Should be the age value in the last
+     * row of the life table followed by the age value in the row before
+     * @returns {[number, number]}
+     * @memberof LifeExpectancy
+     */
+    private getKnots(
+        lifeTable: ICompleteLifeTableRow[],
+        ages: [number, number],
+    ): [number, number] {
+        const knotOne =
+            (lifeTable[lifeTable.length - 2].lx ** 0.5 -
+                (lifeTable[lifeTable.length - 1].lx * 0.97) ** 0.5) **
+                2 /
+            25;
+
+        const knotTwo =
+            (lifeTable[lifeTable.length - 1].lx -
+                lifeTable[lifeTable.length - 2].lx) /
+                5 -
+            knotOne * (ages[0] + ages[1]);
+
+        return [knotOne, knotTwo];
+    }
 }
 
 export interface IBaseRefLifeTableRow {

@@ -19,25 +19,7 @@ export interface IAbridgedLifeTableRow extends IBaseRefLifeTableRow {
 
 export type AbridgedLifeTable = IAbridgedLifeTableRow[];
 
-export interface GenderedAbridgedLifeTable {
+export interface IGenderedAbridgedLifeTable {
     male: AbridgedLifeTable;
     female: AbridgedLifeTable;
-}
-
-/**
- * The content of an abridged life table JSON reference file
- *
- * @export
- * @interface IAbridgedLifeTableAndKnots
- */
-export interface IAbridgedLifeTableAndKnots {
-    /**
-     * Knots used to calculate the value of Tx for the last row in the life
-     * table
-     *
-     * @type {[number, number]}
-     * @memberof IAbridgedLifeTableAndKnots
-     */
-    knots: [number, number];
-    genderedAbridgedLifeTable: GenderedAbridgedLifeTable;
 }

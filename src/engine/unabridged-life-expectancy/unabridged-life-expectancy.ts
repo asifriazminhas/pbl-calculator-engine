@@ -1,6 +1,5 @@
 import { Model, Data } from '../model';
 import {
-    IGenderedUnAbridgedLifeTableAndKnots,
     IGenderedUnAbridgedLifeTable,
     IUnAbridgedLifeTableRow,
 } from './unabridged-life-table';
@@ -22,15 +21,12 @@ export class UnABridgedLifeExpectancy extends LifeExpectancy<
 
     constructor(
         model: Model,
-        {
-            knots,
-            genderedUnAbridgeLifeTable,
-        }: IGenderedUnAbridgedLifeTableAndKnots,
+        genderedUnAbridgedLifeTable: IGenderedUnAbridgedLifeTable,
     ) {
-        super(model, knots);
+        super(model);
 
         this.model = model;
-        this.genderedUnAbridgedLifeTable = genderedUnAbridgeLifeTable;
+        this.genderedUnAbridgedLifeTable = genderedUnAbridgedLifeTable;
     }
 
     /**
@@ -149,11 +145,21 @@ export class UnABridgedLifeExpectancy extends LifeExpectancy<
             );
             const ageMaxAllowableValue = algorithm.findDataField(AgeDatumName)
                 .interval!.higherMargin!.margin;
+            // Get the index of the life table row after which we need to
+            // stop calculating values
+            const lastValidLifeTableRowIndex = unAbridgedLifeTable.findIndex(
+                lifeTableRow => {
+                    return lifeTableRow.age > ageMaxAllowableValue;
+                },
+            );
+
             const completeLifeTable = this.getCompleteLifeTable(
                 refLifeTableWithQxAndNx,
-                unAbridgedLifeTable.find(lifeTableRow => {
-                    return lifeTableRow.age > ageMaxAllowableValue;
-                })!.age,
+                unAbridgedLifeTable[lastValidLifeTableRowIndex].age,
+                [
+                    unAbridgedLifeTable[lastValidLifeTableRowIndex].age,
+                    unAbridgedLifeTable[lastValidLifeTableRowIndex - 1].age,
+                ],
             );
 
             return this.getLifeExpectancyForAge(
