@@ -10,6 +10,7 @@ import {
     ICompleteLifeTableRow,
 } from '../life-expectancy/life-expectancy';
 import { inRange } from 'lodash';
+import { ErrorCode } from '../data-field/error-code';
 
 /**
  * Used to calculate life expectancy with:
@@ -104,6 +105,10 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
         });
 
         const WeightDatumName = 'WTS_M';
+        const weightDataField = algorithmForCurrentSex.findDataField(
+            WeightDatumName,
+        );
+        const DefaultWeight = 1;
         // Calculate the weighted qx value to use for each row in the abridged life table
         const weightedQxForAgeGroups: number[] = abridgedLifeTable.map(
             lifeTableRow => {
@@ -126,8 +131,11 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
                 // Get the array of weights for each individual in the current age group population
                 const weightsForCurrentAgeGroup = currentAgeGroupPop.map(
                     data => {
-                        return findDatumWithName(WeightDatumName, data)
-                            .coefficent as number;
+                        return weightDataField.validateData(data) ===
+                            ErrorCode.NoDatumFound
+                            ? DefaultWeight
+                            : findDatumWithName(WeightDatumName, data)
+                                  .coefficent as number;
                     },
                 );
 
