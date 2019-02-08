@@ -8,7 +8,7 @@ import { getRelativeDifference } from './test-utils';
 import { expect } from 'chai';
 import { TestAssetsFolderPath } from './constants';
 
-test(`Life table calculations`, t => {
+test.only(`Life table calculations`, t => {
     t.test(`Abridged life table calculations`, t => {
         // Reference life table
         // tslint:disable-next-line:max-line-length
