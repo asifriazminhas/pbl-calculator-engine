@@ -165,6 +165,9 @@ export abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
      * Calculates the knots used in the calculation of Tx for the last
      * row in the life table
      *
+     * Hsieh J. A general theory of life table construction and a precise
+     * abridged life table method. Biom J 1991;2:143-62.
+     *
      * @private
      * @param {ICompleteLifeTableRow[]} lifeTable A life table whose lx values
      * are properly populated. The life table should end at the row whose Tx
