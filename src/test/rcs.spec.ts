@@ -47,7 +47,7 @@ function testRcsForAlgorithm(
     });
 }
 
-test.only(`RCS Function`, async t => {
+test(`RCS Function`, async t => {
     await runIntegrationTest(
         'score-data',
         'score-data',

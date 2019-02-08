@@ -18,6 +18,7 @@ import { BaselineJson } from '../../../../parsers/json/json-baseline';
 import { DataNameReport } from '../../algorithm';
 import { InteractionCovariate } from '../../../data-field/covariate/interaction-covariate/interaction-covariate';
 import { Covariate } from '../../../data-field/covariate/covariate';
+import { DataField } from '../../../data-field/data-field';
 
 export interface INewPredictor {
     name: string;
@@ -26,7 +27,6 @@ export interface INewPredictor {
 }
 
 export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
-    name: string;
     timeMetric: TimeMetric;
     maximumTime: number;
     bins?: Bins;
@@ -36,7 +36,6 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
     constructor(coxSurvivalAlgorithmJson: ICoxSurvivalAlgorithmJson) {
         super(coxSurvivalAlgorithmJson);
 
-        this.name = name;
         this.maximumTime = coxSurvivalAlgorithmJson.maximumTime;
         this.baseline = new Baseline(coxSurvivalAlgorithmJson.baseline);
         this.bins = coxSurvivalAlgorithmJson.bins
@@ -181,6 +180,35 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
                 throw Error;
             }
         }
+    }
+
+    /**
+     * Goes though all the fields part of this algorithm and tries to find one
+     * whose name matches with the name arg. Throws an Error if no DataField is
+     * found
+     *
+     * @param {string} name
+     * @returns {DataField}
+     * @memberof CoxSurvivalAlgorithm
+     */
+    findDataField(name: string): DataField {
+        for (const covariate of this.covariates) {
+            if (covariate.name === name) {
+                return covariate;
+            } else {
+                const foundDescendantField = covariate
+                    .getDescendantFields()
+                    .find(field => {
+                        return field.name === name;
+                    });
+
+                if (foundDescendantField) {
+                    return foundDescendantField;
+                }
+            }
+        }
+
+        throw new Error(`No DataField found with name ${name}`);
     }
 
     private getSurvivalToTimeWithBins(

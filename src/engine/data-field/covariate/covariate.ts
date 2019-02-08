@@ -145,6 +145,13 @@ export abstract class Covariate extends DataField {
         }
     }
 
+    /**
+     * Returns all the fields which are part of this Covariate's dependency
+     * tree. **Does not return the covariate itself**.
+     *
+     * @returns {DataField[]}
+     * @memberof Covariate
+     */
     getDescendantFields(): DataField[] {
         return this.derivedField ? this.derivedField.getDescendantFields() : [];
     }
