@@ -1,11 +1,11 @@
 {
     "name": "@ottawamhealth/pbl-calculator-engine",
-    "version": "1.11.3",
+    "version": "1.11.4",
     "description": "The engine used to parse PMML files and evaluate algoirithms generated using PMML files",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "scripts": {
-        "build:dev": "npm run tsc -w",
+        "build:dev": "tsc -w",
         "build:prod": "rm -rf ./lib && tsc --outDir lib-ts && babel ./lib-ts --out-dir ./lib --source-maps && rsync -a --exclude=\"*.js\" --include=\"*.d.ts|*.js.map\" ./lib-ts/ ./lib/ && rm -rf ./lib-ts",
         "prepublish": "npm run build:prod",
         "lifetable-csv-to-json": "node ./lib/scripts/lifetable-csv-to-json.js",
