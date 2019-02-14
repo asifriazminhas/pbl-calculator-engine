@@ -35,6 +35,26 @@ export class Bins {
 
         return this.binsData[binNumber];
     }
+
+    /**
+     * Returns the time field for the binDatum with the same survival percent
+     * as the survival percent arg
+     *
+     * @param {number} survivalPercent
+     * @param {IBinData[]} binData
+     * @returns {number}
+     * @memberof Bins
+     */
+    getTimeForSurvival(survivalPercent: number, binData: IBinData[]): number {
+        return throwErrorIfUndefined(
+            binData.find(binDatum => {
+                return binDatum.survivalPercent === survivalPercent;
+            }),
+            new Error(
+                `No bin datum found for survival percent ${survivalPercent}`,
+            ),
+        ).time as number;
+    }
 }
 
 export interface IBinData {
