@@ -1,18 +1,15 @@
 {
     "name": "@ottawamhealth/pbl-calculator-engine",
-    "version": "1.11.4",
-    "description":
-        "The engine used to parse PMML files and evaluate algoirithms generated using PMML files",
+    "version": "1.11.5",
+    "description": "The engine used to parse PMML files and evaluate algoirithms generated using PMML files",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "scripts": {
         "build:dev": "tsc -w",
-        "build:prod":
-            "rm -rf ./lib && tsc --outDir lib-ts && babel ./lib-ts --out-dir ./lib --source-maps && rsync -a --exclude=\"*.js\" --include=\"*.d.ts|*.js.map\" ./lib-ts/ ./lib/ && rm -rf ./lib-ts",
+        "build:prod": "rm -rf ./lib && tsc --outDir lib-ts && babel ./lib-ts --out-dir ./lib --source-maps && rsync -a --exclude=\"*.js\" --include=\"*.d.ts|*.js.map\" ./lib-ts/ ./lib/ && rm -rf ./lib-ts",
         "prepublish": "npm run build:prod",
         "lifetable-csv-to-json": "node ./lib/scripts/lifetable-csv-to-json.js",
-        "test":
-            "tape -r source-map-support/register lib/test/**/*.js | tap-spec"
+        "test": "tape -r source-map-support/register lib/test/**/*.js | tap-spec"
     },
     "repository": {
         "type": "git",
@@ -23,8 +20,7 @@
     "bugs": {
         "url": "https://github.com/Ottawa-mHealth/pbl-calculator-engine/issues"
     },
-    "homepage":
-        "https://github.com/Ottawa-mHealth/pbl-calculator-engine#readme",
+    "homepage": "https://github.com/Ottawa-mHealth/pbl-calculator-engine#readme",
     "devDependencies": {
         "@babel/cli": "7.2.3",
         "@babel/core": "7.2.2",
