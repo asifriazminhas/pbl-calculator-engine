@@ -1,15 +1,18 @@
 {
     "name": "@ottawamhealth/pbl-calculator-engine",
     "version": "1.11.4",
-    "description": "The engine used to parse PMML files and evaluate algoirithms generated using PMML files",
+    "description":
+        "The engine used to parse PMML files and evaluate algoirithms generated using PMML files",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "scripts": {
         "build:dev": "tsc -w",
-        "build:prod": "rm -rf ./lib && tsc --outDir lib-ts && babel ./lib-ts --out-dir ./lib --source-maps && rsync -a --exclude=\"*.js\" --include=\"*.d.ts|*.js.map\" ./lib-ts/ ./lib/ && rm -rf ./lib-ts",
+        "build:prod":
+            "rm -rf ./lib && tsc --outDir lib-ts && babel ./lib-ts --out-dir ./lib --source-maps && rsync -a --exclude=\"*.js\" --include=\"*.d.ts|*.js.map\" ./lib-ts/ ./lib/ && rm -rf ./lib-ts",
         "prepublish": "npm run build:prod",
         "lifetable-csv-to-json": "node ./lib/scripts/lifetable-csv-to-json.js",
-        "test": "tape -r source-map-support/register lib/test/**/*.js | tap-spec"
+        "test":
+            "tape -r source-map-support/register lib/test/**/*.js | tap-spec"
     },
     "repository": {
         "type": "git",
@@ -20,7 +23,8 @@
     "bugs": {
         "url": "https://github.com/Ottawa-mHealth/pbl-calculator-engine/issues"
     },
-    "homepage": "https://github.com/Ottawa-mHealth/pbl-calculator-engine#readme",
+    "homepage":
+        "https://github.com/Ottawa-mHealth/pbl-calculator-engine#readme",
     "devDependencies": {
         "@babel/cli": "7.2.3",
         "@babel/core": "7.2.2",
@@ -43,7 +47,6 @@
         "@types/yargs": "6.6.0",
         "awesome-typescript-loader": "3.0.0-beta.9",
         "chai": "3.5.0",
-        "core-decorators": "^0.20.0",
         "prettier": "1.7.4",
         "tap-spec": "4.1.1",
         "tape": "4.9.2",
@@ -61,6 +64,7 @@
         "ast-types": "0.9.12",
         "bluebird": "3.4.6",
         "common-tags": "1.4.0",
+        "core-decorators": "^0.20.0",
         "csv-parse": "1.1.7",
         "escodegen": "1.8.1",
         "esprima": "^4.0.0",
