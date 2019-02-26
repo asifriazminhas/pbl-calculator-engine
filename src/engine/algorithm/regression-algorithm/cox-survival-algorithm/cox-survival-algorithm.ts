@@ -70,10 +70,10 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         });
 
         return {
-            found,
-            missingRequired,
-            missingOptional,
-            ignored,
+            found: this.sortCovariatesByName(found),
+            missingRequired: this.sortCovariatesByName(missingRequired),
+            missingOptional: this.sortCovariatesByName(missingOptional),
+            ignored: ignored.sort((a, b) => a.localeCompare(b)),
         };
     }
 
@@ -292,5 +292,9 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
             ) / this.maximumTime,
             1,
         );
+    }
+
+    private sortCovariatesByName(covariates: Covariate[]) {
+        return covariates.sort((a, b) => a.name.localeCompare(b.name));
     }
 }
