@@ -7,4 +7,5 @@
 export interface ICategory {
     value: string;
     displayValue: string;
+    description: string;
 }
