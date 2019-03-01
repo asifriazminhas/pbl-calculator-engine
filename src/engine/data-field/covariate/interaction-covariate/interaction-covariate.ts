@@ -23,6 +23,11 @@ export class InteractionCovariate extends Covariate {
             tables,
         );
 
+        // Check whether the coefficent data has the interaction covariate in it and if it does return it
+        if(coefficentData.length === 1 && coefficentData[0].name === this.name) {
+            return coefficentData;
+        }
+
         if (
             this.isCoefficentDatumSetToReferencePoint(coefficentData[0]) ||
             this.isCoefficentDatumSetToReferencePoint(coefficentData[1])
