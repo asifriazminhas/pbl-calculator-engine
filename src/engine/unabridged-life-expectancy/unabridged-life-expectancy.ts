@@ -14,7 +14,7 @@ import { flatten } from 'lodash';
 import { filterDataForFields } from '../data/data';
 import { findDatumWithName } from '../data';
 
-export class UnABridgedLifeExpectancy extends LifeExpectancy<
+export class UnAbridgedLifeExpectancy extends LifeExpectancy<
     IUnAbridgedLifeTableRow
 > {
     private genderedUnAbridgedLifeTable: IGenderedUnAbridgedLifeTable;
@@ -122,6 +122,7 @@ export class UnABridgedLifeExpectancy extends LifeExpectancy<
                     }, dataWithoutAgeFields.concat(ageDatum)),
                 allAgeFields,
             );
+            //console.log(lifeTableDataWithoutAge);
 
             const SexDatumName = 'sex';
             const unAbridgedLifeTable = this.genderedUnAbridgedLifeTable[
