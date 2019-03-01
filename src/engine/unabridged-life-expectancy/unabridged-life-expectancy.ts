@@ -122,7 +122,6 @@ export class UnAbridgedLifeExpectancy extends LifeExpectancy<
                     }, dataWithoutAgeFields.concat(ageDatum)),
                 allAgeFields,
             );
-            //console.log(lifeTableDataWithoutAge);
 
             const SexDatumName = 'sex';
             const unAbridgedLifeTable = this.genderedUnAbridgedLifeTable[
