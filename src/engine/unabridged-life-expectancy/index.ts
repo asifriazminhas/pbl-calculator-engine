@@ -1,1 +1,1 @@
-export { UnABridgedLifeExpectancy } from './unabridged-life-expectancy';
+export { UnAbridgedLifeExpectancy } from './unabridged-life-expectancy';
