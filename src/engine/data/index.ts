@@ -4,9 +4,5 @@ export {
     updateDataWithDatum,
     findDatumWithName,
 } from './data';
-export {
-    IDatum,
-    datumFactory,
-    datumFromCovariateReferencePointFactory,
-} from './datum';
-export { Coefficent, formatCoefficentForComponent } from './coefficent';
+export { IDatum, datumFromCovariateReferencePointFactory } from './datum';
+export { Coefficent } from './coefficent';

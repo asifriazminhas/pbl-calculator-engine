@@ -1,10 +1,10 @@
 import * as test from 'tape';
 import { expect } from 'chai';
-import { ICustomPmml } from '../engine/pmml/pmml';
-import { parseTaxonomy } from '../engine/pmml-to-json-parser/taxonomy';
+import { ICustomPmml } from '../parsers/pmml/pmml';
+import { parseTaxonomy } from '../parsers/pmml-to-json-parser/taxonomy';
 import * as bluebird from 'bluebird';
 import { parseString } from 'xml2js';
-import { ITaxonomy } from '../engine/pmml/taxonomy';
+import { ITaxonomy } from '../parsers/pmml/taxonomy';
 const promisifiedParseXmlString: any = bluebird.promisify(parseString);
 
 test(`Testing parsing PMML Taxonomy`, async t => {

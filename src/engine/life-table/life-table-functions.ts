@@ -1,62 +1,78 @@
 import {
     RefLifeTable,
-    getCompleteLifeTableWithStartAge,
     IGenderSpecificRefLifeTable,
+    CompleteLifeTable,
+    getCompleteLifeTableForDataUsingAlgorithm,
 } from './life-table';
-import { getLifeExpectancyUsingRefLifeTable } from './life-expectancy';
+import { getLifeExpectancyForAge } from './life-expectancy';
 import { getSurvivalToAge } from './survival-to-age';
-// @ts-ignore
-import { Data, updateDataWithDatum, findDatumWithName, IDatum } from '../data';
-import { SurvivalModelFunctions } from '../survival-model-builder/survival-model-functions';
+import { Data, findDatumWithName } from '../data';
 import { NoLifeTableFoundError } from '../errors';
+import { Model } from '../model/model';
+import { autobind } from 'core-decorators';
+import memoizeOne from 'memoize-one';
 
+@autobind
 export class LifeTableFunctions {
-    private survivalFunctions: SurvivalModelFunctions;
+    model: Model;
     private genderSpecificRefLifeTable: IGenderSpecificRefLifeTable;
+    private useExFromAge: number;
 
     constructor(
-        survivalFunctions: SurvivalModelFunctions,
+        model: Model,
         genderSpecificRefLifeTable: IGenderSpecificRefLifeTable,
+        useExFromAge: number = 99,
     ) {
-        this.survivalFunctions = survivalFunctions;
+        this.model = model;
         this.genderSpecificRefLifeTable = genderSpecificRefLifeTable;
+        this.useExFromAge = useExFromAge;
     }
 
-    public getLifeExpectancy = (data: Data) => {
-        return getLifeExpectancyUsingRefLifeTable(
-            data,
-            this.getRefLifeTableForData(data),
-            this.survivalFunctions.getAlgorithmForData(data),
-        );
-    };
+    public getLifeExpectancy(data: Data): number {
+        const algorithm = this.model.getAlgorithmForData(data);
 
-    public getSurvivalToAge(data: Data, toAge: number) {
-        return getSurvivalToAge(
-            getCompleteLifeTableWithStartAge(
-                this.getRefLifeTableForData(data),
-                ageForRiskToTime => {
-                    return this.survivalFunctions.getRiskToTime(
-                        updateDataWithDatum(data, {
-                            name: 'age',
-                            coefficent: ageForRiskToTime,
-                        }),
-                    );
-                },
-                findDatumWithName('age', data).coefficent as number,
-            ),
-            toAge,
-        );
-    }
+        if ('bins' in algorithm && algorithm.bins !== undefined) {
+            const binData = algorithm.bins!.getBinDataForScore(
+                algorithm.calculateScore(data),
+            );
 
-    private getRefLifeTableForData(data: Data): RefLifeTable {
-        const sexDatum = findDatumWithName('sex', data);
-
-        if (sexDatum.coefficent === 'male') {
-            return this.genderSpecificRefLifeTable.male;
-        } else if (sexDatum.coefficent === 'female') {
-            return this.genderSpecificRefLifeTable.female;
+            return binData.find(binDatum => {
+                return binDatum.survivalPercent === 50;
+            })!.time as number;
+        } else {
+            return getLifeExpectancyForAge(
+                Number(findDatumWithName('age', data).coefficent as number),
+                this.getCompleteLifeTable(data),
+            );
         }
+    }
 
-        throw new NoLifeTableFoundError(sexDatum.coefficent as string);
+    public getSurvivalToAge(data: Data, toAge: number): number {
+        return getSurvivalToAge(this.getCompleteLifeTable(data), toAge);
+    }
+
+    private getCompleteLifeTable = memoizeOne(
+        (data: Data): CompleteLifeTable => {
+            return getCompleteLifeTableForDataUsingAlgorithm(
+                this.getRefLifeTable(data),
+                data,
+                this.model.getAlgorithmForData(data),
+                this.useExFromAge,
+            );
+        },
+    );
+
+    private getRefLifeTable(data: Data): RefLifeTable {
+        const sex = findDatumWithName('sex', data).coefficent as
+            | 'male'
+            | 'female';
+
+        const refLifeTable = this.genderSpecificRefLifeTable[sex];
+
+        if (refLifeTable) {
+            return refLifeTable;
+        } else {
+            throw new NoLifeTableFoundError(sex as string);
+        }
     }
 }

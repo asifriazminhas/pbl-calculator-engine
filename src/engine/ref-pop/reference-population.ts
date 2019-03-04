@@ -1,5 +1,4 @@
-//TODO Remove predicate out into it's own module
-import { IPredicate } from '../multiple-algorithm-model/predicate/predicate';
+import { PredicateJson } from '../../parsers/json/json-predicate';
 
 export interface ReferencePopulationRow {
     age: number;
@@ -10,5 +9,5 @@ export type ReferencePopulation = Array<ReferencePopulationRow>;
 
 export type RefPopsWithPredicate = Array<{
     refPop: ReferencePopulation;
-    predicate: IPredicate;
+    predicate: PredicateJson;
 }>;

@@ -1,11 +1,5 @@
-export {
-    JsonModelTypes,
-    getAlgorithmJsonForModelAndData,
-    parseModelJsonToModel,
-} from './json-model-types';
-export { ModelType } from './model-type';
-export {
-    ModelTypes,
-    getAlgorithmForModelAndData,
-    updateBaselineForModel,
-} from './model-types';
+export { Model } from './model';
+
+export { Data } from '../data/data';
+
+export { LifeTableFunctions } from '../life-table/life-table-functions';

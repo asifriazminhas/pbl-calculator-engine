@@ -1,19 +1,21 @@
 import * as test from 'tape';
 import { getPmmlString } from './test-utils';
-import { pmmlXmlStringsToJson } from '../engine/pmml-to-json-parser/pmml';
-import { SingleAlgorithmModelJson } from '../engine/single-algorithm-model/single-algorithm-model-json';
+import { pmmlXmlStringsToJson } from '../parsers/pmml-to-json-parser/pmml';
 import { expect } from 'chai';
 import { omit } from 'lodash';
+import { IModelJson } from '../parsers/json/json-model';
 
 function doTableAssertions(
-    actualModelJson: SingleAlgorithmModelJson,
+    actualModelJson: IModelJson,
     tables: Array<{ name: string; rows: Array<{ [index: string]: string }> }>,
     t: test.Test,
 ) {
     tables.forEach(table => {
         table.rows.forEach((row, index) => {
             expect(
-                actualModelJson.algorithm.tables[table.name][index],
+                actualModelJson.algorithms[0].algorithm.tables[table.name][
+                    index
+                ],
             ).to.deep.equal(omit(row, 'columnTwo'));
         });
     });
@@ -57,10 +59,7 @@ test(`Parsing PMML to JSON`, async t => {
 
     const pmmlString = getPmmlString(DerivedFields, Tables);
 
-    const model = (await pmmlXmlStringsToJson(
-        [[pmmlString]],
-        [],
-    )) as SingleAlgorithmModelJson;
+    const model = await pmmlXmlStringsToJson([[pmmlString]], []);
 
     doTableAssertions(model, Tables, t);
 

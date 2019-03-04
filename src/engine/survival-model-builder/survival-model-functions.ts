@@ -1,82 +1,88 @@
-import {
-    ModelTypes,
-    getAlgorithmForModelAndData,
-    ModelType,
-    JsonModelTypes,
-} from '../model';
+import { Model } from '../model/model';
 // @ts-ignore
 import { Data, IDatum } from '../data';
-import { getRiskToTime, getSurvivalToTime, Cox } from '../cox';
 import * as moment from 'moment';
 import {
-    INewPredictorTypes,
-    addPredictor,
-} from '../regression-algorithm/regression-algorithm';
-import { CalibrationJson } from '../regression-algorithm/calibration/calibration-json';
-import { addCalibrationToAlgorithm } from '../regression-algorithm/calibration/calibration';
-import { getPredicateResult } from '../multiple-algorithm-model/predicate/predicate';
+    CoxSurvivalAlgorithm,
+    INewPredictor,
+} from '../algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
+import {
+    ICalibrationFactorJsonObject,
+    CalibrationJson,
+} from '../../parsers/json/json-calibration';
+import { IModelJson } from '../../parsers/json/json-model';
 
-export type CalibrationObjects = Array<{ age: number; baseline: number }>;
+export interface IGenderCalibrationObjects {
+    male: ICalibrationFactorJsonObject[];
+    female: ICalibrationFactorJsonObject[];
+}
 
 export class SurvivalModelFunctions {
-    private model: ModelTypes<Cox>;
-    private modelJson: JsonModelTypes;
+    private model: Model;
+    private modelJson: IModelJson;
 
-    constructor(model: ModelTypes<Cox>, modelJson: JsonModelTypes) {
+    constructor(model: Model, modelJson: IModelJson) {
         this.model = model;
         this.modelJson = modelJson;
     }
 
-    public getAlgorithmForData(data: Data): Cox {
-        return getAlgorithmForModelAndData(this.model, data) as Cox;
+    public getAlgorithmForData(data: Data): CoxSurvivalAlgorithm {
+        return this.model.getAlgorithmForData(data);
     }
 
     public getRiskToTime = (data: Data, time?: Date | moment.Moment) => {
-        return getRiskToTime(this.getAlgorithmForData(data), data, time);
+        return this.getAlgorithmForData(data).getRiskToTime(data, time);
     };
 
     public getSurvivalToTime = (data: Data, time?: Date | moment.Moment) => {
-        return getSurvivalToTime(this.getAlgorithmForData(data), data, time);
+        return this.getAlgorithmForData(data).getSurvivalToTime(data, time);
     };
 
-    public addPredictor(
-        newPredictor: INewPredictorTypes,
-    ): SurvivalModelFunctions {
-        if (this.model.modelType === ModelType.SingleAlgorithm) {
-            return new SurvivalModelFunctions(
-                Object.assign({}, this.model, {
-                    algorithm: addPredictor(
-                        this.model.algorithm as Cox,
-                        newPredictor,
-                    ),
+    public addPredictor(newPredictor: INewPredictor): SurvivalModelFunctions {
+        return new SurvivalModelFunctions(
+            Object.assign({}, this.model, {
+                algorithms: this.model.algorithms.map(algorithm => {
+                    return Object.assign({}, algorithm, {
+                        algorithms: algorithm.algorithm.addPredictor(
+                            newPredictor,
+                        ),
+                    });
                 }),
-                this.modelJson,
-            );
-        } else {
-            return new SurvivalModelFunctions(
-                Object.assign({}, this.model, {
-                    algorithms: this.model.algorithms.map(algorithm => {
-                        return Object.assign({}, algorithm, {
-                            algorithms: addPredictor(
-                                algorithm.algorithm as Cox,
-                                newPredictor,
-                            ),
-                        });
-                    }),
-                }),
-                this.modelJson,
-            );
-        }
+            }),
+            this.modelJson,
+        );
     }
 
     public reCalibrateOutcome(
-        calibrationJson: CalibrationJson,
+        calibrationJson: CalibrationJson | IGenderCalibrationObjects,
     ): SurvivalModelFunctions {
-        if (this.model.modelType === ModelType.SingleAlgorithm) {
+        let calibrationJsonToUse: CalibrationJson;
+        // If the calibrationJson is of type IGenderCalibrationObjects
+        if ('male' in calibrationJson) {
+            calibrationJsonToUse = [
+                {
+                    calibrationFactorObjects: calibrationJson.male,
+                    predicate: {
+                        equation: `predicateResult = obj["sex"] === "male"`,
+                        variables: ['sex'],
+                    },
+                },
+                {
+                    calibrationFactorObjects: calibrationJson.female,
+                    predicate: {
+                        equation: `predicateResult = obj["sex"] === "male"`,
+                        variables: ['sex'],
+                    },
+                },
+            ];
+        } else {
+            calibrationJsonToUse = calibrationJson;
+        }
+
+        if (this.model.algorithms.length === 0) {
             const calibratedModel = Object.assign({}, this.model, {
-                algorithm: addCalibrationToAlgorithm(
-                    this.model.algorithm,
-                    calibrationJson,
+                algorithm: this.model.algorithms[0].algorithm.addCalibrationToAlgorithm(
+                    calibrationJsonToUse,
                     [],
                 ),
             });
@@ -92,17 +98,15 @@ export class SurvivalModelFunctions {
                     ({ algorithm, predicate }) => {
                         const predicateDataForCurrentPredicate = predicateData.find(
                             currentPredicateData => {
-                                return getPredicateResult(
+                                return predicate.getPredicateResult(
                                     currentPredicateData,
-                                    predicate,
                                 );
                             },
                         ) as Data;
 
                         return {
-                            algorithm: addCalibrationToAlgorithm(
-                                algorithm,
-                                calibrationJson,
+                            algorithm: algorithm.addCalibrationToAlgorithm(
+                                calibrationJsonToUse,
                                 predicateDataForCurrentPredicate,
                             ),
                             predicate,
@@ -115,11 +119,11 @@ export class SurvivalModelFunctions {
         }
     }
 
-    public getModel(): ModelTypes {
+    public getModel(): Model {
         return this.model;
     }
 
-    public getModelJson(): JsonModelTypes {
+    public getModelJson(): IModelJson {
         return this.modelJson;
     }
 }

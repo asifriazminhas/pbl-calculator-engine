@@ -1,8 +1,13 @@
 import * as fs from 'fs';
 import { TestAlgorithmsFolderPath } from './constants';
-import { SurvivalModelBuilder } from '../index';
-import { ModelTypes } from '../engine/model/index';
 import * as path from 'path';
+import { Model } from '../engine/model/model';
+import * as test from 'tape';
+import { Data } from '../engine/data';
+// tslint:disable-next-line:max-line-length
+import { CoxSurvivalAlgorithm } from '../engine/algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
+// tslint:disable-next-line:no-var-requires
+const createCsvParseStream = require('csv-parse');
 
 function getAlgorithmNamesToTest(excludeAlgorithms: string[]): string[] {
     return (
@@ -22,30 +27,43 @@ function getAlgorithmNamesToTest(excludeAlgorithms: string[]): string[] {
                         )
                         .isDirectory() &&
                     algorithmFolderFileName !== '.git' &&
-                    algorithmFolderFileName !== 'node_modules'
+                    algorithmFolderFileName !== 'node_modules' &&
+                    algorithmFolderFileName !== 'build' &&
+                    algorithmFolderFileName !== '.vscode'
                 );
             })
             /* Filter out all algorithm we don't want to test as specified in
             the excludeAlgorithms arg*/
-            .filter(
-                algorithmName =>
-                    excludeAlgorithms.indexOf(algorithmName) === -1,
-            )
+            .filter(algorithmName => {
+                const includeAlgorithm =
+                    excludeAlgorithms.indexOf(algorithmName) === -1;
+
+                if (!includeAlgorithm) {
+                    console.warn(
+                        '\x1b[31m',
+                        ` Excluding model ${algorithmName}`,
+                        '\x1b[0m',
+                    );
+                }
+
+                return includeAlgorithm;
+            })
     );
 }
 
 async function getModelObjFromAlgorithmName(
     algorithmName: string,
-): Promise<ModelTypes> {
-    return (await SurvivalModelBuilder.buildFromAssetsFolder(
-        `${TestAlgorithmsFolderPath}/${algorithmName}`,
-    )).getModel();
+): Promise<Model> {
+    return new Model(
+        require(`${TestAlgorithmsFolderPath}/${algorithmName}/model.json`),
+    );
 }
 
 export async function getModelsToTest(
     modelsToExclude: string[],
-): Promise<Array<{ model: ModelTypes; name: string }>> {
+): Promise<Array<{ model: Model; name: string }>> {
     const modelNames = getAlgorithmNamesToTest(modelsToExclude);
+
     const models = await Promise.all(
         modelNames.map(algorithmName => {
             return getModelObjFromAlgorithmName(algorithmName);
@@ -53,6 +71,8 @@ export async function getModelsToTest(
     );
 
     return models.map((model, index) => {
+        model.name = modelNames[index];
+
         return {
             model,
             name: modelNames[index],
@@ -180,4 +200,197 @@ export function getPmmlString(
         <CustomPMML>
         </CustomPMML>
     </PMML>`;
+}
+
+export function getRelativeDifference(num1: number, num2: number): number {
+    if (!Number(num1) && !Number(num2)) {
+        return 0;
+    }
+
+    if (Number(num1) === 0 && Number(num2) !== 0) {
+        return 100;
+    }
+
+    return Math.abs(num1 - num2) / Math.abs(num1) * 100;
+}
+
+function streamValidationCsvFile(
+    filePath: string,
+    onData: (data: Data, index: number) => void,
+    onEnd: () => void,
+    onError: (err: Error) => void,
+) {
+    let index = 2;
+
+    const readScoreTestingDataFileStream = fs.createReadStream(filePath);
+
+    const readScoreTestingDataCsvStream = createCsvParseStream({
+        columns: true,
+    });
+
+    const scoreTestingDataStream = readScoreTestingDataFileStream.pipe(
+        readScoreTestingDataCsvStream,
+    );
+
+    scoreTestingDataStream.on('error', (error: Error) => {
+        return onError(error);
+    });
+
+    scoreTestingDataStream.on('end', () => {
+        return onEnd();
+    });
+
+    scoreTestingDataStream.on('data', (csvRow: { [index: string]: string }) => {
+        onData(
+            Object.keys(csvRow).map(currentColumnName => {
+                return {
+                    name: currentColumnName,
+                    coefficent: csvRow[currentColumnName],
+                };
+            }),
+            index,
+        );
+        index += 1;
+    });
+}
+
+export async function runIntegrationTest(
+    validationFilesFolderName: string,
+    validationFileName: string,
+    testType: string,
+    modelsToExclude: string[],
+    runTestForDataAndAlgorithm: (
+        algorithm: CoxSurvivalAlgorithm,
+        data: Data,
+        index: number,
+    ) => void,
+    t: test.Test,
+) {
+    validationFileName;
+
+    const modelsToTest = await getModelsToTest(modelsToExclude);
+
+    modelsToTest.forEach(({ model }) => {
+        t.test(`Testing ${testType} for model ${model.name}`, t => {
+            const validationCsvFilePaths: string[][] = [];
+            const modelPredicateDatas: Data[] = [];
+
+            if (model.algorithms.length === 1) {
+                validationCsvFilePaths.push(
+                    getCsvFilePathsInFolder(
+                        `${TestAlgorithmsFolderPath}/${model.name}/validation-data/${validationFilesFolderName}`,
+                    ),
+                );
+                modelPredicateDatas.push([]);
+            } else {
+                validationCsvFilePaths.push(
+                    getCsvFilePathsInFolder(
+                        `${TestAlgorithmsFolderPath}/${model.name}/validation-data/${validationFilesFolderName}/male`,
+                    ),
+                );
+                modelPredicateDatas.push([
+                    {
+                        name: 'sex',
+                        coefficent: 'male',
+                    },
+                ]);
+
+                validationCsvFilePaths.push(
+                    getCsvFilePathsInFolder(
+                        `${TestAlgorithmsFolderPath}/${model.name}/validation-data/${validationFilesFolderName}/female`,
+                    ),
+                );
+                modelPredicateDatas.push([
+                    {
+                        name: 'sex',
+                        coefficent: 'female',
+                    },
+                ]);
+            }
+
+            modelPredicateDatas.forEach((currentModelPredicateData, index) => {
+                const algorithm = model.getAlgorithmForData(
+                    currentModelPredicateData,
+                );
+
+                // tslint:disable-next-line:no-shadowed-variable
+                t.test(
+                    `Testing ${testType} for algorithm ${algorithm.name}`,
+                    t => {
+                        validationCsvFilePaths[
+                            index
+                        ].forEach(validationCsvFilePath => {
+                            testValidationFile(
+                                validationCsvFilePath,
+                                algorithm,
+                                runTestForDataAndAlgorithm,
+                                testType,
+                                t,
+                            );
+                        });
+                    },
+                );
+            });
+        });
+    });
+}
+
+function getCsvFilePathsInFolder(folderPath: string): string[] {
+    return fs
+        .readdirSync(folderPath)
+        .filter(fileOrFolderName => {
+            const fileOrFolderPath = `${folderPath}/${fileOrFolderName}`;
+
+            if (fs.statSync(`${folderPath}/${fileOrFolderName}`).isFile()) {
+                if (path.parse(fileOrFolderPath).ext === '.csv') {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        })
+        .map(csvFileName => {
+            return `${folderPath}/${csvFileName}`;
+        });
+}
+
+function testValidationFile(
+    validationCsvFilePath: string,
+    algorithm: CoxSurvivalAlgorithm,
+    runTestForDataAndAlgorithm: (
+        algorithm: CoxSurvivalAlgorithm,
+        data: Data,
+        index: number,
+    ) => void,
+    testType: string,
+    t: test.Test,
+) {
+    const fileName = path.parse(validationCsvFilePath).name;
+
+    t.test(
+        `Testing algorithm ${algorithm.name} for ${testType} for file ${fileName}`,
+        t => {
+            streamValidationCsvFile(
+                validationCsvFilePath,
+                (data, currentIndex) => {
+                    return runTestForDataAndAlgorithm(
+                        algorithm,
+                        data,
+                        currentIndex,
+                    );
+                },
+                () => {
+                    t.pass(
+                        `${testType} validated for algorithm ${algorithm.name} for file ${fileName}`,
+                    );
+                    t.end();
+                },
+                err => {
+                    t.end(err);
+                },
+            );
+        },
+    );
 }

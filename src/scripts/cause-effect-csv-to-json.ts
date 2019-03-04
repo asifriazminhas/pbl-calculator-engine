@@ -1,14 +1,16 @@
 import { IGenderCauseEffectRef } from '../engine/cause-effect';
 import { IDatum } from '../engine/data';
-import { getAlgorithmJsonForModelAndData } from '../engine/model/json-model-types';
-import { MultipleAlgorithmModelJson } from '../engine/multiple-algorithm-model/multiple-algorithm-model-json';
-import { ICoxJson } from '../engine/cox/cox-json';
+import {
+    IModelJson,
+    getAlgorithmJsonForPredicateData,
+} from '../parsers/json/json-model';
+import { CovariateGroup } from '../engine/data-field/covariate/covariate-group';
 // tslint:disable-next-line
 var csvParse = require('csv-parse/lib/sync');
 
 export interface ICauseEffectCsvRow {
     Algorithm: string;
-    RiskFactor: string;
+    RiskFactor: CovariateGroup;
     Sex: 'Male' | 'Female' | 'Both';
     PredictorName: string;
     EngineRef: string | 'NA';
@@ -70,7 +72,7 @@ function getCauseEffectRefUpdateObjectForCauseEffectCsvRow(
 function updateGenderCauseEffectRef(
     GenderCauseEffectRef: IGenderCauseEffectRef,
     gender: keyof IGenderCauseEffectRef,
-    riskFactor: string,
+    riskFactor: CovariateGroup,
     update: IDatum | undefined,
 ): IGenderCauseEffectRef {
     if (!GenderCauseEffectRef[gender][riskFactor]) {
@@ -90,7 +92,7 @@ function reduceToGenderCauseEffectRefObject(
         updateGenderCauseEffectRef(
             causeEffectRef,
             'male',
-            currentCauseEffectCsvRow.RiskFactor,
+            currentCauseEffectCsvRow.RiskFactor as CovariateGroup,
             getCauseEffectRefUpdateObjectForCauseEffectCsvRow(
                 currentCauseEffectCsvRow,
             ),
@@ -100,7 +102,7 @@ function reduceToGenderCauseEffectRefObject(
         updateGenderCauseEffectRef(
             causeEffectRef,
             'female',
-            currentCauseEffectCsvRow.RiskFactor,
+            currentCauseEffectCsvRow.RiskFactor as CovariateGroup,
             getCauseEffectRefUpdateObjectForCauseEffectCsvRow(
                 currentCauseEffectCsvRow,
             ),
@@ -112,11 +114,11 @@ function reduceToGenderCauseEffectRefObject(
 
 function checkGeneratedCauseEffectJson(
     causeEffectJson: IGenderCauseEffectRef,
-    model: MultipleAlgorithmModelJson,
+    model: IModelJson,
     modelName: string,
 ): IGenderCauseEffectRef {
     Object.keys(causeEffectJson).forEach(genderKey => {
-        const algorithmJsonForCurrentGender = getAlgorithmJsonForModelAndData(
+        const algorithmJsonForCurrentGender = getAlgorithmJsonForPredicateData(
             model,
             [
                 {
@@ -127,8 +129,10 @@ function checkGeneratedCauseEffectJson(
         );
 
         Object.keys(causeEffectJson[genderKey]).forEach(riskFactor => {
-            causeEffectJson[genderKey][riskFactor].forEach(datum => {
-                const covariateFoundForCurrentDatum = (algorithmJsonForCurrentGender as ICoxJson).covariates.find(
+            causeEffectJson[genderKey][
+                riskFactor as CovariateGroup
+            ].forEach(datum => {
+                const covariateFoundForCurrentDatum = algorithmJsonForCurrentGender.covariates.find(
                     covariate => {
                         return covariate.name === datum.name;
                     },
@@ -155,7 +159,7 @@ function checkGeneratedCauseEffectJson(
     return causeEffectJson;
 }
 export function convertCauseEffectCsvToGenderCauseEffectRefForAlgorithm(
-    model: MultipleAlgorithmModelJson,
+    model: IModelJson,
     modelName: string,
     causeEffectCsvString: string,
 ): IGenderCauseEffectRef {
@@ -166,10 +170,12 @@ export function convertCauseEffectCsvToGenderCauseEffectRefForAlgorithm(
     return checkGeneratedCauseEffectJson(
         causeEffectCsv
             .filter(filterOutRowsNotForAlgorithm(modelName))
+            /* TODO Fix this later so that the male and female objects have
+            risk factors prefilled with empty Data arrays to fix this TS error.*/
             .reduce(reduceToGenderCauseEffectRefObject, {
                 male: {},
                 female: {},
-            }),
+            } as IGenderCauseEffectRef),
         model,
         modelName,
     );

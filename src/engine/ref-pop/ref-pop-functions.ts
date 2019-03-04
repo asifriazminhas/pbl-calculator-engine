@@ -1,21 +1,19 @@
-import { ModelTypes, getAlgorithmForModelAndData } from '../model';
+import { Model } from '../model/model';
 import {
     ReferencePopulation,
     RefPopsWithPredicate,
 } from './reference-population';
 import { getHealthAge } from './health-age';
-// @ts-ignore
-import { Data, IDatum } from '../data';
-import { Cox } from '../cox';
-import { getFirstTruePredicateObject } from '../multiple-algorithm-model/predicate/predicate';
-import { NoPredicateObjectFoundError } from '../multiple-algorithm-model/predicate/predicate-errors';
+import { Data } from '../data';
+import { Predicate } from '../predicate/predicate';
+import { NoPredicateObjectFoundError } from '../predicate/predicate-errors';
 
 export class RefPopFunctions {
-    private model: ModelTypes;
+    private model: Model;
     private refPop: ReferencePopulation | RefPopsWithPredicate;
 
     constructor(
-        model: ModelTypes,
+        model: Model,
         refPop: ReferencePopulation | RefPopsWithPredicate,
     ) {
         this.model = model;
@@ -26,8 +24,16 @@ export class RefPopFunctions {
         let refPopToUse: ReferencePopulation;
         if ((this.refPop as RefPopsWithPredicate)[0].predicate) {
             try {
-                refPopToUse = getFirstTruePredicateObject(
-                    this.refPop as RefPopsWithPredicate,
+                refPopToUse = Predicate.getFirstTruePredicateObject(
+                    (this
+                        .refPop as RefPopsWithPredicate).map(currentRefProp => {
+                        return Object.assign({}, currentRefProp, {
+                            predicate: new Predicate(
+                                currentRefProp.predicate.equation,
+                                currentRefProp.predicate.variables,
+                            ),
+                        });
+                    }),
                     data,
                 ).refPop;
             } catch (err) {
@@ -47,9 +53,10 @@ export class RefPopFunctions {
             refPopToUse = this.refPop as ReferencePopulation;
         }
 
-        return getHealthAge(refPopToUse, data, getAlgorithmForModelAndData(
-            this.model,
+        return getHealthAge(
+            refPopToUse,
             data,
-        ) as Cox);
+            this.model.getAlgorithmForData(data),
+        );
     };
 }

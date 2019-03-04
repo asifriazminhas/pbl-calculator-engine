@@ -1,14 +1,15 @@
 import * as test from 'tape';
 import { getForRiskFactorFunction } from '../engine/cause-effect/cause-effect';
 import { SurvivalModelBuilder } from '../engine/survival-model-builder/survival-model-builder';
-import * as path from 'path';
 import { expect } from 'chai';
 
 test(`Cause Effect`, async t => {
-    const MportCauseEffectReference = require('../../assets/test/algorithms/MPoRT/cause-effect.json');
+    // tslint:disable-next-line
+    const MportCauseEffectReference = require('@ottawamhealth/pbl-calculator-engine-assets/MPoRT/cause-effect-ref.json');
+    const MportModelJson = require('@ottawamhealth/pbl-calculator-engine-assets/MPoRT/model.json');
 
-    const mportModel = await SurvivalModelBuilder.buildFromAssetsFolder(
-        path.join(__dirname, '../../assets/test/algorithms/MPoRT'),
+    const mportModel = await SurvivalModelBuilder.buildFromModelJson(
+        MportModelJson,
     );
 
     const withMportRiskFactor = getForRiskFactorFunction(
@@ -30,7 +31,7 @@ test(`Cause Effect`, async t => {
         data.concat(MportCauseEffectReference.male.Smoking),
     );
     const causeEffectRiskToTime = withMportRiskFactor
-        .withRiskFactor('Smoking')
+        .withRiskFactor('SMOKING')
         .getCauseEffect(mportModel.getRiskToTime)
         .withData(data);
 

@@ -1,18 +1,14 @@
 import * as test from 'tape';
 import { expect } from 'chai';
-import { SingleAlgorithmModelJson } from '../engine/single-algorithm-model/single-algorithm-model-json';
 import { omit } from 'lodash';
-import { optimizeModel } from '../engine/pmml-to-json-parser/optimizations';
-import { AlgorithmJsonTypes } from '../engine/algorithm/algorithm-json-types';
-import { ISimpleAlgorithmJson } from '../engine/simple-algorithm/simple-algorithm-json';
-import { AlgorithmType } from '../engine/algorithm/algorithm-type';
-import { FieldType } from '../engine/field/field-type';
-import { DerivedFieldJson } from '../engine/derived-field/json-derived-field/json-derived-field';
-import { ModelType } from '../engine/model/model-type';
-import { MultipleAlgorithmModelJson } from '../engine/multiple-algorithm-model/multiple-algorithm-model-json';
+import { optimizeModel } from '../parsers/pmml-to-json-parser/optimizations';
+import { IDerivedFieldJson } from '../parsers/json/json-derived-field';
+import { ICoxSurvivalAlgorithmJson } from '../parsers/json/json-cox-survival-algorithm';
+import { TimeMetric } from '../engine/algorithm/regression-algorithm/cox-survival-algorithm/time-metric';
+import { IModelJson } from '../parsers/json/json-model';
 
 function doRemoveUnsedColumnsAsertions(
-    actualOptimizedAlgorithmJson: AlgorithmJsonTypes,
+    actualOptimizedAlgorithmJson: ICoxSurvivalAlgorithmJson,
     tables: { [index: string]: Array<{ [index: string]: string }> },
     t: test.Test,
 ) {
@@ -37,7 +33,7 @@ function doRemoveUnsedColumnsAsertions(
 }
 
 function doRemoveUnusedFunctionsAssertions(
-    optimizedAlgorithm: AlgorithmJsonTypes,
+    optimizedAlgorithm: ICoxSurvivalAlgorithmJson,
     userFunctions: { [index: string]: string },
     t: test.Test,
 ) {
@@ -84,59 +80,68 @@ test(`Model optimizations`, t => {
         testFunctionThree: '',
     };
 
-    const DerivedFields: DerivedFieldJson[] = [
+    const metadata = {
+        label: '',
+        shortLabel: '',
+    };
+    const DerivedFields: IDerivedFieldJson[] = [
         {
-            fieldType: FieldType.DerivedField,
             // tslint:disable-next-line
             equation: `derived = getValueFromTable(tables['tableOne'], 'outputColumn', { 'columnOne': 'Age_cont' });`,
             derivedFrom: [],
             name: 'derivedFieldOne',
-            displayName: '',
-            extensions: {},
+            isRequired: false,
+            metadata,
         },
         {
-            fieldType: FieldType.DerivedField,
             // tslint:disable-next-line
             equation: `derived = getValueFromTable(tables['tableTwo'], 'outputColumn', { 'columnTwo': 'Age_cont' });`,
             derivedFrom: [],
             name: 'derivedFieldTwo',
-            displayName: '',
-            extensions: {},
+            isRequired: false,
+            metadata,
         },
         {
-            fieldType: FieldType.DerivedField,
             equation: `derived = userFunctions['testFunctionOne']()`,
             derivedFrom: [],
             name: 'derivedFieldThree',
-            displayName: '',
-            extensions: {},
+            isRequired: false,
+            metadata,
         },
     ];
 
-    const AlgorithmJson: ISimpleAlgorithmJson = {
+    const AlgorithmJson: ICoxSurvivalAlgorithmJson = {
         name: '',
-        algorithmType: AlgorithmType.SimpleAlgorithm,
         derivedFields: DerivedFields,
-        version: '',
-        description: '',
         userFunctions: UserFunctions,
         tables: Tables,
-        output: '',
+        covariates: [],
+        baseline: [],
+        timeMetric: TimeMetric.Years,
+        maximumTime: 5,
     };
 
     t.test(`Testing single algorithm model`, t => {
-        const singleAlgorithmModelJson: SingleAlgorithmModelJson = {
-            modelType: ModelType.SingleAlgorithm,
-            algorithm: AlgorithmJson,
+        const singleAlgorithmModelJson = {
+            name: '',
+            algorithms: [
+                {
+                    algorithm: AlgorithmJson,
+                    predicate: {
+                        equation: 'true',
+                        variables: [],
+                    },
+                },
+            ],
         };
 
         const optimizedSingleAlgorithmModelJson = optimizeModel(
             singleAlgorithmModelJson,
-        ) as SingleAlgorithmModelJson;
+        );
 
         t.test(`Removing unused columns from table`, t => {
             doRemoveUnsedColumnsAsertions(
-                optimizedSingleAlgorithmModelJson.algorithm,
+                optimizedSingleAlgorithmModelJson.algorithms[0].algorithm,
                 Tables,
                 t,
             );
@@ -145,7 +150,7 @@ test(`Model optimizations`, t => {
 
         t.test(`Removing unused functions`, t => {
             doRemoveUnusedFunctionsAssertions(
-                optimizedSingleAlgorithmModelJson.algorithm,
+                optimizedSingleAlgorithmModelJson.algorithms[0].algorithm,
                 UserFunctions,
                 t,
             );
@@ -154,8 +159,8 @@ test(`Model optimizations`, t => {
     });
 
     t.test(`Testing multiple algorithm model`, t => {
-        const multipleAlgorithmModelJson: MultipleAlgorithmModelJson = {
-            modelType: ModelType.MultipleAlgorithm,
+        const multipleAlgorithmModelJson: IModelJson = {
+            name: '',
             algorithms: [
                 {
                     algorithm: AlgorithmJson,
@@ -176,7 +181,7 @@ test(`Model optimizations`, t => {
 
         const optimizedMultipleAlgorithmModelJson = optimizeModel(
             multipleAlgorithmModelJson,
-        ) as MultipleAlgorithmModelJson;
+        ) as IModelJson;
         t.test(`Removing unused columns`, t => {
             optimizedMultipleAlgorithmModelJson.algorithms.forEach(
                 algorithm => {

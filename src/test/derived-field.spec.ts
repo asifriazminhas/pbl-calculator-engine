@@ -1,23 +1,19 @@
 import * as test from 'tape';
-import { calculateCoefficent } from '../engine/derived-field/derived-field';
-import { Algorithm } from '../engine/algorithm/algorithm';
+import { expect } from 'chai';
 import {
-    IBaseDerivedField,
     DerivedField,
     findDescendantDerivedField,
-    calculateDataToCalculateCoefficent,
-} from '../engine/derived-field/derived-field';
-import { FieldType } from '../engine/field/field-type';
+} from '../engine/data-field/derived-field/derived-field';
 import { DataField } from '../engine/data-field/data-field';
-import { expect } from 'chai';
-import { OpType } from '../engine/op-type/op-type';
+import { IUserFunctions } from '../engine/algorithm/user-functions/user-functions';
+import { ITables } from '../engine/algorithm/tables/tables';
 
 test(`.calculateCoefficent`, t => {
-    const userFunctions: Algorithm<any>['userFunctions'] = {};
+    const userFunctions: IUserFunctions = {};
     const tableName = 'tableOne';
     const outputColumn = 'out';
 
-    const tables: Algorithm<any>['tables'] = {
+    const tables: ITables = {
         [tableName]: [
             {
                 columnOne: 'a',
@@ -31,25 +27,32 @@ test(`.calculateCoefficent`, t => {
             },
         ],
     };
-    const derivedField: IBaseDerivedField = {
-        fieldType: FieldType.DerivedField,
-        name: 'derivedField',
-        equation: `derived = getValueFromTable(
+    const metadata = {
+        label: '',
+        shortLabel: '',
+    };
+    const derivedField: DerivedField = new DerivedField(
+        {
+            name: 'derivedField',
+            equation: `derived = getValueFromTable(
             tables['${tableName}'],
             '${outputColumn}', {
                 'columnOne': obj['fieldOne'],
                 'columnTwo': 'b'
-            }
+            },
         )`,
-        derivedFrom: [
-            {
-                fieldType: FieldType.DataField,
+            derivedFrom: [],
+            isRequired: false,
+            metadata,
+        },
+        [
+            new DataField({
                 name: 'fieldOne',
-            } as DataField,
+                isRequired: false,
+                metadata,
+            }),
         ],
-        displayName: '',
-        extensions: {},
-    };
+    );
     const data = [
         {
             name: 'fieldOne',
@@ -58,7 +61,7 @@ test(`.calculateCoefficent`, t => {
     ];
 
     expect(
-        calculateCoefficent(derivedField, data, userFunctions, tables),
+        derivedField.calculateCoefficent(data, userFunctions, tables),
     ).to.equal('1');
     t.pass(`Correctly calculated coefficent with table condition`);
 
@@ -66,51 +69,66 @@ test(`.calculateCoefficent`, t => {
 });
 
 test(`.getDerivedFieldWithName`, t => {
+    const metadata = {
+        label: '',
+        shortLabel: '',
+    };
+
     const childFields: DerivedField[] = [
-        {
-            fieldType: FieldType.DerivedField,
-            equation: '',
-            derivedFrom: [
-                {
-                    fieldType: FieldType.DerivedField,
-                    equation: '',
-                    derivedFrom: [
-                        {
-                            fieldType: FieldType.DerivedField,
-                            equation: '',
-                            derivedFrom: [],
-                            name: '',
-                            displayName: '',
-                            extensions: {},
-                        },
+        new DerivedField(
+            {
+                equation: '',
+                name: '',
+                derivedFrom: [],
+                isRequired: false,
+                metadata,
+            },
+            [
+                new DerivedField(
+                    {
+                        equation: '',
+                        derivedFrom: [],
+                        name: 'fieldToFind',
+                        isRequired: false,
+                        metadata,
+                    },
+                    [
+                        new DerivedField(
+                            {
+                                equation: '',
+                                derivedFrom: [],
+                                name: '',
+                                isRequired: false,
+                                metadata,
+                            },
+                            [],
+                        ),
                     ],
-                    displayName: '',
-                    extensions: {},
-                    name: 'fieldToFind',
-                },
-            ] as DerivedField[],
-            name: '',
-            displayName: '',
-            extensions: {},
-        },
-        {
-            fieldType: FieldType.DerivedField,
-            name: '',
-            displayName: '',
-            extensions: {},
-            equation: '',
-            derivedFrom: [],
-        },
+                ),
+            ],
+        ),
+        new DerivedField(
+            {
+                name: '',
+                equation: '',
+                derivedFrom: [],
+                isRequired: false,
+                metadata,
+            },
+            [],
+        ),
     ];
 
-    const derivedField: DerivedField = {
-        fieldType: FieldType.DerivedField,
-        equation: '',
-        derivedFrom: childFields,
-        name: '',
-        displayName: '',
-        extensions: {},
-    };
+    const derivedField: DerivedField = new DerivedField(
+        {
+            equation: '',
+            derivedFrom: [],
+            name: '',
+            isRequired: false,
+            metadata,
+        },
+        childFields,
+    );
 
     expect(
         findDescendantDerivedField(
@@ -125,27 +143,28 @@ test(`.getDerivedFieldWithName`, t => {
 
 test(`.calculateDataToCalculateCoefficent`, t => {
     t.test(`When the derived from item is a DataField`, t => {
-        const derivedFromDataField: DataField = {
-            fieldType: FieldType.DataField,
+        const metadata = {
+            label: '',
+            shortLabel: '',
+        };
+        const derivedFromDataField = new DataField({
             name: 'testOne',
-            displayName: '',
-            extensions: {},
-        };
-        const derivedField: DerivedField = {
-            name: '',
-            fieldType: FieldType.DerivedField,
-            equation: '',
-            derivedFrom: [derivedFromDataField],
-            displayName: '',
-            extensions: {},
-            opType: OpType.Continuous,
-            min: null,
-            max: null,
-        };
+            isRequired: false,
+            metadata,
+        });
+        const derivedField: DerivedField = new DerivedField(
+            {
+                name: '',
+                equation: '',
+                derivedFrom: [],
+                isRequired: false,
+                metadata,
+            },
+            [derivedFromDataField],
+        );
 
         t.test(`When the DataField is not in the data argument`, t => {
-            const actualData = calculateDataToCalculateCoefficent(
-                derivedField,
+            const actualData = derivedField.calculateDataToCalculateCoefficent(
                 [],
                 {},
                 {},
@@ -154,7 +173,7 @@ test(`.calculateDataToCalculateCoefficent`, t => {
             expect(actualData).to.deep.equal([
                 {
                     name: derivedFromDataField.name,
-                    coefficent: null,
+                    coefficent: undefined,
                 },
             ]);
             t.pass(

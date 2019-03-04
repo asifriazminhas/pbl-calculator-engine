@@ -1,7 +1,17 @@
+import { Data, findDatumWithName } from '../data';
+import { CoxSurvivalAlgorithm } from '../algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
+import * as moment from 'moment';
+import { filterDataForFields } from '../data/data';
+import { NonInteractionCovariate } from '../data-field/covariate/non-interaction-covariats/non-interaction-covariate';
+import { DataField } from '../data-field/data-field';
+import { flatten } from 'lodash';
+import { InteractionCovariate } from '../data-field/covariate/interaction-covariate/interaction-covariate';
+
 export interface IRefLifeTableRow {
     age: number;
     ax: number;
     ex: number;
+    qx: number;
 }
 
 export type RefLifeTable = IRefLifeTableRow[];
@@ -133,7 +143,10 @@ export function getCompleteLifeTableWithStartAge(
     refLifeTableFromStartAge.forEach(refLifeTableRow => {
         refLifeTableWithQx.push(
             Object.assign({}, refLifeTableRow, {
-                qx: getPredictedRiskForAge(refLifeTableRow.age),
+                qx:
+                    refLifeTableRow.age < useLifeTableForExFromAge
+                        ? getPredictedRiskForAge(refLifeTableRow.age)
+                        : refLifeTableRow.qx,
             }),
         );
     });
@@ -170,4 +183,94 @@ export function getCompleteLifeTableWithStartAge(
     lifeTable.reverse();
 
     return lifeTable;
+}
+
+export function getCompleteLifeTableForDataUsingAlgorithm(
+    refLifeTable: RefLifeTable,
+    data: Data,
+    cox: CoxSurvivalAlgorithm,
+    useExFromLifeTableFromAge: number = 99,
+    getPredictedRiskForAge?: (age: number) => number,
+): CompleteLifeTable {
+    const ageInteractionCovariates = cox.covariates.filter(covariate => {
+        return (
+            covariate instanceof InteractionCovariate &&
+            covariate.isPartOfGroup('AGE')
+        );
+    });
+    const ageNonInteractionCovariates = cox.covariates.filter(covariate => {
+        return (
+            covariate instanceof NonInteractionCovariate &&
+            covariate.isPartOfGroup('AGE')
+        );
+    });
+    const allAgeFields = DataField.getUniqueDataFields(
+        flatten(
+            ageNonInteractionCovariates
+                .map(covariate => {
+                    return covariate.getDescendantFields();
+                })
+                .concat(ageInteractionCovariates)
+                .concat(ageNonInteractionCovariates),
+        ),
+    );
+
+    const dataWithoutAgeFields = filterDataForFields(data, allAgeFields);
+    const ageDatum = findDatumWithName('age', data);
+    /* When we go through each row of the life table and calculate ex, the only
+    coefficient that changes going from one covariate to the next are the ones
+    belonging to the age covariate since we increment the age value from one
+    row of the life table to the next. As an optimization we precalculate the
+    coefficients for all covariates that are not part of the age group and add
+    them to the data which will be used to calculate the life table */
+    const lifeTableDataWithoutAge = filterDataForFields(
+        cox
+            .getCovariatesWithoutGroup('AGE')
+            /* Goes through all non-age covariates and calculates the data
+            required to calculate the coefficient for each one. Then uses the
+            data to calculate the actual coefficient and finally adds it all
+            to the currentData argument to be used by the next covariate */
+            .reduce((currentData, covariate) => {
+                const currentCoefficientData = covariate.calculateDataToCalculateCoefficent(
+                    currentData,
+                    cox.userFunctions,
+                    cox.tables,
+                );
+                const covariateCoefficient = {
+                    name: covariate.name,
+                    coefficent: covariate.calculateCoefficient(
+                        currentCoefficientData,
+                        cox.userFunctions,
+                        cox.tables,
+                    ),
+                };
+
+                return currentData
+                    .concat(currentCoefficientData)
+                    .concat([covariateCoefficient]);
+            }, dataWithoutAgeFields.concat(ageDatum)),
+        allAgeFields,
+    );
+
+    return getCompleteLifeTableWithStartAge(
+        refLifeTable,
+        age => {
+            if (getPredictedRiskForAge) {
+                return getPredictedRiskForAge(age);
+            } else {
+                const now = moment();
+                now.add(1, 'year');
+
+                return cox.getRiskToTime(
+                    lifeTableDataWithoutAge.concat({
+                        name: 'age',
+                        coefficent: age,
+                    }),
+                    now,
+                );
+            }
+        },
+        ageDatum.coefficent as number,
+        useExFromLifeTableFromAge,
+    );
 }

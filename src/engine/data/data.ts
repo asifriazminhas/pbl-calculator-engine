@@ -1,6 +1,9 @@
 import { IDatum } from './datum';
-import { throwErrorIfUndefined } from '../undefined/undefined';
+import { throwErrorIfUndefined } from '../../util/undefined/undefined';
 import { NoDatumFoundError } from '../errors';
+import { DataField } from '../data-field/data-field';
+import { CovariateGroup } from '../data-field/covariate/covariate-group';
+import { CoxSurvivalAlgorithm } from '../algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
 
 export type Data = IDatum[];
 
@@ -57,4 +60,34 @@ export function isEqual(dataOne: Data, dataTwo: Data): boolean {
     })
         ? false
         : true;
+}
+
+export function filterDataForFields(data: Data, dataFields: DataField[]): Data {
+    const dataFieldNames = dataFields.map(dataField => {
+        return dataField.name;
+    });
+
+    return data.filter(datum => {
+        return dataFieldNames.indexOf(datum.name) === -1;
+    });
+}
+
+/**
+ * Removes all datum from the data arg that can be used to calculate the
+ * coefficient for the covariates in the group specified in the covariateGroup
+ * arg. For example, if covariateGroup is 'AGE' and one of the datum is 'age',
+ * it would be removed from the data argument
+ *
+ * @export
+ * @param {CovariateGroup} covariateGroup
+ * @param {CoxSurvivalAlgorithm} cox
+ * @param {Data} data
+ * @returns {Data}
+ */
+export function filterDataUsedToCalculateCoefficientsForCovariateGroup(
+    covariateGroup: CovariateGroup,
+    cox: CoxSurvivalAlgorithm,
+    data: Data,
+): Data {
+    return filterDataForFields(data, cox.getAllFieldsForGroup(covariateGroup));
 }

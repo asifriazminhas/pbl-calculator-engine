@@ -10,7 +10,11 @@
         "object-literal-sort-keys": false,
         "arrow-parens": false,
         "no-eval": false,
-        "no-console": false
+        "no-console": false,
+        "interface-name": false,
+        "curly": [true, "ignore-same-line"],
+        "trailing-comma": [true],
+        "member-access": [true, "no-public"]
     },
     "rulesDirectory": []
 }

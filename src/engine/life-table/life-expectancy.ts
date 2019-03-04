@@ -1,10 +1,10 @@
 import {
     CompleteLifeTable,
-    getCompleteLifeTableWithStartAge,
     RefLifeTable,
+    getCompleteLifeTableForDataUsingAlgorithm,
 } from './life-table';
 import { Data, findDatumWithName } from '../data';
-import { Cox, getSurvivalToTime } from '../cox';
+import { CoxSurvivalAlgorithm } from '../algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
 
 /**
  * Returns the life expectancy at the age argument using the passed lifeTable argument
@@ -28,40 +28,10 @@ export function getLifeExpectancyForAge(
     }
 }
 
-export function getCompleteLifeTableForDataUsingAlgorithm(
-    refLifeTable: RefLifeTable,
-    data: Data,
-    cox: Cox,
-    useExFromLifeTableFromAge: number = 99,
-): CompleteLifeTable {
-    // TODO Change this to have an optional parameter called age
-    const ageDatum = findDatumWithName('age', data);
-
-    const dataWithoutAgeDatum = data.filter(datum => datum.name !== 'age');
-
-    return getCompleteLifeTableWithStartAge(
-        refLifeTable,
-        age => {
-            return (
-                1 -
-                getSurvivalToTime(
-                    cox,
-                    dataWithoutAgeDatum.concat({
-                        name: 'age',
-                        coefficent: age,
-                    }),
-                )
-            );
-        },
-        ageDatum.coefficent as number,
-        useExFromLifeTableFromAge,
-    );
-}
-
 export function getLifeExpectancyUsingRefLifeTable(
     data: Data,
     refLifeTable: RefLifeTable,
-    coxAlgorithm: Cox,
+    coxAlgorithm: CoxSurvivalAlgorithm,
     useExFromLifeTableFromAge: number = 99,
     completeLifeTable: CompleteLifeTable = getCompleteLifeTableForDataUsingAlgorithm(
         refLifeTable,
