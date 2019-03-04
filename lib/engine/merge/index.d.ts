@@ -1,1 +1,0 @@
-export { getMergeArraysFunction } from './merge';

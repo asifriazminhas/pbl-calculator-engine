@@ -1,6 +1,6 @@
-import { JsonModelTypes } from '../model';
 import { SurvivalModelFunctions } from './survival-model-functions';
-export declare type BuildFromModelJsonFunction = (modelJson: JsonModelTypes) => SurvivalModelFunctions;
+import { IModelJson } from '../../parsers/json/json-model';
+export declare type BuildFromModelJsonFunction = (modelJson: IModelJson) => SurvivalModelFunctions;
 export interface IBuildFromModelJson {
     buildFromModelJson: BuildFromModelJsonFunction;
 }

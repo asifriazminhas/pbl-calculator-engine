@@ -1,1 +1,0 @@
-{"version":3,"file":"regression-algorithm-types.js","sourceRoot":"","sources":["../../../src/engine/regression-algorithm/regression-algorithm-types.ts"],"names":[],"mappings":";;AAGA,gEAA4D;AAI5D,+BACI,SAAyB;IAEzB,MAAM,CAAC,CACH,SAAS,CAAC,aAAa,KAAK,8BAAa,CAAC,GAAG;QAC7C,SAAS,CAAC,aAAa,KAAK,8BAAa,CAAC,kBAAkB,CAC/D,CAAC;AACN,CAAC;AAPD,sDAOC"}

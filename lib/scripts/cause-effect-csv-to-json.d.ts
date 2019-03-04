@@ -1,11 +1,12 @@
 import { IGenderCauseEffectRef } from '../engine/cause-effect';
-import { MultipleAlgorithmModelJson } from '../engine/multiple-algorithm-model/multiple-algorithm-model-json';
+import { IModelJson } from '../parsers/json/json-model';
+import { CovariateGroup } from '../engine/data-field/covariate/covariate-group';
 export interface ICauseEffectCsvRow {
     Algorithm: string;
-    RiskFactor: string;
+    RiskFactor: CovariateGroup;
     Sex: 'Male' | 'Female' | 'Both';
     PredictorName: string;
     EngineRef: string | 'NA';
 }
 export declare type CauseEffectCsv = ICauseEffectCsvRow[];
-export declare function convertCauseEffectCsvToGenderCauseEffectRefForAlgorithm(model: MultipleAlgorithmModelJson, modelName: string, causeEffectCsvString: string): IGenderCauseEffectRef;
+export declare function convertCauseEffectCsvToGenderCauseEffectRefForAlgorithm(model: IModelJson, modelName: string, causeEffectCsvString: string): IGenderCauseEffectRef;

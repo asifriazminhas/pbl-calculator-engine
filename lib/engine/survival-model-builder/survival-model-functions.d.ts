@@ -1,22 +1,22 @@
-import { ModelTypes, JsonModelTypes } from '../model';
+import { Model } from '../model/model';
 import { Data, IDatum } from '../data';
-import { Cox } from '../cox';
 import * as moment from 'moment';
-import { INewPredictorTypes } from '../regression-algorithm/regression-algorithm';
-import { CalibrationJson } from '../regression-algorithm/calibration/calibration-json';
-export declare type CalibrationObjects = Array<{
-    age: number;
-    baseline: number;
-}>;
+import { CoxSurvivalAlgorithm, INewPredictor } from '../algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
+import { ICalibrationFactorJsonObject, CalibrationJson } from '../../parsers/json/json-calibration';
+import { IModelJson } from '../../parsers/json/json-model';
+export interface IGenderCalibrationObjects {
+    male: ICalibrationFactorJsonObject[];
+    female: ICalibrationFactorJsonObject[];
+}
 export declare class SurvivalModelFunctions {
     private model;
     private modelJson;
-    constructor(model: ModelTypes<Cox>, modelJson: JsonModelTypes);
-    getAlgorithmForData(data: Data): Cox;
+    constructor(model: Model, modelJson: IModelJson);
+    getAlgorithmForData(data: Data): CoxSurvivalAlgorithm;
     getRiskToTime: (data: IDatum[], time?: moment.Moment | Date | undefined) => number;
     getSurvivalToTime: (data: IDatum[], time?: moment.Moment | Date | undefined) => number;
-    addPredictor(newPredictor: INewPredictorTypes): SurvivalModelFunctions;
-    reCalibrateOutcome(calibrationJson: CalibrationJson): SurvivalModelFunctions;
-    getModel(): ModelTypes;
-    getModelJson(): JsonModelTypes;
+    addPredictor(newPredictor: INewPredictor): SurvivalModelFunctions;
+    reCalibrateOutcome(calibrationJson: CalibrationJson | IGenderCalibrationObjects): SurvivalModelFunctions;
+    getModel(): Model;
+    getModelJson(): IModelJson;
 }

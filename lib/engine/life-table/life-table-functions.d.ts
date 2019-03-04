@@ -1,11 +1,13 @@
 import { IGenderSpecificRefLifeTable } from './life-table';
-import { Data, IDatum } from '../data';
-import { SurvivalModelFunctions } from '../survival-model-builder/survival-model-functions';
+import { Data } from '../data';
+import { Model } from '../model/model';
 export declare class LifeTableFunctions {
-    private survivalFunctions;
+    model: Model;
     private genderSpecificRefLifeTable;
-    constructor(survivalFunctions: SurvivalModelFunctions, genderSpecificRefLifeTable: IGenderSpecificRefLifeTable);
-    getLifeExpectancy: (data: IDatum[]) => number;
+    private useExFromAge;
+    constructor(model: Model, genderSpecificRefLifeTable: IGenderSpecificRefLifeTable, useExFromAge?: number);
+    getLifeExpectancy(data: Data): number;
     getSurvivalToAge(data: Data, toAge: number): number;
-    private getRefLifeTableForData(data);
+    private getCompleteLifeTable;
+    private getRefLifeTable;
 }

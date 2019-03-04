@@ -1,5 +1,5 @@
-import { GeneralRegressionModelType } from '../pmml/general_regression_model/general_regression_model';
-import { TimeMetric } from '../cox/time-metric';
+import { TimeMetric } from '../algorithm/regression-algorithm/cox-survival-algorithm/time-metric';
+import { GeneralRegressionModelType } from '../../parsers/pmml/general_regression_model/general_regression_model';
 export interface IAlgorithmInfoCsvRow {
     AlgorithmName: string;
     GenderSpecific: 'true' | 'false';

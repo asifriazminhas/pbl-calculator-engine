@@ -1,7 +1,10 @@
+import { Data } from '../data';
+import { CoxSurvivalAlgorithm } from '../algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
 export interface IRefLifeTableRow {
     age: number;
     ax: number;
     ex: number;
+    qx: number;
 }
 export declare type RefLifeTable = IRefLifeTableRow[];
 export interface IGenderSpecificRefLifeTable {
@@ -25,3 +28,4 @@ export declare type GetPredictedRiskForAge = (age: number) => number;
  * @returns {Array<LifeTableRow>}
  */
 export declare function getCompleteLifeTableWithStartAge(refLifeTable: RefLifeTable, getPredictedRiskForAge: GetPredictedRiskForAge, startAge: number, useLifeTableForExFromAge?: number): CompleteLifeTable;
+export declare function getCompleteLifeTableForDataUsingAlgorithm(refLifeTable: RefLifeTable, data: Data, cox: CoxSurvivalAlgorithm, useExFromLifeTableFromAge?: number, getPredictedRiskForAge?: (age: number) => number): CompleteLifeTable;
