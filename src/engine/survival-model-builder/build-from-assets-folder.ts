@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import { transformPhiatDictionaryToPmml } from '../pmml-transformers/web-spec/web-spec-v1';
-import { limesurveyTxtStringToPmmlString } from '../pmml-transformers/limesurvey';
 import * as path from 'path';
 // tslint:disable-next-line
 const csvParse = require('csv-parse/lib/sync');
@@ -164,7 +163,6 @@ function getPmmlFileStringsSortedByPriorityInFolder(
 
 async function buildSingleAlgorithmModelJson(
     assetsFolderPath: string,
-    limesurveyPmmlString: string | undefined,
     webSpecifictaionsCsvString: string | undefined,
     webSpecifictationsCategoriesCsvString: string | undefined,
     algorithmName: string,
@@ -192,9 +190,9 @@ async function buildSingleAlgorithmModelJson(
     // Return SingleAlgorithmModelJson
     const singleAlgorithmJson = await pmmlXmlStringsToJson(
         [
-            pmmlFileStrings
-                .concat(webSpecificationsPmml ? webSpecificationsPmml : [])
-                .concat(limesurveyPmmlString ? limesurveyPmmlString : []),
+            pmmlFileStrings.concat(
+                webSpecificationsPmml ? webSpecificationsPmml : [],
+            ),
         ],
         [
             {
@@ -222,7 +220,6 @@ async function buildMultipleAlgorithmModelJson(
     assetsFolderPath: string,
     webSpecificationsCsvString: string | undefined,
     webSpecificationsCategoriesCsvString: string | undefined,
-    limesurveyPmml: string | undefined,
     algorithmName: string,
     algorithmInfo: IAlgorithmInfoCsvRow,
 ): Promise<IModelJson> {
@@ -246,9 +243,9 @@ async function buildMultipleAlgorithmModelJson(
     }
 
     // make the array of pmml strings for the male model
-    const maleAlgorithmPmmlFileString = malePmmlFileStrings
-        .concat(maleWebSpecificationsPmml ? maleWebSpecificationsPmml : [])
-        .concat(limesurveyPmml ? limesurveyPmml : []);
+    const maleAlgorithmPmmlFileString = malePmmlFileStrings.concat(
+        maleWebSpecificationsPmml ? maleWebSpecificationsPmml : [],
+    );
 
     // get the pmml file string sorted by priority for the female algorithm
     const femalePmmlFileStrings = getPmmlFileStringsSortedByPriorityInFolder(
@@ -270,9 +267,9 @@ async function buildMultipleAlgorithmModelJson(
     }
 
     // make the array of pmml string for the female model
-    const femaleAlgorithmPmmlStrings = femalePmmlFileStrings
-        .concat(femaleWebSpecificationsPmml ? femaleWebSpecificationsPmml : [])
-        .concat(limesurveyPmml ? limesurveyPmml : []);
+    const femaleAlgorithmPmmlStrings = femalePmmlFileStrings.concat(
+        femaleWebSpecificationsPmml ? femaleWebSpecificationsPmml : [],
+    );
 
     // Construct and return the MultipleAlgorithmJson object
     const multipleAlgorithmModel = (await pmmlXmlStringsToJson(
@@ -304,18 +301,6 @@ export function getBuildFromAssetsFolder(): IBuildFromAssetsFolder {
         buildFromAssetsFolder: async assetsFolderPath => {
             // Get the name of the algorithm from the assetsFolderPath
             const currentAlgorithmName = path.basename(assetsFolderPath);
-
-            let limesurveyPmml;
-            if (fs.existsSync(`${assetsFolderPath}/limesurvey.txt`)) {
-                // Get the limesurvye txt file string
-                const limesurveyTxtString = fs.readFileSync(
-                    `${assetsFolderPath}/limesurvey.txt`,
-                    'utf8',
-                );
-                limesurveyPmml = limesurveyTxtStringToPmmlString(
-                    limesurveyTxtString,
-                );
-            }
 
             let webSpecificationsCsvString;
             let webSpecificationsCategoriesCsvString;
@@ -363,14 +348,12 @@ export function getBuildFromAssetsFolder(): IBuildFromAssetsFolder {
                     assetsFolderPath,
                     webSpecificationsCsvString,
                     webSpecificationsCategoriesCsvString,
-                    limesurveyPmml,
                     currentAlgorithmName,
                     currentAlgorithmInfoFile,
                 );
             } else {
                 modelJson = await buildSingleAlgorithmModelJson(
                     assetsFolderPath,
-                    limesurveyPmml,
                     webSpecificationsCsvString,
                     webSpecificationsCategoriesCsvString,
                     currentAlgorithmName,
