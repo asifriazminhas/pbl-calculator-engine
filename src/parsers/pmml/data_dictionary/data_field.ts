@@ -28,6 +28,7 @@ export interface IInterval {
         closure: 'openOpen' | 'openClosed' | 'closedOpen' | 'closedClosed';
         leftMargin?: string;
         rightMargin?: string;
+        'X-description': string;
     };
 }
 

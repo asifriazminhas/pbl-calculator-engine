@@ -49,7 +49,9 @@ function parseIntervals(dataField: IDataField): JsonInterval[] | undefined {
             : [dataField.Interval]
         ).map(interval => {
             return Object.assign(
-                {},
+                {
+                    description: interval.$['X-description'],
+                },
                 interval.$.leftMargin
                     ? {
                           lowerMargin: {

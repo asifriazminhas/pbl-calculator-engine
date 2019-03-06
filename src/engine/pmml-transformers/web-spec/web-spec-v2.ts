@@ -149,6 +149,7 @@ function getIntervalNode(min?: string, max?: string): IInterval {
             {},
             {
                 closure: 'closedClosed' as 'closedClosed',
+                'X-description': '',
             },
             min
                 ? {

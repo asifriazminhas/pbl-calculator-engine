@@ -5,6 +5,7 @@ import { ErrorCode } from '../error-code';
 export class Interval {
     lowerMargin?: Margin;
     higherMargin?: Margin;
+    description: string;
 
     constructor(intervalJson: JsonInterval) {
         this.lowerMargin = intervalJson.lowerMargin
@@ -13,6 +14,7 @@ export class Interval {
         this.higherMargin = intervalJson.higherMargin
             ? new Margin(intervalJson.higherMargin)
             : undefined;
+        this.description = intervalJson.description;
     }
 
     limitNumber(num: number): number {
