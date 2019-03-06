@@ -10,7 +10,6 @@ import {
     ICompleteLifeTableRow,
 } from '../life-expectancy/life-expectancy';
 import { inRange } from 'lodash';
-import { ErrorCode } from '../data-field/error-code';
 
 /**
  * Used to calculate life expectancy with:
@@ -131,8 +130,11 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
                 // Get the array of weights for each individual in the current age group population
                 const weightsForCurrentAgeGroup = currentAgeGroupPop.map(
                     data => {
-                        return weightDataField.validateData(data) ===
-                            ErrorCode.NoDatumFound
+                        const weightValidation = weightDataField.validateData(
+                            data,
+                        );
+
+                        return weightValidation !== true
                             ? DefaultWeight
                             : findDatumWithName(WeightDatumName, data)
                                   .coefficent as number;
@@ -157,7 +159,7 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
 
         const ageMaxAllowableValue = algorithmForCurrentSex.findDataField(
             AgeDatumName,
-        ).interval!.higherMargin!.margin;
+        ).intervals![0].higherMargin!.margin;
         // Make a life table with qx, nx and the fields in the ref life table
         // We will complete this in the next line of code
         const refLifeTableWithQxAndNx = abridgedLifeTable

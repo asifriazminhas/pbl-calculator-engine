@@ -192,9 +192,20 @@ export abstract class Covariate extends DataField {
         } else {
             const formattedCoefficient = Number(coefficent);
 
-            return this.interval
-                ? this.interval.limitNumber(formattedCoefficient)
-                : formattedCoefficient;
+            if (this.intervals) {
+                // Find One interval where the coefficient is within it's bounds
+                const validatedInterval = this.intervals.find(interval => {
+                    return interval.validate(formattedCoefficient);
+                });
+
+                if (validatedInterval) {
+                    return formattedCoefficient;
+                } else {
+                    return this.intervals[0].limitNumber(formattedCoefficient);
+                }
+            }
+
+            return formattedCoefficient;
         }
     }
 }

@@ -76,4 +76,11 @@ export class Interval {
 
         return true;
     }
+
+    validate(num: number): boolean {
+        return (
+            this.validateHigherMargin(num) === true &&
+            this.validateLowerMargin(num) === true
+        );
+    }
 }

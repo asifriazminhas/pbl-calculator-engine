@@ -10,7 +10,7 @@ import { IMetadata } from './metadata';
 @autobind
 export class DataField {
     name: string;
-    interval?: Interval;
+    intervals?: Interval[];
     /**
      * If the DataField is a categorical field, then this field will be set.
      * Otherwise it will be undefined.
@@ -24,8 +24,10 @@ export class DataField {
 
     constructor(fieldJson: IDataFieldJson) {
         this.name = fieldJson.name;
-        this.interval = fieldJson.interval
-            ? new Interval(fieldJson.interval)
+        this.intervals = fieldJson.intervals
+            ? fieldJson.intervals.map(interval => {
+                  return new Interval(interval);
+              })
             : undefined;
         this.isRequired = fieldJson.isRequired;
         this.metadata = fieldJson.metadata;
@@ -74,21 +76,40 @@ export class DataField {
 
         const errorCodes: ErrorCode[] = [];
 
-        if (this.interval) {
+        if (this.intervals) {
             const numberCoefficient = Number(datumFound.coefficent);
 
-            const lowerMarginValidation = this.interval.validateLowerMargin(
-                numberCoefficient,
-            );
-            if (lowerMarginValidation !== true) {
-                errorCodes.push(lowerMarginValidation);
-            }
+            // Go through each interval and validate the margins of each one.
+            // If both margins are validated for any interval than
+            // validation passes. Otherwise add to the list of error codes
+            // if it hasn't already been added
+            for (const interval of this.intervals) {
+                const lowerMarginValidation = interval.validateLowerMargin(
+                    numberCoefficient,
+                );
+                if (
+                    lowerMarginValidation !== true &&
+                    errorCodes.indexOf(lowerMarginValidation) === -1
+                ) {
+                    errorCodes.push(lowerMarginValidation);
+                }
 
-            const higherMarginValidation = this.interval.validateHigherMargin(
-                numberCoefficient,
-            );
-            if (higherMarginValidation !== true) {
-                errorCodes.push(higherMarginValidation);
+                const higherMarginValidation = interval.validateHigherMargin(
+                    numberCoefficient,
+                );
+                if (
+                    higherMarginValidation !== true &&
+                    errorCodes.indexOf(higherMarginValidation) === -1
+                ) {
+                    errorCodes.push(higherMarginValidation);
+                }
+
+                if (
+                    lowerMarginValidation === true &&
+                    higherMarginValidation === true
+                ) {
+                    return true;
+                }
             }
         }
 
@@ -102,9 +123,12 @@ export class DataField {
             // If no category was found then validation has failed
             if (!foundCategory) {
                 errorCodes.push(ErrorCode.InvalidCategory);
+            } else {
+                // Otherwise validation passes
+                return true;
             }
         }
 
-        return errorCodes.length > 0 ? errorCodes : true;
+        return errorCodes;
     }
 }

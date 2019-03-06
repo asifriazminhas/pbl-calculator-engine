@@ -32,7 +32,7 @@ export interface IInterval {
 }
 
 export interface IContinuousDataField extends IBaseDataField<'continuous'> {
-    Interval: IInterval;
+    Interval: IInterval | IInterval[];
 }
 
 export type IDataField = IContinuousDataField | ICategoricalDataField;

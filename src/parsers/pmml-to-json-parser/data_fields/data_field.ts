@@ -11,7 +11,7 @@ export function parseDataFieldFromDataFieldPmmlNode(
 ): IDataFieldJson {
     return {
         name: dataFieldNode.$.name,
-        interval: parseInterval(dataFieldNode),
+        intervals: parseIntervals(dataFieldNode),
         categories: parseValues(dataFieldNode),
         isRequired: parseIsRequired(miningField),
         metadata: {
@@ -42,27 +42,32 @@ function parseValues(dataField: IDataField): ICategory[] | undefined {
     return undefined;
 }
 
-function parseInterval(dataField: IDataField): JsonInterval | undefined {
+function parseIntervals(dataField: IDataField): JsonInterval[] | undefined {
     if ('Interval' in dataField) {
-        return Object.assign(
-            {},
-            dataField.Interval.$.leftMargin
-                ? {
-                      lowerMargin: {
-                          margin: Number(dataField.Interval.$.leftMargin),
-                          isOpen: false,
-                      },
-                  }
-                : undefined,
-            dataField.Interval.$.rightMargin
-                ? {
-                      higherMargin: {
-                          margin: Number(dataField.Interval.$.rightMargin),
-                          isOpen: false,
-                      },
-                  }
-                : undefined,
-        );
+        return (dataField.Interval instanceof Array
+            ? dataField.Interval
+            : [dataField.Interval]
+        ).map(interval => {
+            return Object.assign(
+                {},
+                interval.$.leftMargin
+                    ? {
+                          lowerMargin: {
+                              margin: Number(interval.$.leftMargin),
+                              isOpen: false,
+                          },
+                      }
+                    : undefined,
+                interval.$.rightMargin
+                    ? {
+                          higherMargin: {
+                              margin: Number(interval.$.rightMargin),
+                              isOpen: false,
+                          },
+                      }
+                    : undefined,
+            );
+        });
     } else {
         return undefined;
     }

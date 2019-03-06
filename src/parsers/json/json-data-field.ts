@@ -4,6 +4,6 @@ import { DataField } from '../../engine/data-field/data-field';
 import { Omit } from 'utility-types';
 
 export interface IDataFieldJson
-    extends Omit<JsonSerializable<DataField>, 'interval'> {
-    interval?: JsonInterval;
+    extends Omit<JsonSerializable<DataField>, 'intervals'> {
+    intervals?: JsonInterval[];
 }

@@ -17,12 +17,12 @@ import { NonInteractionCovariate } from '../../engine/data-field/covariate/non-i
 import { JsonInterval } from './json-interval';
 
 export interface ICovariateJson
-    extends Omit<JsonSerializable<Covariate>, 'customFunction' | 'interval'> {
+    extends Omit<JsonSerializable<Covariate>, 'customFunction' | 'intervals'> {
     dataFieldType:
         | DataFieldType.InteractionCovariate
         | DataFieldType.NonInteractionCovariate;
     customFunction?: IRcsCustomFunctionJson;
-    interval?: JsonInterval;
+    intervals?: JsonInterval[];
 }
 
 export function findCovariateJsonWithName(
