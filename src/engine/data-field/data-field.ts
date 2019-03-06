@@ -61,17 +61,18 @@ export class DataField {
      * the interval and categories fields if present
      *
      * @param {Data[]} data Data to validate in the context of this DataField
-     * @returns {(ErrorCode | true)} If validation failed, then an ErrorCode
-     * representing the error will be returned. Otherwise true will be
-     * returned
+     * @returns {(ErrorCode[] | true)} If validation failed, then error codes
+     * representing all the validation errors is returned
      * @memberof DataField
      */
-    validateData(data: Data): ErrorCode | true {
+    validateData(data: Data): ErrorCode[] | true {
         const datumFound = this.getDatumForField(data);
 
         if (!datumFound) {
-            return ErrorCode.NoDatumFound;
+            return [ErrorCode.NoDatumFound];
         }
+
+        const errorCodes: ErrorCode[] = [];
 
         if (this.interval) {
             const numberCoefficient = Number(datumFound.coefficent);
@@ -80,14 +81,14 @@ export class DataField {
                 numberCoefficient,
             );
             if (lowerMarginValidation !== true) {
-                return lowerMarginValidation;
+                errorCodes.push(lowerMarginValidation);
             }
 
             const higherMarginValidation = this.interval.validateHigherMargin(
                 numberCoefficient,
             );
             if (higherMarginValidation !== true) {
-                return higherMarginValidation;
+                errorCodes.push(higherMarginValidation);
             }
         }
 
@@ -100,10 +101,10 @@ export class DataField {
 
             // If no category was found then validation has failed
             if (!foundCategory) {
-                return ErrorCode.InvalidCategory;
+                errorCodes.push(ErrorCode.InvalidCategory);
             }
         }
 
-        return true;
+        return errorCodes.length > 0 ? errorCodes : true;
     }
 }
