@@ -19,7 +19,7 @@ export interface IValue {
     };
 }
 
-export interface ICategoricalDataField extends IBaseDataField<'continuous'> {
+export interface ICategoricalDataField extends IBaseDataField<'categorical'> {
     Value?: IValue[] | IValue;
 }
 
@@ -31,7 +31,7 @@ export interface IInterval {
     };
 }
 
-export interface IContinuousDataField extends IBaseDataField<'categorical'> {
+export interface IContinuousDataField extends IBaseDataField<'continuous'> {
     Interval: IInterval;
 }
 
