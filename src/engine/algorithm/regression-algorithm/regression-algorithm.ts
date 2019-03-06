@@ -22,7 +22,8 @@ export abstract class RegressionAlgorithm extends Algorithm {
                     regressionAlgorithmJson.derivedFields,
                 );
             },
-        );
+        )
+        .sort((a, b) => a.name.localeCompare(b.name));
     }
 
     calculateScore(data: Data): number {
