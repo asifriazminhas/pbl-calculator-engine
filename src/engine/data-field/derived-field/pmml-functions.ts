@@ -80,4 +80,7 @@ export default {
     'is.null': function(value: any): boolean {
         return value === null;
     },
+    zScore: function(mean: number, sd: number, value: number): number {
+        return (value - mean) / sd;
+    },
 };
