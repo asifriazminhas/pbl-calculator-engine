@@ -118,6 +118,8 @@ function getDataFieldNode(
                 optype: 'continuous' as 'continuous',
                 dataType: '',
                 'X-shortLabel': '',
+                'X-required': 'false',
+                'X-recommended': 'false',
             },
             Extension: [],
         },
