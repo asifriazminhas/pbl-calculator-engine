@@ -5,13 +5,15 @@ import { ICoxSurvivalAlgorithmJson } from './json-cox-survival-algorithm';
 import { PredicateJson } from './json-predicate';
 import { Data } from '../../engine/data';
 import { Predicate } from '../../engine/predicate/predicate';
+import { IDataFieldJson } from './json-data-field';
 
 export interface IModelJson
-    extends Omit<JsonSerializable<Model>, 'algorithms'> {
+    extends Omit<JsonSerializable<Model>, 'algorithms' | 'modelFields'> {
     algorithms: Array<{
         algorithm: ICoxSurvivalAlgorithmJson;
         predicate: PredicateJson;
     }>;
+    modelFields: IDataFieldJson[];
 }
 
 export function getAlgorithmJsonForPredicateData(

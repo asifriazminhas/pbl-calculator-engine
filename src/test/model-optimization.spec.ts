@@ -123,6 +123,7 @@ test(`Model optimizations`, t => {
 
     t.test(`Testing single algorithm model`, t => {
         const singleAlgorithmModelJson = {
+            modelFields: [],
             name: '',
             algorithms: [
                 {
@@ -160,6 +161,7 @@ test(`Model optimizations`, t => {
 
     t.test(`Testing multiple algorithm model`, t => {
         const multipleAlgorithmModelJson: IModelJson = {
+            modelFields: [],
             name: '',
             algorithms: [
                 {

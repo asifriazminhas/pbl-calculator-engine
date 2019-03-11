@@ -7,6 +7,7 @@ import { NoBaselineFoundForAlgorithm } from '../errors';
 import { IModelJson } from '../../parsers/json/json-model';
 import { NoPredicateObjectFoundError } from '../predicate/predicate-errors';
 import { BaselineJson } from '../../parsers/json/json-baseline';
+import { DataField } from '../data-field/data-field';
 
 export type NewBaseline = Array<{
     predicateData: Data;
@@ -16,6 +17,7 @@ export type NewBaseline = Array<{
 export class Model {
     name: string;
     algorithms: ModelAlgorithm[];
+    modelFields: DataField[];
 
     constructor(modelJson: IModelJson) {
         this.name = modelJson.name;
@@ -27,6 +29,9 @@ export class Model {
                 );
             },
         );
+        this.modelFields = modelJson.modelFields.map(modelField => {
+            return new DataField(modelField);
+        });
     }
 
     getAlgorithmForData(data: Data): CoxSurvivalAlgorithm {

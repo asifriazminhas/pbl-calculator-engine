@@ -5,10 +5,16 @@ import { parseDefineFunction } from './define-function/define-function';
 import { parseTaxonomy } from './taxonomy';
 import { optimizeModel } from './optimizations';
 import { returnEmptyArrayIfUndefined } from '../../util/undefined/undefined';
-import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-algorithm';
+import {
+    ICoxSurvivalAlgorithmJson,
+    parseCoxSurvivalAlgorithmJson,
+} from '../../parsers/json/json-cox-survival-algorithm';
 import { TimeMetric } from '../../engine/algorithm/regression-algorithm/cox-survival-algorithm/time-metric';
 import { IModelJson } from '../../parsers/json/json-model';
 import { PredicateJson } from '../../parsers/json/json-predicate';
+import { flatten, uniq, uniqBy } from 'lodash';
+import { parseDataFieldFromDataFieldPmmlNode } from './data_fields/data_field';
+import { IDataFieldJson } from '../json/json-data-field';
 
 function parseBaselineFromPmmlXml(
     generalRegressionModel: IGeneralRegressionModel,
@@ -18,7 +24,10 @@ function parseBaselineFromPmmlXml(
 
 async function pmmlStringsToJson(
     pmmlXmlStrings: string[],
-): Promise<ICoxSurvivalAlgorithmJson> {
+): Promise<{
+    algorithm: ICoxSurvivalAlgorithmJson;
+    modelFields: IDataFieldJson[];
+}> {
     const pmml = await PmmlParser.parsePmmlFromPmmlXmlStrings(pmmlXmlStrings);
 
     const allDefineFunctionNames = returnEmptyArrayIfUndefined(
@@ -50,27 +59,65 @@ async function pmmlStringsToJson(
         ),
     };
 
-    return baseAlgorithm;
+    const allAlgorithmFields = uniq(
+        flatten(
+            parseCoxSurvivalAlgorithmJson(
+                baseAlgorithm,
+            ).covariates.map(covariate => {
+                return covariate
+                    .getDescendantFields()
+                    .map(field => {
+                        return field.name;
+                    })
+                    .concat(covariate.name);
+            }),
+        ),
+    );
+    const modelFields = pmml.pmmlXml.PMML.DataDictionary.DataField
+        .filter(dataField => {
+            return allAlgorithmFields.indexOf(dataField.$.name) === -1;
+        })
+        .map(modelField => {
+            return parseDataFieldFromDataFieldPmmlNode(modelField);
+        });
+
+    return {
+        algorithm: baseAlgorithm,
+        modelFields,
+    };
 }
 
 export async function pmmlXmlStringsToJson(
     modelPmmlXmlStrings: string[][],
     predicates: PredicateJson[],
 ): Promise<IModelJson> {
-    const parsedAlgorithms = await Promise.all(
-        modelPmmlXmlStrings.map(pmmlXmlStrings =>
-            pmmlStringsToJson(pmmlXmlStrings),
+    const parsedAlgorithmAndModelFields = await Promise.all(
+        modelPmmlXmlStrings.map(pmmlXmlStrings => {
+            return pmmlStringsToJson(pmmlXmlStrings);
+        }),
+    );
+    const modelFields = uniqBy(
+        flatten(
+            parsedAlgorithmAndModelFields.map(parsedAlgorithmAndModelField => {
+                return parsedAlgorithmAndModelField.modelFields;
+            }),
         ),
+        ({ name }) => {
+            return name;
+        },
     );
 
     const modelJson: IModelJson = {
         name: '',
-        algorithms: parsedAlgorithms.map((currentParsedAlgorithm, index) => {
-            return {
-                algorithm: currentParsedAlgorithm,
-                predicate: predicates[index],
-            };
-        }),
+        algorithms: parsedAlgorithmAndModelFields.map(
+            ({ algorithm }, index) => {
+                return {
+                    algorithm,
+                    predicate: predicates[index],
+                };
+            },
+        ),
+        modelFields,
     };
 
     return optimizeModel(modelJson);
