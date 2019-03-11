@@ -50,28 +50,11 @@ function parseKnotLocations(knotLocations: string): number[] {
  * Returns the predictor name that represents the first rcs variable. Eg. age_rcs2 it would return age_rcs1
  *
  * @param {string} parameterLabel
- * @returns {string}
+ * @returns {string}r
  */
 function parseFirstVariableName(parameterLabel: string): string {
-    /* get the name of the variable without all the modifiers. eg. age_rcs2_c
-    would return age */
-    const variableNameWithoutModifiers = parameterLabel.split('_')[0];
-    /* get the all the modifiers for this variable replacing the rcs modifier
-    with rcs1 and then join the array with '_' eg. age_rcs2_c_t would return rcs1_c_t */
-    const modifiersWithoutRcsModifier = ['rcs1']
-        .concat(
-            parameterLabel
-                // Split the string by _
-                .split('_')
-                // Remove the first entry since it has the variable name
-                .slice(1)
-                // Remove the rcs modifier
-                .filter(modifierName => modifierName.indexOf('rcs') === -1),
-        )
-        // Join the modifiers by _
-        .join('_');
-
-    return `${variableNameWithoutModifiers}_${modifiersWithoutRcsModifier}`;
+    // Replace the rcs modifier (_rcs{number}) with _rcs1
+    return parameterLabel.replace(/_rcs[0-9]/, '_rcs1');
 }
 
 /**
