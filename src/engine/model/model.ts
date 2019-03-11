@@ -8,6 +8,7 @@ import { IModelJson } from '../../parsers/json/json-model';
 import { NoPredicateObjectFoundError } from '../predicate/predicate-errors';
 import { BaselineJson } from '../../parsers/json/json-baseline';
 import { DataField } from '../data-field/data-field';
+import { flatten, uniqBy } from 'lodash';
 
 export type NewBaseline = Array<{
     predicateData: Data;
@@ -64,6 +65,37 @@ export class Model {
                 }),
             }),
             Model.prototype,
+        );
+    }
+
+    /**
+     * Returns all the fields used in the model and all it's algorithms
+     *
+     * @returns {DataField[]}
+     * @memberof Model
+     */
+    getAllFields(): DataField[] {
+        return uniqBy(
+            this.modelFields.concat(
+                flatten(
+                    flatten(
+                        this.algorithms
+                            .map(({ algorithm }) => {
+                                return algorithm;
+                            })
+                            .map(({ covariates }) => {
+                                return covariates.map(covariate => {
+                                    return covariate
+                                        .getDescendantFields()
+                                        .concat(covariate);
+                                });
+                            }),
+                    ),
+                ),
+            ),
+            field => {
+                return field.name;
+            },
         );
     }
 }
