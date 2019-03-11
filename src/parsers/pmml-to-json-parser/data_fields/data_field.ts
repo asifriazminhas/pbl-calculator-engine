@@ -13,7 +13,7 @@ export function parseDataFieldFromDataFieldPmmlNode(
         name: dataFieldNode.$.name,
         intervals: parseIntervals(dataFieldNode),
         categories: parseValues(dataFieldNode),
-        isRequired: parseIsRequired(miningField),
+        isRequired: parseIsRequired(dataFieldNode, miningField),
         metadata: {
             label: dataFieldNode.$.displayName,
             shortLabel: dataFieldNode.$['X-shortLabel'],
@@ -75,11 +75,20 @@ function parseIntervals(dataField: IDataField): JsonInterval[] | undefined {
     }
 }
 
-function parseIsRequired(miningField?: IMiningField): boolean {
-    return miningField
-        ? miningField.$.invalidValueTreatment ===
-          InvalidValueTreatment.ReturnInvalid
-          ? true
-          : false
-        : false;
+function parseIsRequired(
+    dataFieldNode: IDataField,
+    miningField?: IMiningField,
+): boolean {
+    if (dataFieldNode && dataFieldNode.$['X-required']) {
+        return dataFieldNode.$['X-required'] === 'true' ? true : false;
+    }
+
+    if (miningField) {
+        return miningField.$.invalidValueTreatment ===
+            InvalidValueTreatment.ReturnInvalid
+            ? true
+            : false;
+    }
+
+    return false;
 }
