@@ -14,6 +14,7 @@ export function parseDataFieldFromDataFieldPmmlNode(
         intervals: parseIntervals(dataFieldNode),
         categories: parseValues(dataFieldNode),
         isRequired: parseIsRequired(dataFieldNode, miningField),
+        isRecommended: parseIsRecommended(dataFieldNode),
         metadata: {
             label: dataFieldNode.$.displayName,
             shortLabel: dataFieldNode.$['X-shortLabel'],
@@ -91,4 +92,8 @@ function parseIsRequired(
     }
 
     return false;
+}
+
+function parseIsRecommended(dataFieldNode: IDataField): boolean {
+    return dataFieldNode.$['X-recommended'] === 'true' ? true : false;
 }

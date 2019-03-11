@@ -43,12 +43,14 @@ test(`.calculateCoefficent`, t => {
         )`,
             derivedFrom: [],
             isRequired: false,
+            isRecommended: false,
             metadata,
         },
         [
             new DataField({
                 name: 'fieldOne',
                 isRequired: false,
+                isRecommended: false,
                 metadata,
             }),
         ],
@@ -81,6 +83,7 @@ test(`.getDerivedFieldWithName`, t => {
                 name: '',
                 derivedFrom: [],
                 isRequired: false,
+                isRecommended: false,
                 metadata,
             },
             [
@@ -90,6 +93,7 @@ test(`.getDerivedFieldWithName`, t => {
                         derivedFrom: [],
                         name: 'fieldToFind',
                         isRequired: false,
+                        isRecommended: false,
                         metadata,
                     },
                     [
@@ -99,6 +103,7 @@ test(`.getDerivedFieldWithName`, t => {
                                 derivedFrom: [],
                                 name: '',
                                 isRequired: false,
+                                isRecommended: false,
                                 metadata,
                             },
                             [],
@@ -113,6 +118,7 @@ test(`.getDerivedFieldWithName`, t => {
                 equation: '',
                 derivedFrom: [],
                 isRequired: false,
+                isRecommended: false,
                 metadata,
             },
             [],
@@ -125,6 +131,7 @@ test(`.getDerivedFieldWithName`, t => {
             derivedFrom: [],
             name: '',
             isRequired: false,
+            isRecommended: false,
             metadata,
         },
         childFields,
@@ -150,6 +157,7 @@ test(`.calculateDataToCalculateCoefficent`, t => {
         const derivedFromDataField = new DataField({
             name: 'testOne',
             isRequired: false,
+            isRecommended: false,
             metadata,
         });
         const derivedField: DerivedField = new DerivedField(
@@ -158,6 +166,7 @@ test(`.calculateDataToCalculateCoefficent`, t => {
                 equation: '',
                 derivedFrom: [],
                 isRequired: false,
+                isRecommended: false,
                 metadata,
             },
             [derivedFromDataField],

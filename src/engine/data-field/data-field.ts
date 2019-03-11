@@ -20,6 +20,7 @@ export class DataField {
      */
     categories?: ICategory[];
     isRequired: boolean;
+    isRecommended: boolean;
     metadata: IMetadata;
 
     constructor(fieldJson: IDataFieldJson) {
@@ -31,6 +32,7 @@ export class DataField {
             : undefined;
         this.isRequired = fieldJson.isRequired;
         this.metadata = fieldJson.metadata;
+        this.isRecommended = fieldJson.isRecommended;
     }
 
     static getUniqueDataFields(dataFields: DataField[]): DataField[] {

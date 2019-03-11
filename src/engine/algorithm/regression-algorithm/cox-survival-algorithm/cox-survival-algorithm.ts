@@ -119,7 +119,8 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
                     : 0,
                 name: predictor.name,
                 groups: [],
-                isRequired: false,
+                isRequired: true,
+                isRecommended: false,
                 metadata: {
                     label: '',
                     shortLabel: '',
