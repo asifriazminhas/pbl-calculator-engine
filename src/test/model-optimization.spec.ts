@@ -91,6 +91,7 @@ test(`Model optimizations`, t => {
             derivedFrom: [],
             name: 'derivedFieldOne',
             isRequired: false,
+            isRecommended: false,
             metadata,
         },
         {
@@ -99,6 +100,7 @@ test(`Model optimizations`, t => {
             derivedFrom: [],
             name: 'derivedFieldTwo',
             isRequired: false,
+            isRecommended: false,
             metadata,
         },
         {
@@ -106,6 +108,7 @@ test(`Model optimizations`, t => {
             derivedFrom: [],
             name: 'derivedFieldThree',
             isRequired: false,
+            isRecommended: false,
             metadata,
         },
     ];

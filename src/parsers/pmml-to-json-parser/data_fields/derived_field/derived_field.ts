@@ -146,6 +146,7 @@ function getDerivedFromForAst(
                             name: derivedFromItem,
                             extensions: {},
                             isRequired: false,
+                            isRecommended: false,
                             metadata: {
                                 label: '',
                                 shortLabel: '',
@@ -185,6 +186,7 @@ export function parseDerivedFields(
                     derivedFrom: getDerivedFromForAst(ast, pmml),
                     extensions: {},
                     isRequired: false,
+                    isRecommended: false,
                 },
                 dataFieldForCurrentDerivedField
                     ? parseDataFieldFromDataFieldPmmlNode(
