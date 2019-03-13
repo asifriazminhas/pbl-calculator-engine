@@ -81,9 +81,9 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
         sex: 'male' | 'female',
     ) {
         // The name of the age variable
-        const AgeDatumName = 'age';
+        const AgeDatumName = 'DHHGAGE';
         // The name of the sex variable
-        const SexDatumName = 'sex';
+        const SexDatumName = 'DHH_SEX';
         const algorithmForCurrentSex = this.model.getAlgorithmForData([
             {
                 name: SexDatumName,

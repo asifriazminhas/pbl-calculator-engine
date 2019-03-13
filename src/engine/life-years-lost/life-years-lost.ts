@@ -26,7 +26,7 @@ export class LifeYearsLost {
         riskFactor: CovariateGroup,
         data: Data,
     ): number {
-        const ageDatum = findDatumWithName('age', data);
+        const ageDatum = findDatumWithName('DHHGAGE', data);
 
         // Calculate Normal LE
         const normalLifeExpectancy = this.lifeTable.getLifeExpectancy(data);

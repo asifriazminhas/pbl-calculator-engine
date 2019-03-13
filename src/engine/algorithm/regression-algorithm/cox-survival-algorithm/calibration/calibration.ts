@@ -20,7 +20,7 @@ export class Calibration {
         }
 
         try {
-            const ageDatum = findDatumWithName('age', data);
+            const ageDatum = findDatumWithName('DHHGAGE', data);
 
             return throwErrorIfUndefined(
                 this.calibration[ageDatum.coefficent as number],
