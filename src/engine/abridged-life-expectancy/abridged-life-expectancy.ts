@@ -104,9 +104,9 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
         });
 
         const WeightDatumName = 'WTS_M';
-        const weightDataField = algorithmForCurrentSex.findDataField(
-            WeightDatumName,
-        );
+        const weightDataField = this.model.modelFields.find(modelField =>
+            modelField.name === WeightDatumName
+        )!;
         const DefaultWeight = 1;
         // Calculate the weighted qx value to use for each row in the abridged life table
         const weightedQxForAgeGroups: number[] = abridgedLifeTable.map(
