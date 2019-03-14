@@ -1,7 +1,8 @@
 {
     "name": "@ottawamhealth/pbl-calculator-engine",
     "version": "1.7.0",
-    "description": "The engine used to parse PMML files and evaluate algoirithms generated using PMML files",
+    "description":
+        "The engine used to parse PMML files and evaluate algoirithms generated using PMML files",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "scripts": {
@@ -9,10 +10,12 @@
         "build-umd": "webpack --config ./webpack/umd.config.js",
         "build-ts": "tsc",
         "build-ts:watch": "tsc -w",
-        "build": "rm -rf ./lib && rm -rf ./dist && npm run build-ts && npm run build-umd",
+        "build":
+            "rm -rf ./lib && tsc --outDir lib-ts && babel ./lib-ts --out-dir ./lib --source-maps && rsync -a --exclude=\"*.js\" --include=\"*.d.ts|*.js.map\" ./lib-ts/ ./lib/ && rm -rf ./lib-ts && npm run build-umd",
         "prepublish": "npm run build",
         "lifetable-csv-to-json": "node ./lib/scripts/lifetable-csv-to-json.js",
-        "test": "tape -r source-map-support/register lib/test/**/*.js | tap-spec"
+        "test":
+            "tape -r source-map-support/register lib/test/**/*.js | tap-spec"
     },
     "repository": {
         "type": "git",
@@ -23,8 +26,12 @@
     "bugs": {
         "url": "https://github.com/Ottawa-mHealth/pbl-calculator-engine/issues"
     },
-    "homepage": "https://github.com/Ottawa-mHealth/pbl-calculator-engine#readme",
+    "homepage":
+        "https://github.com/Ottawa-mHealth/pbl-calculator-engine#readme",
     "devDependencies": {
+        "@babel/cli": "7.2.3",
+        "@babel/core": "7.3.4",
+        "@babel/preset-env": "7.3.4",
         "@types/bluebird": "3.0.33",
         "@types/chai": "3.4.34",
         "@types/common-tags": "1.4.0",
@@ -42,9 +49,8 @@
         "@types/xmlbuilder": "0.0.29",
         "@types/yargs": "6.6.0",
         "awesome-typescript-loader": "3.0.0-beta.9",
-        "babel-core": "6.18.2",
         "babel-loader": "6.2.8",
-        "babel-plugin-transform-object-assign": "6.22.0",
+        "babel-plugin-lodash": "3.3.4",
         "babel-polyfill": "6.23.0",
         "babel-preset-es2015": "6.18.0",
         "chai": "3.5.0",

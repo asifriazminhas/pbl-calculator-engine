@@ -1,4 +1,13 @@
 {
-    "presets": ["es2015"],
-    "plugins": ["transform-object-assign"]
+    "plugins": [["lodash", { "id": ["lodash", "core-decorators"] }]],
+    "presets": [
+        [
+            "@babel/preset-env",
+            {
+                "targets": {
+                    "ie": 11
+                }
+            }
+        ]
+    ]
 }
