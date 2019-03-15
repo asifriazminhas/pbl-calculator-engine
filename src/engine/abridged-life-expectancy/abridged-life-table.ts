@@ -15,6 +15,7 @@ export interface IAbridgedLifeTableRow extends IBaseRefLifeTableRow {
      * @memberof IAbridgedLifeTableRow
      */
     age_end: number;
+    qx: number;
 }
 
 export type AbridgedLifeTable = IAbridgedLifeTableRow[];

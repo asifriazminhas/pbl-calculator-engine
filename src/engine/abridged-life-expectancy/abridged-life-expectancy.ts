@@ -10,6 +10,7 @@ import {
     ICompleteLifeTableRow,
 } from '../life-expectancy/life-expectancy';
 import { inRange } from 'lodash';
+import { DerivedField } from '../data-field/derived-field/derived-field';
 
 /**
  * Used to calculate life expectancy with:
@@ -80,22 +81,39 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
         population: Data[],
         sex: 'male' | 'female',
     ) {
-        // The name of the age variable
-        const AgeDatumName = 'DHHGAGE';
         // The name of the sex variable
         const SexDatumName = 'DHH_SEX';
+        const sexDataField = this.model.modelFields.find(({ name }) => {
+            return name === SexDatumName;
+        })!;
+        // Get the value of the category in this model for the sex argument
+        const sexCategory = sexDataField.categories!.find(
+            ({ displayValue }) => {
+                return displayValue.toLocaleLowerCase().trim() === sex;
+            },
+        )!.value;
+
         const algorithmForCurrentSex = this.model.getAlgorithmForData([
             {
                 name: SexDatumName,
-                coefficent: sex,
+                coefficent: sexCategory,
             },
         ]);
+
+        // The name of the age variable
+        const AgeDatumName = 'DHHGAGE_cont';
+        const ageDerivedField = algorithmForCurrentSex.findDataField(
+            AgeDatumName,
+        ) as DerivedField;
+
         // Get the abridged life table for the current gender
         const abridgedLifeTable = this.genderedAbridgedLifeTable[sex];
 
         // Get all the individuals who are the current sex
         const populationForCurrentGender = population.filter(data => {
-            return findDatumWithName(SexDatumName, data).coefficent === sex;
+            return (
+                findDatumWithName(SexDatumName, data).coefficent === sexCategory
+            );
         });
 
         // Calculate the one year risk for each individual in the population
@@ -104,9 +122,9 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
         });
 
         const WeightDatumName = 'WTS_M';
-        const weightDataField = this.model.modelFields.find(modelField =>
-            modelField.name === WeightDatumName
-        )!;
+        const weightDataField = this.model.modelFields.find(({ name }) => {
+            return name === WeightDatumName;
+        })!;
         const DefaultWeight = 1;
         // Calculate the weighted qx value to use for each row in the abridged life table
         const weightedQxForAgeGroups: number[] = abridgedLifeTable.map(
@@ -114,8 +132,18 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
                 // Get all the individual who are in the age group of the current life table row
                 const currentAgeGroupPop = populationForCurrentGender.filter(
                     data => {
-                        const age = findDatumWithName(AgeDatumName, data)
-                            .coefficent as number;
+                        // Calculate the age of this individual using the ageDataField variable
+                        const age = Number(
+                            ageDerivedField.calculateCoefficent(
+                                ageDerivedField.calculateDataToCalculateCoefficent(
+                                    data,
+                                    algorithmForCurrentSex.userFunctions,
+                                    algorithmForCurrentSex.tables,
+                                ),
+                                algorithmForCurrentSex.userFunctions,
+                                algorithmForCurrentSex.tables,
+                            ),
+                        );
 
                         return this.isInAgeGroup(lifeTableRow, age);
                     },
@@ -136,13 +164,15 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
 
                         return weightValidation !== true
                             ? DefaultWeight
-                            : findDatumWithName(WeightDatumName, data)
-                                  .coefficent as number;
+                            : Number(
+                                  findDatumWithName(WeightDatumName, data)
+                                      .coefficent,
+                              );
                     },
                 );
 
                 // Calculate the weighted mean using qxValuesForCurrentAgeGroup and weightsForCurrentAgeGroup
-                return (
+                const weightedQx =
                     qxValuesForCurrentAgeGroup.reduce(
                         (weightedQxMean, currentQxValue, index) => {
                             return (
@@ -152,8 +182,9 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
                             );
                         },
                         0,
-                    ) / sum(weightsForCurrentAgeGroup)
-                );
+                    ) / sum(weightsForCurrentAgeGroup);
+                // If the qx value is not a number then return the value of the qx in the life table row
+                return isNaN(weightedQx) ? lifeTableRow.qx : weightedQx;
             },
         );
 
