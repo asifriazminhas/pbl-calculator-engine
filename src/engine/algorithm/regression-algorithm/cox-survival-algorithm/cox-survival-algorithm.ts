@@ -183,7 +183,7 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         );
     }
 
-    getOptionalVariables() {
+    getRecommendedVariables() {
         return this.getAllFields().filter(field =>
             field.isRecommended
         );

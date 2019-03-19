@@ -99,14 +99,14 @@ export class Model {
         );
     }
 
-    getRequiredVariables() {
-        return this.getAllFields().filter(field =>
+    getModelRequiredFields() {
+        return this.modelFields.filter(field =>
             field.isRequired
         );
     }
 
-    getOptionalVariables() {
-        return this.getAllFields().filter(field =>
+    getModelRecommendedFields() {
+        return this.modelFields.filter(field =>
             field.isRecommended
         );
     }
