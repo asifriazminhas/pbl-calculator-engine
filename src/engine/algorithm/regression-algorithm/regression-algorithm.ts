@@ -15,7 +15,9 @@ export abstract class RegressionAlgorithm extends Algorithm {
         return DataField.getUniqueDataFields(
             flatten(
                 this.covariates.map(currentCovariate => {
-                    return currentCovariate.getDescendantFields();
+                    return currentCovariate
+                        .getDescendantFields()
+                        .concat(currentCovariate);
                 }),
             ),
         );
@@ -24,16 +26,15 @@ export abstract class RegressionAlgorithm extends Algorithm {
     constructor(regressionAlgorithmJson: ICoxSurvivalAlgorithmJson) {
         super(regressionAlgorithmJson);
 
-        this.covariates = regressionAlgorithmJson.covariates.map(
-            covariateJson => {
+        this.covariates = regressionAlgorithmJson.covariates
+            .map(covariateJson => {
                 return parseCovariateJsonToCovariate(
                     covariateJson,
                     regressionAlgorithmJson.covariates,
                     regressionAlgorithmJson.derivedFields,
                 );
-            },
-        )
-        .sort((a, b) => a.name.localeCompare(b.name));
+            })
+            .sort((a, b) => a.name.localeCompare(b.name));
     }
 
     calculateScore(data: Data): number {
