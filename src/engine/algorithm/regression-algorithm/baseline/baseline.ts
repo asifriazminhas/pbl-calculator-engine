@@ -39,7 +39,7 @@ export class Baseline {
             return this.baseline;
         } else {
             // Get the age datum
-            const ageDatum = findDatumWithName('DHHGAGE', data);
+            const ageDatum = findDatumWithName('age', data);
 
             // Get the baseline value for this age value. If it doesn't exist then
             // throw an error
