@@ -11,6 +11,16 @@ import { datumFactoryFromDataField } from '../../data/datum';
 export abstract class RegressionAlgorithm extends Algorithm {
     covariates: Covariate[];
 
+    protected getAllFields = memoize((): DataField[] => {
+        return DataField.getUniqueDataFields(
+            flatten(
+                this.covariates.map(currentCovariate => {
+                    return currentCovariate.getDescendantFields();
+                }),
+            ),
+        );
+    });
+
     constructor(regressionAlgorithmJson: ICoxSurvivalAlgorithmJson) {
         super(regressionAlgorithmJson);
 
@@ -78,16 +88,6 @@ export abstract class RegressionAlgorithm extends Algorithm {
             ),
         ).concat(covariatesForGroup);
     }
-
-    private getAllFields = memoize((): DataField[] => {
-        return DataField.getUniqueDataFields(
-            flatten(
-                this.covariates.map(currentCovariate => {
-                    return currentCovariate.getDescendantFields();
-                }),
-            ),
-        );
-    });
 
     /**
      * Goes through each datum in the data arg and does the following checks:

@@ -98,4 +98,16 @@ export class Model {
             },
         );
     }
+
+    getRequiredVariables() {
+        return this.getAllFields().filter(field =>
+            field.isRequired
+        );
+    }
+
+    getOptionalVariables() {
+        return this.getAllFields().filter(field =>
+            field.isRecommended
+        );
+    }
 }
