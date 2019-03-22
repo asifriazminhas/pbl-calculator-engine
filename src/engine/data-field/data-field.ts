@@ -30,6 +30,7 @@ export class DataField {
                   return new Interval(interval);
               })
             : undefined;
+        this.categories = fieldJson.categories;
         this.isRequired = fieldJson.isRequired;
         this.metadata = fieldJson.metadata;
         this.isRecommended = fieldJson.isRecommended;
