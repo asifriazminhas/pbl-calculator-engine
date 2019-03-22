@@ -41,7 +41,7 @@ export function getLifeExpectancyUsingRefLifeTable(
     ),
 ): number {
     // TODO Change this to have an optional parameter called age
-    const ageDatum = findDatumWithName('DHHGAGE', data);
+    const ageDatum = findDatumWithName('age', data);
 
     return getLifeExpectancyForAge(
         ageDatum.coefficent as number,

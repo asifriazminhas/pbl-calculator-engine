@@ -41,7 +41,7 @@ export class LifeTableFunctions {
             })!.time as number;
         } else {
             return getLifeExpectancyForAge(
-                Number(findDatumWithName('DHHGAGE', data).coefficent as number),
+                Number(findDatumWithName('age', data).coefficent as number),
                 this.getCompleteLifeTable(data),
             );
         }

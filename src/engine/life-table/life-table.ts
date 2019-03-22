@@ -216,7 +216,7 @@ export function getCompleteLifeTableForDataUsingAlgorithm(
     );
 
     const dataWithoutAgeFields = filterDataForFields(data, allAgeFields);
-    const ageDatum = findDatumWithName('DHHGAGE', data);
+    const ageDatum = findDatumWithName('age', data);
     /* When we go through each row of the life table and calculate ex, the only
     coefficient that changes going from one covariate to the next are the ones
     belonging to the age covariate since we increment the age value from one
