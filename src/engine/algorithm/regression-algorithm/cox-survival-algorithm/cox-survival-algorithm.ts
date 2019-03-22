@@ -177,6 +177,18 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         throw new Error(`No DataField found with name ${name}`);
     }
 
+    getRequiredVariables() {
+        return this.getAllFields().filter(field =>
+            field.isRequired
+        );
+    }
+
+    getRecommendedVariables() {
+        return this.getAllFields().filter(field =>
+            field.isRecommended
+        );
+    }
+
     private getSurvivalToTimeWithBins(
         this: CoxSurvivalAlgorithm & { bins: Bins },
         data: Data,
