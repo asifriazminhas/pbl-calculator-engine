@@ -179,10 +179,8 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
         population: Data[],
         sex: 'male' | 'female',
     ) {
-        // The name of the sex variable
-        const SexDatumName = 'DHH_SEX';
         const sexDataField = this.model.modelFields.find(({ name }) => {
-            return name === SexDatumName;
+            return name === this.SexVariable;
         })!;
         // Get the value of the category in this model for the sex argument
         const sexCategory = sexDataField.categories!.find(
@@ -193,15 +191,13 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
 
         const algorithmForCurrentSex = this.model.getAlgorithmForData([
             {
-                name: SexDatumName,
+                name: this.SexVariable,
                 coefficent: sexCategory,
             },
         ]);
 
-        // The name of the age variable
-        const AgeDatumName = 'DHHGAGE_cont';
         const ageDerivedField = algorithmForCurrentSex.findDataField(
-            AgeDatumName,
+            this.ContAgeField,
         ) as DerivedField;
 
         // Get the abridged life table for the current gender
@@ -210,7 +206,8 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
         // Get all the individuals who are the current sex
         const populationForCurrentGender = population.filter(data => {
             return (
-                findDatumWithName(SexDatumName, data).coefficent === sexCategory
+                findDatumWithName(this.SexVariable, data).coefficent ===
+                sexCategory
             );
         });
 
@@ -286,9 +283,7 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
             },
         );
 
-        const ageMaxAllowableValue = algorithmForCurrentSex.findDataField(
-            AgeDatumName,
-        ).intervals![0].higherMargin!.margin;
+        const ageMaxAllowableValue = this.getMaxAge(ageDerivedField);
         // Make a life table with qx, nx and the fields in the ref life table
         // We will complete this in the next line of code
         const refLifeTableWithQxAndNx = abridgedLifeTable
@@ -301,10 +296,9 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
             });
         // Get the index of the life table row after which we need to
         // stop calculating values
-        const lastValidLifeTableRowIndex = abridgedLifeTable.findIndex(
-            lifeTableRow => {
-                return lifeTableRow.age_start > ageMaxAllowableValue;
-            },
+        const lastValidLifeTableRowIndex = this.getLastValidLifeTableRowIndex(
+            refLifeTableWithQxAndNx,
+            ageMaxAllowableValue,
         );
         const completeLifeTable = this.getCompleteLifeTable(
             refLifeTableWithQxAndNx,
