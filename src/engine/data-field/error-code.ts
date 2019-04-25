@@ -3,11 +3,6 @@
  *
  * @export
  * @enum {number}
-/**
- *
- *
- * @export
- * @enum {number}
  */
 export enum ErrorCode {
     /**
