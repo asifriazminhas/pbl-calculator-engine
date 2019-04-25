@@ -50,14 +50,16 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
      * @returns
      * @memberof AbridgedLifeExpectancy
      */
-    calculateForPopulation(population: Data[]) {
+    calculateForPopulation(population: Data[], useWeights: boolean = true) {
         const malePopLifeExpectancy = this.calculateForPopulationForSex(
             population,
             'male',
+            useWeights,
         );
         const femalePopLifeExpectancy = this.calculateForPopulationForSex(
             population,
             'female',
+            useWeights,
         );
 
         return (malePopLifeExpectancy + femalePopLifeExpectancy) / 2;
@@ -178,6 +180,7 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
     private calculateForPopulationForSex(
         population: Data[],
         sex: 'male' | 'female',
+        useWeights: boolean,
     ) {
         const sexDataField = this.model.modelFields.find(({ name }) => {
             return name === this.SexVariable;
@@ -257,7 +260,7 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
                             data,
                         );
 
-                        return weightValidation !== true
+                        return weightValidation !== true || useWeights === false
                             ? DefaultWeight
                             : Number(
                                   findDatumWithName(WeightDatumName, data)
