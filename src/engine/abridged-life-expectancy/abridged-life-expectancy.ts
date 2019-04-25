@@ -47,6 +47,7 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
      * life expectancy for the population
      *
      * @param {Data[]} population
+     * @param {boolean} useWeights Whether the final value LE value should be weighted. Defaults to true.
      * @returns
      * @memberof AbridgedLifeExpectancy
      */
