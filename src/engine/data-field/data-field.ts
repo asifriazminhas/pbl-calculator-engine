@@ -82,36 +82,40 @@ export class DataField {
         if (this.intervals) {
             const numberCoefficient = Number(datumFound.coefficent);
 
-            // Go through each interval and validate the margins of each one.
-            // If both margins are validated for any interval than
-            // validation passes. Otherwise add to the list of error codes
-            // if it hasn't already been added
-            for (const interval of this.intervals) {
-                const lowerMarginValidation = interval.validateLowerMargin(
-                    numberCoefficient,
-                );
-                if (
-                    lowerMarginValidation !== true &&
-                    errorCodes.indexOf(lowerMarginValidation) === -1
-                ) {
-                    errorCodes.push(lowerMarginValidation);
-                }
+            if (isNaN(numberCoefficient)) {
+                errorCodes.push(ErrorCode.NotANumber);
+            } else {
+                // Go through each interval and validate the margins of each one.
+                // If both margins are validated for any interval than
+                // validation passes. Otherwise add to the list of error codes
+                // if it hasn't already been added
+                for (const interval of this.intervals) {
+                    const lowerMarginValidation = interval.validateLowerMargin(
+                        numberCoefficient,
+                    );
+                    if (
+                        lowerMarginValidation !== true &&
+                        errorCodes.indexOf(lowerMarginValidation) === -1
+                    ) {
+                        errorCodes.push(lowerMarginValidation);
+                    }
 
-                const higherMarginValidation = interval.validateHigherMargin(
-                    numberCoefficient,
-                );
-                if (
-                    higherMarginValidation !== true &&
-                    errorCodes.indexOf(higherMarginValidation) === -1
-                ) {
-                    errorCodes.push(higherMarginValidation);
-                }
+                    const higherMarginValidation = interval.validateHigherMargin(
+                        numberCoefficient,
+                    );
+                    if (
+                        higherMarginValidation !== true &&
+                        errorCodes.indexOf(higherMarginValidation) === -1
+                    ) {
+                        errorCodes.push(higherMarginValidation);
+                    }
 
-                if (
-                    lowerMarginValidation === true &&
-                    higherMarginValidation === true
-                ) {
-                    return true;
+                    if (
+                        lowerMarginValidation === true &&
+                        higherMarginValidation === true
+                    ) {
+                        return true;
+                    }
                 }
             }
         }

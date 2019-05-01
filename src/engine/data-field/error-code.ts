@@ -35,4 +35,8 @@ export enum ErrorCode {
      * allowed category values in the categories fields
      */
     InvalidCategory,
+    /**
+     * Returned when the field has intervals but the coefficient is not a number
+     */
+    NotANumber,
 }
