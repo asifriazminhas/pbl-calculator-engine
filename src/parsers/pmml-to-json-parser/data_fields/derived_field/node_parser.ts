@@ -640,19 +640,22 @@ export function getAstForMapValues(
             ? mapValues.FieldColumnPair
             : [mapValues.FieldColumnPair];
 
-    return getCallExpressionAST(getIdentifierAST('getValueFromTable'), [
-        getMemberExpressionAST(
-            getLiteralAST(mapValues.TableLocator.$.name),
-            'tables',
-        ),
-        getLiteralAST(mapValues.$.outputColumn),
-        getObjectExpressionAst(
-            fieldColumnPairs.map(fieldColumnPair => {
-                return getPropertyAstFromFieldColumnPair(
-                    fieldColumnPair,
-                    isInDefineFunction,
-                );
-            }),
-        ),
-    ]);
+    return getCallExpressionAST(
+        getMemberExpressionAST(getLiteralAST('getValueFromTable'), 'func'),
+        [
+            getMemberExpressionAST(
+                getLiteralAST(mapValues.TableLocator.$.name),
+                'tables',
+            ),
+            getLiteralAST(mapValues.$.outputColumn),
+            getObjectExpressionAst(
+                fieldColumnPairs.map(fieldColumnPair => {
+                    return getPropertyAstFromFieldColumnPair(
+                        fieldColumnPair,
+                        isInDefineFunction,
+                    );
+                }),
+            ),
+        ],
+    );
 }
