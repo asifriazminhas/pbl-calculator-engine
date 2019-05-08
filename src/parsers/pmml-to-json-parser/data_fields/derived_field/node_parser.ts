@@ -563,7 +563,7 @@ export function getASTForUserDefinedFunctionApply(
     userDefinedFunctionNames: Array<string>,
     wrapFieldRefInMemberExpressionAst: boolean,
 ): ICallExpressionAST {
-    const additionalFunctionPassedInArgs = ['userFunctions', 'func'];
+    const additionalFunctionPassedInArgs = ['userFunctions', 'func', 'tables'];
 
     //We make the function call look like func[apply.$.function] so that we can dynamically make the functions available at runtime
     return getCallExpressionAST(
