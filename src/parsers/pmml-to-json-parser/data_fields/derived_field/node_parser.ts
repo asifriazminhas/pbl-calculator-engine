@@ -229,6 +229,8 @@ export function getASTForBinaryExpressionApply(
     userDefinedFunctionNames: Array<string>,
     wrapFieldRefInMemberExpressionAst: boolean,
 ): IBinaryExpressionAST {
+    const isInUserFunction = !wrapFieldRefInMemberExpressionAst;
+
     var left: BinaryExpressionASTLeftAndRight;
     var leftNode = apply.$$![0];
     switch (leftNode['#name']) {
@@ -252,7 +254,7 @@ export function getASTForBinaryExpressionApply(
             break;
         }
         case 'MapValues': {
-            left = getAstForMapValues(leftNode as IMapValues);
+            left = getAstForMapValues(leftNode as IMapValues, isInUserFunction);
             break;
         }
         default: {
@@ -287,7 +289,10 @@ export function getASTForBinaryExpressionApply(
             break;
         }
         case 'MapValues': {
-            right = getAstForMapValues(rightNode as IMapValues);
+            right = getAstForMapValues(
+                rightNode as IMapValues,
+                isInUserFunction,
+            );
             break;
         }
         default: {
@@ -504,6 +509,8 @@ export function getASTForCallExpressionApply(
     userDefinedFunctionNames: Array<string>,
     wrapFieldRefInMemberExpressionAst: boolean,
 ): ICallExpressionAST {
+    const isInUserFunction = !wrapFieldRefInMemberExpressionAst;
+
     //We make the function call look like func[apply.$.function] so that we can dynamically make the functions available at runtime
     return getCallExpressionAST(
         getMemberExpressionAST(getLiteralAST(apply.$.function), 'func'),
@@ -528,7 +535,10 @@ export function getASTForCallExpressionApply(
                           );
                       }
                       case 'MapValues': {
-                          return getAstForMapValues(apply as IMapValues);
+                          return getAstForMapValues(
+                              apply as IMapValues,
+                              isInUserFunction,
+                          );
                       }
                       default: {
                           throw new Error(
@@ -582,7 +592,7 @@ export function getASTForUserDefinedFunctionApply(
                           );
                       }
                       case 'MapValues': {
-                          return getAstForMapValues(apply as IMapValues);
+                          return getAstForMapValues(apply as IMapValues, true);
                       }
                       default: {
                           throw new Error(
@@ -600,21 +610,31 @@ export function getASTForUserDefinedFunctionApply(
     );
 }
 
+// isInUserFunction: Whether this MapValues node is inside a DefineFunction node
 function getPropertyAstFromFieldColumnPair(
     fieldColumnPair: IFieldColumnPair,
+    isInDefineFunction: boolean,
 ): IPropertyAst {
     return getPropertyAst(
         fieldColumnPair.$.column,
         fieldColumnPair.$.field
-            ? getMemberExpressionAST(
-                  getLiteralAST(fieldColumnPair.$.field),
-                  'obj',
-              )
+            ? isInDefineFunction === false
+              ? getMemberExpressionAST(
+                    getLiteralAST(fieldColumnPair.$.field),
+                    'obj',
+                )
+              : // If within a DefineFunction node then the fields come from
+                // the function args and not from the obj object
+                getIdentifierAST(fieldColumnPair.$.field)
             : getLiteralAST(fieldColumnPair.$.constant as string),
     );
 }
 
-export function getAstForMapValues(mapValues: IMapValues): ICallExpressionAST {
+// isInUserFunction: Whether this MapValues node is inside a DefineFunction node
+export function getAstForMapValues(
+    mapValues: IMapValues,
+    isInDefineFunction: boolean,
+): ICallExpressionAST {
     const fieldColumnPairs =
         mapValues.FieldColumnPair instanceof Array
             ? mapValues.FieldColumnPair
@@ -628,7 +648,10 @@ export function getAstForMapValues(mapValues: IMapValues): ICallExpressionAST {
         getLiteralAST(mapValues.$.outputColumn),
         getObjectExpressionAst(
             fieldColumnPairs.map(fieldColumnPair => {
-                return getPropertyAstFromFieldColumnPair(fieldColumnPair);
+                return getPropertyAstFromFieldColumnPair(
+                    fieldColumnPair,
+                    isInDefineFunction,
+                );
             }),
         ),
     ]);
