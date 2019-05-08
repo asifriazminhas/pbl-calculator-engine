@@ -178,15 +178,11 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
     }
 
     getRequiredVariables() {
-        return this.getAllFields().filter(field =>
-            field.isRequired
-        );
+        return this.getAllFields().filter(field => field.isRequired);
     }
 
     getRecommendedVariables() {
-        return this.getAllFields().filter(field =>
-            field.isRecommended
-        );
+        return this.getAllFields().filter(field => field.isRecommended);
     }
 
     private getSurvivalToTimeWithBins(
