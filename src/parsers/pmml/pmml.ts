@@ -16,7 +16,7 @@ export interface IOutput {
     OutputField: {
         $: {
             name: string;
-            targetField: string;
+            targetField?: string;
         };
     };
 }
