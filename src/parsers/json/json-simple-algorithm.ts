@@ -1,4 +1,3 @@
-import { IDerivedFieldJson } from './json-derived-field';
 import { JsonSerializable } from '../../util/types';
 import { SimpleAlgorithm } from '../../engine/algorithm/simple-algorithm/simple-algorithm';
 import { Omit } from 'utility-types';
@@ -9,5 +8,5 @@ export interface IJsonSimpleAlgorithm
     extends Omit<JsonSerializable<SimpleAlgorithm>, 'output' | 'userFunctions'>,
         IAlgorithmJson {
     algorithmType: AlgorithmType.SimpleAlgorithm;
-    output: IDerivedFieldJson;
+    output: string;
 }
