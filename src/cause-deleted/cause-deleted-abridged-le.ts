@@ -6,6 +6,7 @@ import { IExternalPredictor } from './external-predictor';
 import { CovariateGroup } from '../engine/data-field/covariate/covariate-group';
 import { addCauseDeleted as addCauseDeletedToModel } from './cause-deleted-risk';
 import * as moment from 'moment';
+import { extendObject } from '../util/extend';
 
 export interface CauseDeletedAbridgedLE extends AbridgedLifeExpectancy {
     model: CauseDeletedModel;
@@ -27,12 +28,11 @@ export function addCauseDeleted(
     abridgedLE: AbridgedLifeExpectancy,
     riskFactorRef: CauseDeletedRef,
 ): CauseDeletedAbridgedLE {
-    return Object.setPrototypeOf(
-        Object.assign({}, abridgedLE, {
-            model: addCauseDeletedToModel(abridgedLE.model, riskFactorRef),
-        }),
-        AbridgedLifeExpectancy.prototype,
-    );
+    return extendObject(abridgedLE, {
+        model: addCauseDeletedToModel(abridgedLE.model, riskFactorRef),
+        calculateCDForIndividual,
+        calculateCDForPopulation,
+    });
 }
 
 function calculateCDForIndividual(

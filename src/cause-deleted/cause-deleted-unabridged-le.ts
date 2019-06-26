@@ -5,6 +5,7 @@ import { CovariateGroup } from '../engine/data-field/covariate/covariate-group';
 import { Data } from '../engine/data';
 import { CauseDeletedRef } from './cause-deleted-ref';
 import { addCauseDeleted as addCauseDeletedToModel } from './cause-deleted-risk';
+import { extendObject } from '../util/extend';
 
 export interface ICauseDeletedUnAbridgedLE extends UnAbridgedLifeExpectancy {
     model: CauseDeletedModel;
@@ -15,12 +16,10 @@ export function addCauseDeleted(
     abridgedLE: UnAbridgedLifeExpectancy,
     riskFactorRef: CauseDeletedRef,
 ): ICauseDeletedUnAbridgedLE {
-    return Object.setPrototypeOf(
-        Object.assign({}, abridgedLE, {
-            model: addCauseDeletedToModel(abridgedLE.model, riskFactorRef),
-        }),
-        UnAbridgedLifeExpectancy.prototype,
-    );
+    return extendObject(abridgedLE, {
+        model: addCauseDeletedToModel(abridgedLE.model, riskFactorRef),
+        calculateCDForIndividual,
+    });
 }
 
 function calculateCDForIndividual(
