@@ -90,6 +90,39 @@ export abstract class RegressionAlgorithm extends Algorithm {
         ).concat(covariatesForGroup);
     }
 
+    replaceCovariate<T extends RegressionAlgorithm>(
+        this: T,
+        externalCovariate: { name: string; beta: number },
+    ): T {
+        const currentCovariate = this.covariates.find(covariate => {
+            return covariate.name === externalCovariate.name;
+        });
+        if (!currentCovariate) {
+            console.warn(
+                `No covariate with name ${externalCovariate.name} found to replace`,
+            );
+            return this;
+        }
+
+        const newCovariate = Object.setPrototypeOf(
+            Object.assign({}, currentCovariate, {
+                name: externalCovariate.name,
+                beta: externalCovariate.beta,
+            }),
+            Covariate.prototype,
+        );
+        return Object.setPrototypeOf(
+            Object.assign({}, this, {
+                covariates: this.covariates
+                    .filter(covariate => {
+                        return covariate.name !== externalCovariate.name;
+                    })
+                    .concat(newCovariate),
+            }),
+            Object.getPrototypeOf(this),
+        );
+    }
+
     /**
      * Goes through each datum in the data arg and does the following checks:
      * 1. Checks whether they are within the bounds defined by the interval

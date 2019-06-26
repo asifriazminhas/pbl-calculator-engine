@@ -15,9 +15,9 @@ export type NewBaseline = Array<{
     newBaseline: BaselineJson;
 }>;
 
-export class Model {
+export class Model<T extends CoxSurvivalAlgorithm = CoxSurvivalAlgorithm> {
     name: string;
-    algorithms: ModelAlgorithm[];
+    algorithms: Array<ModelAlgorithm<T>>;
     modelFields: DataField[];
 
     constructor(modelJson: IModelJson) {
@@ -25,7 +25,7 @@ export class Model {
         this.algorithms = modelJson.algorithms.map(
             ({ algorithm, predicate }) => {
                 return new ModelAlgorithm(
-                    new CoxSurvivalAlgorithm(algorithm),
+                    new CoxSurvivalAlgorithm(algorithm) as T,
                     new Predicate(predicate.equation, predicate.variables),
                 );
             },
@@ -35,7 +35,7 @@ export class Model {
         });
     }
 
-    getAlgorithmForData(data: Data): CoxSurvivalAlgorithm {
+    getAlgorithmForData(data: Data): T {
         try {
             return Predicate.getFirstTruePredicateObject(this.algorithms, data)
                 .algorithm;
@@ -100,14 +100,10 @@ export class Model {
     }
 
     getModelRequiredFields() {
-        return this.modelFields.filter(field =>
-            field.isRequired
-        );
+        return this.modelFields.filter(field => field.isRequired);
     }
 
     getModelRecommendedFields() {
-        return this.modelFields.filter(field =>
-            field.isRecommended
-        );
+        return this.modelFields.filter(field => field.isRecommended);
     }
 }
