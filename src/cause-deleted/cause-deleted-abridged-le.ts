@@ -8,7 +8,7 @@ import { addCauseDeleted as addCauseDeletedToModel } from './cause-deleted-risk'
 import * as moment from 'moment';
 import { extendObject } from '../util/extend';
 
-export interface CauseDeletedAbridgedLE extends AbridgedLifeExpectancy {
+export interface ICauseDeletedAbridgedLE extends AbridgedLifeExpectancy {
     model: CauseDeletedModel;
     calculateCDForPopulation: typeof calculateCDForPopulation;
     calculateCDForIndividual: typeof calculateCDForIndividual;
@@ -22,12 +22,12 @@ export interface CauseDeletedAbridgedLE extends AbridgedLifeExpectancy {
  * @param {CauseDeletedRef} riskFactorRef A JSON array containing the
  * reference exposure values to use for each algorithm when calculating
  * cause deleted
- * @returns {CauseDeletedAbridgedLE}
+ * @returns {ICauseDeletedAbridgedLE}
  */
 export function addCauseDeleted(
     abridgedLE: AbridgedLifeExpectancy,
     riskFactorRef: CauseDeletedRef,
-): CauseDeletedAbridgedLE {
+): ICauseDeletedAbridgedLE {
     return extendObject(abridgedLE, {
         model: addCauseDeletedToModel(abridgedLE.model, riskFactorRef),
         calculateCDForIndividual,
@@ -36,7 +36,7 @@ export function addCauseDeleted(
 }
 
 function calculateCDForIndividual(
-    this: CauseDeletedAbridgedLE,
+    this: ICauseDeletedAbridgedLE,
     externalPredictors: IExternalPredictor[],
     riskFactor: CovariateGroup,
     individual: Data,
@@ -52,7 +52,7 @@ function calculateCDForIndividual(
 }
 
 function calculateCDForPopulation(
-    this: CauseDeletedAbridgedLE,
+    this: ICauseDeletedAbridgedLE,
     externalPredictors: IExternalPredictor[],
     riskFactor: CovariateGroup,
     population: Data[],
@@ -69,7 +69,7 @@ function calculateCDForPopulation(
 }
 
 function getQx(
-    this: CauseDeletedAbridgedLE,
+    this: ICauseDeletedAbridgedLE,
     externalPredictors: IExternalPredictor[],
     riskFactor: CovariateGroup,
     data: Data,
