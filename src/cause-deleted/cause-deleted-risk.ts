@@ -9,6 +9,7 @@ import { updateDataWithData } from '../engine/data';
 import { CovariateGroup } from '../engine/data-field/covariate/covariate-group';
 import { CauseDeletedRef } from './cause-deleted-ref';
 import { IExternalPredictor } from './external-predictor';
+import * as moment from 'moment';
 
 export type CauseDeletedModel = Model<CauseDeletedCox>;
 type CauseDeletedCox = CoxSurvivalAlgorithm & {
@@ -61,6 +62,7 @@ function getCauseDeletedRisk(
     externalPredictors: IExternalPredictor[],
     riskFactor: CovariateGroup,
     data: Data,
+    time?: Date | moment.Moment,
 ): number {
     // Add in the external predictors, replacing any current predictors which
     // match up with it
@@ -87,18 +89,19 @@ function getCauseDeletedRisk(
     );
 
     // Risk calculated with the new algorithm
-    const externalRisk = updatedAlgorithm.getRiskToTime(data);
+    const externalRisk = updatedAlgorithm.getRiskToTime(data, time);
 
     const riskFactorRefToUse = this.riskFactorRef[riskFactor];
     // Risk calculated by replacing certain profile values with the exposure
     // reference values
     const causeDeletedRisk = updatedAlgorithm.getRiskToTime(
         updateDataWithData(data, riskFactorRefToUse),
+        time,
     );
 
     const causeDeletedRiskEffectExternal = externalRisk - causeDeletedRisk;
 
-    const originalRisk = this.getRiskToTime(data);
+    const originalRisk = this.getRiskToTime(data, time);
 
     return causeDeletedRiskEffectExternal - originalRisk;
 }
