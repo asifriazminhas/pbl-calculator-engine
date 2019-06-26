@@ -13,11 +13,11 @@ export interface ICauseDeletedUnAbridgedLE extends UnAbridgedLifeExpectancy {
 }
 
 export function addCauseDeleted(
-    abridgedLE: UnAbridgedLifeExpectancy,
+    unAbridgedLE: UnAbridgedLifeExpectancy,
     riskFactorRef: CauseDeletedRef,
 ): ICauseDeletedUnAbridgedLE {
-    return extendObject(abridgedLE, {
-        model: addCauseDeletedToModel(abridgedLE.model, riskFactorRef),
+    return extendObject(unAbridgedLE, {
+        model: addCauseDeletedToModel(unAbridgedLE.model, riskFactorRef),
         calculateCDForIndividual,
     });
 }
