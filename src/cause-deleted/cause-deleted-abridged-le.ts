@@ -5,8 +5,8 @@ import { Data } from '../engine/data';
 import { IExternalPredictor } from './external-predictor';
 import { CovariateGroup } from '../engine/data-field/covariate/covariate-group';
 import { addCauseDeleted as addCauseDeletedToModel } from './cause-deleted-risk';
-import * as moment from 'moment';
 import { extendObject } from '../util/extend';
+import { getCauseDeletedQx } from './cause-deleted-le';
 
 export interface ICauseDeletedAbridgedLE extends AbridgedLifeExpectancy {
     model: CauseDeletedModel;
@@ -41,8 +41,14 @@ function calculateCDForIndividual(
     riskFactor: CovariateGroup,
     individual: Data,
 ): number {
+    // Update the current getQx with the cause deleted Qx value so that the
+    // LE method uses it in it's call
     const oldGetQx = this['getQx'];
-    this['getQx'] = getQx.bind(this, externalPredictors, riskFactor);
+    this['getQx'] = getCauseDeletedQx.bind(
+        this,
+        externalPredictors,
+        riskFactor,
+    );
 
     const causeDeletedLE = this.calculateForIndividual(individual);
 
@@ -57,32 +63,18 @@ function calculateCDForPopulation(
     riskFactor: CovariateGroup,
     population: Data[],
 ): number {
+    // Update the current getQx with the cause deleted Qx value so that the
+    // LE method uses it in it's call
     const oldGetQx = this['getQx'];
-
-    this['getQx'] = getQx.bind(this, externalPredictors, riskFactor);
+    this['getQx'] = getCauseDeletedQx.bind(
+        this,
+        externalPredictors,
+        riskFactor,
+    );
 
     const causeDeletedLE = this.calculateForPopulation(population);
 
     this['getQx'] = oldGetQx;
 
     return causeDeletedLE;
-}
-
-function getQx(
-    this: ICauseDeletedAbridgedLE,
-    externalPredictors: IExternalPredictor[],
-    riskFactor: CovariateGroup,
-    data: Data,
-) {
-    const OneYearFromToday = moment();
-    OneYearFromToday.add(1, 'year');
-
-    return this.model
-        .getAlgorithmForData(data)
-        .getCauseDeletedRisk(
-            externalPredictors,
-            riskFactor,
-            data,
-            OneYearFromToday,
-        );
 }

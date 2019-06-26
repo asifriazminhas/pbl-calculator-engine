@@ -6,6 +6,7 @@ import { Data } from '../engine/data';
 import { CauseDeletedRef } from './cause-deleted-ref';
 import { addCauseDeleted as addCauseDeletedToModel } from './cause-deleted-risk';
 import { extendObject } from '../util/extend';
+import { getCauseDeletedQx } from './cause-deleted-le';
 
 export interface ICauseDeletedUnAbridgedLE extends UnAbridgedLifeExpectancy {
     model: CauseDeletedModel;
@@ -28,23 +29,18 @@ function calculateCDForIndividual(
     riskFactor: CovariateGroup,
     individual: Data,
 ): number {
+    // Update the current getQx with the cause deleted Qx value so that the
+    // LE method uses it in it's call
     const oldQx = this['getQx'];
-    this['getQx'] = getQx.bind(this, externalPredictors, riskFactor);
+    this['getQx'] = getCauseDeletedQx.bind(
+        this,
+        externalPredictors,
+        riskFactor,
+    );
 
     const individualCD = this.calculateForIndividual(individual);
 
     this['getQx'] = oldQx;
 
     return individualCD;
-}
-
-function getQx(
-    this: ICauseDeletedUnAbridgedLE,
-    externalPredictors: IExternalPredictor[],
-    riskFactor: CovariateGroup,
-    individual: Data,
-): number {
-    return this.model
-        .getAlgorithmForData(individual)
-        .getCauseDeletedRisk(externalPredictors, riskFactor, individual);
 }
