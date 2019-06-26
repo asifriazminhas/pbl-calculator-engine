@@ -21,10 +21,12 @@ type CauseDeletedCox = CoxSurvivalAlgorithm & {
  * Adds cause deleted methods to the model argument
  *
  * @export
- * @param {Model} model The Model argument to augment. Each algorithm object
- * within the model will be extended to add cause deleted methods to it
- * @param {CauseDeletedRef} riskFactorRef A JSON array containing the reference
- * exposure values to use for each algorithm when calculating cause deleted
+ * @param {Model} model The Model argument to augment. Each algorithm
+ * object within the model will be extended to add cause deleted methods
+ * to it
+ * @param {CauseDeletedRef} riskFactorRef A JSON array containing the
+ * reference exposure values to use for each algorithm when calculating
+ * cause deleted
  * @returns {CauseDeletedModel}
  */
 export function addCauseDeleted(
