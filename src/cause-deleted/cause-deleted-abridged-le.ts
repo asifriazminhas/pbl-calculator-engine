@@ -3,10 +3,10 @@ import { CauseDeletedRef } from './cause-deleted-ref';
 import { CauseDeletedModel } from './cause-deleted-risk';
 import { Data } from '../engine/data';
 import { IExternalPredictor } from './external-predictor';
-import { CovariateGroup } from '../engine/data-field/covariate/covariate-group';
 import { addCauseDeleted as addCauseDeletedToModel } from './cause-deleted-risk';
 import { extendObject } from '../util/extend';
 import { getCauseDeletedQx } from './cause-deleted-le';
+import { RiskFactor } from '../risk-factors';
 
 export interface ICauseDeletedAbridgedLE extends AbridgedLifeExpectancy {
     model: CauseDeletedModel;
@@ -38,7 +38,7 @@ export function addCauseDeleted(
 function calculateCDForIndividual(
     this: ICauseDeletedAbridgedLE,
     externalPredictors: IExternalPredictor[],
-    riskFactor: CovariateGroup,
+    riskFactor: RiskFactor,
     individual: Data,
 ): number {
     // Update the current getQx with the cause deleted Qx value so that the
@@ -60,7 +60,7 @@ function calculateCDForIndividual(
 function calculateCDForPopulation(
     this: ICauseDeletedAbridgedLE,
     externalPredictors: IExternalPredictor[],
-    riskFactor: CovariateGroup,
+    riskFactor: RiskFactor,
     population: Data[],
 ): number {
     // Update the current getQx with the cause deleted Qx value so that the

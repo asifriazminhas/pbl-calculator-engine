@@ -4,13 +4,13 @@ import {
     IModelJson,
     getAlgorithmJsonForPredicateData,
 } from '../parsers/json/json-model';
-import { CovariateGroup } from '../engine/data-field/covariate/covariate-group';
+import { RiskFactor } from '../risk-factors';
 // tslint:disable-next-line
 var csvParse = require('csv-parse/lib/sync');
 
 export interface ICauseEffectCsvRow {
     Algorithm: string;
-    RiskFactor: CovariateGroup;
+    RiskFactor: RiskFactor;
     Sex: 'Male' | 'Female' | 'Both';
     PredictorName: string;
     EngineRef: string | 'NA';
@@ -72,7 +72,7 @@ function getCauseEffectRefUpdateObjectForCauseEffectCsvRow(
 function updateGenderCauseEffectRef(
     GenderCauseEffectRef: IGenderCauseEffectRef,
     gender: keyof IGenderCauseEffectRef,
-    riskFactor: CovariateGroup,
+    riskFactor: RiskFactor,
     update: IDatum | undefined,
 ): IGenderCauseEffectRef {
     if (!GenderCauseEffectRef[gender][riskFactor]) {
@@ -92,7 +92,7 @@ function reduceToGenderCauseEffectRefObject(
         updateGenderCauseEffectRef(
             causeEffectRef,
             'male',
-            currentCauseEffectCsvRow.RiskFactor as CovariateGroup,
+            currentCauseEffectCsvRow.RiskFactor as RiskFactor,
             getCauseEffectRefUpdateObjectForCauseEffectCsvRow(
                 currentCauseEffectCsvRow,
             ),
@@ -102,7 +102,7 @@ function reduceToGenderCauseEffectRefObject(
         updateGenderCauseEffectRef(
             causeEffectRef,
             'female',
-            currentCauseEffectCsvRow.RiskFactor as CovariateGroup,
+            currentCauseEffectCsvRow.RiskFactor as RiskFactor,
             getCauseEffectRefUpdateObjectForCauseEffectCsvRow(
                 currentCauseEffectCsvRow,
             ),
@@ -130,7 +130,7 @@ function checkGeneratedCauseEffectJson(
 
         Object.keys(causeEffectJson[genderKey]).forEach(riskFactor => {
             causeEffectJson[genderKey][
-                riskFactor as CovariateGroup
+                riskFactor as RiskFactor
             ].forEach(datum => {
                 const covariateFoundForCurrentDatum = algorithmJsonForCurrentGender.covariates.find(
                     covariate => {

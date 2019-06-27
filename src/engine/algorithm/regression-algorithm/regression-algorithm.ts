@@ -4,9 +4,9 @@ import { Data } from '../../data/data';
 import { add, flatten, memoize } from 'lodash';
 import { ICoxSurvivalAlgorithmJson } from '../../../parsers/json/json-cox-survival-algorithm';
 import { parseCovariateJsonToCovariate } from '../../../parsers/json/json-covariate';
-import { CovariateGroup } from '../../data-field/covariate/covariate-group';
 import { DataField } from '../../data-field/data-field';
 import { datumFactoryFromDataField } from '../../data/datum';
+import { RiskFactor } from '../../../risk-factors';
 
 export abstract class RegressionAlgorithm extends Algorithm {
     covariates: Covariate[];
@@ -66,19 +66,19 @@ export abstract class RegressionAlgorithm extends Algorithm {
             .reduce(add, 0);
     }
 
-    getCovariatesForGroup(group: CovariateGroup): Covariate[] {
+    getCovariatesForGroup(group: RiskFactor): Covariate[] {
         return this.covariates.filter(covariate => {
             return covariate.isPartOfGroup(group);
         });
     }
 
-    getCovariatesWithoutGroup(group: CovariateGroup): Covariate[] {
+    getCovariatesWithoutGroup(group: RiskFactor): Covariate[] {
         return this.covariates.filter(covariate => {
             return covariate.isPartOfGroup(group) === false;
         });
     }
 
-    getAllFieldsForGroup(group: CovariateGroup): DataField[] {
+    getAllFieldsForGroup(group: RiskFactor): DataField[] {
         const covariatesForGroup = this.getCovariatesForGroup(group);
 
         return DataField.getUniqueDataFields(

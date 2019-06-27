@@ -6,10 +6,10 @@ import {
 } from '../engine/model';
 import { IGenderSpecificCauseEffectRef } from '../engine/cause-effect';
 import { updateDataWithData } from '../engine/data';
-import { CovariateGroup } from '../engine/data-field/covariate/covariate-group';
 import { CauseDeletedRef } from './cause-deleted-ref';
 import { IExternalPredictor } from './external-predictor';
 import * as moment from 'moment';
+import { RiskFactor } from '../risk-factors';
 
 export type CauseDeletedModel = Model<CauseDeletedCox>;
 type CauseDeletedCox = CoxSurvivalAlgorithm & {
@@ -62,7 +62,7 @@ export function addCauseDeleted(
 function getCauseDeletedRisk(
     this: CauseDeletedCox,
     externalPredictors: IExternalPredictor[],
-    riskFactor: CovariateGroup,
+    riskFactor: RiskFactor,
     data: Data,
     time?: Date | moment.Moment,
 ): number {

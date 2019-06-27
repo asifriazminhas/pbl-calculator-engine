@@ -13,15 +13,15 @@ import { autobind } from 'core-decorators';
 import { ICovariateJson } from '../../../parsers/json/json-covariate';
 import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
 import { ITables } from '../../algorithm/tables/tables';
-import { CovariateGroup } from './covariate-group';
 import { datumFactoryFromDataField } from '../../data/datum';
 import { findDatumWithName } from '../../data/data';
 import { NoDatumFoundError } from '../../errors';
+import { RiskFactor } from '../../../risk-factors';
 
 @autobind
 export abstract class Covariate extends DataField {
     beta: number;
-    groups: CovariateGroup[];
+    groups: RiskFactor[];
     referencePoint?: number;
     customFunction?: RcsCustomFunction;
     derivedField?: DerivedField;
@@ -156,7 +156,7 @@ export abstract class Covariate extends DataField {
         return this.derivedField ? this.derivedField.getDescendantFields() : [];
     }
 
-    isPartOfGroup(group: CovariateGroup): boolean {
+    isPartOfGroup(group: RiskFactor): boolean {
         return this.groups.indexOf(group) !== -1;
     }
 

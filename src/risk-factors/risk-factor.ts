@@ -1,4 +1,4 @@
-export type CovariateGroup =
+export type RiskFactor =
     | 'AGE'
     | 'SMOKING'
     | 'ALCOHOL'

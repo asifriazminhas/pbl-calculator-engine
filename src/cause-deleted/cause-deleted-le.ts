@@ -1,14 +1,14 @@
 import { LifeExpectancy } from '../engine/life-expectancy/life-expectancy';
 import { CauseDeletedModel } from './cause-deleted-risk';
 import { IExternalPredictor } from './external-predictor';
-import { CovariateGroup } from '../engine/data-field/covariate/covariate-group';
 import { Data } from '../engine/data';
 import * as moment from 'moment';
+import { RiskFactor } from '../risk-factors';
 
 export function getCauseDeletedQx(
     this: ICauseDeletedLifeExpectancy,
     externalPredictors: IExternalPredictor[],
-    riskFactor: CovariateGroup,
+    riskFactor: RiskFactor,
     profile: Data,
 ) {
     const OneYearFromToday = moment();
