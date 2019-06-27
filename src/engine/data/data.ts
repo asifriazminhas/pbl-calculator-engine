@@ -2,8 +2,8 @@ import { IDatum } from './datum';
 import { throwErrorIfUndefined } from '../../util/undefined/undefined';
 import { NoDatumFoundError } from '../errors';
 import { DataField } from '../data-field/data-field';
-import { CovariateGroup } from '../data-field/covariate/covariate-group';
 import { CoxSurvivalAlgorithm } from '../algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
+import { RiskFactor } from '../../risk-factors';
 
 export type Data = IDatum[];
 
@@ -85,7 +85,7 @@ export function filterDataForFields(data: Data, dataFields: DataField[]): Data {
  * @returns {Data}
  */
 export function filterDataUsedToCalculateCoefficientsForCovariateGroup(
-    covariateGroup: CovariateGroup,
+    covariateGroup: RiskFactor,
     cox: CoxSurvivalAlgorithm,
     data: Data,
 ): Data {

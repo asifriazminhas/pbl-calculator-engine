@@ -1,13 +1,13 @@
 import { LifeTableFunctions } from '../life-table/life-table-functions';
 import { IGenderCauseEffectRef } from '../cause-effect';
 import { autobind } from 'core-decorators';
-import { CovariateGroup } from '../data-field/covariate/covariate-group';
 import {
     filterDataUsedToCalculateCoefficientsForCovariateGroup,
     findDatumWithName,
     Data,
 } from '../data/data';
 import { getCauseEffectRefForData } from '../cause-effect/gender-cause-effect-ref';
+import { RiskFactor } from '../../risk-factors';
 
 @autobind
 export class LifeYearsLost {
@@ -23,7 +23,7 @@ export class LifeYearsLost {
     }
 
     getLifeYearsLostDueToRiskFactor(
-        riskFactor: CovariateGroup,
+        riskFactor: RiskFactor,
         data: Data,
     ): number {
         const ageDatum = findDatumWithName('age', data);
