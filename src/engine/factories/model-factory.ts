@@ -18,11 +18,13 @@ export abstract class ModelFactory {
      * @returns {(Model<U & CoxSurvivalAlgorithm>)}
      * @memberof ModelFactory
      */
-    static extendModel<U extends object>(
+    static extendModel<T extends object, U extends object>(
         model: Model,
+        newModelProperties: T,
         newCoxProperties: U[],
-    ): Model<U & CoxSurvivalAlgorithm> {
+    ): Model<U & CoxSurvivalAlgorithm> & T {
         type NewCox = U & CoxSurvivalAlgorithm;
+        type NewModel = Model<NewCox> & T;
 
         const modelAlgorithms = model.algorithms.map(
             (modelAlgorithm, index) => {
@@ -39,10 +41,10 @@ export abstract class ModelFactory {
         );
 
         return Object.setPrototypeOf(
-            Object.assign({}, model, {
+            Object.assign({}, model, newModelProperties, {
                 algorithms: modelAlgorithms,
             }),
             Model.prototype,
-        ) as Model<NewCox>;
+        ) as NewModel;
     }
 }

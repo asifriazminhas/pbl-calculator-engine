@@ -11,7 +11,9 @@ import { IExternalPredictor } from './external-predictor';
 import * as moment from 'moment';
 import { RiskFactor } from '../risk-factors';
 
-export type CauseDeletedModel = Model<CauseDeletedCox>;
+export interface ICauseDeletedModel extends Model<CauseDeletedCox> {
+    updateCauseDeletedRef: typeof updateCauseDeletedRef;
+}
 type CauseDeletedCox = CoxSurvivalAlgorithm & {
     getCauseDeletedRisk: typeof getCauseDeletedRisk;
     riskFactorRef: IGenderSpecificCauseEffectRef;
@@ -32,31 +34,12 @@ type CauseDeletedCox = CoxSurvivalAlgorithm & {
 export function addCauseDeleted(
     model: Model,
     riskFactorRef: CauseDeletedRef,
-): CauseDeletedModel {
-    const newCoxProperties = model.algorithms.map(modelAlgorithm => {
-        const riskFactorRefForCurrentAlgorithm = riskFactorRef.find(ref => {
-            // Check whether the current reference is for this algorithm
-            return modelAlgorithm.predicate.getPredicateResult([
-                {
-                    name: ref.sexVariable,
-                    coefficent: ref.sexValue,
-                },
-            ]);
-        });
-        if (!riskFactorRefForCurrentAlgorithm) {
-            throw new Error(
-                `No exposure reference object for algorithm ${modelAlgorithm
-                    .algorithm.name}`,
-            );
-        }
-
-        return {
-            riskFactorRef: riskFactorRefForCurrentAlgorithm.ref,
-            getCauseDeletedRisk,
-        };
-    });
-
-    return ModelFactory.extendModel(model, newCoxProperties);
+): ICauseDeletedModel {
+    return ModelFactory.extendModel(
+        model,
+        { updateCauseDeletedRef },
+        getCauseDeletedCoxProperties(model, riskFactorRef),
+    );
 }
 
 function getCauseDeletedRisk(
@@ -106,4 +89,45 @@ function getCauseDeletedRisk(
     const originalRisk = this.getRiskToTime(data, time);
 
     return causeDeletedRiskEffectExternal - originalRisk;
+}
+
+function updateCauseDeletedRef(
+    this: ICauseDeletedModel,
+    newReference: CauseDeletedRef,
+): ICauseDeletedModel {
+    return ModelFactory.extendModel(
+        this,
+        {
+            updateCauseDeletedRef,
+        },
+        getCauseDeletedCoxProperties(this, newReference),
+    );
+}
+
+function getCauseDeletedCoxProperties(
+    model: Model,
+    causeDeletedRef: CauseDeletedRef,
+) {
+    return model.algorithms.map(modelAlgorithm => {
+        const riskFactorRefForCurrentAlgorithm = causeDeletedRef.find(ref => {
+            // Check whether the current reference is for this algorithm
+            return modelAlgorithm.predicate.getPredicateResult([
+                {
+                    name: ref.sexVariable,
+                    coefficent: ref.sexValue,
+                },
+            ]);
+        });
+        if (!riskFactorRefForCurrentAlgorithm) {
+            throw new Error(
+                `No exposure reference object for algorithm ${modelAlgorithm
+                    .algorithm.name}`,
+            );
+        }
+
+        return {
+            riskFactorRef: riskFactorRefForCurrentAlgorithm.ref,
+            getCauseDeletedRisk,
+        };
+    });
 }

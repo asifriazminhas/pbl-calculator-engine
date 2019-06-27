@@ -1,5 +1,5 @@
 import { UnAbridgedLifeExpectancy } from '../engine/unabridged-life-expectancy';
-import { CauseDeletedModel } from './cause-deleted-risk';
+import { ICauseDeletedModel } from './cause-deleted-risk';
 import { IExternalPredictor } from './external-predictor';
 import { Data } from '../engine/data';
 import { CauseDeletedRef } from './cause-deleted-ref';
@@ -9,7 +9,7 @@ import { getCauseDeletedQx } from './cause-deleted-le';
 import { RiskFactor } from '../risk-factors';
 
 export interface ICauseDeletedUnAbridgedLE extends UnAbridgedLifeExpectancy {
-    model: CauseDeletedModel;
+    model: ICauseDeletedModel;
     calculateCDForIndividual: typeof calculateCDForIndividual;
 }
 

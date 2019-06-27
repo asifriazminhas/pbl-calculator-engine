@@ -1,6 +1,6 @@
 import { AbridgedLifeExpectancy } from '../engine/abridged-life-expectancy/abridged-life-expectancy';
 import { CauseDeletedRef } from './cause-deleted-ref';
-import { CauseDeletedModel } from './cause-deleted-risk';
+import { ICauseDeletedModel } from './cause-deleted-risk';
 import { Data } from '../engine/data';
 import { IExternalPredictor } from './external-predictor';
 import { addCauseDeleted as addCauseDeletedToModel } from './cause-deleted-risk';
@@ -9,7 +9,7 @@ import { getCauseDeletedQx } from './cause-deleted-le';
 import { RiskFactor } from '../risk-factors';
 
 export interface ICauseDeletedAbridgedLE extends AbridgedLifeExpectancy {
-    model: CauseDeletedModel;
+    model: ICauseDeletedModel;
     calculateCDForPopulation: typeof calculateCDForPopulation;
     calculateCDForIndividual: typeof calculateCDForIndividual;
 }

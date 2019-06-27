@@ -1,5 +1,5 @@
 import { LifeExpectancy } from '../engine/life-expectancy/life-expectancy';
-import { CauseDeletedModel } from './cause-deleted-risk';
+import { ICauseDeletedModel } from './cause-deleted-risk';
 import { IExternalPredictor } from './external-predictor';
 import { Data } from '../engine/data';
 import * as moment from 'moment';
@@ -20,5 +20,5 @@ export function getCauseDeletedQx(
 }
 
 interface ICauseDeletedLifeExpectancy extends LifeExpectancy<any> {
-    model: CauseDeletedModel;
+    model: ICauseDeletedModel;
 }
