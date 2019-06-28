@@ -13,8 +13,9 @@ export interface IGenderCauseEffectRef {
 export function getCauseEffectRefForData(
     genderCauseEffectRef: IGenderCauseEffectRef,
     data: Data,
+    sexField: string = 'sex',
 ): IGenderSpecificCauseEffectRef {
-    const sexDatum = findDatumWithName('DHH_SEX', data);
+    const sexDatum = findDatumWithName(sexField, data);
 
     const causeEffectRefFound =
         genderCauseEffectRef[
