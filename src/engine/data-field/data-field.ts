@@ -81,8 +81,10 @@ export class DataField {
 
         if (this.intervals) {
             const numberCoefficient = Number(datumFound.coefficent);
+            const isEmptyString = typeof datumFound.coefficent === 'string' &&
+                datumFound.coefficent.trim().length === 0;
 
-            if (isNaN(numberCoefficient)) {
+            if (isNaN(numberCoefficient) || isEmptyString) {
                 errorCodes.push(ErrorCode.NotANumber);
             } else {
                 // Go through each interval and validate the margins of each one.
