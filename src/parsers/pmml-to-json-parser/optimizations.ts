@@ -1,7 +1,6 @@
 import {
     ILiteralAST,
     ICallExpressionAST,
-    IIdentifierAST,
     IMemberExpressionAST,
     IObjectExpressionAst,
 } from './interfaces/ast';
@@ -38,6 +37,18 @@ function getTableColumnsUsedFromTableCallExpression(
     return otherColumns.concat(outputColumn);
 }
 
+function isGetValueFromTableCall(ast: ICallExpressionAST) {
+    if (ast.callee.type === 'MemberExpression') {
+        if (ast.callee.property.type === 'Literal') {
+            if (ast.callee.property.value === 'getValueFromTable') {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 function optimizeTables(algorithm: ICoxSurvivalAlgorithmJson): ITables {
     return Object.keys(
         algorithm.tables,
@@ -54,8 +65,7 @@ function optimizeTables(algorithm: ICoxSurvivalAlgorithmJson): ITables {
                 }) {
                     /* Check if the method call is one which returns values from a table */
                     if (
-                        (path.value.callee as IIdentifierAST).name ===
-                            'getValueFromTable' &&
+                        isGetValueFromTableCall(path.value) &&
                         ((path.value.arguments[0] as IMemberExpressionAST)
                             .property as ILiteralAST).value === currentTableName
                     ) {
