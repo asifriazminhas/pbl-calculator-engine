@@ -253,7 +253,7 @@ export function getObjectExpressionAst(
 
 export function getPropertyAst(
     key: string,
-    value: ILiteralAST | IMemberExpressionAST,
+    value: ILiteralAST | IMemberExpressionAST | IIdentifierAST,
 ): IPropertyAst {
     return {
         type: 'Property',

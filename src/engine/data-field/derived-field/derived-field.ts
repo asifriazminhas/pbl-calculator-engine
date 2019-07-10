@@ -14,7 +14,8 @@ import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
 import { ITables } from '../../algorithm/tables/tables';
 import { datumFactoryFromDataField } from '../../data/datum';
 
-function getValueFromTable(
+// tslint:disable-next-line:only-arrow-functions
+const getValueFromTable = function(
     table: Array<{ [index: string]: string }>,
     outputColumn: string,
     conditions: { [index: string]: string },
@@ -32,9 +33,7 @@ function getValueFromTable(
         }),
         new NoTableRowFoundError(conditions),
     )[outputColumn];
-}
-// tslint:disable-next-line
-getValueFromTable;
+};
 
 export function getLeafFieldsForDerivedField(
     derivedField: DerivedField,
@@ -131,9 +130,10 @@ export class DerivedField extends DataField {
         // tslint:disable-next-line
         let derived: any = undefined;
         // tslint:disable-next-line
-        let func = PmmlFunctions;
+        let func: { [index: string]: Function } = PmmlFunctions;
         // tslint:disable-next-line
         func;
+        func['getValueFromTable'] = getValueFromTable;
 
         eval(this.equation);
 

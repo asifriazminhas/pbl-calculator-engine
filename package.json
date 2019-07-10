@@ -55,7 +55,7 @@
         "tape": "4.9.2",
         "tslib": "1.7.1",
         "tslint": "5.8.0",
-        "typescript": "3.5.2",
+        "typescript": "3.4.5",
         "webpack": "^4.26.1",
         "webpack-cli": "^3.1.2",
         "xmlbuilder": "^8.2.2"
