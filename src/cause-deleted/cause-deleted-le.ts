@@ -8,7 +8,7 @@ import { RiskFactor } from '../risk-factors';
 export function getCauseDeletedQx(
     this: ICauseDeletedLifeExpectancy,
     externalPredictors: IExternalPredictor[],
-    riskFactor: RiskFactor,
+    riskFactors: RiskFactor[],
     profile: Data,
 ) {
     const OneYearFromToday = moment();
@@ -16,7 +16,7 @@ export function getCauseDeletedQx(
 
     return this.model
         .getAlgorithmForData(profile)
-        .getCauseDeletedRisk(externalPredictors, riskFactor, profile);
+        .getCauseDeletedRisk(externalPredictors, riskFactors, profile);
 }
 
 interface ICauseDeletedLifeExpectancy extends LifeExpectancy<any> {

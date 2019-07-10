@@ -26,7 +26,7 @@ export function addCauseDeleted(
 function calculateCDForIndividual(
     this: ICauseDeletedUnAbridgedLE,
     externalPredictors: IExternalPredictor[],
-    riskFactor: RiskFactor,
+    riskFactors: RiskFactor[],
     individual: Data,
 ): number {
     // Update the current getQx with the cause deleted Qx value so that the
@@ -35,7 +35,7 @@ function calculateCDForIndividual(
     this['getQx'] = getCauseDeletedQx.bind(
         this,
         externalPredictors,
-        riskFactor,
+        riskFactors,
     );
 
     const individualCD = this.calculateForIndividual(individual);

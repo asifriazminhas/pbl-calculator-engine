@@ -10,6 +10,7 @@ import { CauseDeletedRef } from './cause-deleted-ref';
 import { IExternalPredictor } from './external-predictor';
 import * as moment from 'moment';
 import { RiskFactor } from '../risk-factors';
+import { flatten } from 'lodash';
 
 export interface ICauseDeletedModel extends Model<CauseDeletedCox> {
     updateCauseDeletedRef: typeof updateCauseDeletedRef;
@@ -45,7 +46,7 @@ export function addCauseDeleted(
 function getCauseDeletedRisk(
     this: CauseDeletedCox,
     externalPredictors: IExternalPredictor[],
-    riskFactor: RiskFactor,
+    riskFactors: RiskFactor[],
     data: Data,
     time?: Date | moment.Moment,
 ): number {
@@ -57,11 +58,15 @@ function getCauseDeletedRisk(
         },
         this,
     );
-    // Remove all the covariates for this risk factor which are part of the
+    // Remove all the covariates for this risk factor which are not part of the
     // external predictors
     updatedAlgorithm.covariates = updatedAlgorithm.covariates.filter(
         covariate => {
-            if (covariate.isPartOfGroup(riskFactor)) {
+            const isPartOfGroup =
+                riskFactors.find(riskFactor => {
+                    return covariate.isPartOfGroup(riskFactor) === true;
+                }) !== undefined;
+            if (isPartOfGroup === true) {
                 const isExternalPredictor =
                     externalPredictors.find(predictor => {
                         return predictor.name === covariate.name;
@@ -76,11 +81,15 @@ function getCauseDeletedRisk(
     // Risk calculated with the new algorithm
     const externalRisk = updatedAlgorithm.getRiskToTime(data, time);
 
-    const riskFactorRefToUse = this.riskFactorRef[riskFactor];
+    const referenceData = flatten(
+        riskFactors.map(riskFactor => {
+            return this.riskFactorRef[riskFactor];
+        }),
+    );
     // Risk calculated by replacing certain profile values with the exposure
     // reference values
     const causeDeletedRisk = updatedAlgorithm.getRiskToTime(
-        updateDataWithData(data, riskFactorRefToUse),
+        updateDataWithData(data, referenceData),
         time,
     );
 
