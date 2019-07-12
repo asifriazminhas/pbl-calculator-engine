@@ -249,6 +249,7 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
             this.baseline.getBaselineForData(data) *
             this.calibration.getCalibrationFactorForData(data) *
             Math.E ** score;
+        // 1 - e^(-previousValue)
         const maximumTimeRiskProbability =
             1 - Math.E ** -exponentiatedScoreTimesBaselineTimesCalibration;
 
