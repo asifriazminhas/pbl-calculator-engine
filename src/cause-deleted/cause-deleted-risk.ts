@@ -49,6 +49,10 @@ function getCauseDeletedRisk(
     riskFactors: RiskFactor[],
     data: Data,
     time?: Date | moment.Moment,
+    updateDataWithReference: (
+        data: Data,
+        referenceData: Data,
+    ) => Data = updateDataWithData,
 ): number {
     // Add in the external predictors, replacing any current predictors which
     // match up with it
@@ -89,7 +93,7 @@ function getCauseDeletedRisk(
     // Risk calculated by replacing certain profile values with the exposure
     // reference values
     const causeDeletedRisk = updatedAlgorithm.getRiskToTime(
-        updateDataWithData(data, referenceData),
+        updateDataWithReference(data, referenceData),
         time,
     );
 
