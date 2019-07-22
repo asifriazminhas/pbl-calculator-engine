@@ -1,8 +1,17 @@
-import { Data, findDatumWithName } from '../data';
+import { Data, findDatumWithName, IDatum } from '../data';
 import { NoCauseEffectRefFound } from '../errors';
 import { RiskFactor } from '../../risk-factors';
 
-export type IGenderSpecificCauseEffectRef = { [K in RiskFactor]: Data };
+export type IGenderSpecificCauseEffectRef = {
+    [K in RiskFactor]: Array<
+        {
+            clamp?: {
+                lower?: boolean;
+                upper?: boolean;
+            };
+        } & IDatum
+    >
+};
 
 export interface IGenderCauseEffectRef {
     [index: string]: IGenderSpecificCauseEffectRef;
