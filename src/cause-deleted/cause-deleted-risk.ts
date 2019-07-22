@@ -82,7 +82,6 @@ function getCauseDeletedRisk(
 
     // Risk calculated with the new algorithm
     const externalRisk = updatedAlgorithm.getRiskToTime(data, time);
-    console.log(`External Risk: ${externalRisk}`);
 
     const referenceData = flatten(
         riskFactors.map(riskFactor => {
