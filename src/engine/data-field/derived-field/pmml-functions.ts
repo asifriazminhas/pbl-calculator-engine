@@ -44,7 +44,18 @@ export default {
         }, 0);
     },
     isIn: function(...args: Array<number>): boolean {
-        return args.slice(1).indexOf(args[0]) > -1;
+        // Convert the array as well as the value to check to an Array to make
+        // sure everyting it the same type. If there are type mismatches
+        // between entries in the array and the value to check then we can have
+        // wrong values
+        const array = args.slice(1);
+        const valueToCheck = args[0];
+        const strArray = array.map(arrItem => {
+            return arrItem + '';
+        });
+        const strValueToCheck = valueToCheck + '';
+
+        return strArray.indexOf(strValueToCheck) > -1;
     },
     log: function(num: number): number {
         return Math.log10(num);
