@@ -5,7 +5,6 @@ import {
     Coefficent,
     datumFromCovariateReferencePointFactory,
 } from '../../data';
-import * as moment from 'moment';
 import { DerivedField } from '../derived-field/derived-field';
 import { oneLine } from 'common-tags';
 import { shouldLogWarnings, shouldLogDebugInfo } from '../../../util/env';
@@ -180,9 +179,7 @@ export abstract class Covariate extends DataField {
     private formatCoefficentForComponent(
         coefficent: Coefficent,
     ): number | undefined {
-        if (coefficent instanceof moment || coefficent instanceof Date) {
-            throw new Error(`Coefficent is not a number ${this.name}`);
-        } else if (
+        if (
             coefficent === null ||
             coefficent === undefined ||
             coefficent === 'NA' ||
@@ -190,22 +187,7 @@ export abstract class Covariate extends DataField {
         ) {
             return this.referencePoint;
         } else {
-            const formattedCoefficient = Number(coefficent);
-
-            if (this.intervals) {
-                // Find One interval where the coefficient is within it's bounds
-                const validatedInterval = this.intervals.find(interval => {
-                    return interval.validate(formattedCoefficient);
-                });
-
-                if (validatedInterval) {
-                    return formattedCoefficient;
-                } else {
-                    return this.intervals[0].limitNumber(formattedCoefficient);
-                }
-            }
-
-            return formattedCoefficient;
+            return this.formatCoefficient(coefficent);
         }
     }
 }

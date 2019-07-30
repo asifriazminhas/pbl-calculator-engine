@@ -6,6 +6,8 @@ import { IDataFieldJson } from '../../parsers/json/json-data-field';
 import { ICategory } from './category';
 import { ErrorCode } from './error-code';
 import { IMetadata } from './metadata';
+import { Coefficent } from '../data/coefficent';
+import moment = require('moment');
 
 @autobind
 export class DataField {
@@ -81,7 +83,8 @@ export class DataField {
 
         if (this.intervals) {
             const numberCoefficient = Number(datumFound.coefficent);
-            const isEmptyString = typeof datumFound.coefficent === 'string' &&
+            const isEmptyString =
+                typeof datumFound.coefficent === 'string' &&
                 datumFound.coefficent.trim().length === 0;
 
             if (isNaN(numberCoefficient) || isEmptyString) {
@@ -139,5 +142,28 @@ export class DataField {
         }
 
         return errorCodes;
+    }
+
+    formatCoefficient(coefficient: Coefficent) {
+        if (coefficient instanceof moment || coefficient instanceof Date) {
+            throw new Error(`Coefficent is not a number ${this.name}`);
+        } else {
+            const formattedCoefficient = Number(coefficient);
+
+            if (this.intervals) {
+                // Find One interval where the coefficient is within it's bounds
+                const validatedInterval = this.intervals.find(interval => {
+                    return interval.validate(formattedCoefficient);
+                });
+
+                if (validatedInterval) {
+                    return formattedCoefficient;
+                } else {
+                    return this.intervals[0].limitNumber(formattedCoefficient);
+                }
+            }
+
+            return formattedCoefficient;
+        }
     }
 }

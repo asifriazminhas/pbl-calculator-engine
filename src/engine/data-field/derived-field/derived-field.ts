@@ -191,11 +191,13 @@ export class DerivedField extends DataField {
                 userDefinedFunctions,
                 tables,
             );
+
             if (shouldLogDebugInfo()) {
                 console.log(`Evaluated value: ${evaluatedValue}`);
                 console.groupEnd();
             }
-            return evaluatedValue;
+
+            return this.formatCoefficient(evaluatedValue);
         }
     }
 
