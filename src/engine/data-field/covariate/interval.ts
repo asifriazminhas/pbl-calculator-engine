@@ -43,12 +43,10 @@ export class Interval {
         if (this.lowerMargin) {
             const margin = this.lowerMargin.margin;
 
-            if (this.lowerMargin.isOpen) {
-                if (num <= margin) {
-                    return ErrorCode.LessThanOrEqualTo;
-                } else if (num < margin) {
-                    return ErrorCode.LessThan;
-                }
+            if (this.lowerMargin.isOpen && num <= margin) {
+                return ErrorCode.LessThanOrEqualTo;
+            } else if (num < margin) {
+                return ErrorCode.LessThan;
             }
         }
 
@@ -67,12 +65,10 @@ export class Interval {
         if (this.higherMargin) {
             const margin = this.higherMargin.margin;
 
-            if (this.higherMargin.isOpen) {
-                if (num >= margin) {
-                    return ErrorCode.GreaterThanOrEqualTo;
-                } else if (num > margin) {
-                    return ErrorCode.GreaterThan;
-                }
+            if (this.higherMargin.isOpen && num >= margin) {
+                return ErrorCode.GreaterThanOrEqualTo;
+            } else if (num > margin) {
+                return ErrorCode.GreaterThan;
             }
         }
 
