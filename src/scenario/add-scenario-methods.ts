@@ -45,6 +45,7 @@ function runScenarioForPopulation(
     const weightVariable = 'WTS_M';
     let totalRisk = 0;
 
+    // Create list of data that have been modified to calculate mean risk only on modified data
     const modifiedData = data.filter(datum => {
         const sex = Number(findDatumWithName(sexVariable, datum).coefficent);
 
@@ -64,7 +65,7 @@ function runScenarioForPopulation(
         });
 
         if (variablesToModify.length > 0) {
-            // Clone datum because we'll be modifying it for processing
+            // Clone datum because we'll be modifying it for processing scenario risk
             const clonedDatum = cloneDeep(datum);
             const weight = Number(findDatumWithName(weightVariable, datum).coefficent);
 
