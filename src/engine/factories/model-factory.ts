@@ -21,22 +21,26 @@ export abstract class ModelFactory {
     static extendModel<T extends object, U extends object>(
         model: Model,
         newModelProperties: T,
-        newCoxProperties: U[],
+        newCoxProperties?: U[],
     ): Model<U & CoxSurvivalAlgorithm> & T {
         type NewCox = U & CoxSurvivalAlgorithm;
         type NewModel = Model<NewCox> & T;
 
         const modelAlgorithms = model.algorithms.map(
             (modelAlgorithm, index) => {
-                return Object.setPrototypeOf(
-                    Object.assign({}, modelAlgorithm, {
-                        algorithm: CoxFactory.extendCox(
-                            modelAlgorithm.algorithm,
-                            newCoxProperties[index],
-                        ),
-                    }),
-                    ModelAlgorithm.prototype,
-                ) as ModelAlgorithm<NewCox>;
+                if (newCoxProperties) {
+                    return Object.setPrototypeOf(
+                        Object.assign({}, modelAlgorithm, {
+                            algorithm: CoxFactory.extendCox(
+                                modelAlgorithm.algorithm,
+                                newCoxProperties[index],
+                            ),
+                        }),
+                        ModelAlgorithm.prototype,
+                    ) as ModelAlgorithm<NewCox>;
+                } else {
+                    return modelAlgorithm;
+                }
             },
         );
 
