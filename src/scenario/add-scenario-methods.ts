@@ -74,8 +74,9 @@ function runScenarioForPopulation(
                 if (matchingDatumVariable) matchingDatumVariable.coefficent = variable.setValue;
             });
 
-            const originalRisk = this.getAlgorithmForData(datum).getRiskToTime(datum, time) * weight;
-            const scenarioRisk = this.getAlgorithmForData(datum).getRiskToTime(clonedDatum, time) * weight;
+            const algorithm = this.getAlgorithmForData(datum);
+            const originalRisk = algorithm.getRiskToTime(datum, time) * weight;
+            const scenarioRisk = algorithm.getRiskToTime(clonedDatum, time) * weight;
             totalRisk += scenarioRisk - originalRisk;
             return true;
         }
