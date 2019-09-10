@@ -19,10 +19,7 @@ export interface IScenarioModel extends Model {
  * @param {Model} model The Model argument to augment. Each algorithm
  * object within the model will be extended to add scenario methods
  * to it
- * @param {CauseDeletedRef} riskFactorRef A JSON array containing the
- * reference exposure values to use for each algorithm when calculating
- * scenarios
- * @returns {CauseDeletedModel}
+ * @returns {IScenarioModel}
  */
 
 export function addScenarioMethods(
