@@ -32,19 +32,18 @@ export function addScenarioMethods(
 }
 
 function runScenarioForPopulation(
-    this: Model,
-    data: Data[],
+    this: IScenarioModel,
+    population: Data[],
     scenarioConfig: IScenarioConfig,
     time?: Date | moment.Moment,
 ): number {
-    // consider adding to model
+    // consider adding variables to model
     const sexVariable = 'DHH_SEX';
-    const weightVariable = 'WTS_M';
     let totalRisk = 0;
 
     // Create list of data that have been modified to calculate mean risk only on modified data
-    const modifiedData = data.filter(datum => {
-        const sex = Number(findDatumWithName(sexVariable, datum).coefficent);
+    population.forEach(individual => {
+        const sex = Number(findDatumWithName(sexVariable, individual).coefficent);
 
         let sexConfig: ISexScenarioConfig;
         if (sex === 1) sexConfig = scenarioConfig.male;
@@ -56,15 +55,14 @@ function runScenarioForPopulation(
             let [min, max] = variable.targetPopulation;
             if (min === null) min = -Infinity;
             if (max === null) max = Infinity;
-            const variableValue = Number(findDatumWithName(variable.variableName, datum).coefficent);
+            const variableValue = Number(findDatumWithName(variable.variableName, individual).coefficent);
 
             return variableValue > min && variableValue < max;
         });
 
         if (variablesToModify.length > 0) {
             // Clone datum because we'll be modifying it for processing scenario risk
-            const clonedDatum = cloneDeep(datum);
-            const weight = Number(findDatumWithName(weightVariable, datum).coefficent);
+            const clonedDatum = cloneDeep(individual);
 
             variablesToModify.forEach(variable => {
                 const matchingDatumVariable = clonedDatum.find(datumVariable =>
@@ -74,17 +72,15 @@ function runScenarioForPopulation(
                 if (matchingDatumVariable) matchingDatumVariable.coefficent = variable.setValue;
             });
 
-            const algorithm = this.getAlgorithmForData(datum);
-            const originalRisk = algorithm.getRiskToTime(datum, time) * weight;
-            const scenarioRisk = algorithm.getRiskToTime(clonedDatum, time) * weight;
-            totalRisk += scenarioRisk - originalRisk;
-            return true;
+            totalRisk += this
+                .getAlgorithmForData(individual)
+                .getRiskToTime(clonedDatum, time);
+        } else {
+            totalRisk += this
+                .getAlgorithmForData(individual)
+                .getRiskToTime(individual, time);
         }
-
-        return false;
     });
 
-    // Prevent returning NaN if no data was modified
-    if (modifiedData.length === 0) return 0;
-    return totalRisk / modifiedData.length;
+    return totalRisk / population.length;
 }
