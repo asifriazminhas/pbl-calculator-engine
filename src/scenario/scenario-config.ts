@@ -1,17 +1,18 @@
-type ScenarioNames = ['health behaviour' | 'target scenario' | 'relative scenario' | 'absolute scenario'];
+type ScenarioMethods = 'attribution scenario' | 'relative scenario' | 'absolute scenario';
 
 export interface IScenarioConfig {
-  name: ScenarioNames;
+  name: ScenarioMethods;
   male: ISexScenarioConfig;
   female: ISexScenarioConfig;
 }
 
 export interface ISexScenarioConfig {
-    variables: IVariables[];
+    variables: IScenarioVariables[];
 }
 
-export interface IVariables {
+export interface IScenarioVariables {
   variableName: string;
-  targetPopulation: [number | null, number | null];
-  setValue: number | null;
+  method: ScenarioMethods;
+  targetPop: [number | null, number | null];
+  scenarioValue: number | null;
 }

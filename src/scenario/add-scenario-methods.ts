@@ -2,10 +2,11 @@ import {
     Model,
     Data,
     ModelFactory,
+    CoxSurvivalAlgorithm,
 } from '../engine/model';
 import { cloneDeep } from 'lodash';
 import { findDatumWithName } from '../engine/data';
-import { IScenarioConfig, ISexScenarioConfig } from './scenario-config';
+import { IScenarioConfig, ISexScenarioConfig, IScenarioVariables } from './scenario-config';
 import moment = require('moment');
 
 export interface IScenarioModel extends Model {
@@ -44,6 +45,7 @@ function runScenarioForPopulation(
     // Create list of data that have been modified to calculate mean risk only on modified data
     population.forEach(individual => {
         const sex = Number(findDatumWithName(sexVariable, individual).coefficent);
+        const algorithm = this.getAlgorithmForData(individual);
 
         let sexConfig: ISexScenarioConfig;
         if (sex === 1) sexConfig = scenarioConfig.male;
@@ -51,36 +53,48 @@ function runScenarioForPopulation(
 
         // Get list of variables that will be modified to ensure that we only clone datum and
         // calculate original risk if the datum will be modified
-        const variablesToModify = sexConfig.variables.filter(variable => {
-            let [min, max] = variable.targetPopulation;
-            if (min === null) min = -Infinity;
-            if (max === null) max = Infinity;
-            const variableValue = Number(findDatumWithName(variable.variableName, individual).coefficent);
+        const variablesToModify = filterVariables(individual, sexConfig.variables);
 
-            return variableValue > min && variableValue < max;
-        });
-
-        if (variablesToModify.length > 0) {
-            // Clone datum because we'll be modifying it for processing scenario risk
-            const clonedDatum = cloneDeep(individual);
-
-            variablesToModify.forEach(variable => {
-                const matchingDatumVariable = clonedDatum.find(datumVariable =>
-                    datumVariable.name === variable.variableName
-                );
-
-                if (matchingDatumVariable) matchingDatumVariable.coefficent = variable.setValue;
-            });
-
-            totalRisk += this
-                .getAlgorithmForData(individual)
-                .getRiskToTime(clonedDatum, time);
-        } else {
-            totalRisk += this
-                .getAlgorithmForData(individual)
-                .getRiskToTime(individual, time);
-        }
+        totalRisk += calculateRiskForIndividual(individual, variablesToModify, algorithm, time);
     });
 
     return totalRisk / population.length;
+}
+
+function filterVariables(
+    individual: Data,
+    variables: IScenarioVariables[],
+): IScenarioVariables[] {
+    return variables.filter(variable => {
+        let [min, max] = variable.targetPop;
+        if (min === null) min = -Infinity;
+        if (max === null) max = Infinity;
+        const variableValue = Number(findDatumWithName(variable.variableName, individual).coefficent);
+
+        return variableValue > min && variableValue < max;
+    });
+}
+
+function calculateRiskForIndividual(
+    individual: Data,
+    variablesToModify: IScenarioVariables[],
+    algorithm: CoxSurvivalAlgorithm,
+    time?: Date | moment.Moment,
+): number {
+    if (variablesToModify.length > 0) {
+        // Clone datum because we'll be modifying it for processing scenario risk
+        const clonedDatum = cloneDeep(individual);
+
+        variablesToModify.forEach(variable => {
+            const matchingDatumVariable = clonedDatum.find(datumVariable =>
+                datumVariable.name === variable.variableName
+            );
+
+            if (matchingDatumVariable) matchingDatumVariable.coefficent = variable.scenarioValue;
+        });
+
+        return algorithm.getRiskToTime(clonedDatum, time);
+    } else {
+        return algorithm.getRiskToTime(individual, time);
+    }
 }
