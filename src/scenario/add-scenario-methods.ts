@@ -51,9 +51,10 @@ function runScenarioForPopulation(
         if (sex === 1) sexConfig = scenarioConfig.male;
         else sexConfig = scenarioConfig.female;
 
-        // Get list of variables that will be modified to ensure that we only clone datum and
-        // calculate original risk if the datum will be modified
-        const variablesToModify = filterVariables(individual, sexConfig.variables);
+        // Get list of variables that will be modified to ensure that we only clone individuals and
+        // if the individuals will be modified
+        // @ts-ignore
+        const variablesToModify = filterVariables(individual, sexConfig.variables[0].method);
 
         totalRisk += calculateRiskForIndividual(individual, variablesToModify, algorithm, time);
     });
