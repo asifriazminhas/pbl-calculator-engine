@@ -38,12 +38,14 @@ function runScenarioForPopulation(
     scenarioConfig: IScenarioConfig,
     time?: Date | moment.Moment,
 ): number {
+    // Clone population because we'll be modifying it for processing scenario risk
+    const clonedPopulation = cloneDeep(population);
     // consider adding variables to model
     const sexVariable = 'DHH_SEX';
     let totalRisk = 0;
 
     // Create list of data that have been modified to calculate mean risk only on modified data
-    population.forEach(individual => {
+    clonedPopulation.forEach(individual => {
         const sex = Number(findDatumWithName(sexVariable, individual).coefficent);
         const algorithm = this.getAlgorithmForData(individual);
 
@@ -51,16 +53,19 @@ function runScenarioForPopulation(
         if (sex === 1) sexConfig = scenarioConfig.male;
         else sexConfig = scenarioConfig.female;
 
-        // Get list of variables that will be modified to ensure that we only clone individuals and
-        // if the individuals will be modified
         const variablesToModify = filterVariables(individual, sexConfig.variables);
 
         totalRisk += calculateRiskForIndividual(individual, variablesToModify, algorithm, time);
     });
 
-    return totalRisk / population.length;
+    return totalRisk / clonedPopulation.length;
 }
 
+/**
+ * @description Build list of variables that should be modified for the individual
+ * @param individual Individual
+ * @param variables Scenario variables
+ */
 function filterVariables(
     individual: Data,
     variables: IScenarioVariables[],
@@ -81,20 +86,13 @@ function calculateRiskForIndividual(
     algorithm: CoxSurvivalAlgorithm,
     time?: Date | moment.Moment,
 ): number {
-    if (variablesToModify.length > 0) {
-        // Clone datum because we'll be modifying it for processing scenario risk
-        const clonedDatum = cloneDeep(individual);
+    variablesToModify.forEach(variable => {
+        const matchingIndividualVariable = individual.find(datumVariable =>
+            datumVariable.name === variable.variableName
+        );
 
-        variablesToModify.forEach(variable => {
-            const matchingDatumVariable = clonedDatum.find(datumVariable =>
-                datumVariable.name === variable.variableName
-            );
+        if (matchingIndividualVariable) matchingIndividualVariable.coefficent = variable.scenarioValue;
+    });
 
-            if (matchingDatumVariable) matchingDatumVariable.coefficent = variable.scenarioValue;
-        });
-
-        return algorithm.getRiskToTime(clonedDatum, time);
-    } else {
-        return algorithm.getRiskToTime(individual, time);
-    }
+    return algorithm.getRiskToTime(individual, time);
 }
