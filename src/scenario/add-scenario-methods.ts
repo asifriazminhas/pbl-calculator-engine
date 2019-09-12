@@ -53,8 +53,7 @@ function runScenarioForPopulation(
 
         // Get list of variables that will be modified to ensure that we only clone individuals and
         // if the individuals will be modified
-        // @ts-ignore
-        const variablesToModify = filterVariables(individual, sexConfig.variables[0].method);
+        const variablesToModify = filterVariables(individual, sexConfig.variables);
 
         totalRisk += calculateRiskForIndividual(individual, variablesToModify, algorithm, time);
     });
