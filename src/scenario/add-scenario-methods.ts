@@ -22,7 +22,6 @@ export interface IScenarioModel extends Model {
  * to it
  * @returns {IScenarioModel}
  */
-
 export function addScenarioMethods(
     model: Model,
 ): IScenarioModel {
@@ -124,20 +123,23 @@ function runVariableMethod(
     switch (variable.method) {
         case 'absolute scenario cat':
         case 'absolute scenario': {
-            updatedIndividualValue = variable.scenarioValue;
+            updatedIndividualValue += variable.scenarioValue;
             break;
         }
         case 'attribution scenario':
-        case 'relative scenario cat':
-        case 'target scenario cat':
-        case 'relative scenario': {
+        case 'target scenario cat': {
+            updatedIndividualValue = variable.scenarioValue;
+            break;
+        }
+        case 'relative scenario':
+        case 'relative scenario cat': {
             updatedIndividualValue *= variable.scenarioValue / 100;
             break;
         }
     }
 
     if (variable.postScenarioRange) {
-        // Limit new value to limiting range value
+        // Ensure new value is limited to be within scenario min/max range
         const [min, max] = variable.postScenarioRange;
 
         if (updatedIndividualValue < min) updatedIndividualValue = min;
