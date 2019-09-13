@@ -9,7 +9,7 @@ import { findDatumWithName, IDatum } from '../engine/data';
 import moment = require('moment');
 import { ScenarioConfig } from './scenario-config';
 import { SexScenarioConfig } from './sex-scenario-config';
-import { ScenarioVariables } from './scenario-variables';
+import { ScenarioVariables, ScenarioMethods } from './scenario-variables';
 
 export interface IScenarioModel extends Model {
     runScenarioForPopulation: typeof runScenarioForPopulation;
@@ -121,18 +121,18 @@ function runVariableMethod(
 
     // Modify new value based on variable method
     switch (variable.method) {
-        case 'absolute scenario':
-        case 'absolute scenario cat': {
+        case ScenarioMethods.AbsoluteScenario:
+        case ScenarioMethods.AbsoluteScenarioCat: {
             updatedIndividualValue += variable.scenarioValue;
             break;
         }
-        case 'attribution scenario':
-        case 'target scenario cat': {
+        case ScenarioMethods.AttributionScenario:
+        case ScenarioMethods.TargetScenarioCat: {
             updatedIndividualValue = variable.scenarioValue;
             break;
         }
-        case 'relative scenario':
-        case 'relative scenario cat': {
+        case ScenarioMethods.RelativeScenario:
+        case ScenarioMethods.RelativeScenarioCat: {
             updatedIndividualValue *= variable.scenarioValue / 100;
             break;
         }

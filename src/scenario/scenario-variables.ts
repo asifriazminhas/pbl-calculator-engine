@@ -1,8 +1,16 @@
 /**
  * Scenario methods, used to determine how variable values should be modified
  */
-type ScenarioMethods = 'attribution scenario' | 'relative scenario' | 'absolute scenario' | 'absolute scenario cat'
-  | 'relative scenario cat' | 'target scenario cat';
+export enum ScenarioMethods {
+  AttributionScenario = 'attribution scenario',
+  TargetScenarioCat = 'target scenario cat',
+
+  RelativeScenario = 'relative scenario',
+  RelativeScenarioCat = 'relative scenario cat',
+
+  AbsoluteScenario = 'absolute scenario',
+  AbsoluteScenarioCat = 'absolute scenario cat',
+}
 
 export class ScenarioVariables {
   /**
@@ -12,7 +20,7 @@ export class ScenarioVariables {
   /**
    * Method to use when modifying `variableName` values, or `absorbingVariable` if available
    */
-  method: ScenarioMethods = 'attribution scenario';
+  method: ScenarioMethods = ScenarioMethods.AttributionScenario;
   /**
    * Population that will be targeted
    *
