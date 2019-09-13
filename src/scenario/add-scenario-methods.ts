@@ -87,11 +87,22 @@ function calculateRiskForIndividual(
     time?: Date | moment.Moment,
 ): number {
     variablesToModify.forEach(variable => {
-        const matchingIndividualVariable = individual.find(datumVariable =>
-            datumVariable.name === variable.variableName
-        );
+        /**
+         * If variable specifies an absorbing variable to be changed, select that variable to be modified.
+         * Otherwise, modify matching `variableName` variable
+         */
+        let targetIndividualVariable: IDatum | undefined;
+        if (variable.absorbingVariable) {
+            targetIndividualVariable = individual.find(datumVariable =>
+                datumVariable.name === variable.absorbingVariable
+            );
+        } else {
+            targetIndividualVariable = individual.find(datumVariable =>
+                datumVariable.name === variable.variableName
+            );
+        }
 
-        if (matchingIndividualVariable) runVariableMethod(matchingIndividualVariable, variable);
+        if (targetIndividualVariable) runVariableMethod(variable, targetIndividualVariable);
     });
 
     return algorithm.getRiskToTime(individual, time);
@@ -99,33 +110,39 @@ function calculateRiskForIndividual(
 
 /**
  * @description Update individual's variable value according to the variable method
- * @param individualVariable Individual's variable
  * @param variable Scenario variable
+ * @param individualVariable Individual's variable
+ * @param targetVariable Targetted variable to be modified
  */
 function runVariableMethod(
+    variable: IScenarioVariables,
     individualVariable: IDatum,
-    variable: IScenarioVariables
 ): void {
-    let individualValue = individualVariable.coefficent as number;
+    let updatedIndividualValue = individualVariable.coefficent as number;
 
+    // Modify new value based on variable method
     switch (variable.method) {
+        case 'absolute scenario cat':
         case 'absolute scenario': {
-            individualValue = variable.scenarioValue;
+            updatedIndividualValue = variable.scenarioValue;
             break;
         }
         case 'attribution scenario':
+        case 'relative scenario cat':
+        case 'target scenario cat':
         case 'relative scenario': {
-            individualValue *= variable.scenarioValue / 100;
+            updatedIndividualValue *= variable.scenarioValue / 100;
             break;
         }
     }
 
     if (variable.postScenarioRange) {
+        // Limit new value to limiting range value
         const [min, max] = variable.postScenarioRange;
 
-        if (individualValue < min) individualValue = min;
-        else if (individualValue > max) individualValue = max;
+        if (updatedIndividualValue < min) updatedIndividualValue = min;
+        else if (updatedIndividualValue > max) updatedIndividualValue = max;
     }
 
-    individualVariable.coefficent = individualValue;
+    individualVariable.coefficent = updatedIndividualValue;
 }
