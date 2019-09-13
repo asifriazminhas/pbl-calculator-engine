@@ -40,8 +40,8 @@ export interface IScenarioVariables {
   /**
    * Based on `method`, determines how much to modify `variableName`
    *
-   * Example: `method = 'absolute scenario'`, change to value: `variableName = scenarioValue`
-   * Example: `method = 'relative scenario`, change by percent: `variableName *= scenarioValue`
+   * Example: `method = 'absolute scenario'`, change to value: `variableName *= scenarioValue`
+   * Example: `method = 'target scenario`, change by percent: `variableName = scenarioValue`
    */
   scenarioValue: number;
   /**

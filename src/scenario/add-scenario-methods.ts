@@ -37,7 +37,7 @@ function runScenarioForPopulation(
     scenarioConfig: IScenarioConfig,
     time?: Date | moment.Moment,
 ): number {
-    // Clone population because we'll be modifying it for processing scenario risk
+    // Clone population because we'll be modifying it for processing
     const clonedPopulation = cloneDeep(population);
     // consider adding variables to model
     const sexVariable = 'DHH_SEX';
@@ -53,7 +53,6 @@ function runScenarioForPopulation(
         else sexConfig = scenarioConfig.female;
 
         const variablesToModify = filterVariables(individual, sexConfig.variables);
-
         totalRisk += calculateRiskForIndividual(individual, variablesToModify, algorithm, time);
     });
 
@@ -110,8 +109,7 @@ function calculateRiskForIndividual(
 /**
  * @description Update individual's variable value according to the variable method
  * @param variable Scenario variable
- * @param individualVariable Individual's variable
- * @param targetVariable Targetted variable to be modified
+ * @param individualVariable Individual's variable to be modified
  */
 function runVariableMethod(
     variable: IScenarioVariables,
@@ -121,8 +119,8 @@ function runVariableMethod(
 
     // Modify new value based on variable method
     switch (variable.method) {
-        case 'absolute scenario cat':
-        case 'absolute scenario': {
+        case 'absolute scenario':
+        case 'absolute scenario cat': {
             updatedIndividualValue += variable.scenarioValue;
             break;
         }
