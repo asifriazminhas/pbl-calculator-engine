@@ -6,8 +6,10 @@ import {
 } from '../engine/model';
 import { cloneDeep } from 'lodash';
 import { findDatumWithName, IDatum } from '../engine/data';
-import { IScenarioConfig, ISexScenarioConfig, IScenarioVariables } from './scenario-config';
 import moment = require('moment');
+import { ScenarioConfig } from './scenario-config';
+import { SexScenarioConfig } from './sex-scenario-config';
+import { ScenarioVariables } from './scenario-variables';
 
 export interface IScenarioModel extends Model {
     runScenarioForPopulation: typeof runScenarioForPopulation;
@@ -34,7 +36,7 @@ export function addScenarioMethods(
 function runScenarioForPopulation(
     this: IScenarioModel,
     population: Data[],
-    scenarioConfig: IScenarioConfig,
+    scenarioConfig: ScenarioConfig,
     time?: Date | moment.Moment,
 ): number {
     // Clone population because we'll be modifying it for processing
@@ -48,7 +50,7 @@ function runScenarioForPopulation(
         const sex = Number(findDatumWithName(sexVariable, individual).coefficent);
         const algorithm = this.getAlgorithmForData(individual);
 
-        let sexConfig: ISexScenarioConfig;
+        let sexConfig: SexScenarioConfig;
         if (sex === 1) sexConfig = scenarioConfig.male;
         else sexConfig = scenarioConfig.female;
 
@@ -66,8 +68,8 @@ function runScenarioForPopulation(
  */
 function filterVariables(
     individual: Data,
-    variables: IScenarioVariables[],
-): IScenarioVariables[] {
+    variables: ScenarioVariables[],
+): ScenarioVariables[] {
     return variables.filter(variable => {
         let [min, max] = variable.targetPop;
         if (min === null) min = -Infinity;
@@ -80,7 +82,7 @@ function filterVariables(
 
 function calculateRiskForIndividual(
     individual: Data,
-    variablesToModify: IScenarioVariables[],
+    variablesToModify: ScenarioVariables[],
     algorithm: CoxSurvivalAlgorithm,
     time?: Date | moment.Moment,
 ): number {
@@ -112,7 +114,7 @@ function calculateRiskForIndividual(
  * @param individualVariable Individual's variable to be modified
  */
 function runVariableMethod(
-    variable: IScenarioVariables,
+    variable: ScenarioVariables,
     individualVariable: IDatum,
 ): void {
     let updatedIndividualValue = individualVariable.coefficent as number;
