@@ -5,7 +5,7 @@ import {
     CoxSurvivalAlgorithm,
 } from '../engine/model';
 import { cloneDeep } from 'lodash';
-import { findDatumWithName } from '../engine/data';
+import { findDatumWithName, IDatum } from '../engine/data';
 import { IScenarioConfig, ISexScenarioConfig, IScenarioVariables } from './scenario-config';
 import moment = require('moment');
 
@@ -91,8 +91,41 @@ function calculateRiskForIndividual(
             datumVariable.name === variable.variableName
         );
 
-        if (matchingIndividualVariable) matchingIndividualVariable.coefficent = variable.scenarioValue;
+        if (matchingIndividualVariable) runVariableMethod(matchingIndividualVariable, variable);
     });
 
     return algorithm.getRiskToTime(individual, time);
+}
+
+/**
+ * @description Update individual's variable value according to the variable method
+ * @param individualVariable Individual's variable
+ * @param variable Scenario variable
+ */
+function runVariableMethod(
+    individualVariable: IDatum,
+    variable: IScenarioVariables
+): void {
+    let individualValue = individualVariable.coefficent as number;
+
+    switch (variable.method) {
+        case 'absolute scenario': {
+            individualValue = variable.scenarioValue;
+            break;
+        }
+        case 'attribution scenario':
+        case 'relative scenario': {
+            individualValue *= variable.scenarioValue / 100;
+            break;
+        }
+    }
+
+    if (variable.postScenarioRange) {
+        const [min, max] = variable.postScenarioRange;
+
+        if (individualValue < min) individualValue = min;
+        else if (individualValue > max) individualValue = max;
+    }
+
+    individualVariable.coefficent = individualValue;
 }
