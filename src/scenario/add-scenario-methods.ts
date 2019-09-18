@@ -9,7 +9,7 @@ import { findDatumWithName, IDatum } from '../engine/data';
 import moment = require('moment');
 import { IScenarioConfig } from './scenario-config';
 import { ISexScenarioConfig } from './sex-scenario-config';
-import { IScenarioVariables, ScenarioMethods } from './scenario-variables';
+import { IScenarioVariable, ScenarioMethods, ICategoricalScenarioVariable } from './scenario-variable';
 
 export interface IScenarioModel extends Model {
     runScenarioForPopulation: typeof runScenarioForPopulation;
@@ -45,7 +45,7 @@ function runScenarioForPopulation(
     const sexVariable = 'DHH_SEX';
     let totalRisk = 0;
 
-    // Create list of data that have been modified to calculate mean risk only on modified data
+    // Iterate over population and calculate individual risks
     clonedPopulation.forEach(individual => {
         const sex = Number(findDatumWithName(sexVariable, individual).coefficent);
         const algorithm = this.getAlgorithmForData(individual);
@@ -64,13 +64,13 @@ function runScenarioForPopulation(
 /**
  * @description Build list of variables that should be modified for the individual
  * @param individual Individual
- * @param variables Scenario variables
+ * @param scenarioVariables Scenario variables
  */
 function filterVariables(
     individual: Data,
-    variables: IScenarioVariables[],
-): IScenarioVariables[] {
-    return variables.filter(variable => {
+    scenarioVariables: IScenarioVariable[],
+): IScenarioVariable[] {
+    return scenarioVariables.filter(variable => {
         let [min, max] = variable.targetPop;
         if (min === null) min = -Infinity;
         if (max === null) max = Infinity;
@@ -82,7 +82,7 @@ function filterVariables(
 
 function calculateRiskForIndividual(
     individual: Data,
-    variablesToModify: IScenarioVariables[],
+    variablesToModify: IScenarioVariable[],
     algorithm: CoxSurvivalAlgorithm,
     time?: Date | moment.Moment,
 ): number {
@@ -92,7 +92,7 @@ function calculateRiskForIndividual(
          * Otherwise, modify matching `variableName` variable
          */
         let targetIndividualVariable: IDatum | undefined;
-        if (variable.absorbingVariable) {
+        if (isCategoricalMethod(variable)) {
             targetIndividualVariable = individual.find(datumVariable =>
                 datumVariable.name === variable.absorbingVariable
             );
@@ -114,7 +114,7 @@ function calculateRiskForIndividual(
  * @param individualVariable Individual's variable to be modified
  */
 function runVariableMethod(
-    variable: IScenarioVariables,
+    variable: IScenarioVariable,
     individualVariable: IDatum,
 ): void {
     let updatedIndividualValue = individualVariable.coefficent as number;
@@ -138,13 +138,29 @@ function runVariableMethod(
         }
     }
 
-    if (variable.postScenarioRange) {
-        // Ensure new value is limited to be within scenario min/max range
-        const [min, max] = variable.postScenarioRange;
+    if (isCategoricalMethod(variable)) {
+        if (variable.postScenarioRange) {
+            // Ensure new value is limited to be within scenario min/max range
+            const [min, max] = variable.postScenarioRange;
+            if (variable.method === ScenarioMethods.AbsoluteScenarioCat) {
+                variable.absorbingVariable.toString();
+            }
 
-        if (updatedIndividualValue < min) updatedIndividualValue = min;
-        else if (updatedIndividualValue > max) updatedIndividualValue = max;
+            if (updatedIndividualValue < min) updatedIndividualValue = min;
+            else if (updatedIndividualValue > max) updatedIndividualValue = max;
+        }
     }
 
     individualVariable.coefficent = updatedIndividualValue;
+}
+
+function isCategoricalMethod(
+    scenarioVariable: IScenarioVariable
+): scenarioVariable is ICategoricalScenarioVariable {
+    switch (scenarioVariable.method) {
+        case ScenarioMethods.RelativeScenarioCat:
+        case ScenarioMethods.TargetScenarioCat:
+        case ScenarioMethods.AbsoluteScenarioCat: return true;
+    }
+    return false;
 }

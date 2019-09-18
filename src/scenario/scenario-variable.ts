@@ -12,13 +12,17 @@ export enum ScenarioMethods {
   AbsoluteScenarioCat = 'absolute scenario cat',
 }
 
-export const categoricalMethods = [
-  ScenarioMethods.TargetScenarioCat,
-  ScenarioMethods.RelativeScenarioCat,
-  ScenarioMethods.AbsoluteScenarioCat,
-];
+export type categoricalMethods = ScenarioMethods.TargetScenarioCat |
+  ScenarioMethods.RelativeScenarioCat |
+  ScenarioMethods.AbsoluteScenarioCat;
 
-export interface IScenarioVariable {
+export type continuousMethods = ScenarioMethods.AttributionScenario |
+  ScenarioMethods.RelativeScenario |
+  ScenarioMethods.AbsoluteScenario;
+
+export type IScenarioVariable = ICategoricalScenarioVariable | IContinuousScenarioVariable;
+
+interface IBaseScenarioVariable {
   /**
    * Variable name
    */
@@ -35,13 +39,6 @@ export interface IScenarioVariable {
    */
   targetPop: [number | null, number | null];
   /**
-   * Minimum and maximum new values for modified variable values
-   *
-   * Example: Increasing `PACDEE` by 10%, ensure that new values are greater than or equal to
-   * `postScenarioRange[0]` and less than or equal to `postScenarioRange[1]`
-   */
-  postScenarioRange?: [number, number];
-  /**
    * Based on `method`, determines how much to modify `variableName`
    *
    * Example: `method = 'absolute scenario'`, change to value: `variableName *= scenarioValue`
@@ -49,8 +46,23 @@ export interface IScenarioVariable {
    */
   scenarioValue: number;
   /**
+   * Minimum and maximum new values for modified variable values
+   *
+   * Example: Increasing `PACDEE` by 10%, ensure that new values are greater than or equal to
+   * `postScenarioRange[0]` and less than or equal to `postScenarioRange[1]`
+   */
+  postScenarioRange?: [number, number];
+}
+
+export interface ICategoricalScenarioVariable extends IBaseScenarioVariable {
+  method: categoricalMethods;
+  /**
    * Variable that will be modified for an individual if the individual is within `targetPop`
    * for `variableName`
    */
-  absorbingVariable?: string;
+  absorbingVariable: string;
+}
+
+export interface IContinuousScenarioVariable extends IBaseScenarioVariable {
+  method: continuousMethods;
 }
