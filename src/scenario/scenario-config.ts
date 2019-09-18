@@ -1,9 +1,7 @@
 import { ISexScenarioConfig } from './sex-scenario-config';
 
-type ScenarioName = '' | 'activity' | 'smoking';
-
 export interface IScenarioConfig {
-  name: ScenarioName;
+  name: string;
   male: ISexScenarioConfig;
   female: ISexScenarioConfig;
 }
