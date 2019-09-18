@@ -1,9 +1,9 @@
-import { SexScenarioConfig } from './sex-scenario-config';
+import { ISexScenarioConfig } from './sex-scenario-config';
 
 type ScenarioName = '' | 'activity' | 'smoking';
 
-export class ScenarioConfig {
-  name: ScenarioName = '';
-  male: SexScenarioConfig = new SexScenarioConfig();
-  female: SexScenarioConfig = new SexScenarioConfig();
+export interface IScenarioConfig {
+  name: ScenarioName;
+  male: ISexScenarioConfig;
+  female: ISexScenarioConfig;
 }

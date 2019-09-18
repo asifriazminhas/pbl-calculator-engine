@@ -7,9 +7,9 @@ import {
 import { cloneDeep } from 'lodash';
 import { findDatumWithName, IDatum } from '../engine/data';
 import moment = require('moment');
-import { ScenarioConfig } from './scenario-config';
-import { SexScenarioConfig } from './sex-scenario-config';
-import { ScenarioVariables, ScenarioMethods } from './scenario-variables';
+import { IScenarioConfig } from './scenario-config';
+import { ISexScenarioConfig } from './sex-scenario-config';
+import { IScenarioVariables, ScenarioMethods } from './scenario-variables';
 
 export interface IScenarioModel extends Model {
     runScenarioForPopulation: typeof runScenarioForPopulation;
@@ -36,7 +36,7 @@ export function addScenarioMethods(
 function runScenarioForPopulation(
     this: IScenarioModel,
     population: Data[],
-    scenarioConfig: ScenarioConfig,
+    scenarioConfig: IScenarioConfig,
     time?: Date | moment.Moment,
 ): number {
     // Clone population because we'll be modifying it for processing
@@ -50,7 +50,7 @@ function runScenarioForPopulation(
         const sex = Number(findDatumWithName(sexVariable, individual).coefficent);
         const algorithm = this.getAlgorithmForData(individual);
 
-        let sexConfig: SexScenarioConfig;
+        let sexConfig: ISexScenarioConfig;
         if (sex === 1) sexConfig = scenarioConfig.male;
         else sexConfig = scenarioConfig.female;
 
@@ -68,8 +68,8 @@ function runScenarioForPopulation(
  */
 function filterVariables(
     individual: Data,
-    variables: ScenarioVariables[],
-): ScenarioVariables[] {
+    variables: IScenarioVariables[],
+): IScenarioVariables[] {
     return variables.filter(variable => {
         let [min, max] = variable.targetPop;
         if (min === null) min = -Infinity;
@@ -82,7 +82,7 @@ function filterVariables(
 
 function calculateRiskForIndividual(
     individual: Data,
-    variablesToModify: ScenarioVariables[],
+    variablesToModify: IScenarioVariables[],
     algorithm: CoxSurvivalAlgorithm,
     time?: Date | moment.Moment,
 ): number {
@@ -114,7 +114,7 @@ function calculateRiskForIndividual(
  * @param individualVariable Individual's variable to be modified
  */
 function runVariableMethod(
-    variable: ScenarioVariables,
+    variable: IScenarioVariables,
     individualVariable: IDatum,
 ): void {
     let updatedIndividualValue = individualVariable.coefficent as number;

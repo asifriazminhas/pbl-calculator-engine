@@ -12,22 +12,22 @@ export enum ScenarioMethods {
   AbsoluteScenarioCat = 'absolute scenario cat',
 }
 
-export class ScenarioVariables {
+export interface IScenarioVariables {
   /**
    * Variable name
    */
-  variableName: string = '';
+  variableName: string;
   /**
    * Method to use when modifying `variableName` values, or `absorbingVariable` if available
    */
-  method: ScenarioMethods = ScenarioMethods.AttributionScenario;
+  method: ScenarioMethods;
   /**
    * Population that will be targeted
    *
    * Example: `variableName = 'PACDEE'`, `targetPop = [1, 3]` will modify `PACDEE` where original
    * values are between `1` and `3`, inclusive
    */
-  targetPop: [number | null, number | null] = [null, null];
+  targetPop: [number | null, number | null];
   /**
    * Minimum and maximum new values for modified variable values
    *
@@ -41,7 +41,7 @@ export class ScenarioVariables {
    * Example: `method = 'absolute scenario'`, change to value: `variableName *= scenarioValue`
    * Example: `method = 'target scenario`, change by percent: `variableName = scenarioValue`
    */
-  scenarioValue: number = 0;
+  scenarioValue: number;
   /**
    * Variable that will be modified for an individual if the individual is within `targetPop`
    * for `variableName`

@@ -1,8 +1,8 @@
-import { ScenarioConfig } from './scenario-config';
+import { IScenarioConfig } from './scenario-config';
 
-export class Scenario {
-  name: string = '';
-  description: string = '';
-  algorithms: string[] = [];
-  configs: ScenarioConfig[] = [];
+export interface IScenario {
+  name: string;
+  description: string;
+  algorithms: string[];
+  configs: IScenarioConfig[];
 }
