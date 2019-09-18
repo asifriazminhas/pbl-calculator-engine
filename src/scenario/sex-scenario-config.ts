@@ -1,5 +1,5 @@
-import { IScenarioVariables } from './scenario-variables';
+import { IScenarioVariable } from './scenario-variable';
 
 export interface ISexScenarioConfig {
-  variables: IScenarioVariables[];
+  variables: IScenarioVariable[];
 }

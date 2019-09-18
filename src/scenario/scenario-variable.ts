@@ -12,7 +12,13 @@ export enum ScenarioMethods {
   AbsoluteScenarioCat = 'absolute scenario cat',
 }
 
-export interface IScenarioVariables {
+export const categoricalMethods = [
+  ScenarioMethods.TargetScenarioCat,
+  ScenarioMethods.RelativeScenarioCat,
+  ScenarioMethods.AbsoluteScenarioCat,
+];
+
+export interface IScenarioVariable {
   /**
    * Variable name
    */
