@@ -87,22 +87,17 @@ function calculateRiskForIndividual(
     time?: Date | moment.Moment,
 ): number {
     variablesToModify.forEach(variable => {
-        /**
-         * If variable specifies an absorbing variable to be changed, select that variable to be modified.
-         * Otherwise, modify matching `variableName` variable
-         */
-        let targetIndividualVariable: IDatum | undefined;
+        let absorbingVariable: IDatum | undefined;
+        const targetVariable = individual.find(datumVariable =>
+            datumVariable.name === variable.variableName
+        );
         if (isCategoricalMethod(variable)) {
-            targetIndividualVariable = individual.find(datumVariable =>
+            absorbingVariable = individual.find(datumVariable =>
                 datumVariable.name === variable.absorbingVariable
-            );
-        } else {
-            targetIndividualVariable = individual.find(datumVariable =>
-                datumVariable.name === variable.variableName
             );
         }
 
-        if (targetIndividualVariable) runVariableMethod(variable, targetIndividualVariable);
+        if (targetVariable) runVariableMethod(variable, targetVariable, absorbingVariable);
     });
 
     return algorithm.getRiskToTime(individual, time);
@@ -111,29 +106,36 @@ function calculateRiskForIndividual(
 /**
  * @description Update individual's variable value according to the variable method
  * @param variable Scenario variable
- * @param individualVariable Individual's variable to be modified
+ * @param targetVariable Individual's variable to be modified
  */
 function runVariableMethod(
     variable: IScenarioVariable,
-    individualVariable: IDatum,
+    targetVariable: IDatum,
+    absorbingVariable?: IDatum,
 ): void {
-    let updatedIndividualValue = individualVariable.coefficent as number;
+    let updatedTargetValue = targetVariable.coefficent as number;
+    let updatedAbsorbingValue = absorbingVariable
+        ? absorbingVariable.coefficent as number
+        : 0;
 
-    // Modify new value based on variable method
+    // Modify new values based on variable method
     switch (variable.method) {
         case ScenarioMethods.AbsoluteScenario:
         case ScenarioMethods.AbsoluteScenarioCat: {
-            updatedIndividualValue += variable.scenarioValue;
+            updatedTargetValue += variable.scenarioValue;
+            if (absorbingVariable) updatedAbsorbingValue += variable.scenarioValue;
             break;
         }
         case ScenarioMethods.AttributionScenario:
         case ScenarioMethods.TargetScenarioCat: {
-            updatedIndividualValue = variable.scenarioValue;
+            updatedTargetValue = variable.scenarioValue;
+            if (absorbingVariable) updatedAbsorbingValue = variable.scenarioValue;
             break;
         }
         case ScenarioMethods.RelativeScenario:
         case ScenarioMethods.RelativeScenarioCat: {
-            updatedIndividualValue *= variable.scenarioValue / 100;
+            updatedTargetValue *= variable.scenarioValue / 100;
+            if (absorbingVariable) updatedAbsorbingValue *= variable.scenarioValue / 100;
             break;
         }
     }
@@ -142,16 +144,14 @@ function runVariableMethod(
         if (variable.postScenarioRange) {
             // Ensure new value is limited to be within scenario min/max range
             const [min, max] = variable.postScenarioRange;
-            if (variable.method === ScenarioMethods.AbsoluteScenarioCat) {
-                variable.absorbingVariable.toString();
-            }
 
-            if (updatedIndividualValue < min) updatedIndividualValue = min;
-            else if (updatedIndividualValue > max) updatedIndividualValue = max;
+            if (updatedTargetValue < min) updatedTargetValue = min;
+            else if (updatedTargetValue > max) updatedTargetValue = max;
         }
     }
 
-    individualVariable.coefficent = updatedIndividualValue;
+    targetVariable.coefficent = updatedTargetValue;
+    if (absorbingVariable) absorbingVariable.coefficent = updatedAbsorbingValue;
 }
 
 function isCategoricalMethod(
