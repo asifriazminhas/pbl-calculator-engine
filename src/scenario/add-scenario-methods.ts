@@ -248,17 +248,17 @@ function runAbsorbingVariableMethod(
         case ScenarioMethods.AbsoluteScenarioCat: {
             const updatedPrevalence = variable.scenarioValue / absorbingVariablePrevalence;
             const relativeChange = updatedAbsorbingValue - (updatedAbsorbingValue * updatedPrevalence);
-            updatedAbsorbingValue = updatedAbsorbingValue * (1 - relativeChange);
+            updatedAbsorbingValue = updatedAbsorbingValue + relativeChange;
             break;
         }
         case ScenarioMethods.TargetScenarioCat: {
             const relativeChange = updatedAbsorbingValue * (variable.scenarioValue / absorbingVariablePrevalence);
-            updatedAbsorbingValue = updatedAbsorbingValue * (1 - relativeChange);
+            updatedAbsorbingValue = updatedAbsorbingValue + relativeChange;
             break;
         }
         case ScenarioMethods.RelativeScenarioCat: {
             const relativeChange = updatedAbsorbingValue - (updatedAbsorbingValue * variable.scenarioValue);
-            updatedAbsorbingValue = updatedAbsorbingValue * (1 - relativeChange);
+            updatedAbsorbingValue = updatedAbsorbingValue + relativeChange;
             break;
         }
     }
