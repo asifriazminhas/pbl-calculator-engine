@@ -71,7 +71,8 @@ function runScenarioForPopulation(
                 const derivedVariable = algorithm.findDataField(variableName) as DerivedField;
                 individual.push({
                     name: variableName,
-                    coefficent: derivedVariable.calculateCoefficent(individual, {}, {}),
+                    coefficent: derivedVariable
+                        .calculateCoefficent(individual, algorithm.userFunctions, algorithm.tables),
                 });
             }
 
@@ -90,7 +91,8 @@ function runScenarioForPopulation(
                             .findDataField(absorbingVariable) as DerivedField;
                         individual.push({
                             name: absorbingVariable,
-                            coefficent: derivedAbsorbingVariable.calculateCoefficent(individual, {}, {}),
+                            coefficent: derivedAbsorbingVariable
+                                .calculateCoefficent(individual, algorithm.userFunctions, algorithm.tables),
                         });
 
                         const absorbingPrevalence = variablePrevalenceMap[absorbingVariable] || 0;
