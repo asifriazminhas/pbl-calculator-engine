@@ -58,7 +58,7 @@ function runScenarioForPopulation(
     // Iterate over population to calculate prevalences
     clonedPopulation.forEach(individual => {
         const algorithm = this.getAlgorithmForData(individual);
-        const sexConfig = getIndividualsSexConfig(individual, scenarioConfig);
+        const sexConfig = getScenarioConfigForSex(individual, scenarioConfig);
 
         sexConfig.variables.forEach(variable => {
             const { variableName } = variable;
@@ -105,30 +105,28 @@ function runScenarioForPopulation(
 
     // Update prevalences to percentages
     Object.keys(variablePrevalenceMap).forEach(variable =>
-        variablePrevalenceMap[variable] /= clonedPopulation.length
+        variablePrevalenceMap[variable] = variablePrevalenceMap[variable] / clonedPopulation.length
     );
 
     // Iterate over population and calculate individual risks
     clonedPopulation.forEach(individual => {
         const algorithm = this.getAlgorithmForData(individual);
-        const sexConfig = getIndividualsSexConfig(individual, scenarioConfig);
+        const sexConfig = getScenarioConfigForSex(individual, scenarioConfig);
 
-        const variablesToModify = filterVariables(individual, sexConfig.variables);
+        const scenarioVariablesToModify = filterVariables(individual, sexConfig.variables);
 
-        variablesToModify.forEach(variable => {
-            if (isVariableWithinRange(individual, variable)) {
-                const targetVariable = findDatumWithName(variable.variableName, individual);
-                const targetVariablePrevalence = variablePrevalenceMap[variable.variableName];
+        scenarioVariablesToModify.forEach(scenarioVariable => {
+            const targetVariable = findDatumWithName(scenarioVariable.variableName, individual);
+            const targetVariablePrevalence = variablePrevalenceMap[scenarioVariable.variableName];
 
-                runTargetVariableMethod(variable, targetVariable, targetVariablePrevalence);
+            runTargetVariableMethod(scenarioVariable, targetVariable, targetVariablePrevalence);
 
-                if (isCategoricalMethod(variable)) {
-                    const absorbingVariable = findDatumWithName(variable.absorbingVariable, individual);
+            if (isCategoricalMethod(scenarioVariable)) {
+                const absorbingVariable = findDatumWithName(scenarioVariable.absorbingVariable, individual);
 
-                    const absorbingPrevalence = variablePrevalenceMap[absorbingVariable.name];
+                const absorbingPrevalence = variablePrevalenceMap[absorbingVariable.name];
 
-                    runAbsorbingVariableMethod(variable, absorbingVariable, absorbingPrevalence);
-                }
+                runAbsorbingVariableMethod(scenarioVariable, absorbingVariable, absorbingPrevalence);
             }
         });
 
@@ -152,69 +150,67 @@ function filterVariables(
 
 function isVariableWithinRange(
     individual: Data,
-    variable: IScenarioVariable,
+    scenarioVariable: IScenarioVariable,
 ): boolean {
-    let [min, max] = variable.targetPop;
+    let [min, max] = scenarioVariable.targetPop;
     if (min === null) min = -Infinity;
     if (max === null) max = Infinity;
-    const variableValue = Number(findDatumWithName(variable.variableName, individual).coefficent);
+    const variableValue = Number(findDatumWithName(scenarioVariable.variableName, individual).coefficent);
 
     return variableValue >= min && variableValue <= max;
 }
 
 /**
  * @description Update individual's variable value according to the variable method
- * @param variable Scenario variable
+ * @param scenarioVariable Scenario variable
  * @param targetVariable Individual's variable to be modified
  * @param targetVariablePrevalence Variables prevalence
  */
 function runTargetVariableMethod(
-    variable: IScenarioVariable,
+    scenarioVariable: IScenarioVariable,
     targetVariable: IDatum,
     targetVariablePrevalence: number,
 ): void {
     let updatedTargetValue = Number(targetVariable.coefficent);
 
     // Modify new values based on variable method
-    switch (variable.method) {
+    switch (scenarioVariable.method) {
         case ScenarioMethods.AbsoluteScenario: {
-            updatedTargetValue += variable.scenarioValue;
+            updatedTargetValue = updatedTargetValue + scenarioVariable.scenarioValue;
             break;
         }
         case ScenarioMethods.AttributionScenario: {
-            updatedTargetValue = variable.scenarioValue;
+            updatedTargetValue = scenarioVariable.scenarioValue;
             break;
         }
         case ScenarioMethods.RelativeScenario: {
-            updatedTargetValue *= variable.scenarioValue;
+            updatedTargetValue = updatedTargetValue * scenarioVariable.scenarioValue;
             break;
         }
         case ScenarioMethods.AbsoluteScenarioCat: {
-            const updatedPrevalence = variable.scenarioValue / targetVariablePrevalence;
-            const relativeChange = updatedTargetValue - (updatedTargetValue * updatedPrevalence);
+            const updatedPrevalence = scenarioVariable.scenarioValue / targetVariablePrevalence;
+            const relativeChange = (updatedPrevalence - targetVariablePrevalence) / targetVariablePrevalence;
             updatedTargetValue = updatedTargetValue * (1 - relativeChange);
             break;
         }
         case ScenarioMethods.TargetScenarioCat: {
-            const relativeChange = updatedTargetValue * (variable.scenarioValue / targetVariablePrevalence);
+            const relativeChange = updatedTargetValue * (scenarioVariable.scenarioValue / targetVariablePrevalence);
             updatedTargetValue = updatedTargetValue * (1 - relativeChange);
             break;
         }
         case ScenarioMethods.RelativeScenarioCat: {
-            const relativeChange = updatedTargetValue - (updatedTargetValue * variable.scenarioValue);
+            const relativeChange = updatedTargetValue - (updatedTargetValue * scenarioVariable.scenarioValue);
             updatedTargetValue = updatedTargetValue * (1 - relativeChange);
             break;
         }
     }
 
-    if (isCategoricalMethod(variable)) {
-        if (variable.postScenarioRange) {
-            // Ensure new value is limited to be within scenario min/max range
-            const [min, max] = variable.postScenarioRange;
+    if (scenarioVariable.postScenarioRange) {
+        // Ensure new value is limited to be within scenario min/max range
+        const [min, max] = scenarioVariable.postScenarioRange;
 
-            if (updatedTargetValue < min) updatedTargetValue = min;
-            else if (updatedTargetValue > max) updatedTargetValue = max;
-        }
+        if (updatedTargetValue < min) updatedTargetValue = min;
+        else if (updatedTargetValue > max) updatedTargetValue = max;
     }
 
     targetVariable.coefficent = updatedTargetValue;
@@ -222,44 +218,33 @@ function runTargetVariableMethod(
 
 /**
  * @description Update individual's variable value according to the variable method
- * @param variable Scenario variable
+ * @param scenarioVariable Scenario variable
  * @param absorbingVariable Absorbing variable to be modified
  * @param absorbingVariablePrevalence Absorbing variable prevalence
  */
 function runAbsorbingVariableMethod(
-    variable: IScenarioVariable,
+    scenarioVariable: ICategoricalScenarioVariable,
     absorbingVariable: IDatum,
     absorbingVariablePrevalence: number,
 ): void {
     let updatedAbsorbingValue = Number(absorbingVariable.coefficent);
 
     // Modify new values based on variable method
-    switch (variable.method) {
-        case ScenarioMethods.AbsoluteScenario: {
-            updatedAbsorbingValue += variable.scenarioValue;
-            break;
-        }
-        case ScenarioMethods.AttributionScenario: {
-            updatedAbsorbingValue = variable.scenarioValue;
-            break;
-        }
-        case ScenarioMethods.RelativeScenario: {
-            updatedAbsorbingValue *= variable.scenarioValue / 100;
-            break;
-        }
+    switch (scenarioVariable.method) {
         case ScenarioMethods.AbsoluteScenarioCat: {
-            const updatedPrevalence = variable.scenarioValue / absorbingVariablePrevalence;
+            const updatedPrevalence = scenarioVariable.scenarioValue / absorbingVariablePrevalence;
             const relativeChange = updatedAbsorbingValue - (updatedAbsorbingValue * updatedPrevalence);
             updatedAbsorbingValue = updatedAbsorbingValue + relativeChange;
             break;
         }
         case ScenarioMethods.TargetScenarioCat: {
-            const relativeChange = updatedAbsorbingValue * (variable.scenarioValue / absorbingVariablePrevalence);
+            const relativeChange = updatedAbsorbingValue *
+                (scenarioVariable.scenarioValue / absorbingVariablePrevalence);
             updatedAbsorbingValue = updatedAbsorbingValue + relativeChange;
             break;
         }
         case ScenarioMethods.RelativeScenarioCat: {
-            const relativeChange = updatedAbsorbingValue - (updatedAbsorbingValue * variable.scenarioValue);
+            const relativeChange = updatedAbsorbingValue - (updatedAbsorbingValue * scenarioVariable.scenarioValue);
             updatedAbsorbingValue = updatedAbsorbingValue + relativeChange;
             break;
         }
@@ -279,7 +264,7 @@ function isCategoricalMethod(
     return false;
 }
 
-function getIndividualsSexConfig(
+function getScenarioConfigForSex(
     individual: Data,
     scenarioConfig: IScenarioConfig
 ): ISexScenarioConfig {
