@@ -188,10 +188,7 @@ function runTargetVariableMethod(
             updatedTargetValue = updatedTargetValue * scenarioVariable.scenarioValue;
             break;
         }
-        case ScenarioMethods.AbsoluteScenarioCat: {
-            updatedTargetValue = updatedTargetValue * (1 - relativeChange);
-            break;
-        }
+        case ScenarioMethods.AbsoluteScenarioCat:
         case ScenarioMethods.TargetScenarioCat: {
             updatedTargetValue = updatedTargetValue * (1 - relativeChange);
             break;
