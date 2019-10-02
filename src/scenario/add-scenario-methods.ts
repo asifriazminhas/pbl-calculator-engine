@@ -112,7 +112,8 @@ function runScenarioForPopulation(
         const algorithm = this.getAlgorithmForData(individual);
         const sexConfig = getScenarioConfigForSex(individual, scenarioConfig);
 
-        const scenarioVariablesToModify = filterVariables(individual, sexConfig.variables);
+        const scenarioVariablesToModify = sexConfig.variables
+            .filter(variable => isVariableWithinRange(individual, variable));
 
         scenarioVariablesToModify.forEach(scenarioVariable => {
             const targetVariable = findDatumWithName(scenarioVariable.variableName, individual);
@@ -135,18 +136,6 @@ function runScenarioForPopulation(
     });
 
     return totalRisk / clonedPopulation.length;
-}
-
-/**
- * @description Build list of variables that should be modified for the individual
- * @param individual Individual
- * @param scenarioVariables Scenario variables
- */
-function filterVariables(
-    individual: Data,
-    scenarioVariables: IScenarioVariable[],
-): IScenarioVariable[] {
-    return scenarioVariables.filter(variable => isVariableWithinRange(individual, variable));
 }
 
 function isVariableWithinRange(
