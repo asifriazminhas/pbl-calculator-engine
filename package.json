@@ -11,7 +11,7 @@
         "build-ts": "tsc",
         "build-ts:watch": "tsc -w",
         "build":
-            "rm -rf ./lib && tsc --outDir lib-ts && babel ./lib-ts --out-dir ./lib --source-maps && rsync -a --exclude=\"*.js\" --include=\"*.d.ts|*.js.map\" ./lib-ts/ ./lib/ && npm run build-umd",
+            "rm -rf ./lib && tsc --outDir lib-ts && babel ./lib-ts --out-dir ./lib --source-maps && rsync -a --exclude=\"*.js\" --include=\"*.d.ts|*.js.map\" ./lib-ts/ ./lib/ && rm -rf ./lib-ts && npm run build-umd",
         "prepublish": "npm run build",
         "lifetable-csv-to-json": "node ./lib/scripts/lifetable-csv-to-json.js",
         "test":
