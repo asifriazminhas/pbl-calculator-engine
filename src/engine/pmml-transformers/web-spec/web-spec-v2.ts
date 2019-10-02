@@ -1,6 +1,7 @@
 import { IPmml } from '../../../parsers/pmml/pmml';
 import { IHeader } from '../../../parsers/pmml/header/header';
 import { IDataDictionary } from '../../../parsers/pmml/data_dictionary/data_dictionary';
+// @ts-ignore
 import csvParse = require('csv-parse/lib/sync');
 import {
     IInterval,
