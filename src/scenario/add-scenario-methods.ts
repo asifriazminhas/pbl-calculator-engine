@@ -76,27 +76,25 @@ function runScenarioForPopulation(
                 });
             }
 
-            // Increment the prevalence of this variable if individual is exposed
-            if (isVariableWithinRange(individual, variable)) {
-                if (isCategoricalMethod(variable)) {
-                    const prevalence = variablePrevalenceMap[variableName] || 0;
-                    variablePrevalenceMap[variableName] = prevalence + 1;
-                    const { absorbingVariable } = variable;
+            // Increment the prevalence of this variable if individual is exposed. Only necessary for categorical vars
+            if (isVariableWithinRange(individual, variable) && isCategoricalMethod(variable)) {
+                const { absorbingVariable } = variable;
+                const prevalence = variablePrevalenceMap[variableName] || 0;
+                variablePrevalenceMap[variableName] = prevalence + 1;
 
-                    try {
-                        findDatumWithName(absorbingVariable, individual);
-                    } catch (e) {
-                        const derivedAbsorbingVariable = algorithm
-                            .findDataField(absorbingVariable) as DerivedField;
-                        individual.push({
-                            name: absorbingVariable,
-                            coefficent: derivedAbsorbingVariable
-                                .calculateCoefficent(individual, algorithm.userFunctions, algorithm.tables),
-                        });
+                try {
+                    findDatumWithName(absorbingVariable, individual);
+                } catch (e) {
+                    const derivedAbsorbingVariable = algorithm
+                        .findDataField(absorbingVariable) as DerivedField;
+                    individual.push({
+                        name: absorbingVariable,
+                        coefficent: derivedAbsorbingVariable
+                            .calculateCoefficent(individual, algorithm.userFunctions, algorithm.tables),
+                    });
 
-                        const absorbingPrevalence = variablePrevalenceMap[absorbingVariable] || 0;
-                        variablePrevalenceMap[absorbingVariable] = absorbingPrevalence + 1;
-                    }
+                    const absorbingPrevalence = variablePrevalenceMap[absorbingVariable] || 0;
+                    variablePrevalenceMap[absorbingVariable] = absorbingPrevalence + 1;
                 }
             }
         });
