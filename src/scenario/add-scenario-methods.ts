@@ -127,8 +127,7 @@ function runScenarioForPopulation(
 
             if (isCategoricalMethod(scenarioVariable)) {
                 const absorbingVariable = findDatumWithName(scenarioVariable.absorbingVariable, individual);
-
-                runAbsorbingVariableMethod(scenarioVariable, absorbingVariable, relativeChange);
+                absorbingVariable.coefficent = Number(absorbingVariable.coefficent) + relativeChange;
             }
         });
 
@@ -197,37 +196,6 @@ function runTargetVariableMethod(
     }
 
     targetVariable.coefficent = updatedTargetValue;
-}
-
-/**
- * @description Update individual's variable value according to the variable method
- * @param scenarioVariable Scenario variable
- * @param absorbingVariable Absorbing variable to be modified
- * @param targetVariableRelativeChange Absorbing variable prevalence
- */
-function runAbsorbingVariableMethod(
-    scenarioVariable: ICategoricalScenarioVariable,
-    absorbingVariable: IDatum,
-    relativeChange: number,
-): void {
-    let updatedAbsorbingValue = Number(absorbingVariable.coefficent);
-
-    switch (scenarioVariable.method) {
-        case ScenarioMethods.AbsoluteScenarioCat: {
-            updatedAbsorbingValue = updatedAbsorbingValue + relativeChange;
-            break;
-        }
-        case ScenarioMethods.TargetScenarioCat: {
-            updatedAbsorbingValue = relativeChange;
-            break;
-        }
-        case ScenarioMethods.RelativeScenarioCat: {
-            updatedAbsorbingValue = updatedAbsorbingValue * relativeChange;
-            break;
-        }
-    }
-
-    absorbingVariable.coefficent = updatedAbsorbingValue;
 }
 
 function isCategoricalMethod(
