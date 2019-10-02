@@ -188,19 +188,18 @@ function runTargetVariableMethod(
             break;
         }
         case ScenarioMethods.AbsoluteScenarioCat: {
-            const updatedPrevalence = scenarioVariable.scenarioValue / targetVariablePrevalence;
+            const updatedPrevalence = updatedTargetValue + scenarioVariable.scenarioValue;
             const relativeChange = (updatedPrevalence - targetVariablePrevalence) / targetVariablePrevalence;
             updatedTargetValue = updatedTargetValue * (1 - relativeChange);
             break;
         }
         case ScenarioMethods.TargetScenarioCat: {
-            const relativeChange = updatedTargetValue * (scenarioVariable.scenarioValue / targetVariablePrevalence);
+            const relativeChange = (updatedTargetValue - targetVariablePrevalence) / targetVariablePrevalence;
             updatedTargetValue = updatedTargetValue * (1 - relativeChange);
             break;
         }
         case ScenarioMethods.RelativeScenarioCat: {
-            const relativeChange = updatedTargetValue - (updatedTargetValue * scenarioVariable.scenarioValue);
-            updatedTargetValue = updatedTargetValue * (1 - relativeChange);
+            updatedTargetValue = updatedTargetValue * (1 - scenarioVariable.scenarioValue);
             break;
         }
     }
