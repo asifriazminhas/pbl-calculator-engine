@@ -1,14 +1,14 @@
-import {
-    Model,
-    Data,
-    ModelFactory,
-} from '../engine/model';
+import { Model, Data, ModelFactory } from '../engine/model';
 import { cloneDeep } from 'lodash';
 import { findDatumWithName, IDatum } from '../engine/data';
 import moment = require('moment');
 import { IScenarioConfig } from './scenario-config';
 import { ISexScenarioConfig } from './sex-scenario-config';
-import { IScenarioVariable, ScenarioMethods, ICategoricalScenarioVariable } from './scenario-variable';
+import {
+    IScenarioVariable,
+    ScenarioMethods,
+    ICategoricalScenarioVariable,
+} from './scenario-variable';
 import { DerivedField } from '../engine/data-field/derived-field/derived-field';
 
 export interface IScenarioModel extends Model {
@@ -35,13 +35,8 @@ const sexVariable = 'DHH_SEX';
  * to it
  * @returns {IScenarioModel}
  */
-export function addScenarioMethods(
-    model: Model,
-): IScenarioModel {
-    return ModelFactory.extendModel(
-        model,
-        { runScenarioForPopulation },
-    );
+export function addScenarioMethods(model: Model): IScenarioModel {
+    return ModelFactory.extendModel(model, { runScenarioForPopulation });
 }
 
 function runScenarioForPopulation(
@@ -68,16 +63,24 @@ function runScenarioForPopulation(
             try {
                 findDatumWithName(variableName, individual);
             } catch (e) {
-                const derivedVariable = algorithm.findDataField(variableName) as DerivedField;
+                const derivedVariable = algorithm.findDataField(
+                    variableName,
+                ) as DerivedField;
                 individual.push({
                     name: variableName,
-                    coefficent: derivedVariable
-                        .calculateCoefficent(individual, algorithm.userFunctions, algorithm.tables),
+                    coefficent: derivedVariable.calculateCoefficent(
+                        individual,
+                        algorithm.userFunctions,
+                        algorithm.tables,
+                    ),
                 });
             }
 
             // Increment the prevalence of this variable if individual is exposed. Only necessary for categorical vars
-            if (isVariableWithinRange(individual, variable) && isCategoricalMethod(variable)) {
+            if (
+                isVariableWithinRange(individual, variable) &&
+                isCategoricalMethod(variable)
+            ) {
                 const { absorbingVariable } = variable;
                 const prevalence = variablePrevalenceMap[variableName] || 0;
                 variablePrevalenceMap[variableName] = prevalence + 1;
@@ -85,24 +88,32 @@ function runScenarioForPopulation(
                 try {
                     findDatumWithName(absorbingVariable, individual);
                 } catch (e) {
-                    const derivedAbsorbingVariable = algorithm
-                        .findDataField(absorbingVariable) as DerivedField;
+                    const derivedAbsorbingVariable = algorithm.findDataField(
+                        absorbingVariable,
+                    ) as DerivedField;
                     individual.push({
                         name: absorbingVariable,
-                        coefficent: derivedAbsorbingVariable
-                            .calculateCoefficent(individual, algorithm.userFunctions, algorithm.tables),
+                        coefficent: derivedAbsorbingVariable.calculateCoefficent(
+                            individual,
+                            algorithm.userFunctions,
+                            algorithm.tables,
+                        ),
                     });
 
-                    const absorbingPrevalence = variablePrevalenceMap[absorbingVariable] || 0;
-                    variablePrevalenceMap[absorbingVariable] = absorbingPrevalence + 1;
+                    const absorbingPrevalence =
+                        variablePrevalenceMap[absorbingVariable] || 0;
+                    variablePrevalenceMap[absorbingVariable] =
+                        absorbingPrevalence + 1;
                 }
             }
         });
     });
 
     // Update prevalences to percentages
-    Object.keys(variablePrevalenceMap).forEach(variable =>
-        variablePrevalenceMap[variable] = variablePrevalenceMap[variable] / clonedPopulation.length
+    Object.keys(variablePrevalenceMap).forEach(
+        variable =>
+            (variablePrevalenceMap[variable] =
+                variablePrevalenceMap[variable] / clonedPopulation.length),
     );
 
     // Iterate over population and calculate individual risks
@@ -110,22 +121,38 @@ function runScenarioForPopulation(
         const algorithm = this.getAlgorithmForData(individual);
         const sexConfig = getScenarioConfigForSex(individual, scenarioConfig);
 
-        const scenarioVariablesToModify = sexConfig.variables
-            .filter(variable => isVariableWithinRange(individual, variable));
+        const scenarioVariablesToModify = sexConfig.variables.filter(variable =>
+            isVariableWithinRange(individual, variable),
+        );
 
         scenarioVariablesToModify.forEach(scenarioVariable => {
-            const targetVariable = findDatumWithName(scenarioVariable.variableName, individual);
-            const targetVariablePrevalence = variablePrevalenceMap[scenarioVariable.variableName];
+            const targetVariable = findDatumWithName(
+                scenarioVariable.variableName,
+                individual,
+            );
+            const targetVariablePrevalence =
+                variablePrevalenceMap[scenarioVariable.variableName];
 
             const targetVariableCoefficient = Number(targetVariable.coefficent);
-            const relativeChange = calculateRelativeChange(scenarioVariable, targetVariableCoefficient,
-                targetVariablePrevalence);
+            const relativeChange = calculateRelativeChange(
+                scenarioVariable,
+                targetVariableCoefficient,
+                targetVariablePrevalence,
+            );
 
-            runTargetVariableMethod(scenarioVariable, targetVariable, relativeChange);
+            runTargetVariableMethod(
+                scenarioVariable,
+                targetVariable,
+                relativeChange,
+            );
 
             if (isCategoricalMethod(scenarioVariable)) {
-                const absorbingVariable = findDatumWithName(scenarioVariable.absorbingVariable, individual);
-                absorbingVariable.coefficent = Number(absorbingVariable.coefficent) + relativeChange;
+                const absorbingVariable = findDatumWithName(
+                    scenarioVariable.absorbingVariable,
+                    individual,
+                );
+                absorbingVariable.coefficent =
+                    Number(absorbingVariable.coefficent) + relativeChange;
             }
         });
 
@@ -142,7 +169,9 @@ function isVariableWithinRange(
     let [min, max] = scenarioVariable.targetPop;
     if (min === null) min = -Infinity;
     if (max === null) max = Infinity;
-    const variableValue = Number(findDatumWithName(scenarioVariable.variableName, individual).coefficent);
+    const variableValue = Number(
+        findDatumWithName(scenarioVariable.variableName, individual).coefficent,
+    );
 
     return variableValue >= min && variableValue <= max;
 }
@@ -163,7 +192,8 @@ function runTargetVariableMethod(
     // Modify new values based on variable method
     switch (scenarioVariable.method) {
         case ScenarioMethods.AbsoluteScenario: {
-            updatedTargetValue = updatedTargetValue + scenarioVariable.scenarioValue;
+            updatedTargetValue =
+                updatedTargetValue + scenarioVariable.scenarioValue;
             break;
         }
         case ScenarioMethods.AttributionScenario: {
@@ -171,7 +201,8 @@ function runTargetVariableMethod(
             break;
         }
         case ScenarioMethods.RelativeScenario: {
-            updatedTargetValue = updatedTargetValue * scenarioVariable.scenarioValue;
+            updatedTargetValue =
+                updatedTargetValue * scenarioVariable.scenarioValue;
             break;
         }
         case ScenarioMethods.AbsoluteScenarioCat:
@@ -180,7 +211,8 @@ function runTargetVariableMethod(
             break;
         }
         case ScenarioMethods.RelativeScenarioCat: {
-            updatedTargetValue = updatedTargetValue * (1 - scenarioVariable.scenarioValue);
+            updatedTargetValue =
+                updatedTargetValue * (1 - scenarioVariable.scenarioValue);
             break;
         }
     }
@@ -202,14 +234,15 @@ function isCategoricalMethod(
     switch (scenarioVariable.method) {
         case ScenarioMethods.RelativeScenarioCat:
         case ScenarioMethods.TargetScenarioCat:
-        case ScenarioMethods.AbsoluteScenarioCat: return true;
+        case ScenarioMethods.AbsoluteScenarioCat:
+            return true;
     }
     return false;
 }
 
 function getScenarioConfigForSex(
     individual: Data,
-    scenarioConfig: IScenarioConfig
+    scenarioConfig: IScenarioConfig,
 ): ISexScenarioConfig {
     const sex = Number(findDatumWithName(sexVariable, individual).coefficent);
     if (sex === Sexes.male) return scenarioConfig.male;
@@ -223,12 +256,20 @@ function calculateRelativeChange(
 ): number {
     switch (scenarioVariable.method) {
         case ScenarioMethods.AbsoluteScenarioCat: {
-            const updatedPrevalence = targetVariableCoefficient + scenarioVariable.scenarioValue;
-            return (updatedPrevalence - targetVariablePrevalence) / targetVariablePrevalence;
+            const updatedPrevalence =
+                targetVariableCoefficient + scenarioVariable.scenarioValue;
+            return (
+                (updatedPrevalence - targetVariablePrevalence) /
+                targetVariablePrevalence
+            );
         }
         case ScenarioMethods.TargetScenarioCat: {
-            return (targetVariableCoefficient - targetVariablePrevalence) / targetVariablePrevalence;
+            return (
+                (targetVariableCoefficient - targetVariablePrevalence) /
+                targetVariablePrevalence
+            );
         }
-        default: return 0;
+        default:
+            return 0;
     }
 }

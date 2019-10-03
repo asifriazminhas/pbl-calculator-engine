@@ -1,3 +1,1 @@
-export {
-    IScenarioModel,
-} from './add-scenario-methods';
+export { IScenarioModel } from './add-scenario-methods';
