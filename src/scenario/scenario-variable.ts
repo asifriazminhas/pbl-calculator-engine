@@ -12,12 +12,12 @@ export enum ScenarioMethods {
     AbsoluteScenarioCat = 'absolute scenario cat',
 }
 
-export type categoricalMethods =
+export type CategoricalMethods =
     | ScenarioMethods.TargetScenarioCat
     | ScenarioMethods.RelativeScenarioCat
     | ScenarioMethods.AbsoluteScenarioCat;
 
-export type continuousMethods =
+export type ContinuousMethods =
     | ScenarioMethods.AttributionScenario
     | ScenarioMethods.RelativeScenario
     | ScenarioMethods.AbsoluteScenario;
@@ -59,7 +59,7 @@ interface IBaseScenarioVariable {
 }
 
 export interface ICategoricalScenarioVariable extends IBaseScenarioVariable {
-    method: categoricalMethods;
+    method: CategoricalMethods;
     /**
      * Variable that will be modified for an individual if the individual is within `targetPop`
      * for `variableName`
@@ -68,5 +68,5 @@ export interface ICategoricalScenarioVariable extends IBaseScenarioVariable {
 }
 
 export interface IContinuousScenarioVariable extends IBaseScenarioVariable {
-    method: continuousMethods;
+    method: ContinuousMethods;
 }

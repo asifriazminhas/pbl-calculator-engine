@@ -99,11 +99,6 @@ function runScenarioForPopulation(
                             algorithm.tables,
                         ),
                     });
-
-                    const absorbingPrevalence =
-                        variablePrevalenceMap[absorbingVariable] || 0;
-                    variablePrevalenceMap[absorbingVariable] =
-                        absorbingPrevalence + 1;
                 }
             }
         });
