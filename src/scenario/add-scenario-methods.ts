@@ -47,8 +47,8 @@ function runScenarioForPopulation(
 ): number {
     // Clone population because we'll be modifying it for processing
     const clonedPopulation = cloneDeep(population);
-    let totalRisk = 0;
     const variablePrevalenceMap: IVariablePrevalenceMap = {};
+    let totalRisk = 0;
 
     // Iterate over population to calculate prevalences
     clonedPopulation.forEach(individual => {
@@ -197,7 +197,7 @@ function runTargetVariableMethod(
         }
         case ScenarioMethods.RelativeScenario: {
             updatedTargetValue =
-                updatedTargetValue * scenarioVariable.scenarioValue;
+                updatedTargetValue * (1 + scenarioVariable.scenarioValue);
             break;
         }
         case ScenarioMethods.AbsoluteScenarioCat:
@@ -207,7 +207,7 @@ function runTargetVariableMethod(
         }
         case ScenarioMethods.RelativeScenarioCat: {
             updatedTargetValue =
-                updatedTargetValue * (1 - scenarioVariable.scenarioValue);
+                updatedTargetValue * (1 + scenarioVariable.scenarioValue);
             break;
         }
     }
@@ -252,7 +252,7 @@ function calculateRelativeChange(
     switch (scenarioVariable.method) {
         case ScenarioMethods.AbsoluteScenarioCat: {
             const updatedPrevalence =
-                targetVariableCoefficient + scenarioVariable.scenarioValue;
+                targetVariablePrevalence + scenarioVariable.scenarioValue;
             return (
                 (updatedPrevalence - targetVariablePrevalence) /
                 targetVariablePrevalence
