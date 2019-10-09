@@ -8,6 +8,7 @@ import {
     IScenarioVariable,
     ScenarioMethods,
     ICategoricalScenarioVariable,
+    IContinuousScenarioVariable,
 } from './scenario-variable';
 import { DerivedField } from '../engine/data-field/derived-field/derived-field';
 
@@ -113,7 +114,6 @@ function runScenarioForPopulation(
 
     // Iterate over population and calculate individual risks
     clonedPopulation.forEach(individual => {
-        const algorithm = this.getAlgorithmForData(individual);
         const sexConfig = getScenarioConfigForSex(individual, scenarioConfig);
 
         const scenarioVariablesToModify = sexConfig.variables.filter(variable =>
@@ -128,30 +128,35 @@ function runScenarioForPopulation(
             const targetVariablePrevalence =
                 variablePrevalenceMap[scenarioVariable.variableName];
 
-            const targetVariableCoefficient = Number(targetVariable.coefficent);
-            const relativeChange = calculateRelativeChange(
-                scenarioVariable,
-                targetVariableCoefficient,
-                targetVariablePrevalence,
-            );
-
-            runTargetVariableMethod(
-                scenarioVariable,
-                targetVariable,
-                relativeChange,
-            );
-
             if (isCategoricalMethod(scenarioVariable)) {
+                const relativeChange = calculateRelativeChange(
+                    scenarioVariable,
+                    targetVariablePrevalence,
+                );
                 const absorbingVariable = findDatumWithName(
                     scenarioVariable.absorbingVariable,
                     individual,
                 );
+
+                targetVariable.coefficent =
+                    Number(targetVariable.coefficent) * (1 - relativeChange);
+
                 absorbingVariable.coefficent =
                     Number(absorbingVariable.coefficent) + relativeChange;
+            } else {
+                runTargetVariableMethodContinuous(
+                    scenarioVariable,
+                    targetVariable,
+                );
             }
+
+            applyPostScenarioRange(targetVariable, scenarioVariable);
         });
 
-        totalRisk += algorithm.getRiskToTime(individual, time);
+        totalRisk += this.getAlgorithmForData(individual).getRiskToTime(
+            individual,
+            time,
+        );
     });
 
     return totalRisk / clonedPopulation.length;
@@ -177,50 +182,27 @@ function isVariableWithinRange(
  * @param targetVariable Individual's variable to be modified
  * @param targetVariablePrevalence Variables prevalence
  */
-function runTargetVariableMethod(
-    scenarioVariable: IScenarioVariable,
+function runTargetVariableMethodContinuous(
+    scenarioVariable: IContinuousScenarioVariable,
     targetVariable: IDatum,
-    relativeChange: number,
 ): void {
-    let updatedTargetValue = Number(targetVariable.coefficent);
+    const coefficient = Number(targetVariable.coefficent);
 
-    // Modify new values based on variable method
     switch (scenarioVariable.method) {
         case ScenarioMethods.AbsoluteScenario: {
-            updatedTargetValue =
-                updatedTargetValue + scenarioVariable.scenarioValue;
+            targetVariable.coefficent =
+                coefficient + scenarioVariable.scenarioValue;
             break;
         }
         case ScenarioMethods.AttributionScenario: {
-            updatedTargetValue = scenarioVariable.scenarioValue;
+            targetVariable.coefficent = scenarioVariable.scenarioValue;
             break;
         }
         case ScenarioMethods.RelativeScenario: {
-            updatedTargetValue =
-                updatedTargetValue * (1 + scenarioVariable.scenarioValue);
-            break;
-        }
-        case ScenarioMethods.AbsoluteScenarioCat:
-        case ScenarioMethods.TargetScenarioCat: {
-            updatedTargetValue = updatedTargetValue * (1 - relativeChange);
-            break;
-        }
-        case ScenarioMethods.RelativeScenarioCat: {
-            updatedTargetValue =
-                updatedTargetValue * (1 + scenarioVariable.scenarioValue);
-            break;
+            targetVariable.coefficent =
+                coefficient * (1 + scenarioVariable.scenarioValue);
         }
     }
-
-    if (scenarioVariable.postScenarioRange) {
-        // Ensure new value is limited to be within scenario min/max range
-        const [min, max] = scenarioVariable.postScenarioRange;
-
-        if (updatedTargetValue < min) updatedTargetValue = min;
-        else if (updatedTargetValue > max) updatedTargetValue = max;
-    }
-
-    targetVariable.coefficent = updatedTargetValue;
 }
 
 function isCategoricalMethod(
@@ -244,9 +226,29 @@ function getScenarioConfigForSex(
     else return scenarioConfig.female;
 }
 
-function calculateRelativeChange(
+/**
+ * @description Limit a variable to ensure it's new value is within the scenario post-calculation range
+ * @param targetVariable Target variable
+ * @param scenarioVariable Scenario variable
+ */
+function applyPostScenarioRange(
+    targetVariable: IDatum,
     scenarioVariable: IScenarioVariable,
-    targetVariableCoefficient: number,
+): void {
+    if (scenarioVariable.postScenarioRange) {
+        let updatedTargetValue = scenarioVariable.scenarioValue;
+        // Ensure new value is limited to be within scenario min/max range
+        const [min, max] = scenarioVariable.postScenarioRange;
+
+        if (updatedTargetValue < min) updatedTargetValue = min;
+        else if (updatedTargetValue > max) updatedTargetValue = max;
+
+        targetVariable.coefficent = updatedTargetValue;
+    }
+}
+
+function calculateRelativeChange(
+    scenarioVariable: ICategoricalScenarioVariable,
     targetVariablePrevalence: number,
 ): number {
     switch (scenarioVariable.method) {
@@ -260,11 +262,12 @@ function calculateRelativeChange(
         }
         case ScenarioMethods.TargetScenarioCat: {
             return (
-                (targetVariableCoefficient - targetVariablePrevalence) /
+                (scenarioVariable.scenarioValue - targetVariablePrevalence) /
                 targetVariablePrevalence
             );
         }
-        default:
-            return 0;
+        case ScenarioMethods.RelativeScenarioCat: {
+            return scenarioVariable.scenarioValue;
+        }
     }
 }

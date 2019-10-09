@@ -1,6 +1,6 @@
 import { IScenarioConfig } from './scenario-config';
 
-type ScenarioSubject = '' | 'activity' | 'smoking';
+export type ScenarioSubject = 'alcohol' | 'diet' | 'activity' | 'smoking';
 
 export interface IScenario {
     subject: ScenarioSubject;
