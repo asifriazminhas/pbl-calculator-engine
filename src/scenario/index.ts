@@ -1,3 +1,12 @@
+export { IScenarioModel, addScenarioMethods } from './add-scenario-methods';
+export { IScenario, ScenarioSubject } from './scenario';
+export { IScenarioConfig } from './scenario-config';
+export { ISexScenarioConfig } from './sex-scenario-config';
 export {
-    IScenarioModel as ScenarioModel,
-} from './add-scenario-methods';
+    ScenarioMethods,
+    CategoricalMethods,
+    ContinuousMethods,
+    IScenarioVariable,
+    ICategoricalScenarioVariable,
+    IContinuousScenarioVariable,
+} from './scenario-variable';
