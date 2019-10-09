@@ -253,12 +253,7 @@ function calculateRelativeChange(
 ): number {
     switch (scenarioVariable.method) {
         case ScenarioMethods.AbsoluteScenarioCat: {
-            const updatedPrevalence =
-                targetVariablePrevalence + scenarioVariable.scenarioValue;
-            return (
-                (updatedPrevalence - targetVariablePrevalence) /
-                targetVariablePrevalence
-            );
+            return scenarioVariable.scenarioValue / targetVariablePrevalence;
         }
         case ScenarioMethods.TargetScenarioCat: {
             return (
