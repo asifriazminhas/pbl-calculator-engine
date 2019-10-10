@@ -1,7 +1,7 @@
 import { Model, Data, ModelFactory } from '../engine/model';
 import { cloneDeep } from 'lodash';
 import { findDatumWithName, IDatum } from '../engine/data';
-import moment = require('moment');
+import moment from 'moment';
 import { IScenarioConfig } from './scenario-config';
 import { ISexScenarioConfig } from './sex-scenario-config';
 import {
