@@ -2,7 +2,7 @@ import { LifeExpectancy } from '../engine/life-expectancy/life-expectancy';
 import { ICauseDeletedModel } from './cause-deleted-risk';
 import { IExternalPredictor } from './external-predictor';
 import { Data } from '../engine/data';
-import * as moment from 'moment';
+import moment from 'moment';
 import { RiskFactor } from '../risk-factors';
 
 export function getCauseDeletedQx(

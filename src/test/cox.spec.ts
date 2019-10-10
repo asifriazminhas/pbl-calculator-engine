@@ -2,7 +2,7 @@ import * as test from 'tape';
 import { expect } from 'chai';
 import { DataFieldType } from '../parsers/json/data-field-type';
 import { Data } from '../engine/data';
-import * as moment from 'moment';
+import moment from 'moment';
 /* tslint:disable-next-line */
 import { NonInteractionCovariate } from '../engine/data-field/covariate/non-interaction-covariats/non-interaction-covariate';
 import { TimeMetric } from '../engine/algorithm/regression-algorithm/cox-survival-algorithm/time-metric';

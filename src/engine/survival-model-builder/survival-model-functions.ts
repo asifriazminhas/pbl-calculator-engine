@@ -1,7 +1,7 @@
 import { Model } from '../model/model';
 // @ts-ignore
 import { Data, IDatum } from '../data';
-import * as moment from 'moment';
+import moment from 'moment';
 import {
     CoxSurvivalAlgorithm,
     INewPredictor,
