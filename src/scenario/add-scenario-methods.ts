@@ -2,7 +2,6 @@ import { Model, Data, ModelFactory } from '../engine/model';
 import { cloneDeep } from 'lodash';
 import { findDatumWithName, IDatum } from '../engine/data';
 import moment from 'moment';
-import { IScenarioConfig } from './scenario-config';
 import { ISexScenarioConfig } from './sex-scenario-config';
 import {
     IScenarioVariable,
@@ -11,6 +10,7 @@ import {
     IContinuousScenarioVariable,
 } from './scenario-variable';
 import { DerivedField } from '../engine/data-field/derived-field/derived-field';
+import { IScenario } from './scenario';
 
 export interface IScenarioModel extends Model {
     runScenarioForPopulation: typeof runScenarioForPopulation;
@@ -43,7 +43,7 @@ export function addScenarioMethods(model: Model): IScenarioModel {
 function runScenarioForPopulation(
     this: IScenarioModel,
     population: Data[],
-    scenarioConfig: IScenarioConfig,
+    scenario: IScenario,
     time?: Date | moment.Moment,
 ): number {
     // Clone population because we'll be modifying it for processing
@@ -54,7 +54,7 @@ function runScenarioForPopulation(
     // Iterate over population to calculate prevalences
     clonedPopulation.forEach(individual => {
         const algorithm = this.getAlgorithmForData(individual);
-        const sexConfig = getScenarioConfigForSex(individual, scenarioConfig);
+        const sexConfig = getScenarioConfigForSex(individual, scenario);
 
         sexConfig.variables.forEach(variable => {
             const { variableName } = variable;
@@ -114,7 +114,7 @@ function runScenarioForPopulation(
 
     // Iterate over population and calculate individual risks
     clonedPopulation.forEach(individual => {
-        const sexConfig = getScenarioConfigForSex(individual, scenarioConfig);
+        const sexConfig = getScenarioConfigForSex(individual, scenario);
 
         const scenarioVariablesToModify = sexConfig.variables.filter(variable =>
             isVariableWithinRange(individual, variable),
@@ -219,11 +219,11 @@ function isCategoricalMethod(
 
 function getScenarioConfigForSex(
     individual: Data,
-    scenarioConfig: IScenarioConfig,
+    scenario: IScenario,
 ): ISexScenarioConfig {
     const sex = Number(findDatumWithName(sexVariable, individual).coefficent);
-    if (sex === Sexes.male) return scenarioConfig.male;
-    else return scenarioConfig.female;
+    if (sex === Sexes.male) return scenario.male;
+    else return scenario.female;
 }
 
 /**
