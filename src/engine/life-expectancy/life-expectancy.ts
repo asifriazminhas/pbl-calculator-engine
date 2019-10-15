@@ -1,5 +1,5 @@
 import { Model } from '../model';
-import * as moment from 'moment';
+import moment from 'moment';
 import { Data } from '../data';
 import { throwErrorIfUndefined } from '../../util/undefined';
 

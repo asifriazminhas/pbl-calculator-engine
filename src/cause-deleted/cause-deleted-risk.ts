@@ -8,7 +8,7 @@ import { IGenderSpecificCauseEffectRef } from '../engine/cause-effect';
 import { updateDataWithData, IDatum, findDatumWithName } from '../engine/data';
 import { CauseDeletedRef } from './cause-deleted-ref';
 import { IExternalPredictor } from './external-predictor';
-import * as moment from 'moment';
+import moment from 'moment';
 import { RiskFactor } from '../risk-factors';
 import { flatten } from 'lodash';
 import { DerivedField } from '../engine/data-field/derived-field/derived-field';

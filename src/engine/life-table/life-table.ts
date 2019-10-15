@@ -1,6 +1,6 @@
 import { Data, findDatumWithName } from '../data';
 import { CoxSurvivalAlgorithm } from '../algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
-import * as moment from 'moment';
+import moment from 'moment';
 import { filterDataForFields } from '../data/data';
 import { NonInteractionCovariate } from '../data-field/covariate/non-interaction-covariats/non-interaction-covariate';
 import { DataField } from '../data-field/data-field';

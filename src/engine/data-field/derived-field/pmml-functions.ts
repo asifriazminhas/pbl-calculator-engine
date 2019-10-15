@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+import moment from 'moment';
 
 function ifelse(booleanOne: boolean, whenTrue: any, whenFalse: any): any {
     return booleanOne ? whenTrue : whenFalse;
