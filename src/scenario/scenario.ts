@@ -1,4 +1,4 @@
-import { IScenarioConfig } from './scenario-config';
+import { ISexScenarioConfig } from './sex-scenario-config';
 
 export type ScenarioSubject = 'alcohol' | 'diet' | 'activity' | 'smoking';
 
@@ -7,5 +7,6 @@ export interface IScenario {
     name: string;
     description: string;
     algorithms: string[];
-    configs: IScenarioConfig[];
+    male: ISexScenarioConfig;
+    female: ISexScenarioConfig;
 }
