@@ -56,53 +56,55 @@ function runScenarioForPopulation(
         const algorithm = this.getAlgorithmForData(individual);
         const sexConfig = getScenarioConfigForSex(individual, scenario);
 
-        sexConfig.variables.forEach(variable => {
-            const { variableName } = variable;
+        sexConfig.variables
+            .filter(variable => variable.isEnabled)
+            .forEach(variable => {
+                const { variableName } = variable;
 
-            /* Try to find datum. If it doesn't exist, the field must be a derived field, and
+                /* Try to find datum. If it doesn't exist, the field must be a derived field, and
             should be added to the individual. Do this with the absorbing variable too */
-            try {
-                findDatumWithName(variableName, individual);
-            } catch (e) {
-                const derivedVariable = algorithm.findDataField(
-                    variableName,
-                ) as DerivedField;
-                individual.push({
-                    name: variableName,
-                    coefficent: derivedVariable.calculateCoefficent(
-                        individual,
-                        algorithm.userFunctions,
-                        algorithm.tables,
-                    ),
-                });
-            }
-
-            // Increment the prevalence of this variable if individual is exposed. Only necessary for categorical vars
-            if (
-                isVariableWithinRange(individual, variable) &&
-                isCategoricalMethod(variable)
-            ) {
-                const { absorbingVariable } = variable;
-                const prevalence = variablePrevalenceMap[variableName] || 0;
-                variablePrevalenceMap[variableName] = prevalence + 1;
-
                 try {
-                    findDatumWithName(absorbingVariable, individual);
+                    findDatumWithName(variableName, individual);
                 } catch (e) {
-                    const derivedAbsorbingVariable = algorithm.findDataField(
-                        absorbingVariable,
+                    const derivedVariable = algorithm.findDataField(
+                        variableName,
                     ) as DerivedField;
                     individual.push({
-                        name: absorbingVariable,
-                        coefficent: derivedAbsorbingVariable.calculateCoefficent(
+                        name: variableName,
+                        coefficent: derivedVariable.calculateCoefficent(
                             individual,
                             algorithm.userFunctions,
                             algorithm.tables,
                         ),
                     });
                 }
-            }
-        });
+
+                // Increment the prevalence of this variable if individual is exposed and variable is categorical
+                if (
+                    isVariableWithinRange(individual, variable) &&
+                    isCategoricalMethod(variable)
+                ) {
+                    const { absorbingVariable } = variable;
+                    const prevalence = variablePrevalenceMap[variableName] || 0;
+                    variablePrevalenceMap[variableName] = prevalence + 1;
+
+                    try {
+                        findDatumWithName(absorbingVariable, individual);
+                    } catch (e) {
+                        const derivedAbsorbingVariable = algorithm.findDataField(
+                            absorbingVariable,
+                        ) as DerivedField;
+                        individual.push({
+                            name: absorbingVariable,
+                            coefficent: derivedAbsorbingVariable.calculateCoefficent(
+                                individual,
+                                algorithm.userFunctions,
+                                algorithm.tables,
+                            ),
+                        });
+                    }
+                }
+            });
     });
 
     // Update prevalences to percentages
@@ -116,8 +118,10 @@ function runScenarioForPopulation(
     clonedPopulation.forEach(individual => {
         const sexConfig = getScenarioConfigForSex(individual, scenario);
 
-        const scenarioVariablesToModify = sexConfig.variables.filter(variable =>
-            isVariableWithinRange(individual, variable),
+        const scenarioVariablesToModify = sexConfig.variables.filter(
+            variable =>
+                variable.isEnabled &&
+                isVariableWithinRange(individual, variable),
         );
 
         scenarioVariablesToModify.forEach(scenarioVariable => {
@@ -125,10 +129,10 @@ function runScenarioForPopulation(
                 scenarioVariable.variableName,
                 individual,
             );
-            const targetVariablePrevalence =
-                variablePrevalenceMap[scenarioVariable.variableName];
 
             if (isCategoricalMethod(scenarioVariable)) {
+                const targetVariablePrevalence =
+                    variablePrevalenceMap[scenarioVariable.variableName];
                 const relativeChange = calculateRelativeChange(
                     scenarioVariable,
                     targetVariablePrevalence,
@@ -138,11 +142,13 @@ function runScenarioForPopulation(
                     individual,
                 );
 
-                targetVariable.coefficent =
-                    Number(targetVariable.coefficent) * (1 - relativeChange);
+                targetVariable.coefficent = String(
+                    Number(targetVariable.coefficent) * (1 - relativeChange),
+                );
 
-                absorbingVariable.coefficent =
-                    Number(absorbingVariable.coefficent) + relativeChange;
+                absorbingVariable.coefficent = String(
+                    Number(absorbingVariable.coefficent) + relativeChange,
+                );
             } else {
                 runTargetVariableMethodContinuous(
                     scenarioVariable,
@@ -203,6 +209,7 @@ function runTargetVariableMethodContinuous(
                 coefficient * (1 + scenarioVariable.scenarioValue);
         }
     }
+    targetVariable.coefficent = targetVariable.coefficent!.toString();
 }
 
 function isCategoricalMethod(
@@ -238,12 +245,14 @@ function applyPostScenarioRange(
     if (scenarioVariable.postScenarioRange) {
         let updatedTargetValue = scenarioVariable.scenarioValue;
         // Ensure new value is limited to be within scenario min/max range
-        const [min, max] = scenarioVariable.postScenarioRange;
+        let [min, max] = scenarioVariable.postScenarioRange;
+        if (min === null) min = -Infinity;
+        if (max === null) max = Infinity;
 
         if (updatedTargetValue < min) updatedTargetValue = min;
         else if (updatedTargetValue > max) updatedTargetValue = max;
 
-        targetVariable.coefficent = updatedTargetValue;
+        targetVariable.coefficent = updatedTargetValue.toString();
     }
 }
 

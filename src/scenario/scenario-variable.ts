@@ -2,14 +2,14 @@
  * Scenario methods, used to determine how variable values should be modified
  */
 export enum ScenarioMethods {
-    AttributionScenario = 'attribution scenario',
-    TargetScenarioCat = 'target scenario cat',
+    AttributionScenario = 'attribution-scenario',
+    TargetScenarioCat = 'target-scenario-cat',
 
-    RelativeScenario = 'relative scenario',
-    RelativeScenarioCat = 'relative scenario cat',
+    RelativeScenario = 'relative-scenario',
+    RelativeScenarioCat = 'relative-scenario-cat',
 
-    AbsoluteScenario = 'absolute scenario',
-    AbsoluteScenarioCat = 'absolute scenario cat',
+    AbsoluteScenario = 'absolute-scenario',
+    AbsoluteScenarioCat = 'absolute-scenario-cat',
 }
 
 export type CategoricalMethods =
@@ -25,6 +25,8 @@ export type ContinuousMethods =
 export type IScenarioVariable =
     | ICategoricalScenarioVariable
     | IContinuousScenarioVariable;
+
+type InfinityRange = [number | null, number | null];
 
 interface IBaseScenarioVariable {
     /**
@@ -45,12 +47,12 @@ interface IBaseScenarioVariable {
      * Example: `variableName = 'PACDEE'`, `targetPop = [1, 3]` will modify `PACDEE` where original
      * values are between `1` and `3`, inclusive
      */
-    targetPop: [number | null, number | null];
+    targetPop: InfinityRange;
     /**
      * Based on `method`, determines how much to modify `variableName`
      *
-     * Example: `method = 'absolute scenario'`, change to value: `variableName *= scenarioValue`
-     * Example: `method = 'target scenario`, change by percent: `variableName = scenarioValue`
+     * Example: `method = 'absolute-scenario'`, change to value: `variableName *= scenarioValue`
+     * Example: `method = 'target-scenario`, change by percent: `variableName = scenarioValue`
      */
     scenarioValue: number;
     /**
@@ -59,7 +61,7 @@ interface IBaseScenarioVariable {
      * Example: Increasing `PACDEE` by 10%, ensure that new values are greater than or equal to
      * `postScenarioRange[0]` and less than or equal to `postScenarioRange[1]`
      */
-    postScenarioRange?: [number, number];
+    postScenarioRange?: InfinityRange;
 }
 
 export interface ICategoricalScenarioVariable extends IBaseScenarioVariable {
