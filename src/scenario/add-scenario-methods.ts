@@ -13,7 +13,7 @@ import { DerivedField } from '../engine/data-field/derived-field/derived-field';
 import { IScenario } from './scenario';
 
 export interface IScenarioModel extends Model {
-    runScenarioForPopulation: typeof runScenarioForPopulation;
+    runScenariosForPopulation: typeof runScenariosForPopulation;
 }
 
 interface IVariablePrevalenceMap {
@@ -37,13 +37,13 @@ const sexVariable = 'DHH_SEX';
  * @returns {IScenarioModel}
  */
 export function addScenarioMethods(model: Model): IScenarioModel {
-    return ModelFactory.extendModel(model, { runScenarioForPopulation });
+    return ModelFactory.extendModel(model, { runScenariosForPopulation });
 }
 
-function runScenarioForPopulation(
+function runScenariosForPopulation(
     this: IScenarioModel,
     population: Data[],
-    scenario: IScenario,
+    scenarios: IScenario[],
     time?: Date | moment.Moment,
 ): number {
     // Clone population because we'll be modifying it for processing
@@ -54,15 +54,15 @@ function runScenarioForPopulation(
     // Iterate over population to calculate prevalences
     clonedPopulation.forEach(individual => {
         const algorithm = this.getAlgorithmForData(individual);
-        const sexConfig = getScenarioConfigForSex(individual, scenario);
 
-        sexConfig.variables
-            .filter(variable => variable.isEnabled)
-            .forEach(variable => {
+        scenarios.forEach(scenario => {
+            const sexConfig = getScenarioConfigForSex(individual, scenario);
+
+            sexConfig.variables.forEach(variable => {
                 const { variableName } = variable;
 
                 /* Try to find datum. If it doesn't exist, the field must be a derived field, and
-            should be added to the individual. Do this with the absorbing variable too */
+                should be added to the individual. Do this with the absorbing variable too */
                 try {
                     findDatumWithName(variableName, individual);
                 } catch (e) {
@@ -105,6 +105,7 @@ function runScenarioForPopulation(
                     }
                 }
             });
+        });
     });
 
     // Update prevalences to percentages
@@ -115,55 +116,56 @@ function runScenarioForPopulation(
     );
 
     // Iterate over population and calculate individual risks
-    clonedPopulation.forEach(individual => {
-        const sexConfig = getScenarioConfigForSex(individual, scenario);
+    clonedPopulation.forEach(individual =>
+        scenarios.forEach(scenario => {
+            const sexConfig = getScenarioConfigForSex(individual, scenario);
 
-        const scenarioVariablesToModify = sexConfig.variables.filter(
-            variable =>
-                variable.isEnabled &&
-                isVariableWithinRange(individual, variable),
-        );
-
-        scenarioVariablesToModify.forEach(scenarioVariable => {
-            const targetVariable = findDatumWithName(
-                scenarioVariable.variableName,
-                individual,
+            const scenarioVariablesToModify = sexConfig.variables.filter(
+                variable => isVariableWithinRange(individual, variable),
             );
 
-            if (isCategoricalMethod(scenarioVariable)) {
-                const targetVariablePrevalence =
-                    variablePrevalenceMap[scenarioVariable.variableName];
-                const relativeChange = calculateRelativeChange(
-                    scenarioVariable,
-                    targetVariablePrevalence,
-                );
-                const absorbingVariable = findDatumWithName(
-                    scenarioVariable.absorbingVariable,
+            scenarioVariablesToModify.forEach(scenarioVariable => {
+                const targetVariable = findDatumWithName(
+                    scenarioVariable.variableName,
                     individual,
                 );
 
-                targetVariable.coefficent = String(
-                    Number(targetVariable.coefficent) * (1 - relativeChange),
-                );
+                if (isCategoricalMethod(scenarioVariable)) {
+                    const targetVariablePrevalence =
+                        variablePrevalenceMap[scenarioVariable.variableName];
+                    const relativeChange = calculateRelativeChange(
+                        scenarioVariable,
+                        targetVariablePrevalence,
+                    );
+                    const absorbingVariable = findDatumWithName(
+                        scenarioVariable.absorbingVariable,
+                        individual,
+                    );
 
-                absorbingVariable.coefficent = String(
-                    Number(absorbingVariable.coefficent) + relativeChange,
-                );
-            } else {
-                runTargetVariableMethodContinuous(
-                    scenarioVariable,
-                    targetVariable,
-                );
-            }
+                    targetVariable.coefficent = String(
+                        Number(targetVariable.coefficent) *
+                            (1 - relativeChange),
+                    );
 
-            applyPostScenarioRange(targetVariable, scenarioVariable);
-        });
+                    absorbingVariable.coefficent = String(
+                        Number(absorbingVariable.coefficent) + relativeChange,
+                    );
+                } else {
+                    runTargetVariableMethodContinuous(
+                        scenarioVariable,
+                        targetVariable,
+                    );
+                }
 
-        totalRisk += this.getAlgorithmForData(individual).getRiskToTime(
-            individual,
-            time,
-        );
-    });
+                applyPostScenarioRange(targetVariable, scenarioVariable);
+            });
+
+            totalRisk += this.getAlgorithmForData(individual).getRiskToTime(
+                individual,
+                time,
+            );
+        }),
+    );
 
     return totalRisk / clonedPopulation.length;
 }

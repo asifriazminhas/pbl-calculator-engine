@@ -34,10 +34,6 @@ interface IBaseScenarioVariable {
      */
     variableName: string;
     /**
-     * Whether this variable is enabled
-     */
-    isEnabled: boolean;
-    /**
      * Method to use when modifying `variableName` values, or `absorbingVariable` if available
      */
     method: ScenarioMethods;
