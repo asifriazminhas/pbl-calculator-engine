@@ -116,7 +116,7 @@ function runScenariosForPopulation(
     );
 
     // Iterate over population and calculate individual risks
-    clonedPopulation.forEach(individual =>
+    clonedPopulation.forEach(individual => {
         scenarios.forEach(scenario => {
             const sexConfig = getScenarioConfigForSex(individual, scenario);
 
@@ -159,13 +159,13 @@ function runScenariosForPopulation(
 
                 applyPostScenarioRange(targetVariable, scenarioVariable);
             });
+        });
 
-            totalRisk += this.getAlgorithmForData(individual).getRiskToTime(
-                individual,
-                time,
-            );
-        }),
-    );
+        totalRisk += this.getAlgorithmForData(individual).getRiskToTime(
+            individual,
+            time,
+        );
+    });
 
     return totalRisk / clonedPopulation.length;
 }
