@@ -13,6 +13,7 @@ import { DerivedField } from '../engine/data-field/derived-field/derived-field';
 import { IScenario } from './scenario';
 
 export interface IScenarioModel extends Model {
+    runScenarioForPopulation: typeof runScenarioForPopulation;
     runScenariosForPopulation: typeof runScenariosForPopulation;
 }
 
@@ -37,7 +38,19 @@ const sexVariable = 'DHH_SEX';
  * @returns {IScenarioModel}
  */
 export function addScenarioMethods(model: Model): IScenarioModel {
-    return ModelFactory.extendModel(model, { runScenariosForPopulation });
+    return ModelFactory.extendModel(model, {
+        runScenarioForPopulation,
+        runScenariosForPopulation,
+    });
+}
+
+function runScenarioForPopulation(
+    this: IScenarioModel,
+    population: Data[],
+    scenario: IScenario,
+    time?: Date | moment.Moment,
+): number {
+    return this.runScenariosForPopulation(population, [scenario], time);
 }
 
 function runScenariosForPopulation(
