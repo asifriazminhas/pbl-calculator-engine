@@ -18,8 +18,8 @@
         "strictFunctionTypes": true,
         "strict": true,
         "strictBindCallApply": true,
-        "allowSyntheticDefaultImports": true
-    },
-    "include": ["./src/**/*.ts", "./typings/**/*.d.ts"],
-    "exclude": ["node_modules", "lib"]
+        "allowSyntheticDefaultImports": true,
+        "composite": true,
+        "rootDir": "./src"
+    }
 }
