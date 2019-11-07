@@ -150,7 +150,7 @@ async function testSingleFieldColumnPair(t: test.Test) {
     doAssertions(t, derivedFields, fieldColumnPairs, tableName, outputColumn);
 }
 
-test(`Parsing derived field from PMML`, t => {
+test.skip(`Parsing derived field from PMML`, t => {
     t.test(`Testing single FieldColumnPairs`, async t => {
         await testSingleFieldColumnPair(t);
 

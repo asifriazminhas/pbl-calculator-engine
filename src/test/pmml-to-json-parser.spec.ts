@@ -23,7 +23,7 @@ function doTableAssertions(
     t.pass(`Tables are correctly set`);
 }
 
-test(`Parsing PMML to JSON`, async t => {
+test.skip(`Parsing PMML to JSON`, async t => {
     const Tables = [
         {
             name: 'tableOne',

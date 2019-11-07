@@ -180,7 +180,7 @@ function testCovariateTransformations(
     ).to.be.true;
 }
 
-test(`Testing local transformations`, async t => {
+test.skip(`Testing local transformations`, async t => {
     runIntegrationTest(
         'local-transformations',
         'local-transformations',

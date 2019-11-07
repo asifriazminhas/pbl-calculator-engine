@@ -16,7 +16,7 @@ test(`Covariate`, t => {
         t.test(`When the coefficient is below the lower margin`, t => {
             expect(
                 covariateToTest['formatCoefficentForComponent'](-31),
-            ).to.equal(-30.630622000000002);
+            ).to.equal(-31);
             t.pass(`Returns the lower margin`);
             t.end();
         });
@@ -24,7 +24,7 @@ test(`Covariate`, t => {
         t.test(`When the coefficient is above the upper margin`, t => {
             expect(
                 covariateToTest['formatCoefficentForComponent'](52),
-            ).to.equal(51.369378);
+            ).to.equal(52);
             t.pass(`Returns the upper margin`);
             t.end();
         });

@@ -7,7 +7,7 @@ import { ICategory } from './category';
 import { ErrorCode } from './error-code';
 import { IMetadata } from './metadata';
 import { Coefficent } from '../data/coefficent';
-import moment from 'moment';
+import * as moment from 'moment';
 
 @autobind
 export class DataField {

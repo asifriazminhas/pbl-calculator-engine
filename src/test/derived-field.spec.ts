@@ -64,7 +64,7 @@ test(`.calculateCoefficent`, t => {
 
     expect(
         derivedField.calculateCoefficent(data, userFunctions, tables),
-    ).to.equal('1');
+    ).to.equal(1);
     t.pass(`Correctly calculated coefficent with table condition`);
 
     t.end();

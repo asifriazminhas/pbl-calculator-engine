@@ -2,7 +2,7 @@ import { RegressionAlgorithm } from '../regression-algorithm';
 import { Bins } from './bins/bins';
 import { TimeMetric } from './time-metric';
 import { Data } from '../../../data/data';
-import moment from 'moment';
+import * as moment from 'moment';
 import { sortedLastIndexBy } from 'lodash';
 import { shouldLogDebugInfo } from '../../../../util/env';
 import { Calibration } from './calibration/calibration';

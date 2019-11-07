@@ -43,7 +43,7 @@ function doRemoveUnusedFunctionsAssertions(
     t.pass(`userFunctions correctly optimized`);
 }
 
-test(`Model optimizations`, t => {
+test.skip(`Model optimizations`, t => {
     const Tables = {
         tableOne: [
             {

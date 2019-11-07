@@ -197,7 +197,13 @@ export class DerivedField extends DataField {
                 console.groupEnd();
             }
 
-            return this.formatCoefficient(evaluatedValue);
+            if (isNaN(Number(evaluatedValue)) === false) {
+                return Number(evaluatedValue);
+            } else if (typeof evaluatedValue === 'string') {
+                return evaluatedValue;
+            } else {
+                return this.formatCoefficient(evaluatedValue);
+            }
         }
     }
 
