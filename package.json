@@ -15,7 +15,7 @@
         "prepublish": "npm run build",
         "lifetable-csv-to-json": "node ./lib/scripts/lifetable-csv-to-json.js",
         "test":
-            "tape -r source-map-support/register lib/test/**/*.js | tap-spec"
+            "TS_NODE_COMPILER_OPTIONS='{\"module\": \"CommonJS\"}' ts-node ./node_modules/tape/bin/tape ./src/test/**/*.ts | tap-spec"
     },
     "repository": {
         "type": "git",
@@ -56,10 +56,11 @@
         "chai": "3.5.0",
         "prettier": "1.7.4",
         "tap-spec": "4.1.1",
-        "tape": "4.9.2",
+        "tape": "4.11.0",
+        "ts-node": "8.4.1",
         "tslib": "1.7.1",
         "tslint": "5.8.0",
-        "typescript": "3.4.5",
+        "typescript": "3.7.2",
         "webpack": "^4.26.1",
         "webpack-cli": "^3.1.2",
         "xmlbuilder": "^8.2.2"
@@ -77,8 +78,8 @@
         "memoize-one": "^4.0.0",
         "moment": "^2.22.2",
         "source-map-support": "0.4.3",
+        "utility-types": "2.1.0",
         "xml2js": "0.4.17",
-        "yargs": "6.6.0",
-        "utility-types": "2.1.0"
+        "yargs": "6.6.0"
     }
 }
