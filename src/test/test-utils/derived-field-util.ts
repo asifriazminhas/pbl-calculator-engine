@@ -1,6 +1,6 @@
 import { IDerivedFieldJson } from '../../parsers/json/json-derived-field';
 import { DerivedField } from '../../engine/data-field/derived-field/derived-field';
-import { DataField } from '../../../lib/engine/data-field/data-field';
+import { DataField } from '../../../src/engine/data-field/data-field';
 
 export function getMockDerivedField(
     overrideFields?: Partial<IDerivedFieldJson>,
