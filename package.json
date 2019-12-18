@@ -9,7 +9,7 @@
         "build-umd": "webpack --config ./webpack/umd.config.js",
         "build-ts": "tsc",
         "build-ts:watch": "tsc -w",
-        "build": "rm -rf ./lib && tsc --outDir lib-ts && babel ./lib-ts --out-dir ./lib --source-maps && rsync -a --exclude=\"*.js\" --include=\"*.d.ts|*.js.map\" ./lib-ts/ ./lib/ && rm -rf ./lib-ts && npm run build-umd",
+        "build": "rm -rf ./lib && tsc --module es2015 --outDir lib-ts && babel ./lib-ts --out-dir ./lib --source-maps && rsync -a --exclude=\"*.js\" --include=\"*.d.ts|*.js.map\" ./lib-ts/ ./lib/ && rm -rf ./lib-ts && npm run build-umd",
         "prepublish": "npm run build",
         "lifetable-csv-to-json": "node ./lib/scripts/lifetable-csv-to-json.js",
         "test": "TS_NODE_COMPILER_OPTIONS='{\"module\": \"CommonJS\"}' ts-node ./node_modules/tape/bin/tape ./src/test/**/*.ts | tap-spec"
