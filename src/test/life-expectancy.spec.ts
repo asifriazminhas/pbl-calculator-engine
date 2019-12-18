@@ -1,6 +1,6 @@
 /* tslint:disable:no-shadowed-variable */
 
-import * as test from 'tape';
+import test from 'tape';
 import { Model } from '../engine/model';
 import { CompleteLifeTable } from '../engine/life-table/life-table';
 import { AbridgedLifeExpectancy } from '../engine/abridged-life-expectancy/abridged-life-expectancy';

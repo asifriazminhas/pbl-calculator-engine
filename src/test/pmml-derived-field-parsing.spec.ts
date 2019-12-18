@@ -6,7 +6,7 @@ import { Pmml } from '../parsers/pmml/pmml';
 import { IDerivedFieldJson } from '../parsers/json/json-derived-field';
 import { DataField } from '../engine/data-field/data-field';
 
-process.on('unhandledRejection', (error: Error) => {
+process.on('unhandledRejection', function(error) {
     console.error(error);
 });
 
@@ -37,8 +37,9 @@ async function getPmmlForTest({
             const fieldOrConstantString = (fieldColumnPair as IFieldFieldColumnPair)
                 .field
                 ? `field="${(fieldColumnPair as IFieldFieldColumnPair).field}"`
-                : `constant="${(fieldColumnPair as IConstantFieldColumnPair)
-                      .constant}"`;
+                : `constant="${
+                      (fieldColumnPair as IConstantFieldColumnPair).constant
+                  }"`;
 
             return `<FieldColumnPair column="${fieldColumnPair.column}" ${fieldOrConstantString} />`;
         })
@@ -87,16 +88,17 @@ function doAssertions(
 
     const objectToPassIn = fieldColumnPairs
         .map(fieldColumnPair => {
-            return `${fieldColumnPairs.length > 1
-                ? ''
-                : ' '}${fieldColumnPairs.length > 1
-                ? '\n    '
-                : ''}'${fieldColumnPair.column}': ${(fieldColumnPair as IFieldFieldColumnPair)
-                .field
-                ? `obj['${(fieldColumnPair as IFieldFieldColumnPair)
-                      .field}']${fieldColumnPairs.length > 1 ? '' : ' '}`
-                : `'${(fieldColumnPair as IConstantFieldColumnPair)
-                      .constant}'${fieldColumnPairs.length > 1 ? '\n' : ''}`}`;
+            return `${fieldColumnPairs.length > 1 ? '' : ' '}${
+                fieldColumnPairs.length > 1 ? '\n    ' : ''
+            }'${fieldColumnPair.column}': ${
+                (fieldColumnPair as IFieldFieldColumnPair).field
+                    ? `obj['${
+                          (fieldColumnPair as IFieldFieldColumnPair).field
+                      }']${fieldColumnPairs.length > 1 ? '' : ' '}`
+                    : `'${
+                          (fieldColumnPair as IConstantFieldColumnPair).constant
+                      }'${fieldColumnPairs.length > 1 ? '\n' : ''}`
+            }`;
         })
         .join(',');
 

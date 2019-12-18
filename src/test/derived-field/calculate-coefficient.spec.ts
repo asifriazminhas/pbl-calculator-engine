@@ -1,4 +1,4 @@
-import * as test from 'tape';
+import test from 'tape';
 import { getMockDerivedField } from '../test-utils/derived-field-util';
 import { expect } from 'chai';
 

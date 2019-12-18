@@ -1,8 +1,8 @@
-import * as test from 'tape';
+import test from 'tape';
 import { expect } from 'chai';
 import { ICustomPmml } from '../parsers/pmml/pmml';
 import { parseTaxonomy } from '../parsers/pmml-to-json-parser/taxonomy';
-import * as bluebird from 'bluebird';
+import bluebird from 'bluebird';
 import { parseString } from 'xml2js';
 import { ITaxonomy } from '../parsers/pmml/taxonomy';
 const promisifiedParseXmlString: any = bluebird.promisify(parseString);

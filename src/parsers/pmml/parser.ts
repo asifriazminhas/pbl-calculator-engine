@@ -27,7 +27,9 @@ function mergePmml(
             ),
             Taxonomy: pmmlTwo.PMML.Taxonomy
                 ? pmmlTwo.PMML.Taxonomy
-                : pmmlOne.PMML.Taxonomy ? pmmlOne.PMML.Taxonomy : [],
+                : pmmlOne.PMML.Taxonomy
+                ? pmmlOne.PMML.Taxonomy
+                : [],
             DataDictionary: mergeDataDictionary(
                 pmmlOne.PMML.DataDictionary,
                 pmmlTwo.PMML.DataDictionary,

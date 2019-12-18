@@ -1,4 +1,4 @@
-import * as test from 'tape';
+import test from 'tape';
 import { expect } from 'chai';
 import { NoBaselineFoundForAge } from '../engine/errors/no-baseline-hazard-found';
 import { Baseline } from '../engine/algorithm/regression-algorithm/baseline/baseline';
