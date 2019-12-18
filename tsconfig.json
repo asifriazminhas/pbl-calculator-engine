@@ -19,6 +19,7 @@
         "strict": true,
         "strictBindCallApply": true,
         "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
         "composite": true,
         "rootDir": "./src"
     },
