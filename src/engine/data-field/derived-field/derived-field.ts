@@ -131,14 +131,6 @@ export class DerivedField extends DataField {
                 );
             }
 
-            if (shouldLogDebugInfo() === true) {
-                console.groupCollapsed(`Derived Field: ${this.name}`);
-                console.log(`Name: ${this.name}`);
-                console.log(`Derived Field: ${this.equation}`);
-                console.log(`Derived Field Data`);
-                console.table(dataForEvaluation);
-            }
-
             /*make the object with the all the data needed for the equation evaluation*/
             const obj: {
                 [index: string]: any;
@@ -152,11 +144,6 @@ export class DerivedField extends DataField {
                 userDefinedFunctions,
                 tables,
             );
-
-            if (shouldLogDebugInfo()) {
-                console.log(`Evaluated value: ${evaluatedValue}`);
-                console.groupEnd();
-            }
 
             let returnedCalculatedValue;
 

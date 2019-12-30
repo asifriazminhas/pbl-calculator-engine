@@ -173,19 +173,6 @@ export abstract class Covariate extends DataField {
     private calculateComponent(coefficent: number): number {
         const component = coefficent * this.beta;
 
-        if (shouldLogDebugInfo()) {
-            console.log(`Covariate ${this.name}`);
-            console.log(
-                `Input ${coefficent} ${
-                    coefficent === this.referencePoint
-                        ? 'Set to Reference Point'
-                        : ''
-                }`,
-            );
-            console.log(`PMML Beta ${this.beta}`);
-            console.log(`Component ${component}`);
-        }
-
         return component;
     }
 

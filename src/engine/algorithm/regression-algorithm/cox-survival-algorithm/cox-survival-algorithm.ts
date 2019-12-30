@@ -234,14 +234,6 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
             formattedTime = time;
         }
 
-        if (shouldLogDebugInfo() === true) {
-            console.groupCollapsed(`Predictors`);
-        }
-
-        if (shouldLogDebugInfo()) {
-            console.log(`Baseline: ${this.baseline}`);
-        }
-
         const score = this.calculateScore(data);
 
         if (shouldLogDebugInfo() === true) {
