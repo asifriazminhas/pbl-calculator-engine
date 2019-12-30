@@ -1,12 +1,10 @@
 import test from 'tape';
 import { expect } from 'chai';
-import {
-    DerivedField,
-    findDescendantDerivedField,
-} from '../engine/data-field/derived-field/derived-field';
+import { DerivedField } from '../engine/data-field/derived-field/derived-field';
 import { DataField } from '../engine/data-field/data-field';
 import { IUserFunctions } from '../engine/algorithm/user-functions/user-functions';
 import { ITables } from '../engine/algorithm/tables/tables';
+import { findDescendantDerivedField } from '../covariate-dep-graph/derived-field-dep-graph';
 
 test(`.calculateCoefficent`, t => {
     const userFunctions: IUserFunctions = {};
