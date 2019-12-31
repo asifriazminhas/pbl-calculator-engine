@@ -45,10 +45,6 @@ export abstract class Covariate extends DataField {
         userFunctions: IUserFunctions,
         tables: ITables,
     ): number {
-        if (shouldLogDebugInfo()) {
-            console.groupCollapsed(`${this.name}`);
-        }
-
         const coefficient = this.calculateCoefficient(
             data,
             userFunctions,
@@ -57,10 +53,6 @@ export abstract class Covariate extends DataField {
         const component = this.calculateComponent(coefficient);
 
         debugRisk.addCovariateDebugInfo(this.name, coefficient, component);
-
-        if (shouldLogDebugInfo() === true) {
-            console.groupEnd();
-        }
 
         return component;
     }
