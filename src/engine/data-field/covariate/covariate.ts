@@ -7,7 +7,7 @@ import {
 } from '../../data';
 import { DerivedField } from '../derived-field/derived-field';
 import { oneLine } from 'common-tags';
-import { shouldLogWarnings, shouldLogDebugInfo } from '../../../util/env';
+import { shouldLogWarnings } from '../../../util/env';
 import { autobind } from 'core-decorators';
 import { ICovariateJson } from '../../../parsers/json/json-covariate';
 import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
