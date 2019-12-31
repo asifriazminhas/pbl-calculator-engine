@@ -222,8 +222,6 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         data: Data,
         time?: Date | moment.Moment,
     ): number {
-        debugRisk.startSession();
-
         let formattedTime: moment.Moment;
         if (!time) {
             formattedTime = moment().startOf('day');
@@ -236,10 +234,6 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
 
         const score = this.calculateScore(data);
 
-        if (shouldLogDebugInfo() === true) {
-            console.groupEnd();
-        }
-
         // baseline*calibration*e^score
         const exponentiatedScoreTimesBaselineTimesCalibration =
             this.baseline.getBaselineForData(data) *
@@ -249,11 +243,11 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         const maximumTimeRiskProbability =
             1 - Math.E ** -exponentiatedScoreTimesBaselineTimesCalibration;
 
-        debugRisk.endSession(
+        debugRisk.addEndDebugInfo(
             this.covariates,
             data,
-            maximumTimeRiskProbability,
             score,
+            maximumTimeRiskProbability,
         );
 
         return (

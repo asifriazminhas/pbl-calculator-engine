@@ -7,16 +7,36 @@ import { DataField } from '../engine/data-field/data-field';
 
 class DebugRisk {
     // Set in the startSession method
-    private calculatedValues!: {
-        [fieldName: string]: FieldDebugInfo;
+    private debugInfo!: {
+        calculatedValues: {
+            [fieldName: string]: FieldDebugInfo;
+        };
+        covariates: Covariate[];
+        riskData: Data;
+        score: number;
+        risk: number;
     };
+    private sessionStarted: boolean;
+
+    constructor() {
+        this.sessionStarted = false;
+    }
 
     startSession(): void {
-        this.calculatedValues = {};
+        this.debugInfo = {
+            calculatedValues: {},
+            covariates: [],
+            riskData: [],
+            score: NaN,
+            risk: NaN,
+        };
+        this.sessionStarted = true;
     }
 
     addFieldDebugInfo(fieldName: string, coefficient: any): void {
-        this.calculatedValues[fieldName] = {
+        if (this.shouldRunDebugMethod() === false) return;
+
+        this.debugInfo.calculatedValues[fieldName] = {
             coefficient,
         };
     }
@@ -26,18 +46,35 @@ class DebugRisk {
         coefficient: number,
         component: number,
     ): void {
-        this.calculatedValues[covariateName] = {
+        if (this.shouldRunDebugMethod() === false) return;
+
+        this.debugInfo.calculatedValues[covariateName] = {
             coefficient,
             component,
         };
     }
 
-    endSession(
+    addEndDebugInfo(
         covariates: Covariate[],
         riskData: Data,
-        risk: number,
         score: number,
+        risk: number,
     ): void {
+        if (this.shouldRunDebugMethod() === false) return;
+
+        this.debugInfo.covariates = covariates;
+        this.debugInfo.riskData = riskData;
+        this.debugInfo.score = score;
+        this.debugInfo.risk = risk;
+    }
+
+    endSession(): void {
+        this.sessionStarted = false;
+    }
+
+    printDebugInfo() {
+        const { covariates, riskData, risk, score } = this.debugInfo;
+
         const covariateDepTrees = covariates.map(covariate => {
             return new CovariateDepGraph(covariate);
         });
@@ -100,16 +137,16 @@ class DebugRisk {
         covariate: Covariate,
         riskData: Data,
     ): void {
-        const debugInfo = this.calculatedValues[
+        const valueForField = this.debugInfo.calculatedValues[
             covariate.name
         ] as ICovariateFieldDebugInfo;
 
-        console.log(`Component: ${debugInfo.component}`);
+        console.log(`Component: ${valueForField.component}`);
 
         if (covariate.derivedField) {
             this.printDerivedFieldDebugInfo(covariate.derivedField, riskData);
         } else {
-            console.log(`Coefficient: ${debugInfo.coefficient}`);
+            console.log(`Coefficient: ${valueForField.coefficient}`);
         }
     }
 
@@ -117,14 +154,14 @@ class DebugRisk {
         derivedField: DerivedField,
         riskData: Data,
     ): void {
-        const debugInfo = this.calculatedValues[
+        const valueForField = this.debugInfo.calculatedValues[
             derivedField.name
         ] as IDerivedFieldDebugInfo;
 
-        if (debugInfo === undefined) {
+        if (valueForField === undefined) {
             console.warn(`Coefficient could not be calculated`);
         } else {
-            console.log(`Coefficient: ${debugInfo.coefficient}`);
+            console.log(`Coefficient: ${valueForField.coefficient}`);
         }
 
         console.log(`Equation: ${derivedField.equation}`);
@@ -145,9 +182,9 @@ class DebugRisk {
     }
 
     private getCoefficientForField(field: DataField, riskData: Data) {
-        const debugInfo = this.calculatedValues[field.name];
+        const valueForField = this.debugInfo.calculatedValues[field.name];
 
-        if (debugInfo === undefined) {
+        if (valueForField === undefined) {
             try {
                 return findDatumWithName(field.name, riskData).coefficent;
             } catch (err) {
@@ -158,8 +195,12 @@ class DebugRisk {
                 }
             }
         } else {
-            return debugInfo.coefficient;
+            return valueForField.coefficient;
         }
+    }
+
+    private shouldRunDebugMethod(): boolean {
+        return this.sessionStarted;
     }
 }
 
