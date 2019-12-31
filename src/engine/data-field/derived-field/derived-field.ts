@@ -6,7 +6,6 @@ import { Covariate } from '../covariate/covariate';
 import { throwErrorIfUndefined } from '../../../util/undefined';
 import { NoTableRowFoundError } from '../../errors';
 import PmmlFunctions from './pmml-functions';
-import { shouldLogDebugInfo } from '../../../util/env';
 import { IDerivedFieldJson } from '../../../parsers/json/json-derived-field';
 import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
 import { ITables } from '../../algorithm/tables/tables';
@@ -175,7 +174,7 @@ export class DerivedField extends DataField {
                 const datumFound = derivedFromItem.getDatumForField(data);
 
                 if (datumFound) {
-                    return [];
+                    return [datumFound];
                 }
                 if (derivedFromItem instanceof Covariate) {
                     return datumFactoryFromDataField(
