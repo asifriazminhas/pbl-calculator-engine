@@ -6,37 +6,39 @@ import { NoDatumFoundError } from '../engine/errors';
 import { DataField } from '../engine/data-field/data-field';
 
 class DebugRisk {
-    // Set in the startSession method
-    private debugInfo!: {
-        calculatedValues: {
-            [fieldName: string]: FieldDebugInfo;
-        };
-        covariates: Covariate[];
-        riskData: Data;
-        score: number;
-        risk: number;
-    };
+    private debugInfo: IRiskDebugInfo[];
     private sessionStarted: boolean;
 
     constructor() {
         this.sessionStarted = false;
+        this.debugInfo = [];
     }
 
     startSession(): void {
-        this.debugInfo = {
+        this.debugInfo = [];
+        this.sessionStarted = true;
+    }
+
+    endSession(): void {
+        this.sessionStarted = false;
+    }
+
+    startNewCalculation(): void {
+        if (this.shouldRunDebugMethod() === false) return;
+
+        this.debugInfo.push({
             calculatedValues: {},
             covariates: [],
             riskData: [],
             score: NaN,
             risk: NaN,
-        };
-        this.sessionStarted = true;
+        });
     }
 
     addFieldDebugInfo(fieldName: string, coefficient: any): void {
         if (this.shouldRunDebugMethod() === false) return;
 
-        this.debugInfo.calculatedValues[fieldName] = {
+        this.currentCalculation.calculatedValues[fieldName] = {
             coefficient,
         };
     }
@@ -48,7 +50,7 @@ class DebugRisk {
     ): void {
         if (this.shouldRunDebugMethod() === false) return;
 
-        this.debugInfo.calculatedValues[covariateName] = {
+        this.currentCalculation.calculatedValues[covariateName] = {
             coefficient,
             component,
         };
@@ -62,36 +64,48 @@ class DebugRisk {
     ): void {
         if (this.shouldRunDebugMethod() === false) return;
 
-        this.debugInfo.covariates = covariates;
-        this.debugInfo.riskData = riskData;
-        this.debugInfo.score = score;
-        this.debugInfo.risk = risk;
+        this.currentCalculation.covariates = covariates;
+        this.currentCalculation.riskData = riskData;
+        this.currentCalculation.score = score;
+        this.currentCalculation.risk = risk;
     }
 
-    endSession(): void {
-        this.sessionStarted = false;
-    }
+    printDebugInfo(printIndex?: number) {
+        this.debugInfo
+            .filter((_, index) => {
+                return index === printIndex;
+            })
+            .forEach((currentDebugInfo, index) => {
+                const { covariates, riskData, risk, score } = currentDebugInfo;
 
-    printDebugInfo() {
-        const { covariates, riskData, risk, score } = this.debugInfo;
+                const covariateDepTrees = covariates.map(covariate => {
+                    return new CovariateDepGraph(covariate);
+                });
 
-        const covariateDepTrees = covariates.map(covariate => {
-            return new CovariateDepGraph(covariate);
-        });
+                if (printIndex === undefined) {
+                    console.groupCollapsed(`Risk Calculation ${index + 1}`);
+                }
 
-        console.log(`5 Year Risk: ${risk}`);
-        console.log(`Score: ${score}`);
+                console.log(`5 Year Risk: ${risk}`);
+                console.log(`Score: ${score}`);
 
-        covariateDepTrees.forEach(covariateDepTree => {
-            this.printFieldDebugInfo(
-                covariateDepTree,
-                covariateDepTree.covariateUuid,
-                riskData,
-            );
-        });
+                covariateDepTrees.forEach(covariateDepTree => {
+                    this.printFieldDebugInfo(
+                        currentDebugInfo,
+                        covariateDepTree,
+                        covariateDepTree.covariateUuid,
+                        riskData,
+                    );
+                });
+
+                if (printIndex === undefined) {
+                    console.groupEnd();
+                }
+            });
     }
 
     private printFieldDebugInfo(
+        riskDebugInfo: IRiskDebugInfo,
         depGraph: CovariateDepGraph,
         fieldNodeUuid: string,
         riskData: Data,
@@ -102,13 +116,14 @@ class DebugRisk {
         console.groupCollapsed(field.name);
 
         if (field instanceof Covariate) {
-            this.printCovariateDebugInfo(field, riskData);
+            this.printCovariateDebugInfo(riskDebugInfo, field, riskData);
         } else if (field instanceof DerivedField) {
-            this.printDerivedFieldDebugInfo(field, riskData);
+            this.printDerivedFieldDebugInfo(riskDebugInfo, field, riskData);
         } else {
             // Otherwise this is a DataField and is a leaf field i.e on without
             // any dependencies and should come from the raw data
             const leafFieldCoefficient = this.getCoefficientForField(
+                riskDebugInfo,
                 field,
                 riskData,
             );
@@ -123,6 +138,7 @@ class DebugRisk {
         (depGraph.outgoingEdges[fieldNodeUuid] as string[]).forEach(
             childFieldNodeUuid => {
                 this.printFieldDebugInfo(
+                    riskDebugInfo,
                     depGraph,
                     childFieldNodeUuid,
                     riskData,
@@ -134,27 +150,33 @@ class DebugRisk {
     }
 
     private printCovariateDebugInfo(
+        riskDebugInfo: IRiskDebugInfo,
         covariate: Covariate,
         riskData: Data,
     ): void {
-        const valueForField = this.debugInfo.calculatedValues[
+        const valueForField = riskDebugInfo.calculatedValues[
             covariate.name
         ] as ICovariateFieldDebugInfo;
 
         console.log(`Component: ${valueForField.component}`);
 
         if (covariate.derivedField) {
-            this.printDerivedFieldDebugInfo(covariate.derivedField, riskData);
+            this.printDerivedFieldDebugInfo(
+                riskDebugInfo,
+                covariate.derivedField,
+                riskData,
+            );
         } else {
             console.log(`Coefficient: ${valueForField.coefficient}`);
         }
     }
 
     private printDerivedFieldDebugInfo(
+        riskDebugInfo: IRiskDebugInfo,
         derivedField: DerivedField,
         riskData: Data,
     ): void {
-        const valueForField = this.debugInfo.calculatedValues[
+        const valueForField = riskDebugInfo.calculatedValues[
             derivedField.name
         ] as IDerivedFieldDebugInfo;
 
@@ -171,6 +193,7 @@ class DebugRisk {
                 return {
                     Name: derivedFromField.name,
                     Coefficient: this.getCoefficientForField(
+                        riskDebugInfo,
                         derivedFromField,
                         riskData,
                     ),
@@ -181,8 +204,12 @@ class DebugRisk {
         console.table(derivedFromData);
     }
 
-    private getCoefficientForField(field: DataField, riskData: Data) {
-        const valueForField = this.debugInfo.calculatedValues[field.name];
+    private getCoefficientForField(
+        riskDebugInfo: IRiskDebugInfo,
+        field: DataField,
+        riskData: Data,
+    ) {
+        const valueForField = riskDebugInfo.calculatedValues[field.name];
 
         if (valueForField === undefined) {
             try {
@@ -202,9 +229,23 @@ class DebugRisk {
     private shouldRunDebugMethod(): boolean {
         return this.sessionStarted;
     }
+
+    private get currentCalculation(): IRiskDebugInfo {
+        return this.debugInfo[this.debugInfo.length - 1];
+    }
 }
 
 export const debugRisk = new DebugRisk();
+
+export interface IRiskDebugInfo {
+    calculatedValues: {
+        [fieldName: string]: FieldDebugInfo;
+    };
+    covariates: Covariate[];
+    riskData: Data;
+    score: number;
+    risk: number;
+}
 
 interface IDataFieldDebugInfo {
     coefficient: any;

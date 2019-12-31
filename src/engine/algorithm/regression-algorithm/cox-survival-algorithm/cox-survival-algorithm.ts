@@ -4,7 +4,6 @@ import { TimeMetric } from './time-metric';
 import { Data } from '../../../data/data';
 import moment from 'moment';
 import { sortedLastIndexBy } from 'lodash';
-import { shouldLogDebugInfo } from '../../../../util/env';
 import { Calibration } from './calibration/calibration';
 import { ICoxSurvivalAlgorithmJson } from '../../../../parsers/json/json-cox-survival-algorithm';
 import { Baseline } from '../baseline/baseline';
@@ -222,6 +221,8 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         data: Data,
         time?: Date | moment.Moment,
     ): number {
+        debugRisk.startNewCalculation();
+
         let formattedTime: moment.Moment;
         if (!time) {
             formattedTime = moment().startOf('day');
