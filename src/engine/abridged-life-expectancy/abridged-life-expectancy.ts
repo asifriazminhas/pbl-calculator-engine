@@ -173,6 +173,7 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
 
         debugLe.addEndDebugInfoForIndividual(
             completeLifeTable,
+            lifeTableWithQx.length,
             lifeYearsRemaining,
         );
 

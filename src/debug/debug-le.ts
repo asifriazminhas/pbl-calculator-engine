@@ -1,4 +1,5 @@
 import { debugRisk } from './debug-risk';
+import { sum } from 'lodash';
 
 class DebugLe {
     private sessionStarted: boolean;
@@ -13,6 +14,8 @@ class DebugLe {
     startSession(): void {
         this.sessionStarted = true;
         this.leCalculations = [];
+
+        debugRisk.startSession();
     }
 
     endSession(): void {
@@ -28,6 +31,7 @@ class DebugLe {
             this.leCalculations.push({
                 completeLifeTable: [],
                 lifeYearsRemaining: NaN,
+                numQxCalcs: NaN,
             });
         } else {
             this.leCalculations.push({
@@ -35,12 +39,11 @@ class DebugLe {
                 populationLE: NaN,
             });
         }
-
-        debugRisk.startSession();
     }
 
     addEndDebugInfoForIndividual(
         completeLifeTable: object[],
+        numQxCalcs: number,
         lifeYearsRemaining: number,
     ) {
         if (this.sessionStarted === false) return;
@@ -49,6 +52,7 @@ class DebugLe {
             .lastCalculation as IIndividualLE).completeLifeTable = completeLifeTable;
         (this
             .lastCalculation as IIndividualLE).lifeYearsRemaining = lifeYearsRemaining;
+        (this.lastCalculation as IIndividualLE).numQxCalcs = numQxCalcs;
     }
 
     addEndDebugInfoPopulation(populationLe: number) {
@@ -75,6 +79,8 @@ class DebugLe {
             } else {
                 this.printDebugInfoForPopulation(leCalculation);
             }
+
+            console.groupEnd();
         });
     }
 
@@ -91,10 +97,11 @@ class DebugLe {
         console.table(debugInfo.completeLifeTable);
 
         console.groupCollapsed(`Qx Calculations`);
+        const riskDebugStartIndex = this.getRiskDebugInfoStartIndex(debugInfo);
         debugInfo.completeLifeTable.forEach((_, index) => {
             console.groupCollapsed(`Life Table Row ${index + 1}`);
 
-            debugRisk.printDebugInfo(index);
+            debugRisk.printDebugInfo(riskDebugStartIndex + index);
 
             console.groupEnd();
         });
@@ -110,16 +117,12 @@ class DebugLe {
 
         console.log(`Population life expectancy: ${debugInfo.populationLE}`);
 
+        const debugRiskStartIndex = this.getRiskDebugInfoStartIndex(debugInfo);
         debugInfo.sexInfo.forEach(
             ({ sex, qxs, completeLifeTable, le }, sexIndex) => {
                 console.groupCollapsed(`Life table for sex: ${sex}`);
 
                 console.log(`Life expectancy for sex ${sex}: ${le}`);
-                const numOfPreviousQxCals = debugInfo.sexInfo
-                    .slice(0, sexIndex)
-                    .reduce((numOfCals, { qxs }) => {
-                        return numOfCals + qxs.length;
-                    }, 0);
 
                 console.log(`Complete life table`);
                 console.table(completeLifeTable);
@@ -128,7 +131,7 @@ class DebugLe {
                 qxs.forEach((qx, qxIndex) => {
                     console.groupCollapsed(`Qx for sex ${sex} ${qxIndex + 1}`);
                     console.log(`Qx: ${qx}`);
-                    debugRisk.printDebugInfo(numOfPreviousQxCals + qxIndex);
+                    debugRisk.printDebugInfo(debugRiskStartIndex + qxIndex);
                     console.groupEnd();
                 });
                 console.groupEnd();
@@ -137,6 +140,25 @@ class DebugLe {
             },
         );
     }
+
+    private getRiskDebugInfoStartIndex(leDebugInfo: LEDebugInfo): number {
+        return this.leCalculations
+            .slice(0, this.leCalculations.indexOf(leDebugInfo))
+            .reduce((startIndex, currentDebugInfo) => {
+                let numOfQxCalculations;
+                if ('lifeYearsRemaining' in currentDebugInfo) {
+                    numOfQxCalculations = currentDebugInfo.numQxCalcs;
+                } else {
+                    numOfQxCalculations = sum(
+                        currentDebugInfo.sexInfo.map(({ qxs }) => {
+                            return qxs.length;
+                        }),
+                    );
+                }
+
+                return startIndex + numOfQxCalculations;
+            }, 0);
+    }
 }
 
 export const debugLe = new DebugLe();
@@ -144,6 +166,7 @@ export const debugLe = new DebugLe();
 interface IIndividualLE {
     completeLifeTable: object[];
     lifeYearsRemaining: number;
+    numQxCalcs: number;
 }
 
 interface IPopulationLE {
