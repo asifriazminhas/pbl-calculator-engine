@@ -118,27 +118,25 @@ class DebugLe {
         console.log(`Population life expectancy: ${debugInfo.populationLE}`);
 
         const debugRiskStartIndex = this.getRiskDebugInfoStartIndex(debugInfo);
-        debugInfo.sexInfo.forEach(
-            ({ sex, qxs, completeLifeTable, le }, sexIndex) => {
-                console.groupCollapsed(`Life table for sex: ${sex}`);
+        debugInfo.sexInfo.forEach(({ sex, qxs, completeLifeTable, le }) => {
+            console.groupCollapsed(`Life table for sex: ${sex}`);
 
-                console.log(`Life expectancy for sex ${sex}: ${le}`);
+            console.log(`Life expectancy for sex ${sex}: ${le}`);
 
-                console.log(`Complete life table`);
-                console.table(completeLifeTable);
+            console.log(`Complete life table`);
+            console.table(completeLifeTable);
 
-                console.groupCollapsed(`Individual qx calculations`);
-                qxs.forEach((qx, qxIndex) => {
-                    console.groupCollapsed(`Qx for sex ${sex} ${qxIndex + 1}`);
-                    console.log(`Qx: ${qx}`);
-                    debugRisk.printDebugInfo(debugRiskStartIndex + qxIndex);
-                    console.groupEnd();
-                });
+            console.groupCollapsed(`Individual qx calculations`);
+            qxs.forEach((qx, qxIndex) => {
+                console.groupCollapsed(`Qx for sex ${sex} ${qxIndex + 1}`);
+                console.log(`Qx: ${qx}`);
+                debugRisk.printDebugInfo(debugRiskStartIndex + qxIndex);
                 console.groupEnd();
+            });
+            console.groupEnd();
 
-                console.groupEnd();
-            },
-        );
+            console.groupEnd();
+        });
     }
 
     private getRiskDebugInfoStartIndex(leDebugInfo: LEDebugInfo): number {
