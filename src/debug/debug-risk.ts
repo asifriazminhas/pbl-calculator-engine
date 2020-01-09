@@ -71,37 +71,40 @@ class DebugRisk {
     }
 
     printDebugInfo(printIndex?: number) {
-        this.debugInfo
-            .filter((_, index) => {
-                return index === printIndex;
-            })
-            .forEach((currentDebugInfo, index) => {
-                const { covariates, riskData, risk, score } = currentDebugInfo;
+        const debugInfoToPrint =
+            printIndex === undefined
+                ? this.debugInfo
+                : this.debugInfo.filter((_, index) => {
+                      return index === printIndex;
+                  });
 
-                const covariateDepTrees = covariates.map(covariate => {
-                    return new CovariateDepGraph(covariate);
-                });
+        debugInfoToPrint.forEach((currentDebugInfo, index) => {
+            const { covariates, riskData, risk, score } = currentDebugInfo;
 
-                if (printIndex === undefined) {
-                    console.groupCollapsed(`Risk Calculation ${index + 1}`);
-                }
-
-                console.log(`5 Year Risk: ${risk}`);
-                console.log(`Score: ${score}`);
-
-                covariateDepTrees.forEach(covariateDepTree => {
-                    this.printFieldDebugInfo(
-                        currentDebugInfo,
-                        covariateDepTree,
-                        covariateDepTree.covariateUuid,
-                        riskData,
-                    );
-                });
-
-                if (printIndex === undefined) {
-                    console.groupEnd();
-                }
+            const covariateDepTrees = covariates.map(covariate => {
+                return new CovariateDepGraph(covariate);
             });
+
+            if (printIndex === undefined) {
+                console.groupCollapsed(`Risk Calculation ${index + 1}`);
+            }
+
+            console.log(`5 Year Risk: ${risk}`);
+            console.log(`Score: ${score}`);
+
+            covariateDepTrees.forEach(covariateDepTree => {
+                this.printFieldDebugInfo(
+                    currentDebugInfo,
+                    covariateDepTree,
+                    covariateDepTree.covariateUuid,
+                    riskData,
+                );
+            });
+
+            if (printIndex === undefined) {
+                console.groupEnd();
+            }
+        });
     }
 
     private printFieldDebugInfo(
