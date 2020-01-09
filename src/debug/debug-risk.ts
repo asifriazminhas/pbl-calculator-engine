@@ -8,9 +8,11 @@ import { DataField } from '../engine/data-field/data-field';
 class DebugRisk {
     private debugInfo: IRiskDebugInfo[];
     private sessionStarted: boolean;
+    private calculationStarted: boolean;
 
     constructor() {
         this.sessionStarted = false;
+        this.calculationStarted = false;
         this.debugInfo = [];
     }
 
@@ -21,11 +23,13 @@ class DebugRisk {
 
     endSession(): void {
         this.sessionStarted = false;
+        this.calculationStarted = false;
     }
 
     startNewCalculation(): void {
-        if (this.shouldRunDebugMethod() === false) return;
+        if (this.sessionStarted === false) return;
 
+        this.calculationStarted = true;
         this.debugInfo.push({
             calculatedValues: {},
             covariates: [],
@@ -68,6 +72,8 @@ class DebugRisk {
         this.currentCalculation.riskData = riskData;
         this.currentCalculation.score = score;
         this.currentCalculation.risk = risk;
+
+        this.calculationStarted = false;
     }
 
     printDebugInfo(printIndex?: number) {
@@ -230,7 +236,7 @@ class DebugRisk {
     }
 
     private shouldRunDebugMethod(): boolean {
-        return this.sessionStarted;
+        return this.sessionStarted && this.calculationStarted;
     }
 
     private get currentCalculation(): IRiskDebugInfo {
