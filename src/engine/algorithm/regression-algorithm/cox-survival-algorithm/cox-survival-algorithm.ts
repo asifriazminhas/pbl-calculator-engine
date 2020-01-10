@@ -4,7 +4,6 @@ import { TimeMetric } from './time-metric';
 import { Data } from '../../../data/data';
 import moment from 'moment';
 import { sortedLastIndexBy } from 'lodash';
-import { shouldLogDebugInfo } from '../../../../util/env';
 import { Calibration } from './calibration/calibration';
 import { ICoxSurvivalAlgorithmJson } from '../../../../parsers/json/json-cox-survival-algorithm';
 import { Baseline } from '../baseline/baseline';
@@ -16,6 +15,7 @@ import { Predicate } from '../../../predicate/predicate';
 import { NoPredicateObjectFoundError } from '../../../predicate/predicate-errors';
 import { BaselineJson } from '../../../../parsers/json/json-baseline';
 import { DataField } from '../../../data-field/data-field';
+import { debugRisk } from '../../../../debug/debug-risk';
 
 export interface INewPredictor {
     name: string;
@@ -221,6 +221,8 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         data: Data,
         time?: Date | moment.Moment,
     ): number {
+        debugRisk.startNewCalculation();
+
         let formattedTime: moment.Moment;
         if (!time) {
             formattedTime = moment().startOf('day');
@@ -231,19 +233,8 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
             formattedTime = time;
         }
 
-        if (shouldLogDebugInfo() === true) {
-            console.groupCollapsed(`Predictors`);
-        }
-
-        if (shouldLogDebugInfo()) {
-            console.log(`Baseline: ${this.baseline}`);
-        }
-
-        if (shouldLogDebugInfo() === true) {
-            console.groupEnd();
-        }
-
         const score = this.calculateScore(data);
+
         // baseline*calibration*e^score
         const exponentiatedScoreTimesBaselineTimesCalibration =
             this.baseline.getBaselineForData(data) *
@@ -252,6 +243,13 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         // 1 - e^(-previousValue)
         const maximumTimeRiskProbability =
             1 - Math.E ** -exponentiatedScoreTimesBaselineTimesCalibration;
+
+        debugRisk.addEndDebugInfo(
+            this.covariates,
+            data,
+            score,
+            maximumTimeRiskProbability,
+        );
 
         return (
             maximumTimeRiskProbability * this.getTimeMultiplier(formattedTime)

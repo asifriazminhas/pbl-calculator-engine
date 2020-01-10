@@ -7,7 +7,7 @@ import {
 } from '../../data';
 import { DerivedField } from '../derived-field/derived-field';
 import { oneLine } from 'common-tags';
-import { shouldLogWarnings, shouldLogDebugInfo } from '../../../util/env';
+import { shouldLogWarnings } from '../../../util/env';
 import { autobind } from 'core-decorators';
 import { ICovariateJson } from '../../../parsers/json/json-covariate';
 import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
@@ -16,6 +16,7 @@ import { datumFactoryFromDataField } from '../../data/datum';
 import { findDatumWithName } from '../../data/data';
 import { NoDatumFoundError } from '../../errors';
 import { RiskFactor } from '../../../risk-factors';
+import { debugRisk } from '../../../debug/debug-risk';
 
 @autobind
 export abstract class Covariate extends DataField {
@@ -44,19 +45,14 @@ export abstract class Covariate extends DataField {
         userFunctions: IUserFunctions,
         tables: ITables,
     ): number {
-        if (shouldLogWarnings()) {
-            console.groupCollapsed(`${this.name}`);
-        }
-
-        const component = this.calculateComponent(this.calculateCoefficient(
+        const coefficient = this.calculateCoefficient(
             data,
             userFunctions,
             tables,
-        ) as number);
+        ) as number;
+        const component = this.calculateComponent(coefficient);
 
-        if (shouldLogDebugInfo() === true) {
-            console.groupEnd();
-        }
+        debugRisk.addCovariateDebugInfo(this.name, coefficient, component);
 
         return component;
     }
@@ -140,7 +136,8 @@ export abstract class Covariate extends DataField {
                 return [datumFromCovariateReferencePointFactory(this)];
             }
         } else {
-            return [datumFound];
+            // If the data for this covariate coefficient's calculations already exists in the data arg we don't need to return anything
+            return [];
         }
     }
 
@@ -152,7 +149,13 @@ export abstract class Covariate extends DataField {
      * @memberof Covariate
      */
     getDescendantFields(): DataField[] {
-        return this.derivedField ? this.derivedField.getDescendantFields() : [];
+        return this.derivedField
+            ? this.derivedField.getDescendantFields()
+            : this.customFunction
+            ? this.customFunction.firstVariableCovariate
+                  .getDescendantFields()
+                  .concat(this.customFunction.firstVariableCovariate)
+            : [];
     }
 
     isPartOfGroup(group: RiskFactor): boolean {
@@ -161,17 +164,6 @@ export abstract class Covariate extends DataField {
 
     private calculateComponent(coefficent: number): number {
         const component = coefficent * this.beta;
-
-        if (shouldLogDebugInfo()) {
-            console.log(`Covariate ${this.name}`);
-            console.log(
-                `Input ${coefficent} ${coefficent === this.referencePoint
-                    ? 'Set to Reference Point'
-                    : ''}`,
-            );
-            console.log(`PMML Beta ${this.beta}`);
-            console.log(`Component ${component}`);
-        }
 
         return component;
     }

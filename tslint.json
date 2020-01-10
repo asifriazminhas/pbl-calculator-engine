@@ -14,7 +14,12 @@
         "interface-name": false,
         "curly": [true, "ignore-same-line"],
         "trailing-comma": [true],
-        "member-access": [true, "no-public"]
+        "member-access": [true, "no-public"],
+        "max-line-length": {
+            "options": {
+                "ignore-pattern": "//"
+            }
+        }
     },
     "rulesDirectory": []
 }

@@ -6,13 +6,11 @@ import { Covariate } from '../covariate/covariate';
 import { throwErrorIfUndefined } from '../../../util/undefined';
 import { NoTableRowFoundError } from '../../errors';
 import PmmlFunctions from './pmml-functions';
-import { shouldLogDebugInfo } from '../../../util/env';
-import { NonInteractionCovariate } from '../covariate/non-interaction-covariats/non-interaction-covariate';
-import { InteractionCovariate } from '../covariate/interaction-covariate/interaction-covariate';
 import { IDerivedFieldJson } from '../../../parsers/json/json-derived-field';
 import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
 import { ITables } from '../../algorithm/tables/tables';
 import { datumFactoryFromDataField } from '../../data/datum';
+import { debugRisk } from '../../../debug/debug-risk';
 
 // tslint:disable-next-line:only-arrow-functions
 const getValueFromTable = function(
@@ -24,12 +22,14 @@ const getValueFromTable = function(
 
     return throwErrorIfUndefined(
         table.find(row => {
-            return conditionTableColumns.find(conditionColumn => {
-                // tslint:disable-next-line
-                return row[conditionColumn] != conditions[conditionColumn];
-            })
-                ? false
-                : true;
+            const unMatchedColumn = conditionTableColumns.find(
+                conditionColumn => {
+                    // tslint:disable-next-line
+                    return row[conditionColumn] != conditions[conditionColumn];
+                },
+            );
+
+            return unMatchedColumn === undefined ? true : false;
         }),
         new NoTableRowFoundError(conditions),
     )[outputColumn];
@@ -59,45 +59,6 @@ export function getLeafFieldsForDerivedField(
             }),
         );
     }
-}
-
-export function findDescendantDerivedField(
-    derivedField: DerivedField,
-    name: string,
-): DerivedField | undefined {
-    let foundDerivedField: DerivedField | undefined;
-
-    derivedField.derivedFrom.every(derivedFromItem => {
-        if (derivedFromItem.name === name) {
-            if (derivedFromItem instanceof DerivedField) {
-                foundDerivedField = derivedFromItem;
-            }
-        } else {
-            if (
-                derivedFromItem instanceof NonInteractionCovariate &&
-                derivedFromItem.derivedField
-            ) {
-                foundDerivedField = findDescendantDerivedField(
-                    derivedFromItem.derivedField,
-                    name,
-                );
-            } else if (derivedFromItem instanceof InteractionCovariate) {
-                foundDerivedField = findDescendantDerivedField(
-                    derivedFromItem.derivedField,
-                    name,
-                );
-            } else if (derivedFromItem instanceof DerivedField) {
-                foundDerivedField = findDescendantDerivedField(
-                    derivedFromItem,
-                    name,
-                );
-            }
-        }
-
-        return foundDerivedField ? false : true;
-    });
-
-    return foundDerivedField;
 }
 
 @autobind
@@ -152,13 +113,12 @@ export class DerivedField extends DataField {
             return datumForCurrentDerivedField.coefficent;
         } else {
             /*Filter out all the datum which are not needed for the equation evaluation*/
-            let dataForEvaluation = data.filter(
-                datum =>
-                    this.derivedFrom.find(
-                        derivedFromItem => derivedFromItem.name === datum.name,
-                    )
-                        ? true
-                        : false,
+            let dataForEvaluation = data.filter(datum =>
+                this.derivedFrom.find(
+                    derivedFromItem => derivedFromItem.name === datum.name,
+                )
+                    ? true
+                    : false,
             );
 
             /*If we don't have all the data for evaluation when calculate it*/
@@ -170,21 +130,13 @@ export class DerivedField extends DataField {
                 );
             }
 
-            if (shouldLogDebugInfo() === true) {
-                console.groupCollapsed(`Derived Field: ${this.name}`);
-                console.log(`Name: ${this.name}`);
-                console.log(`Derived Field: ${this.equation}`);
-                console.log(`Derived Field Data`);
-                console.table(dataForEvaluation);
-            }
-
             /*make the object with the all the data needed for the equation evaluation*/
             const obj: {
                 [index: string]: any;
             } = {};
-            dataForEvaluation.forEach(
-                datum => (obj[datum.name] = datum.coefficent),
-            );
+            dataForEvaluation.forEach(datum => {
+                obj[datum.name] = datum.coefficent;
+            });
 
             const evaluatedValue = this.evaluateEquation(
                 obj,
@@ -192,18 +144,21 @@ export class DerivedField extends DataField {
                 tables,
             );
 
-            if (shouldLogDebugInfo()) {
-                console.log(`Evaluated value: ${evaluatedValue}`);
-                console.groupEnd();
-            }
+            let returnedCalculatedValue;
 
             if (isNaN(Number(evaluatedValue)) === false) {
-                return Number(evaluatedValue);
+                returnedCalculatedValue = Number(evaluatedValue);
             } else if (typeof evaluatedValue === 'string') {
-                return evaluatedValue;
+                returnedCalculatedValue = evaluatedValue;
             } else {
-                return this.formatCoefficient(evaluatedValue);
+                returnedCalculatedValue = this.formatCoefficient(
+                    evaluatedValue,
+                );
             }
+
+            debugRisk.addFieldDebugInfo(this.name, returnedCalculatedValue);
+
+            return returnedCalculatedValue;
         }
     }
 
@@ -219,7 +174,7 @@ export class DerivedField extends DataField {
                 const datumFound = derivedFromItem.getDatumForField(data);
 
                 if (datumFound) {
-                    return datumFound;
+                    return [datumFound];
                 }
                 if (derivedFromItem instanceof Covariate) {
                     return datumFactoryFromDataField(
