@@ -67,6 +67,8 @@ class DebugLe {
         le: number;
         qxs: number[];
     }) {
+        if (this.sessionStarted === false) return;
+
         (this.lastCalculation as IPopulationLE).sexInfo.push(sexDebugInfo);
     }
 
