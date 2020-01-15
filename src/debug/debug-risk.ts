@@ -51,12 +51,14 @@ class DebugRisk {
         covariateName: string,
         coefficient: number,
         component: number,
+        beta: number,
     ): void {
         if (this.shouldRunDebugMethod() === false) return;
 
         this.currentCalculation.calculatedValues[covariateName] = {
             coefficient,
             component,
+            beta,
         };
     }
 
@@ -167,6 +169,7 @@ class DebugRisk {
             covariate.name
         ] as ICovariateFieldDebugInfo;
 
+        console.log(`Beta Coefficient: ${valueForField.beta}`);
         console.log(`Component: ${valueForField.component}`);
 
         if (covariate.derivedField) {
@@ -267,6 +270,7 @@ interface IDerivedFieldDebugInfo {
 interface ICovariateFieldDebugInfo {
     coefficient: any;
     component: number;
+    beta: number;
 }
 
 type FieldDebugInfo =

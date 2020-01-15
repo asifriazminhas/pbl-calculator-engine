@@ -52,7 +52,12 @@ export abstract class Covariate extends DataField {
         ) as number;
         const component = this.calculateComponent(coefficient);
 
-        debugRisk.addCovariateDebugInfo(this.name, coefficient, component);
+        debugRisk.addCovariateDebugInfo(
+            this.name,
+            coefficient,
+            component,
+            this.beta,
+        );
 
         return component;
     }
