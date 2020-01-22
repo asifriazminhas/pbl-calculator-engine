@@ -146,7 +146,16 @@ export class DerivedField extends DataField {
 
             let returnedCalculatedValue;
 
-            if (isNaN(Number(evaluatedValue)) === false) {
+            // null or an empty string are coerced to 0 when passed through the Number function in the next statement. This statement will reset them to undefined so that any further manipulations in upstream fields will always return undefined.
+            if (
+                evaluatedValue === null ||
+                (typeof evaluatedValue === 'string' &&
+                    evaluatedValue.trim().length === 0)
+            ) {
+                returnedCalculatedValue = undefined;
+            }
+            // To handle cases where the value is '1', '2' etc.
+            else if (isNaN(Number(evaluatedValue)) === false) {
                 returnedCalculatedValue = Number(evaluatedValue);
             } else if (typeof evaluatedValue === 'string') {
                 returnedCalculatedValue = evaluatedValue;
