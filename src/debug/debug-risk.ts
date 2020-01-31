@@ -113,6 +113,16 @@ class DebugRisk {
         });
     }
 
+    // Helper Public Methods
+    getCovariateDebugInfo(
+        calcIndex: number,
+        covariateName: string,
+    ): ICovariateFieldDebugInfo {
+        return this.debugInfo[calcIndex].calculatedValues[
+            covariateName
+        ] as ICovariateFieldDebugInfo;
+    }
+
     private printFieldDebugInfo(
         riskDebugInfo: IRiskDebugInfo,
         depGraph: CovariateDepGraph,
