@@ -46,12 +46,11 @@ export abstract class Covariate extends DataField {
         ) as number;
         const component = this.calculateComponent(coefficient);
 
-        debugRisk.addCovariateDebugInfo(
-            this.name,
+        debugRisk.addCovariateDebugInfo(this.name, {
             coefficient,
             component,
-            this.beta,
-        );
+            beta: this.beta,
+        });
 
         return component;
     }
@@ -166,6 +165,10 @@ export abstract class Covariate extends DataField {
             coefficent === 'NA' ||
             isNaN(coefficent as number)
         ) {
+            debugRisk.addCovariateDebugInfo(this.name, {
+                setToReference: true,
+            });
+
             return this.referencePoint;
         } else {
             return this.formatCoefficient(coefficent);

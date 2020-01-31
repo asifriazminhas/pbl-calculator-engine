@@ -49,17 +49,15 @@ class DebugRisk {
 
     addCovariateDebugInfo(
         covariateName: string,
-        coefficient: number,
-        component: number,
-        beta: number,
+        debugInfo: Partial<ICovariateFieldDebugInfo>,
     ): void {
         if (this.shouldRunDebugMethod() === false) return;
 
-        this.currentCalculation.calculatedValues[covariateName] = {
-            coefficient,
-            component,
-            beta,
-        };
+        this.currentCalculation.calculatedValues[covariateName] = Object.assign(
+            {},
+            this.currentCalculation.calculatedValues[covariateName],
+            debugInfo,
+        );
     }
 
     addEndDebugInfo(
@@ -271,6 +269,7 @@ interface ICovariateFieldDebugInfo {
     coefficient: any;
     component: number;
     beta: number;
+    setToReference: boolean;
 }
 
 type FieldDebugInfo =
