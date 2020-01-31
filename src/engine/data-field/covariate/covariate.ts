@@ -142,7 +142,7 @@ export abstract class Covariate extends DataField {
             }
         } else {
             // If the data for this covariate coefficient's calculations already exists in the data arg we don't need to return anything
-            return [];
+            return [datumFound];
         }
     }
 
