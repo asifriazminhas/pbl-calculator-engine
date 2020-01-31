@@ -190,6 +190,8 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         data: Data,
         time?: Date | moment.Moment,
     ): number {
+        debugRisk.startNewCalculation();
+
         const score = this.calculateScore(data);
 
         const binDataForScore = this.bins.getBinDataForScore(score);
@@ -212,9 +214,15 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
             },
         );
 
-        return binDataForTimeIndex === 0
-            ? 0.99
-            : binDataForScore[binDataForTimeIndex - 1].survivalPercent / 100;
+        const survival =
+            binDataForTimeIndex === 0
+                ? 0.99
+                : binDataForScore[binDataForTimeIndex - 1].survivalPercent /
+                  100;
+
+        debugRisk.addEndDebugInfo(this.covariates, data, score, 1 - survival);
+
+        return survival;
     }
 
     private getRiskToTimeWithoutBins(
