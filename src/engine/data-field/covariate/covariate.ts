@@ -1,18 +1,12 @@
 import { Data } from '../../data';
 import { DataField } from '../data-field';
 import { RcsCustomFunction } from './custom-function/rcs-custom-function';
-import {
-    Coefficent,
-    datumFromCovariateReferencePointFactory,
-} from '../../data';
+import { Coefficent } from '../../data';
 import { DerivedField } from '../derived-field/derived-field';
-import { oneLine } from 'common-tags';
-import { shouldLogWarnings } from '../../../util/env';
 import { autobind } from 'core-decorators';
 import { ICovariateJson } from '../../../parsers/json/json-covariate';
 import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
 import { ITables } from '../../algorithm/tables/tables';
-import { datumFactoryFromDataField } from '../../data/datum';
 import { findDatumWithName } from '../../data/data';
 import { NoDatumFoundError } from '../../errors';
 import { RiskFactor } from '../../../risk-factors';
@@ -91,7 +85,11 @@ export abstract class Covariate extends DataField {
             coefficent,
         );
 
-        return formattedCoefficent === undefined ? 0 : formattedCoefficent;
+        if (formattedCoefficent === undefined) {
+            throw new Error(`No coefficient found for covariate ${this.name}`);
+        }
+
+        return formattedCoefficent;
     }
 
     calculateDataToCalculateCoefficent(
@@ -121,24 +119,10 @@ export abstract class Covariate extends DataField {
                         tables,
                     );
                 } catch (err) {
-                    if (shouldLogWarnings()) {
-                        console.warn(oneLine`Incomplete data to calculate coefficent for
-                            data field ${this.name}. Setting it to reference
-                            point`);
-                    }
-
-                    return [
-                        datumFactoryFromDataField(this, this.referencePoint),
-                    ];
+                    return [];
                 }
             } else {
-                // Fall back to setting it to reference point
-                if (shouldLogWarnings()) {
-                    console.warn(oneLine`Incomplete data to calculate coefficent for
-                        datafield ${this.name}. Setting it to reference point`);
-                }
-
-                return [datumFromCovariateReferencePointFactory(this)];
+                return [];
             }
         } else {
             // If the data for this covariate coefficient's calculations already exists in the data arg we don't need to return anything

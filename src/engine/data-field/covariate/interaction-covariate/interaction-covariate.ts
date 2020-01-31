@@ -2,7 +2,7 @@ import { Covariate } from '../covariate';
 import { autobind } from 'core-decorators';
 import { DerivedField } from '../../derived-field/derived-field';
 import { Data } from '../../../data/data';
-import { datumFromCovariateReferencePointFactory, IDatum } from '../../../data';
+import { IDatum } from '../../../data';
 import { NonInteractionCovariate } from '../non-interaction-covariats/non-interaction-covariate';
 import { IUserFunctions } from '../../../algorithm/user-functions/user-functions';
 import { ITables } from '../../../algorithm/tables/tables';
@@ -24,7 +24,10 @@ export class InteractionCovariate extends Covariate {
         );
 
         // Check whether the coefficent data has the interaction covariate in it and if it does return it
-        if(coefficentData.length === 1 && coefficentData[0].name === this.name) {
+        if (
+            coefficentData.length === 1 &&
+            coefficentData[0].name === this.name
+        ) {
             return coefficentData;
         }
 
@@ -32,7 +35,7 @@ export class InteractionCovariate extends Covariate {
             this.isCoefficentDatumSetToReferencePoint(coefficentData[0]) ||
             this.isCoefficentDatumSetToReferencePoint(coefficentData[1])
         ) {
-            return [datumFromCovariateReferencePointFactory(this)];
+            return [];
         } else {
             return coefficentData;
         }
@@ -44,7 +47,9 @@ export class InteractionCovariate extends Covariate {
         );
 
         if (!derivedFieldForDatum) {
-            throw new Error(`No datum found for derived field ${this.derivedField.name}`);
+            throw new Error(
+                `No datum found for derived field ${this.derivedField.name}`,
+            );
         }
 
         return (
