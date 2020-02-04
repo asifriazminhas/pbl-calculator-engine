@@ -68,7 +68,9 @@ export default {
     pmax: function(num1: number, num2: number): number | undefined {
         return shouldReturnUndefined(num1) || shouldReturnUndefined(num2)
             ? undefined
-            : num1 > num2 ? num1 : num2;
+            : num1 > num2
+            ? num1
+            : num2;
     },
     exists: function(value: any): boolean {
         return !(value === undefined || value === null);
@@ -93,5 +95,11 @@ export default {
     },
     zScore: function(mean: number, sd: number, value: number): number {
         return (value - mean) / sd;
+    },
+    ymd: function(dateString: string) {
+        return moment(dateString);
+    },
+    year: function(date: moment.Moment) {
+        return date.get('year');
     },
 };
