@@ -126,7 +126,7 @@ function convertRDateFormatToMoment(rFormat: string): string {
         keyof typeof RToMomentFormats
     >).reduce((currentMomentFormat, currentRToMomentFormatKey) => {
         return currentMomentFormat.replace(
-            new RegExp(rFormat, '/g'),
+            new RegExp(rFormat, 'g'),
             RToMomentFormats[currentRToMomentFormatKey],
         );
     }, rFormat);
