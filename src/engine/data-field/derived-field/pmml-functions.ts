@@ -96,10 +96,38 @@ export default {
     zScore: function(mean: number, sd: number, value: number): number {
         return (value - mean) / sd;
     },
-    ymd: function(dateString: string) {
-        return moment(dateString);
+    'as.Date': function(dateString: string, format: string) {
+        const momentFormat = convertRDateFormatToMoment(format);
+
+        return moment(dateString, momentFormat);
     },
-    year: function(date: moment.Moment) {
-        return date.get('year');
+    format: function(object: any): string {
+        if (moment.isMoment(object)) {
+            const momentFormat = convertRDateFormatToMoment(arguments[1]);
+
+            return object.format(momentFormat);
+        }
+
+        throw new Error(`Unhandled object type in PMML format function.`);
+    },
+    'Sys.Date': function(): moment.Moment {
+        return moment();
     },
 };
+
+function convertRDateFormatToMoment(rFormat: string): string {
+    const RToMomentFormats = {
+        '%d': 'DD',
+        '%m': 'MM',
+        '%Y': 'YYYY',
+    };
+
+    return (Object.keys(RToMomentFormats) as Array<
+        keyof typeof RToMomentFormats
+    >).reduce((currentMomentFormat, currentRToMomentFormatKey) => {
+        return currentMomentFormat.replace(
+            new RegExp(rFormat, '/g'),
+            RToMomentFormats[currentRToMomentFormatKey],
+        );
+    }, rFormat);
+}
