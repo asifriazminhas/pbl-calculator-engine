@@ -44,18 +44,31 @@ export default {
         }, 0);
     },
     isIn: function(...args: Array<number>): boolean {
-        // Convert the array as well as the value to check to an Array to make
-        // sure everyting it the same type. If there are type mismatches
-        // between entries in the array and the value to check then we can have
-        // wrong values
-        const array = args.slice(1);
+        // The first argument is always the value we need to check is within an Array
         const valueToCheck = args[0];
+        const strValueToCheck = valueToCheck + '';
+
+        // The rest of the arguments can either be numbers or an Array.
+        // We start with assuming that the rest of the arguments are just numbers so we will slice that into an Array
+        let array = args.slice(1);
+        // Here we check they passed in an Array as a second argument and if they did then that's what we need to use
+        if (Array.isArray(array[0])) {
+            array = array[0];
+        }
+        // Convert everything to a string since we don't want to check the type
         const strArray = array.map(arrItem => {
             return arrItem + '';
         });
-        const strValueToCheck = valueToCheck + '';
 
         return strArray.indexOf(strValueToCheck) > -1;
+    },
+    colonOperator: function(start: number, end: number): number[] {
+        const arr: number[] = [];
+        for (let i = start; i <= end; i++) {
+            arr.push(i);
+        }
+
+        return arr;
     },
     log: function(num: number): number {
         return Math.log10(num);
