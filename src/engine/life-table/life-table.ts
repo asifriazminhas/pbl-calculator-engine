@@ -6,6 +6,12 @@ import { NonInteractionCovariate } from '../data-field/covariate/non-interaction
 import { DataField } from '../data-field/data-field';
 import { flatten } from 'lodash';
 import { InteractionCovariate } from '../data-field/covariate/interaction-covariate/interaction-covariate';
+import {
+    isEnvironmentLessDebugging,
+    setEnvironmentToProduction,
+    setEnvironmentToLessDebugging,
+    shouldLogDebugInfo,
+} from '../../util/env/env';
 
 export interface IRefLifeTableRow {
     age: number;
@@ -31,7 +37,7 @@ export interface ICompleteLifeTableRow extends IRefLifeTableRow {
 
 export type CompleteLifeTable = ICompleteLifeTableRow[];
 
-export type GetPredictedRiskForAge = (age: number) => number;
+export type GetPredictedRiskForAge = (age: number, index: number) => number;
 
 /**
  * Returns lx for the passed life table row
@@ -140,12 +146,12 @@ export function getCompleteLifeTableWithStartAge(
         refLifeTableRow => refLifeTableRow.age >= startAge,
     );
 
-    refLifeTableFromStartAge.forEach(refLifeTableRow => {
+    refLifeTableFromStartAge.forEach((refLifeTableRow, index) => {
         refLifeTableWithQx.push(
             Object.assign({}, refLifeTableRow, {
                 qx:
                     refLifeTableRow.age < useLifeTableForExFromAge
-                        ? getPredictedRiskForAge(refLifeTableRow.age)
+                        ? getPredictedRiskForAge(refLifeTableRow.age, index)
                         : refLifeTableRow.qx,
             }),
         );
@@ -192,6 +198,11 @@ export function getCompleteLifeTableForDataUsingAlgorithm(
     useExFromLifeTableFromAge: number = 99,
     getPredictedRiskForAge?: (age: number) => number,
 ): CompleteLifeTable {
+    const isEnvLessDebugging = isEnvironmentLessDebugging();
+    if (isEnvLessDebugging) {
+        setEnvironmentToProduction();
+    }
+
     const ageInteractionCovariates = cox.covariates.filter(covariate => {
         return (
             covariate instanceof InteractionCovariate &&
@@ -252,16 +263,21 @@ export function getCompleteLifeTableForDataUsingAlgorithm(
         allAgeFields,
     );
 
-    return getCompleteLifeTableWithStartAge(
+    const completeLifeTable = getCompleteLifeTableWithStartAge(
         refLifeTable,
-        age => {
+        (age, index) => {
+            if (isEnvLessDebugging && index === 0) {
+                setEnvironmentToLessDebugging();
+            }
+
+            let risk;
             if (getPredictedRiskForAge) {
-                return getPredictedRiskForAge(age);
+                risk = getPredictedRiskForAge(age);
             } else {
                 const now = moment();
                 now.add(1, 'year');
 
-                return cox.getRiskToTime(
+                risk = cox.getRiskToTime(
                     lifeTableDataWithoutAge.concat({
                         name: 'age',
                         coefficent: age,
@@ -269,8 +285,28 @@ export function getCompleteLifeTableForDataUsingAlgorithm(
                     now,
                 );
             }
+
+            if (isEnvLessDebugging) {
+                setEnvironmentToLessDebugging();
+            }
+
+            if (isEnvLessDebugging) {
+                setEnvironmentToProduction();
+            }
+
+            return risk;
         },
         ageDatum.coefficent as number,
         useExFromLifeTableFromAge,
     );
+
+    if (isEnvLessDebugging) {
+        setEnvironmentToLessDebugging();
+    }
+
+    if (shouldLogDebugInfo()) {
+        console.table(completeLifeTable);
+    }
+
+    return completeLifeTable;
 }
