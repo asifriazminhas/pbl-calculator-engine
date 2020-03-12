@@ -21,9 +21,9 @@ import {
 import { IMiningField } from '../../pmml/mining-schema/mining-field';
 
 /**
- * 
- * @param {string} name 
- * @returns {boolean} 
+ *
+ * @param {string} name
+ * @returns {boolean}
  */
 function isCovariateWithNameAnInteractionCovariate(
     covariateName: string,
@@ -34,9 +34,9 @@ function isCovariateWithNameAnInteractionCovariate(
 /**
  * Returns a string representing the type of covariate. Covariate types are:
  * Interaction
- * 
- * @param {string} name 
- * @returns {string} 
+ *
+ * @param {string} name
+ * @returns {string}
  */
 function getCovariateType(
     name: string,
@@ -50,13 +50,13 @@ function getCovariateType(
 
 /**
  * Returns the covariate json object for the passed predictor arg
- * 
- * @param {Predictor} predictor 
+ *
+ * @param {Predictor} predictor
  * @param {DataField} dataField DataField node whose name field matches with the predictor's name field
  * @param {Parameter} parameter Parameter node whose label field matches with the predictor's name field
  * @param {PCell} pCell PCell node whose parameterName field matches with the parameter's name field
  * @param {(IRcsCustomFunctionJson | null)} customFunctionJson The custom function is any for this covariate
- * @returns {CovariateJson} 
+ * @returns {CovariateJson}
  */
 function parseCovariateFromPredictor(
     predictor: IPredictor,
@@ -85,10 +85,10 @@ function parseCovariateFromPredictor(
 
 /**
  * Returns all the JSON covariate objects in the pmml argument
- * 
+ *
  * @export
- * @param {CustomPmmlXml} pmml 
- * @returns {Array<CovariateJson>} 
+ * @param {CustomPmmlXml} pmml
+ * @returns {Array<CovariateJson>}
  */
 export function parseCovariates(pmml: Pmml): Array<ICovariateJson> {
     //Each Predictor Node in the CovariateList node is a covariate
@@ -130,10 +130,12 @@ export function parseCovariates(pmml: Pmml): Array<ICovariateJson> {
                           },
                       )
                     : undefined,
-                parseCustomFunction(
-                    parameterForCurrentPredictor,
-                    pmml.pmmlXml.PMML.CustomPMML.RestrictedCubicSpline,
-                ),
+                pmml.pmmlXml.PMML.CustomPMML
+                    ? parseCustomFunction(
+                          parameterForCurrentPredictor,
+                          pmml.pmmlXml.PMML.CustomPMML.RestrictedCubicSpline,
+                      )
+                    : undefined,
             );
         },
     );
