@@ -3,6 +3,6 @@ export type BaselineJson =
     | undefined
     | number
     | Array<{
-          age: number;
-          baseline: number;
+          time: number; // Time should be in days
+          baselineHazard: number;
       }>;

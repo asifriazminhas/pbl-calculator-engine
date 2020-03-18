@@ -243,9 +243,14 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
 
         const score = this.calculateScore(data);
 
+        // Get how many days into the future we want to predict the risk
+        const predictionTimeInDays = formattedTime.diff(
+            moment().startOf('day'),
+            'days',
+        );
         // baseline*calibration*e^score
         const exponentiatedScoreTimesBaselineTimesCalibration =
-            this.baseline.getBaselineForData(data) *
+            this.baseline.getBaselineHazard(predictionTimeInDays) *
             this.calibration.getCalibrationFactorForData(data) *
             Math.E ** score;
         // 1 - e^(-previousValue)
