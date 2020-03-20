@@ -30,7 +30,11 @@ export class Baseline {
                 },
             );
 
-            return this.baseline[closestTimeIndex].baselineHazard;
+            return this.baseline[
+                closestTimeIndex === this.baseline.length
+                    ? closestTimeIndex - 1
+                    : closestTimeIndex
+            ].baselineHazard;
         }
     }
 }
