@@ -1,10 +1,11 @@
 import test from 'tape';
 import { Model } from '../engine/model/model';
 import { expect } from 'chai';
+import { CoxSurvivalAlgorithm } from '../engine/model';
 
 test(`Covariate`, t => {
     const ModelJson = require('../../assets/test/model/model.json');
-    const model = new Model(ModelJson);
+    const model = new Model<CoxSurvivalAlgorithm>(ModelJson);
     const CovariateToTestName = 'AgeC_rcs1';
     const covariateToTest = model.algorithms[0].algorithm.covariates.find(
         covariate => {

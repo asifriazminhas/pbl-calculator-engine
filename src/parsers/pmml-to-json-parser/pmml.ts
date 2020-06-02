@@ -15,6 +15,8 @@ import { PredicateJson } from '../../parsers/json/json-predicate';
 import { flatten, uniq, uniqBy } from 'lodash';
 import { parseDataFieldFromDataFieldPmmlNode } from './data_fields/data_field';
 import { IDataFieldJson } from '../json/json-data-field';
+import { IJsonSimpleAlgorithm } from '../json/json-simple-algorithm';
+import { AlgorithmType } from '../json/algorithm-type';
 
 function parseBaselineFromPmmlXml(
     generalRegressionModel: IGeneralRegressionModel,
@@ -25,7 +27,7 @@ function parseBaselineFromPmmlXml(
 async function pmmlStringsToJson(
     pmmlXmlStrings: string[],
 ): Promise<{
-    algorithm: ICoxSurvivalAlgorithmJson;
+    algorithm: ICoxSurvivalAlgorithmJson | IJsonSimpleAlgorithm;
     modelFields: IDataFieldJson[];
 }> {
     const pmml = await PmmlParser.parsePmmlFromPmmlXmlStrings(pmmlXmlStrings);
@@ -36,7 +38,7 @@ async function pmmlStringsToJson(
     const generalRegressionModel = pmml.pmmlXml.PMML
         .GeneralRegressionModel as IGeneralRegressionModel;
 
-    const baseAlgorithm: ICoxSurvivalAlgorithmJson = {
+    const baseAlgorithm = {
         name: pmml.pmmlXml.PMML.Header.Extension.value,
         derivedFields: parseDerivedFields(pmml, allDefineFunctionNames),
         userFunctions: returnEmptyArrayIfUndefined(
@@ -49,40 +51,57 @@ async function pmmlStringsToJson(
                 return Object.assign({}, userFunctionObj, currentObject);
             }, {}),
         tables: parseTaxonomy(pmml.pmmlXml.PMML.Taxonomy),
-        baseline: parseBaselineFromPmmlXml(generalRegressionModel),
-        covariates: parseCovariates(pmml),
-        timeMetric: parseTimeMetric(generalRegressionModel),
-        maximumTime: Number(
-            generalRegressionModel.Extension.find(extension => {
-                return extension.name === 'maximumTime';
-            })!.value,
-        ),
     };
+    let fullAlgorithm: IJsonSimpleAlgorithm | ICoxSurvivalAlgorithmJson;
 
-    const allAlgorithmFields = uniq(
-        flatten(
-            parseCoxSurvivalAlgorithmJson(
-                baseAlgorithm,
-            ).covariates.map(covariate => {
-                return covariate
-                    .getDescendantFields()
-                    .map(field => {
-                        return field.name;
-                    })
-                    .concat(covariate.name);
-            }),
-        ),
-    );
-    const modelFields = pmml.pmmlXml.PMML.DataDictionary.DataField
-        .filter(dataField => {
-            return allAlgorithmFields.indexOf(dataField.$.name) === -1;
-        })
-        .map(modelField => {
+    if (pmml.pmmlXml.PMML.SimpleModel) {
+        fullAlgorithm = {
+            algorithmType: AlgorithmType.SimpleAlgorithm,
+            output: pmml.pmmlXml.PMML.Output!.OutputField.$.name,
+            ...baseAlgorithm,
+        } as IJsonSimpleAlgorithm;
+    } else {
+        fullAlgorithm = {
+            algorithmType: AlgorithmType.CoxSurvivalAlgorithm,
+            baseline: parseBaselineFromPmmlXml(generalRegressionModel),
+            covariates: parseCovariates(pmml),
+            timeMetric: parseTimeMetric(generalRegressionModel),
+            maximumTime: Number(
+                generalRegressionModel.Extension.find(extension => {
+                    return extension.name === 'maximumTime';
+                })!.value,
+            ),
+            ...baseAlgorithm,
+        } as ICoxSurvivalAlgorithmJson;
+    }
+
+    let modelFields: IDataFieldJson[] = [];
+    if (fullAlgorithm.algorithmType === AlgorithmType.CoxSurvivalAlgorithm) {
+        const allAlgorithmFields = uniq(
+            flatten(
+                parseCoxSurvivalAlgorithmJson(fullAlgorithm).covariates.map(
+                    covariate => {
+                        return covariate
+                            .getDescendantFields()
+                            .map(field => {
+                                return field.name;
+                            })
+                            .concat(covariate.name);
+                    },
+                ),
+            ),
+        );
+        modelFields = pmml.pmmlXml.PMML.DataDictionary.DataField.filter(
+            dataField => {
+                return allAlgorithmFields.indexOf(dataField.$.name) === -1;
+            },
+        ).map(modelField => {
             return parseDataFieldFromDataFieldPmmlNode(modelField);
         });
+    }
 
     return {
-        algorithm: baseAlgorithm,
+        algorithm: fullAlgorithm,
         modelFields,
     };
 }
@@ -90,7 +109,7 @@ async function pmmlStringsToJson(
 export async function pmmlXmlStringsToJson(
     modelPmmlXmlStrings: string[][],
     predicates: PredicateJson[],
-): Promise<IModelJson> {
+): Promise<IModelJson<any>> {
     const parsedAlgorithmAndModelFields = await Promise.all(
         modelPmmlXmlStrings.map(pmmlXmlStrings => {
             return pmmlStringsToJson(pmmlXmlStrings);
@@ -107,7 +126,7 @@ export async function pmmlXmlStringsToJson(
         },
     );
 
-    const modelJson: IModelJson = {
+    const modelJson: IModelJson<any> = {
         name: '',
         algorithms: parsedAlgorithmAndModelFields.map(
             ({ algorithm }, index) => {

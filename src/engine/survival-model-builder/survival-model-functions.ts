@@ -11,6 +11,7 @@ import {
     CalibrationJson,
 } from '../../parsers/json/json-calibration';
 import { IModelJson } from '../../parsers/json/json-model';
+import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-algorithm';
 
 export interface IGenderCalibrationObjects {
     male: ICalibrationFactorJsonObject[];
@@ -18,10 +19,13 @@ export interface IGenderCalibrationObjects {
 }
 
 export class SurvivalModelFunctions {
-    private model: Model;
-    private modelJson: IModelJson;
+    private model: Model<CoxSurvivalAlgorithm>;
+    private modelJson: IModelJson<ICoxSurvivalAlgorithmJson>;
 
-    constructor(model: Model, modelJson: IModelJson) {
+    constructor(
+        model: Model<CoxSurvivalAlgorithm>,
+        modelJson: IModelJson<ICoxSurvivalAlgorithmJson>,
+    ) {
         this.model = model;
         this.modelJson = modelJson;
     }
@@ -119,11 +123,11 @@ export class SurvivalModelFunctions {
         }
     }
 
-    public getModel(): Model {
+    public getModel(): Model<CoxSurvivalAlgorithm> {
         return this.model;
     }
 
-    public getModelJson(): IModelJson {
+    public getModelJson(): IModelJson<ICoxSurvivalAlgorithmJson> {
         return this.modelJson;
     }
 }

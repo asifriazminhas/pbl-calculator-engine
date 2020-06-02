@@ -9,27 +9,49 @@ import { NoPredicateObjectFoundError } from '../predicate/predicate-errors';
 import { BaselineJson } from '../../parsers/json/json-baseline';
 import { DataField } from '../data-field/data-field';
 import { flatten, uniqBy } from 'lodash';
+import { Algorithm } from '../algorithm/algorithm';
+import { JsonAlgorithms } from '../../parsers/json/json-algorithms';
+import { AlgorithmType } from '../../parsers/json/algorithm-type';
+import { SimpleAlgorithm } from '../algorithm/simple-algorithm/simple-algorithm';
 
 export type NewBaseline = Array<{
     predicateData: Data;
     newBaseline: BaselineJson;
 }>;
 
-export class Model<T extends CoxSurvivalAlgorithm = CoxSurvivalAlgorithm> {
+export class Model<T extends Algorithm> {
     name: string;
     algorithms: Array<ModelAlgorithm<T>>;
     modelFields: DataField[];
 
-    constructor(modelJson: IModelJson) {
+    constructor(modelJson: IModelJson<JsonAlgorithms>) {
         this.name = modelJson.name;
-        this.algorithms = modelJson.algorithms.map(
-            ({ algorithm, predicate }) => {
-                return new ModelAlgorithm(
-                    new CoxSurvivalAlgorithm(algorithm) as T,
-                    new Predicate(predicate.equation, predicate.variables),
-                );
-            },
-        );
+        this.algorithms = modelJson.algorithms.map(algorithmWithPredicate => {
+            let algorithm: Algorithm;
+            const algorithmJson = algorithmWithPredicate.algorithm;
+            switch (algorithmJson.algorithmType) {
+                case AlgorithmType.CoxSurvivalAlgorithm: {
+                    algorithm = new CoxSurvivalAlgorithm(algorithmJson);
+                    break;
+                }
+                case AlgorithmType.SimpleAlgorithm: {
+                    algorithm = new SimpleAlgorithm(algorithmJson);
+                    break;
+                }
+                default: {
+                    throw new Error(
+                        `Trying to parse unknown algorithm JSON ${algorithmJson}`,
+                    );
+                }
+            }
+
+            const predicate = new Predicate(
+                algorithmWithPredicate.predicate.equation,
+                algorithmWithPredicate.predicate.variables,
+            );
+
+            return new ModelAlgorithm(algorithm as T, predicate);
+        });
         this.modelFields = modelJson.modelFields.map(modelField => {
             return new DataField(modelField);
         });
@@ -48,7 +70,10 @@ export class Model<T extends CoxSurvivalAlgorithm = CoxSurvivalAlgorithm> {
         }
     }
 
-    updateBaselineForModel(newBaselines: NewBaseline): Model {
+    updateBaselineForModel(
+        this: Model<CoxSurvivalAlgorithm>,
+        newBaselines: NewBaseline,
+    ): Model<CoxSurvivalAlgorithm> {
         return Object.setPrototypeOf(
             Object.assign({}, this, {
                 algorithms: this.algorithms.map(({ predicate, algorithm }) => {
@@ -83,12 +108,24 @@ export class Model<T extends CoxSurvivalAlgorithm = CoxSurvivalAlgorithm> {
                             .map(({ algorithm }) => {
                                 return algorithm;
                             })
-                            .map(({ covariates }) => {
-                                return covariates.map(covariate => {
-                                    return covariate
+                            .map(algorithm => {
+                                if (algorithm instanceof CoxSurvivalAlgorithm) {
+                                    return flatten(
+                                        algorithm.covariates.map(covariate => {
+                                            return covariate
+                                                .getDescendantFields()
+                                                .concat(covariate);
+                                        }),
+                                    );
+                                } else if (
+                                    algorithm instanceof SimpleAlgorithm
+                                ) {
+                                    return algorithm.output
                                         .getDescendantFields()
-                                        .concat(covariate);
-                                });
+                                        .concat(algorithm.output);
+                                } else {
+                                    throw new Error(`Unknown algorithm type`);
+                                }
                             }),
                     ),
                 ),

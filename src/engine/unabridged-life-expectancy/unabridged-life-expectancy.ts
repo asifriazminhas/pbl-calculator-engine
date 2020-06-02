@@ -1,4 +1,4 @@
-import { Model, Data } from '../model';
+import { Model, Data, CoxSurvivalAlgorithm } from '../model';
 import {
     IGenderedUnAbridgedLifeTable,
     IUnAbridgedLifeTableRow,
@@ -20,7 +20,7 @@ export class UnAbridgedLifeExpectancy extends LifeExpectancy<
     private genderedUnAbridgedLifeTable: IGenderedUnAbridgedLifeTable;
 
     constructor(
-        model: Model,
+        model: Model<CoxSurvivalAlgorithm>,
         genderedUnAbridgedLifeTable: IGenderedUnAbridgedLifeTable,
     ) {
         super(model);

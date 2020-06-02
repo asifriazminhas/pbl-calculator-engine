@@ -1,4 +1,9 @@
-import { Model, Data, ModelFactory } from '../engine/model';
+import {
+    Model,
+    Data,
+    ModelFactory,
+    CoxSurvivalAlgorithm,
+} from '../engine/model';
 import { cloneDeep } from 'lodash';
 import { findDatumWithName, IDatum } from '../engine/data';
 import moment from 'moment';
@@ -12,7 +17,7 @@ import {
 import { DerivedField } from '../engine/data-field/derived-field/derived-field';
 import { IScenario } from './scenario';
 
-export interface IScenarioModel extends Model {
+export interface IScenarioModel extends Model<CoxSurvivalAlgorithm> {
     runScenarioForPopulation: typeof runScenarioForPopulation;
     runScenariosForPopulation: typeof runScenariosForPopulation;
 }
@@ -37,7 +42,9 @@ const sexVariable = 'DHH_SEX';
  * to it
  * @returns {IScenarioModel}
  */
-export function addScenarioMethods(model: Model): IScenarioModel {
+export function addScenarioMethods(
+    model: Model<CoxSurvivalAlgorithm>,
+): IScenarioModel {
     return ModelFactory.extendModel(model, {
         runScenarioForPopulation,
         runScenariosForPopulation,

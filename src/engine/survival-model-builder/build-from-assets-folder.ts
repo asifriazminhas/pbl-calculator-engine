@@ -18,6 +18,7 @@ import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-
 import { Model } from '../model/model';
 import { IModelJson } from '../../parsers/json/json-model';
 import { pmmlXmlStringsToJson } from '../../parsers/pmml-to-json-parser/pmml';
+import { CoxSurvivalAlgorithm } from '../model';
 
 export type BuildFromAssetsFolderFunction = (
     assetsFolderPath: string,
@@ -52,17 +53,14 @@ export function convertBinsDataCsvToBinsData(
             /* Convert them to a number */
             .map(Number)
             /* Convert it to the object */
-            .reduce(
-                (currentBinsData, currentBinDataCsvBinNumber) => {
-                    /* Return an object which is a concatination of the
+            .reduce((currentBinsData, currentBinDataCsvBinNumber) => {
+                /* Return an object which is a concatination of the
                     previous objects along with the current bin number */
-                    return {
-                        ...currentBinsData,
-                        [currentBinDataCsvBinNumber]: [],
-                    };
-                },
-                {} as IBinsData,
-            );
+                return {
+                    ...currentBinsData,
+                    [currentBinDataCsvBinNumber]: [],
+                };
+            }, {} as IBinsData);
 
     const binNumbers = Object.keys(binsDataCsv[0])
         .filter(binsDataCsvColumn => {
@@ -133,10 +131,10 @@ export function convertBinsLookupCsvToBinsLookupJson(
         return {
             binNumber: Number(binsLookupCsvRow.BinNumber),
             minScore: isNaN(Number(binsLookupCsvRow.MinXscore))
-                ? binsLookupCsvRow.MinXscore as 'infinity'
+                ? (binsLookupCsvRow.MinXscore as 'infinity')
                 : Number(binsLookupCsvRow.MinXscore),
             maxScore: isNaN(Number(binsLookupCsvRow.MaxXscore))
-                ? binsLookupCsvRow.MaxXscore as 'infinity'
+                ? (binsLookupCsvRow.MaxXscore as 'infinity')
                 : Number(binsLookupCsvRow.MaxXscore),
         };
     });
@@ -167,7 +165,7 @@ async function buildSingleAlgorithmModelJson(
     webSpecifictationsCategoriesCsvString: string | undefined,
     algorithmName: string,
     algorithmInfo: IAlgorithmInfoCsvRow,
-): Promise<IModelJson> {
+): Promise<IModelJson<ICoxSurvivalAlgorithmJson>> {
     // Get the pmml file strings in the directory sorted by priority
     const pmmlFileStrings = getPmmlFileStringsSortedByPriorityInFolder(
         assetsFolderPath,
@@ -222,7 +220,7 @@ async function buildMultipleAlgorithmModelJson(
     webSpecificationsCategoriesCsvString: string | undefined,
     algorithmName: string,
     algorithmInfo: IAlgorithmInfoCsvRow,
-): Promise<IModelJson> {
+): Promise<IModelJson<ICoxSurvivalAlgorithmJson>> {
     // get the pmml file strings sorted by priority for the male algorithm
     const malePmmlFileStrings = getPmmlFileStringsSortedByPriorityInFolder(
         `${assetsFolderPath}/male`,
@@ -284,7 +282,7 @@ async function buildMultipleAlgorithmModelJson(
                 variables: ['sex'],
             },
         ],
-    )) as IModelJson;
+    )) as IModelJson<ICoxSurvivalAlgorithmJson>;
     multipleAlgorithmModel.algorithms.forEach(({ algorithm }) => {
         (algorithm as ICoxSurvivalAlgorithmJson).timeMetric =
             algorithmInfo.TimeMetric;
@@ -342,7 +340,7 @@ export function getBuildFromAssetsFolder(): IBuildFromAssetsFolder {
 
             /*Call the right method depending on whether it's a
             MultipleAlgorithm or a SingleAlgorithm type of model*/
-            let modelJson: IModelJson;
+            let modelJson: IModelJson<ICoxSurvivalAlgorithmJson>;
             if (currentAlgorithmInfoFile.GenderSpecific === 'true') {
                 modelJson = await buildMultipleAlgorithmModelJson(
                     assetsFolderPath,
@@ -361,7 +359,7 @@ export function getBuildFromAssetsFolder(): IBuildFromAssetsFolder {
                 );
             }
 
-            const model = new Model(modelJson);
+            const model = new Model<CoxSurvivalAlgorithm>(modelJson);
 
             return new SurvivalModelFunctions(model, modelJson);
         },

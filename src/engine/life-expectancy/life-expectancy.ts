@@ -1,4 +1,4 @@
-import { Model } from '../model';
+import { Model, CoxSurvivalAlgorithm } from '../model';
 import moment from 'moment';
 import { Data } from '../data';
 import { throwErrorIfUndefined } from '../../util/undefined';
@@ -13,9 +13,9 @@ import { throwErrorIfUndefined } from '../../util/undefined';
  * used by the implementation class
  */
 export abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
-    model: Model;
+    model: Model<CoxSurvivalAlgorithm>;
 
-    constructor(model: Model) {
+    constructor(model: Model<CoxSurvivalAlgorithm>) {
         this.model = model;
     }
 
@@ -97,8 +97,8 @@ export abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
             lifeTableRow.Tx =
                 index === 0
                     ? -(knots[0] * maxAge ** 3) / 3 -
-                      knots[1] * maxAge ** 2 / 2 -
-                      knots[1] ** 2 * maxAge / (4 * knots[0]) -
+                      (knots[1] * maxAge ** 2) / 2 -
+                      (knots[1] ** 2 * maxAge) / (4 * knots[0]) -
                       knots[1] ** 3 / (24 * knots[0] ** 2)
                     : completeLifeTable[index - 1].Tx + lifeTableRow.Lx;
             // ex = Tx/lx

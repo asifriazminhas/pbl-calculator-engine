@@ -6,7 +6,7 @@ import { omit } from 'lodash';
 import { IModelJson } from '../parsers/json/json-model';
 
 function doTableAssertions(
-    actualModelJson: IModelJson,
+    actualModelJson: IModelJson<any>,
     tables: Array<{ name: string; rows: Array<{ [index: string]: string }> }>,
     t: test.Test,
 ) {

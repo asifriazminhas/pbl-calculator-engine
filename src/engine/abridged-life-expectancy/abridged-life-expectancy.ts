@@ -1,5 +1,5 @@
 import { Data, findDatumWithName } from '../data';
-import { Model } from '../model';
+import { Model, CoxSurvivalAlgorithm } from '../model';
 import {
     IAbridgedLifeTableRow,
     IGenderedAbridgedLifeTable,
@@ -33,7 +33,7 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
     private ContAgeField = 'DHHGAGE_cont';
 
     constructor(
-        model: Model,
+        model: Model<CoxSurvivalAlgorithm>,
         genderedAbridgedLifeTable: IGenderedAbridgedLifeTable,
     ) {
         super(model);

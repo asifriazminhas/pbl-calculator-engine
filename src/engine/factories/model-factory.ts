@@ -19,7 +19,7 @@ export abstract class ModelFactory {
      * @memberof ModelFactory
      */
     static extendModel<T extends object, U extends object>(
-        model: Model,
+        model: Model<CoxSurvivalAlgorithm>,
         newModelProperties: T,
         newCoxProperties?: U[],
     ): Model<U & CoxSurvivalAlgorithm> & T {

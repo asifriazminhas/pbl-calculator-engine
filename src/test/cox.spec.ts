@@ -9,6 +9,7 @@ import { TimeMetric } from '../engine/algorithm/regression-algorithm/cox-surviva
 import { ICoxSurvivalAlgorithmJson } from '../parsers/json/json-cox-survival-algorithm';
 // tslint:disable-next-line:max-line-length
 import { CoxSurvivalAlgorithm } from '../engine/algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
+import { AlgorithmType } from '../parsers/json/algorithm-type';
 
 test(`getSurvivalToTimeForCoxWithBins function`, t => {
     const covariate = new NonInteractionCovariate(
@@ -32,6 +33,7 @@ test(`getSurvivalToTimeForCoxWithBins function`, t => {
     const maximumTime = 1800;
 
     const coxWithBinsJson: ICoxSurvivalAlgorithmJson = {
+        algorithmType: AlgorithmType.CoxSurvivalAlgorithm,
         timeMetric: TimeMetric.Days,
         maximumTime: 1800,
         name: '',

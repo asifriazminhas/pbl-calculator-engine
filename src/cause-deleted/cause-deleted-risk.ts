@@ -35,7 +35,7 @@ type CauseDeletedCox = CoxSurvivalAlgorithm & {
  * @returns {CauseDeletedModel}
  */
 export function addCauseDeleted(
-    model: Model,
+    model: Model<CoxSurvivalAlgorithm>,
     riskFactorRef: CauseDeletedRef,
 ): ICauseDeletedModel {
     return ModelFactory.extendModel(
@@ -164,7 +164,7 @@ function updateCauseDeletedRef(
 }
 
 function getCauseDeletedCoxProperties(
-    model: Model,
+    model: Model<CoxSurvivalAlgorithm>,
     causeDeletedRef: CauseDeletedRef,
 ) {
     return model.algorithms.map(modelAlgorithm => {
@@ -179,8 +179,7 @@ function getCauseDeletedCoxProperties(
         });
         if (!riskFactorRefForCurrentAlgorithm) {
             throw new Error(
-                `No exposure reference object for algorithm ${modelAlgorithm
-                    .algorithm.name}`,
+                `No exposure reference object for algorithm ${modelAlgorithm.algorithm.name}`,
             );
         }
 

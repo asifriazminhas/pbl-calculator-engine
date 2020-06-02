@@ -53,7 +53,7 @@ function getAlgorithmNamesToTest(excludeAlgorithms: string[]): string[] {
 
 async function getModelObjFromAlgorithmName(
     algorithmName: string,
-): Promise<Model> {
+): Promise<Model<any>> {
     return new Model(
         require(`${TestAlgorithmsFolderPath}/${algorithmName}/model.json`),
     );
@@ -61,7 +61,7 @@ async function getModelObjFromAlgorithmName(
 
 export async function getModelsToTest(
     modelsToExclude: string[],
-): Promise<Array<{ model: Model; name: string }>> {
+): Promise<Array<{ model: Model<any>; name: string }>> {
     const modelNames = getAlgorithmNamesToTest(modelsToExclude);
 
     const models = await Promise.all(
@@ -110,8 +110,9 @@ export function getPmmlString(
                         </FieldColumnPair>`;
                     },
                 )}
-                <TableLocator location="taxonomy" name="${derivedField.mapValues
-                    .tableName}"/>
+                <TableLocator location="taxonomy" name="${
+                    derivedField.mapValues.tableName
+                }"/>
             </MapValues>
         </DerivedField>`;
     });
@@ -122,9 +123,7 @@ export function getPmmlString(
                     ${table.rows.map(row => {
                         return `<row>
                             ${Object.keys(row).map(columnName => {
-                                return `<${columnName}>${row[
-                                    columnName
-                                ]}</${columnName}>`;
+                                return `<${columnName}>${row[columnName]}</${columnName}>`;
                             })}
                         </row>`;
                     })}
@@ -211,7 +210,7 @@ export function getRelativeDifference(num1: number, num2: number): number {
         return 100;
     }
 
-    return Math.abs(num1 - num2) / Math.abs(num1) * 100;
+    return (Math.abs(num1 - num2) / Math.abs(num1)) * 100;
 }
 
 function streamValidationCsvFile(
@@ -317,17 +316,17 @@ export async function runIntegrationTest(
                 t.test(
                     `Testing ${testType} for algorithm ${algorithm.name}`,
                     t => {
-                        validationCsvFilePaths[
-                            index
-                        ].forEach(validationCsvFilePath => {
-                            testValidationFile(
-                                validationCsvFilePath,
-                                algorithm,
-                                runTestForDataAndAlgorithm,
-                                testType,
-                                t,
-                            );
-                        });
+                        validationCsvFilePaths[index].forEach(
+                            validationCsvFilePath => {
+                                testValidationFile(
+                                    validationCsvFilePath,
+                                    algorithm,
+                                    runTestForDataAndAlgorithm,
+                                    testType,
+                                    t,
+                                );
+                            },
+                        );
                     },
                 );
             });

@@ -1,7 +1,7 @@
 /* tslint:disable:no-shadowed-variable */
 
 import test from 'tape';
-import { Model } from '../engine/model';
+import { Model, CoxSurvivalAlgorithm } from '../engine/model';
 import { CompleteLifeTable } from '../engine/life-table/life-table';
 import { AbridgedLifeExpectancy } from '../engine/abridged-life-expectancy/abridged-life-expectancy';
 import { getRelativeDifference } from './test-utils';
@@ -14,7 +14,7 @@ test(`Life table calculations`, t => {
         // tslint:disable-next-line:max-line-length
         const refLifeTable = require(`${TestAssetsFolderPath}/life-table/abridged-life-table/ref-abridged-life-table.json`);
         const abridgedLifeExpectancy = new AbridgedLifeExpectancy(
-            {} as Model,
+            {} as Model<CoxSurvivalAlgorithm>,
             refLifeTable,
         );
 
