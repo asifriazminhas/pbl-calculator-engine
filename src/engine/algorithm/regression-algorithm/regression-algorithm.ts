@@ -4,25 +4,37 @@ import { Data } from '../../data/data';
 import { add, flatten, memoize } from 'lodash';
 import { ICoxSurvivalAlgorithmJson } from '../../../parsers/json/json-cox-survival-algorithm';
 import { parseCovariateJsonToCovariate } from '../../../parsers/json/json-covariate';
-import { CovariateGroup } from '../../data-field/covariate/covariate-group';
 import { DataField } from '../../data-field/data-field';
 import { datumFactoryFromDataField } from '../../data/datum';
+import { RiskFactor } from '../../../risk-factors';
 
 export abstract class RegressionAlgorithm extends Algorithm {
     covariates: Covariate[];
 
+    protected getAllFields = memoize((): DataField[] => {
+        return DataField.getUniqueDataFields(
+            flatten(
+                this.covariates.map(currentCovariate => {
+                    return currentCovariate
+                        .getDescendantFields()
+                        .concat(currentCovariate);
+                }),
+            ),
+        );
+    });
+
     constructor(regressionAlgorithmJson: ICoxSurvivalAlgorithmJson) {
         super(regressionAlgorithmJson);
 
-        this.covariates = regressionAlgorithmJson.covariates.map(
-            covariateJson => {
+        this.covariates = regressionAlgorithmJson.covariates
+            .map(covariateJson => {
                 return parseCovariateJsonToCovariate(
                     covariateJson,
                     regressionAlgorithmJson.covariates,
                     regressionAlgorithmJson.derivedFields,
                 );
-            },
-        );
+            })
+            .sort((a, b) => a.name.localeCompare(b.name));
     }
 
     calculateScore(data: Data): number {
@@ -54,19 +66,19 @@ export abstract class RegressionAlgorithm extends Algorithm {
             .reduce(add, 0);
     }
 
-    getCovariatesForGroup(group: CovariateGroup): Covariate[] {
+    getCovariatesForGroup(group: RiskFactor): Covariate[] {
         return this.covariates.filter(covariate => {
             return covariate.isPartOfGroup(group);
         });
     }
 
-    getCovariatesWithoutGroup(group: CovariateGroup): Covariate[] {
+    getCovariatesWithoutGroup(group: RiskFactor): Covariate[] {
         return this.covariates.filter(covariate => {
             return covariate.isPartOfGroup(group) === false;
         });
     }
 
-    getAllFieldsForGroup(group: CovariateGroup): DataField[] {
+    getAllFieldsForGroup(group: RiskFactor): DataField[] {
         const covariatesForGroup = this.getCovariatesForGroup(group);
 
         return DataField.getUniqueDataFields(
@@ -78,15 +90,38 @@ export abstract class RegressionAlgorithm extends Algorithm {
         ).concat(covariatesForGroup);
     }
 
-    private getAllFields = memoize((): DataField[] => {
-        return DataField.getUniqueDataFields(
-            flatten(
-                this.covariates.map(currentCovariate => {
-                    return currentCovariate.getDescendantFields();
-                }),
-            ),
+    replaceCovariate<T extends RegressionAlgorithm>(
+        this: T,
+        externalCovariate: { name: string; beta: number },
+    ): T {
+        const currentCovariate = this.covariates.find(covariate => {
+            return covariate.name === externalCovariate.name;
+        });
+        if (!currentCovariate) {
+            console.warn(
+                `No covariate with name ${externalCovariate.name} found to replace`,
+            );
+            return this;
+        }
+
+        const newCovariate = Object.setPrototypeOf(
+            Object.assign({}, currentCovariate, {
+                name: externalCovariate.name,
+                beta: externalCovariate.beta,
+            }),
+            Covariate.prototype,
         );
-    });
+        return Object.setPrototypeOf(
+            Object.assign({}, this, {
+                covariates: this.covariates
+                    .filter(covariate => {
+                        return covariate.name !== externalCovariate.name;
+                    })
+                    .concat(newCovariate),
+            }),
+            Object.getPrototypeOf(this),
+        );
+    }
 
     /**
      * Goes through each datum in the data arg and does the following checks:

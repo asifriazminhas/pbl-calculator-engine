@@ -11,9 +11,9 @@ import { findCovariateJsonWithName } from './json-covariate';
 import { JsonInterval } from './json-interval';
 
 export interface IDerivedFieldJson
-    extends Omit<JsonSerializable<DerivedField>, 'derivedFrom' | 'interval'> {
+    extends Omit<JsonSerializable<DerivedField>, 'derivedFrom' | 'intervals'> {
     derivedFrom: Array<string | JsonSerializable<IDataFieldJson>>;
-    interval?: JsonInterval;
+    intervals?: JsonInterval[];
 }
 
 export function findDerivedFieldJsonWithName(

@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+import moment from 'moment';
 
 function ifelse(booleanOne: boolean, whenTrue: any, whenFalse: any): any {
     return booleanOne ? whenTrue : whenFalse;
@@ -44,7 +44,31 @@ export default {
         }, 0);
     },
     isIn: function(...args: Array<number>): boolean {
-        return args.slice(1).indexOf(args[0]) > -1;
+        // The first argument is always the value we need to check is within an Array
+        const valueToCheck = args[0];
+        const strValueToCheck = valueToCheck + '';
+
+        // The rest of the arguments can either be numbers or an Array.
+        // We start with assuming that the rest of the arguments are just numbers so we will slice that into an Array
+        let array = args.slice(1);
+        // Here we check they passed in an Array as a second argument and if they did then that's what we need to use
+        if (Array.isArray(array[0])) {
+            array = array[0];
+        }
+        // Convert everything to a string since we don't want to check the type
+        const strArray = array.map(arrItem => {
+            return arrItem + '';
+        });
+
+        return strArray.indexOf(strValueToCheck) > -1;
+    },
+    colonOperator: function(start: number, end: number): number[] {
+        const arr: number[] = [];
+        for (let i = start; i <= end; i++) {
+            arr.push(i);
+        }
+
+        return arr;
     },
     log: function(num: number): number {
         return Math.log10(num);
@@ -57,7 +81,9 @@ export default {
     pmax: function(num1: number, num2: number): number | undefined {
         return shouldReturnUndefined(num1) || shouldReturnUndefined(num2)
             ? undefined
-            : num1 > num2 ? num1 : num2;
+            : num1 > num2
+            ? num1
+            : num2;
     },
     exists: function(value: any): boolean {
         return !(value === undefined || value === null);
@@ -80,4 +106,41 @@ export default {
     'is.null': function(value: any): boolean {
         return value === null;
     },
+    zScore: function(mean: number, sd: number, value: number): number {
+        return (value - mean) / sd;
+    },
+    'as.Date': function(dateString: string, format: string) {
+        const momentFormat = convertRDateFormatToMoment(format);
+
+        return moment(dateString, momentFormat);
+    },
+    format: function(object: any): string {
+        if (moment.isMoment(object)) {
+            const momentFormat = convertRDateFormatToMoment(arguments[1]);
+
+            return object.format(momentFormat);
+        }
+
+        throw new Error(`Unhandled object type in PMML format function.`);
+    },
+    'Sys.Date': function(): moment.Moment {
+        return moment();
+    },
 };
+
+function convertRDateFormatToMoment(rFormat: string): string {
+    const RToMomentFormats = {
+        '%d': 'DD',
+        '%m': 'MM',
+        '%Y': 'YYYY',
+    };
+
+    return (Object.keys(RToMomentFormats) as Array<
+        keyof typeof RToMomentFormats
+    >).reduce((currentMomentFormat, currentRToMomentFormatKey) => {
+        return currentMomentFormat.replace(
+            new RegExp(rFormat, 'g'),
+            RToMomentFormats[currentRToMomentFormatKey],
+        );
+    }, rFormat);
+}

@@ -31,7 +31,7 @@ function getAstForDerivedField(
     } else if (derivedField.FieldRef) {
         right = getASTForFieldRef(derivedField.FieldRef, true);
     } else if (derivedField.MapValues) {
-        right = getAstForMapValues(derivedField.MapValues);
+        right = getAstForMapValues(derivedField.MapValues, false);
     } else {
         throw new Error(`Unknown root node in derived field`);
     }
@@ -146,6 +146,7 @@ function getDerivedFromForAst(
                             name: derivedFromItem,
                             extensions: {},
                             isRequired: false,
+                            isRecommended: false,
                             metadata: {
                                 label: '',
                                 shortLabel: '',
@@ -185,6 +186,7 @@ export function parseDerivedFields(
                     derivedFrom: getDerivedFromForAst(ast, pmml),
                     extensions: {},
                     isRequired: false,
+                    isRecommended: false,
                 },
                 dataFieldForCurrentDerivedField
                     ? parseDataFieldFromDataFieldPmmlNode(

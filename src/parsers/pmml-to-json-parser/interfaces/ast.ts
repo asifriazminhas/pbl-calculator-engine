@@ -290,7 +290,7 @@ export interface IPropertyAst {
     computed: false;
     kind: 'init';
     key: ILiteralAST;
-    value: ILiteralAST | IMemberExpressionAST;
+    value: ILiteralAST | IMemberExpressionAST | IIdentifierAST;
 }
 
 export interface IObjectExpressionAst {

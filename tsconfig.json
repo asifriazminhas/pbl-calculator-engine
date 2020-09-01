@@ -16,8 +16,12 @@
         "importHelpers": true,
         "noUnusedLocals": true,
         "strictFunctionTypes": true,
-        "strict": true
+        "strict": true,
+        "strictBindCallApply": true,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "composite": true,
+        "rootDir": "./src"
     },
-    "include": ["./src/**/*.ts", "./typings/**/*.d.ts"],
-    "exclude": ["node_modules", "lib"]
+    "exclude": ["./node_modules", "./lib"]
 }

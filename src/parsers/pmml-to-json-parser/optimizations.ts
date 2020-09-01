@@ -1,17 +1,16 @@
 import {
     ILiteralAST,
     ICallExpressionAST,
-    IIdentifierAST,
     IMemberExpressionAST,
     IObjectExpressionAst,
 } from './interfaces/ast';
 // tslint:disable-next-line
 const astTypes = require('ast-types');
 import { parseScript } from 'esprima';
-import { ICoxSurvivalAlgorithmJson } from '../../parsers/json/json-cox-survival-algorithm';
 import { ITables } from '../../engine/algorithm/tables/tables';
 import { IUserFunctions } from '../../engine/algorithm/user-functions/user-functions';
 import { IModelJson } from '../../parsers/json/json-model';
+import { JsonAlgorithms } from '../json/json-algorithms';
 
 function isUserFunctionsFunctionCall(node: ICallExpressionAST) {
     return (
@@ -38,73 +37,85 @@ function getTableColumnsUsedFromTableCallExpression(
     return otherColumns.concat(outputColumn);
 }
 
-function optimizeTables(algorithm: ICoxSurvivalAlgorithmJson): ITables {
-    return Object.keys(
-        algorithm.tables,
-    ).reduce((newTables, currentTableName) => {
-        const table = algorithm.tables[currentTableName];
+function isGetValueFromTableCall(ast: ICallExpressionAST) {
+    if (ast.callee.type === 'MemberExpression') {
+        if (ast.callee.property.type === 'Literal') {
+            if (ast.callee.property.value === 'getValueFromTable') {
+                return true;
+            }
+        }
+    }
 
-        let tableColumnsUsed: string[] = [];
-
-        algorithm.derivedFields.forEach(derivedField => {
-            astTypes.visit(parseScript(derivedField.equation), {
-                // tslint:disable-next-line
-                visitCallExpression: function(path: {
-                    value: ICallExpressionAST;
-                }) {
-                    /* Check if the method call is one which returns values from a table */
-                    if (
-                        (path.value.callee as IIdentifierAST).name ===
-                            'getValueFromTable' &&
-                        ((path.value.arguments[0] as IMemberExpressionAST)
-                            .property as ILiteralAST).value === currentTableName
-                    ) {
-                        const tableColummsUsedForCurrentTableCall = getTableColumnsUsedFromTableCallExpression(
-                            path.value,
-                        );
-
-                        tableColumnsUsed = tableColumnsUsed.concat(
-                            tableColummsUsedForCurrentTableCall.filter(
-                                tableColumn => {
-                                    return tableColumnsUsed.find(
-                                        tableColumnUsed => {
-                                            return (
-                                                tableColumnUsed === tableColumn
-                                            );
-                                        },
-                                    )
-                                        ? false
-                                        : true;
-                                },
-                            ),
-                        );
-
-                        return false;
-                    }
-
-                    return this.traverse(path);
-                },
-            });
-        });
-
-        return Object.assign({}, newTables, {
-            [currentTableName]: table.map(tableRow => {
-                return tableColumnsUsed.reduce(
-                    (newTableRow, tableColumnUsed) => {
-                        return Object.assign({}, newTableRow, {
-                            [tableColumnUsed]: tableRow[tableColumnUsed],
-                        });
-                    },
-                    {},
-                );
-            }),
-        });
-    }, {});
+    return false;
 }
 
-function optimizeUserFunctions(
-    algorithm: ICoxSurvivalAlgorithmJson,
-): IUserFunctions {
+function optimizeTables(algorithm: JsonAlgorithms): ITables {
+    return Object.keys(algorithm.tables).reduce(
+        (newTables, currentTableName) => {
+            const table = algorithm.tables[currentTableName];
+
+            let tableColumnsUsed: string[] = [];
+
+            algorithm.derivedFields.forEach(derivedField => {
+                astTypes.visit(parseScript(derivedField.equation), {
+                    // tslint:disable-next-line
+                    visitCallExpression: function(path: {
+                        value: ICallExpressionAST;
+                    }) {
+                        /* Check if the method call is one which returns values from a table */
+                        if (
+                            isGetValueFromTableCall(path.value) &&
+                            ((path.value.arguments[0] as IMemberExpressionAST)
+                                .property as ILiteralAST).value ===
+                                currentTableName
+                        ) {
+                            const tableColummsUsedForCurrentTableCall = getTableColumnsUsedFromTableCallExpression(
+                                path.value,
+                            );
+
+                            tableColumnsUsed = tableColumnsUsed.concat(
+                                tableColummsUsedForCurrentTableCall.filter(
+                                    tableColumn => {
+                                        return tableColumnsUsed.find(
+                                            tableColumnUsed => {
+                                                return (
+                                                    tableColumnUsed ===
+                                                    tableColumn
+                                                );
+                                            },
+                                        )
+                                            ? false
+                                            : true;
+                                    },
+                                ),
+                            );
+
+                            return false;
+                        }
+
+                        return this.traverse(path);
+                    },
+                });
+            });
+
+            return Object.assign({}, newTables, {
+                [currentTableName]: table.map(tableRow => {
+                    return tableColumnsUsed.reduce(
+                        (newTableRow, tableColumnUsed) => {
+                            return Object.assign({}, newTableRow, {
+                                [tableColumnUsed]: tableRow[tableColumnUsed],
+                            });
+                        },
+                        {},
+                    );
+                }),
+            });
+        },
+        {},
+    );
+}
+
+function optimizeUserFunctions(algorithm: JsonAlgorithms): IUserFunctions {
     return Object.keys(algorithm.userFunctions)
         .filter(userFunctionNameToCheck => {
             let isUserFunctionUsed: boolean = false;
@@ -164,16 +175,16 @@ function optimizeUserFunctions(
         }, {});
 }
 
-function optimizeAlgorithm(
-    algorithm: ICoxSurvivalAlgorithmJson,
-): ICoxSurvivalAlgorithmJson {
+function optimizeAlgorithm(algorithm: JsonAlgorithms): JsonAlgorithms {
     return Object.assign({}, algorithm, {
         tables: optimizeTables(algorithm),
         userFunctions: optimizeUserFunctions(algorithm),
     });
 }
 
-export function optimizeModel(model: IModelJson): IModelJson {
+export function optimizeModel<T extends JsonAlgorithms>(
+    model: IModelJson<T>,
+): IModelJson<T> {
     return Object.assign({}, model, {
         algorithms: model.algorithms.map(algorithm => {
             return Object.assign({}, algorithm, {

@@ -17,7 +17,7 @@ export function mergeArrays<T>(
         if (indexOfArrayOneItemWithSameUniqueId === -1) {
             mergedArray.push(arrayTwoItem);
         } else {
-            if (shouldLogWarnings) {
+            if (shouldLogWarnings()) {
                 console.warn(
                     `Found 2 objects with name ${getUniqueIdProperty(
                         arrayTwoItem,

@@ -2,9 +2,8 @@ import { RegressionAlgorithm } from '../regression-algorithm';
 import { Bins } from './bins/bins';
 import { TimeMetric } from './time-metric';
 import { Data } from '../../../data/data';
-import * as moment from 'moment';
+import moment from 'moment';
 import { sortedLastIndexBy } from 'lodash';
-import { shouldLogDebugInfo } from '../../../../util/env';
 import { Calibration } from './calibration/calibration';
 import { ICoxSurvivalAlgorithmJson } from '../../../../parsers/json/json-cox-survival-algorithm';
 import { Baseline } from '../baseline/baseline';
@@ -15,10 +14,8 @@ import { NoCalibrationFoundError } from './calibration/calibration-errors';
 import { Predicate } from '../../../predicate/predicate';
 import { NoPredicateObjectFoundError } from '../../../predicate/predicate-errors';
 import { BaselineJson } from '../../../../parsers/json/json-baseline';
-import { DataNameReport } from '../../algorithm';
-import { InteractionCovariate } from '../../../data-field/covariate/interaction-covariate/interaction-covariate';
-import { Covariate } from '../../../data-field/covariate/covariate';
 import { DataField } from '../../../data-field/data-field';
+import { debugRisk } from '../../../../debug/debug-risk';
 
 export interface INewPredictor {
     name: string;
@@ -43,38 +40,6 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
             : undefined;
         this.timeMetric = coxSurvivalAlgorithmJson.timeMetric;
         this.calibration = new Calibration();
-    }
-
-    buildDataNameReport(headers: string[]): DataNameReport {
-        const found: Covariate[] = [];
-        const missingRequired: Covariate[] = [];
-        const missingOptional: Covariate[] = [];
-        const ignored: string[] = [...headers];
-
-        this.covariates.forEach(covariate => {
-            if (covariate.customFunction) return;
-            if (covariate instanceof InteractionCovariate) return;
-
-            const headerWasProvided = headers.includes(covariate.name);
-
-            if (headerWasProvided) {
-                found.push(covariate);
-                ignored.splice(ignored.indexOf(covariate.name), 1);
-            } else {
-                if (covariate.isRequired) {
-                    missingRequired.push(covariate);
-                } else {
-                    missingOptional.push(covariate);
-                }
-            }
-        });
-
-        return {
-            found: this.sortCovariatesByName(found),
-            missingRequired: this.sortCovariatesByName(missingRequired),
-            missingOptional: this.sortCovariatesByName(missingOptional),
-            ignored: ignored.sort((a, b) => a.localeCompare(b)),
-        };
     }
 
     evaluate(data: Data, time?: Date | moment.Moment) {
@@ -119,7 +84,8 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
                     : 0,
                 name: predictor.name,
                 groups: [],
-                isRequired: false,
+                isRequired: true,
+                isRecommended: false,
                 metadata: {
                     label: '',
                     shortLabel: '',
@@ -211,11 +177,21 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
         throw new Error(`No DataField found with name ${name}`);
     }
 
+    getRequiredVariables() {
+        return this.getAllFields().filter(field => field.isRequired);
+    }
+
+    getRecommendedVariables() {
+        return this.getAllFields().filter(field => field.isRecommended);
+    }
+
     private getSurvivalToTimeWithBins(
         this: CoxSurvivalAlgorithm & { bins: Bins },
         data: Data,
         time?: Date | moment.Moment,
     ): number {
+        debugRisk.startNewCalculation();
+
         const score = this.calculateScore(data);
 
         const binDataForScore = this.bins.getBinDataForScore(score);
@@ -238,15 +214,23 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
             },
         );
 
-        return binDataForTimeIndex === 0
-            ? 0.99
-            : binDataForScore[binDataForTimeIndex - 1].survivalPercent / 100;
+        const survival =
+            binDataForTimeIndex === 0
+                ? 0.99
+                : binDataForScore[binDataForTimeIndex - 1].survivalPercent /
+                  100;
+
+        debugRisk.addEndDebugInfo(this.covariates, data, score, 1 - survival);
+
+        return survival;
     }
 
     private getRiskToTimeWithoutBins(
         data: Data,
         time?: Date | moment.Moment,
     ): number {
+        debugRisk.startNewCalculation();
+
         let formattedTime: moment.Moment;
         if (!time) {
             formattedTime = moment().startOf('day');
@@ -257,26 +241,28 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
             formattedTime = time;
         }
 
-        if (shouldLogDebugInfo() === true) {
-            console.groupCollapsed(`Predictors`);
-        }
-
-        if (shouldLogDebugInfo()) {
-            console.log(`Baseline: ${this.baseline}`);
-        }
-
-        if (shouldLogDebugInfo() === true) {
-            console.groupEnd();
-        }
-
         const score = this.calculateScore(data);
+
+        // Get how many days into the future we want to predict the risk
+        const predictionTimeInDays = formattedTime.diff(
+            moment().startOf('day'),
+            'days',
+        );
         // baseline*calibration*e^score
         const exponentiatedScoreTimesBaselineTimesCalibration =
-            this.baseline.getBaselineForData(data) *
+            this.baseline.getBaselineHazard(predictionTimeInDays) *
             this.calibration.getCalibrationFactorForData(data) *
             Math.E ** score;
+        // 1 - e^(-previousValue)
         const maximumTimeRiskProbability =
             1 - Math.E ** -exponentiatedScoreTimesBaselineTimesCalibration;
+
+        debugRisk.addEndDebugInfo(
+            this.covariates,
+            data,
+            score,
+            maximumTimeRiskProbability,
+        );
 
         return (
             maximumTimeRiskProbability * this.getTimeMultiplier(formattedTime)
@@ -292,9 +278,5 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
             ) / this.maximumTime,
             1,
         );
-    }
-
-    private sortCovariatesByName(covariates: Covariate[]) {
-        return covariates.sort((a, b) => a.name.localeCompare(b.name));
     }
 }

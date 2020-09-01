@@ -1,4 +1,4 @@
-import * as test from 'tape';
+import test from 'tape';
 import { updateDataWithData } from '../engine/data/data';
 import { expect } from 'chai';
 

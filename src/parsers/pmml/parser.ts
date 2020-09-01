@@ -1,4 +1,4 @@
-import * as bluebird from 'bluebird';
+import bluebird from 'bluebird';
 import { parseString } from 'xml2js';
 import { Pmml, ICustomPmmlXml } from './pmml';
 import { mergeDataDictionary } from './data_dictionary/data_dictionary';
@@ -27,7 +27,9 @@ function mergePmml(
             ),
             Taxonomy: pmmlTwo.PMML.Taxonomy
                 ? pmmlTwo.PMML.Taxonomy
-                : pmmlOne.PMML.Taxonomy ? pmmlOne.PMML.Taxonomy : [],
+                : pmmlOne.PMML.Taxonomy
+                ? pmmlOne.PMML.Taxonomy
+                : [],
             DataDictionary: mergeDataDictionary(
                 pmmlOne.PMML.DataDictionary,
                 pmmlTwo.PMML.DataDictionary,

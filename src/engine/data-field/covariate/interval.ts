@@ -5,6 +5,7 @@ import { ErrorCode } from '../error-code';
 export class Interval {
     lowerMargin?: Margin;
     higherMargin?: Margin;
+    description: string;
 
     constructor(intervalJson: JsonInterval) {
         this.lowerMargin = intervalJson.lowerMargin
@@ -13,6 +14,7 @@ export class Interval {
         this.higherMargin = intervalJson.higherMargin
             ? new Margin(intervalJson.higherMargin)
             : undefined;
+        this.description = intervalJson.description;
     }
 
     limitNumber(num: number): number {
@@ -41,12 +43,10 @@ export class Interval {
         if (this.lowerMargin) {
             const margin = this.lowerMargin.margin;
 
-            if (this.lowerMargin.isOpen) {
-                if (num <= margin) {
-                    return ErrorCode.LessThanOrEqualTo;
-                } else if (num < margin) {
-                    return ErrorCode.LessThan;
-                }
+            if (this.lowerMargin.isOpen && num <= margin) {
+                return ErrorCode.LessThanOrEqualTo;
+            } else if (num < margin) {
+                return ErrorCode.LessThan;
             }
         }
 
@@ -65,15 +65,20 @@ export class Interval {
         if (this.higherMargin) {
             const margin = this.higherMargin.margin;
 
-            if (this.higherMargin.isOpen) {
-                if (num >= margin) {
-                    return ErrorCode.GreaterThanOrEqualTo;
-                } else if (num > margin) {
-                    return ErrorCode.GreaterThan;
-                }
+            if (this.higherMargin.isOpen && num >= margin) {
+                return ErrorCode.GreaterThanOrEqualTo;
+            } else if (num > margin) {
+                return ErrorCode.GreaterThan;
             }
         }
 
         return true;
+    }
+
+    validate(num: number): boolean {
+        return (
+            this.validateHigherMargin(num) === true &&
+            this.validateLowerMargin(num) === true
+        );
     }
 }

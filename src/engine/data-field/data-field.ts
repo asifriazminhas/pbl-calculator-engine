@@ -6,11 +6,13 @@ import { IDataFieldJson } from '../../parsers/json/json-data-field';
 import { ICategory } from './category';
 import { ErrorCode } from './error-code';
 import { IMetadata } from './metadata';
+import { Coefficent } from '../data/coefficent';
+import moment from 'moment';
 
 @autobind
 export class DataField {
     name: string;
-    interval?: Interval;
+    intervals?: Interval[];
     /**
      * If the DataField is a categorical field, then this field will be set.
      * Otherwise it will be undefined.
@@ -20,15 +22,20 @@ export class DataField {
      */
     categories?: ICategory[];
     isRequired: boolean;
+    isRecommended: boolean;
     metadata: IMetadata;
 
     constructor(fieldJson: IDataFieldJson) {
         this.name = fieldJson.name;
-        this.interval = fieldJson.interval
-            ? new Interval(fieldJson.interval)
+        this.intervals = fieldJson.intervals
+            ? fieldJson.intervals.map(interval => {
+                  return new Interval(interval);
+              })
             : undefined;
+        this.categories = fieldJson.categories;
         this.isRequired = fieldJson.isRequired;
         this.metadata = fieldJson.metadata;
+        this.isRecommended = fieldJson.isRecommended;
     }
 
     static getUniqueDataFields(dataFields: DataField[]): DataField[] {
@@ -61,33 +68,60 @@ export class DataField {
      * the interval and categories fields if present
      *
      * @param {Data[]} data Data to validate in the context of this DataField
-     * @returns {(ErrorCode | true)} If validation failed, then an ErrorCode
-     * representing the error will be returned. Otherwise true will be
-     * returned
+     * @returns {(ErrorCode[] | true)} If validation failed, then error codes
+     * representing all the validation errors is returned
      * @memberof DataField
      */
-    validateData(data: Data): ErrorCode | true {
+    validateData(data: Data): ErrorCode[] | true {
         const datumFound = this.getDatumForField(data);
 
         if (!datumFound) {
-            return ErrorCode.NoDatumFound;
+            return [ErrorCode.NoDatumFound];
         }
 
-        if (this.interval) {
+        const errorCodes: ErrorCode[] = [];
+
+        if (this.intervals) {
             const numberCoefficient = Number(datumFound.coefficent);
+            const isEmptyString =
+                typeof datumFound.coefficent === 'string' &&
+                datumFound.coefficent.trim().length === 0;
 
-            const lowerMarginValidation = this.interval.validateLowerMargin(
-                numberCoefficient,
-            );
-            if (lowerMarginValidation !== true) {
-                return lowerMarginValidation;
-            }
+            if (isNaN(numberCoefficient) || isEmptyString) {
+                errorCodes.push(ErrorCode.NotANumber);
+            } else {
+                // Go through each interval and validate the margins of each one.
+                // If both margins are validated for any interval than
+                // validation passes. Otherwise add to the list of error codes
+                // if it hasn't already been added
+                for (const interval of this.intervals) {
+                    const lowerMarginValidation = interval.validateLowerMargin(
+                        numberCoefficient,
+                    );
+                    if (
+                        lowerMarginValidation !== true &&
+                        errorCodes.indexOf(lowerMarginValidation) === -1
+                    ) {
+                        errorCodes.push(lowerMarginValidation);
+                    }
 
-            const higherMarginValidation = this.interval.validateHigherMargin(
-                numberCoefficient,
-            );
-            if (higherMarginValidation !== true) {
-                return higherMarginValidation;
+                    const higherMarginValidation = interval.validateHigherMargin(
+                        numberCoefficient,
+                    );
+                    if (
+                        higherMarginValidation !== true &&
+                        errorCodes.indexOf(higherMarginValidation) === -1
+                    ) {
+                        errorCodes.push(higherMarginValidation);
+                    }
+
+                    if (
+                        lowerMarginValidation === true &&
+                        higherMarginValidation === true
+                    ) {
+                        return true;
+                    }
+                }
             }
         }
 
@@ -100,10 +134,36 @@ export class DataField {
 
             // If no category was found then validation has failed
             if (!foundCategory) {
-                return ErrorCode.InvalidCategory;
+                errorCodes.push(ErrorCode.InvalidCategory);
+            } else {
+                // Otherwise validation passes
+                return true;
             }
         }
 
-        return true;
+        return errorCodes;
+    }
+
+    formatCoefficient(coefficient: Coefficent) {
+        if (coefficient instanceof moment || coefficient instanceof Date) {
+            throw new Error(`Coefficent is not a number ${this.name}`);
+        } else {
+            const formattedCoefficient = Number(coefficient);
+
+            if (this.intervals) {
+                // Find One interval where the coefficient is within it's bounds
+                const validatedInterval = this.intervals.find(interval => {
+                    return interval.validate(formattedCoefficient);
+                });
+
+                if (validatedInterval) {
+                    return formattedCoefficient;
+                } else {
+                    return this.intervals[0].limitNumber(formattedCoefficient);
+                }
+            }
+
+            return formattedCoefficient;
+        }
     }
 }

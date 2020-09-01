@@ -11,15 +11,16 @@ import { NoLifeTableFoundError } from '../errors';
 import { Model } from '../model/model';
 import { autobind } from 'core-decorators';
 import memoizeOne from 'memoize-one';
+import { CoxSurvivalAlgorithm } from '../model';
 
 @autobind
 export class LifeTableFunctions {
-    model: Model;
+    model: Model<CoxSurvivalAlgorithm>;
     private genderSpecificRefLifeTable: IGenderSpecificRefLifeTable;
     private useExFromAge: number;
 
     constructor(
-        model: Model,
+        model: Model<CoxSurvivalAlgorithm>,
         genderSpecificRefLifeTable: IGenderSpecificRefLifeTable,
         useExFromAge: number = 99,
     ) {

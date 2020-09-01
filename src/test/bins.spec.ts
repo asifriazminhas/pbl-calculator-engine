@@ -1,4 +1,4 @@
-import * as test from 'tape';
+import test from 'tape';
 
 // tslint:disable-next-line
 const csvParse = require('csv-parse/lib/sync');

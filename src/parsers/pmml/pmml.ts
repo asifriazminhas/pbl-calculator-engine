@@ -11,12 +11,13 @@ import { IRestrictedCubicSpline } from './custom/restricted_cubic_spline';
 import { buildXmlFromXml2JsObject } from '../../util/xmlbuilder';
 import { ITaxonomy } from './taxonomy';
 import { IMiningSchema } from './mining-schema/mining-schema';
+import { ISimpleModel } from './simple-model/simple-model';
 
 export interface IOutput {
     OutputField: {
         $: {
             name: string;
-            targetField: string;
+            targetField?: string;
         };
     };
 }
@@ -26,6 +27,7 @@ export interface IPmml {
     DataDictionary: IDataDictionary;
     LocalTransformations: ILocalTransformations;
     GeneralRegressionModel?: IGeneralRegressionModel;
+    SimpleModel?: ISimpleModel;
     MiningSchema: IMiningSchema;
     Taxonomy?: ITaxonomy[] | ITaxonomy;
     Output?: IOutput;
@@ -60,10 +62,10 @@ export class Pmml {
     findDataFieldWithName(dataFieldName: string): IDataField | undefined {
         return this.pmmlXml.PMML.DataDictionary
             ? this.pmmlXml.PMML.DataDictionary.DataField
-              ? this.pmmlXml.PMML.DataDictionary.DataField.find(
-                    dataField => dataField.$.name === dataFieldName,
-                )
-              : undefined
+                ? this.pmmlXml.PMML.DataDictionary.DataField.find(
+                      dataField => dataField.$.name === dataFieldName,
+                  )
+                : undefined
             : undefined;
     }
 
@@ -91,8 +93,8 @@ export class Pmml {
                   derivedField => derivedField.$.name === derivedFieldName,
               )
             : DerivedField.$.name === derivedFieldName
-              ? DerivedField
-              : undefined;
+            ? DerivedField
+            : undefined;
     }
 
     toString(): string {

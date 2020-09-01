@@ -1,12 +1,10 @@
-import * as test from 'tape';
+import test from 'tape';
 import { expect } from 'chai';
-import {
-    DerivedField,
-    findDescendantDerivedField,
-} from '../engine/data-field/derived-field/derived-field';
+import { DerivedField } from '../engine/data-field/derived-field/derived-field';
 import { DataField } from '../engine/data-field/data-field';
 import { IUserFunctions } from '../engine/algorithm/user-functions/user-functions';
 import { ITables } from '../engine/algorithm/tables/tables';
+import { findDescendantDerivedField } from '../covariate-dep-graph/derived-field-dep-graph';
 
 test(`.calculateCoefficent`, t => {
     const userFunctions: IUserFunctions = {};
@@ -43,12 +41,14 @@ test(`.calculateCoefficent`, t => {
         )`,
             derivedFrom: [],
             isRequired: false,
+            isRecommended: false,
             metadata,
         },
         [
             new DataField({
                 name: 'fieldOne',
                 isRequired: false,
+                isRecommended: false,
                 metadata,
             }),
         ],
@@ -62,7 +62,7 @@ test(`.calculateCoefficent`, t => {
 
     expect(
         derivedField.calculateCoefficent(data, userFunctions, tables),
-    ).to.equal('1');
+    ).to.equal(1);
     t.pass(`Correctly calculated coefficent with table condition`);
 
     t.end();
@@ -81,6 +81,7 @@ test(`.getDerivedFieldWithName`, t => {
                 name: '',
                 derivedFrom: [],
                 isRequired: false,
+                isRecommended: false,
                 metadata,
             },
             [
@@ -90,6 +91,7 @@ test(`.getDerivedFieldWithName`, t => {
                         derivedFrom: [],
                         name: 'fieldToFind',
                         isRequired: false,
+                        isRecommended: false,
                         metadata,
                     },
                     [
@@ -99,6 +101,7 @@ test(`.getDerivedFieldWithName`, t => {
                                 derivedFrom: [],
                                 name: '',
                                 isRequired: false,
+                                isRecommended: false,
                                 metadata,
                             },
                             [],
@@ -113,6 +116,7 @@ test(`.getDerivedFieldWithName`, t => {
                 equation: '',
                 derivedFrom: [],
                 isRequired: false,
+                isRecommended: false,
                 metadata,
             },
             [],
@@ -125,6 +129,7 @@ test(`.getDerivedFieldWithName`, t => {
             derivedFrom: [],
             name: '',
             isRequired: false,
+            isRecommended: false,
             metadata,
         },
         childFields,
@@ -150,6 +155,7 @@ test(`.calculateDataToCalculateCoefficent`, t => {
         const derivedFromDataField = new DataField({
             name: 'testOne',
             isRequired: false,
+            isRecommended: false,
             metadata,
         });
         const derivedField: DerivedField = new DerivedField(
@@ -158,6 +164,7 @@ test(`.calculateDataToCalculateCoefficent`, t => {
                 equation: '',
                 derivedFrom: [],
                 isRequired: false,
+                isRecommended: false,
                 metadata,
             },
             [derivedFromDataField],

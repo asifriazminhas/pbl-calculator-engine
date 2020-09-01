@@ -4,13 +4,14 @@ import {
     IModelJson,
     getAlgorithmJsonForPredicateData,
 } from '../parsers/json/json-model';
-import { CovariateGroup } from '../engine/data-field/covariate/covariate-group';
+import { RiskFactor } from '../risk-factors';
+import { ICoxSurvivalAlgorithmJson } from '../parsers/json/json-cox-survival-algorithm';
 // tslint:disable-next-line
 var csvParse = require('csv-parse/lib/sync');
 
 export interface ICauseEffectCsvRow {
     Algorithm: string;
-    RiskFactor: CovariateGroup;
+    RiskFactor: RiskFactor;
     Sex: 'Male' | 'Female' | 'Both';
     PredictorName: string;
     EngineRef: string | 'NA';
@@ -72,7 +73,7 @@ function getCauseEffectRefUpdateObjectForCauseEffectCsvRow(
 function updateGenderCauseEffectRef(
     GenderCauseEffectRef: IGenderCauseEffectRef,
     gender: keyof IGenderCauseEffectRef,
-    riskFactor: CovariateGroup,
+    riskFactor: RiskFactor,
     update: IDatum | undefined,
 ): IGenderCauseEffectRef {
     if (!GenderCauseEffectRef[gender][riskFactor]) {
@@ -92,7 +93,7 @@ function reduceToGenderCauseEffectRefObject(
         updateGenderCauseEffectRef(
             causeEffectRef,
             'male',
-            currentCauseEffectCsvRow.RiskFactor as CovariateGroup,
+            currentCauseEffectCsvRow.RiskFactor as RiskFactor,
             getCauseEffectRefUpdateObjectForCauseEffectCsvRow(
                 currentCauseEffectCsvRow,
             ),
@@ -102,7 +103,7 @@ function reduceToGenderCauseEffectRefObject(
         updateGenderCauseEffectRef(
             causeEffectRef,
             'female',
-            currentCauseEffectCsvRow.RiskFactor as CovariateGroup,
+            currentCauseEffectCsvRow.RiskFactor as RiskFactor,
             getCauseEffectRefUpdateObjectForCauseEffectCsvRow(
                 currentCauseEffectCsvRow,
             ),
@@ -114,7 +115,7 @@ function reduceToGenderCauseEffectRefObject(
 
 function checkGeneratedCauseEffectJson(
     causeEffectJson: IGenderCauseEffectRef,
-    model: IModelJson,
+    model: IModelJson<ICoxSurvivalAlgorithmJson>,
     modelName: string,
 ): IGenderCauseEffectRef {
     Object.keys(causeEffectJson).forEach(genderKey => {
@@ -129,37 +130,37 @@ function checkGeneratedCauseEffectJson(
         );
 
         Object.keys(causeEffectJson[genderKey]).forEach(riskFactor => {
-            causeEffectJson[genderKey][
-                riskFactor as CovariateGroup
-            ].forEach(datum => {
-                const covariateFoundForCurrentDatum = algorithmJsonForCurrentGender.covariates.find(
-                    covariate => {
-                        return covariate.name === datum.name;
-                    },
-                );
-                const derivedFieldFoundForCurrentDatum = algorithmJsonForCurrentGender.derivedFields.find(
-                    derivedField => {
-                        return derivedField.name === datum.name;
-                    },
-                );
-
-                if (
-                    !covariateFoundForCurrentDatum &&
-                    !derivedFieldFoundForCurrentDatum
-                ) {
-                    throw new Error(
-                        // tslint:disable-next-line
-                        `No covariate or derived field with name ${datum.name} found in ${genderKey} ${modelName} model `,
+            causeEffectJson[genderKey][riskFactor as RiskFactor].forEach(
+                datum => {
+                    const covariateFoundForCurrentDatum = algorithmJsonForCurrentGender.covariates.find(
+                        covariate => {
+                            return covariate.name === datum.name;
+                        },
                     );
-                }
-            });
+                    const derivedFieldFoundForCurrentDatum = algorithmJsonForCurrentGender.derivedFields.find(
+                        derivedField => {
+                            return derivedField.name === datum.name;
+                        },
+                    );
+
+                    if (
+                        !covariateFoundForCurrentDatum &&
+                        !derivedFieldFoundForCurrentDatum
+                    ) {
+                        throw new Error(
+                            // tslint:disable-next-line
+                            `No covariate or derived field with name ${datum.name} found in ${genderKey} ${modelName} model `,
+                        );
+                    }
+                },
+            );
         });
     });
 
     return causeEffectJson;
 }
 export function convertCauseEffectCsvToGenderCauseEffectRefForAlgorithm(
-    model: IModelJson,
+    model: IModelJson<ICoxSurvivalAlgorithmJson>,
     modelName: string,
     causeEffectCsvString: string,
 ): IGenderCauseEffectRef {

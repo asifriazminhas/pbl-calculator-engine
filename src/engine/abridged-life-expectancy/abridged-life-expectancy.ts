@@ -1,5 +1,5 @@
 import { Data, findDatumWithName } from '../data';
-import { Model } from '../model';
+import { Model, CoxSurvivalAlgorithm } from '../model';
 import {
     IAbridgedLifeTableRow,
     IGenderedAbridgedLifeTable,
@@ -10,7 +10,9 @@ import {
     ICompleteLifeTableRow,
 } from '../life-expectancy/life-expectancy';
 import { inRange } from 'lodash';
-import { ErrorCode } from '../data-field/error-code';
+import { DerivedField } from '../data-field/derived-field/derived-field';
+import { DataField } from '../data-field/data-field';
+import { debugLe } from '../../debug/debug-le';
 
 /**
  * Used to calculate life expectancy with:
@@ -27,8 +29,11 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
 > {
     private genderedAbridgedLifeTable: IGenderedAbridgedLifeTable;
 
+    private SexVariable = 'DHH_SEX';
+    private ContAgeField = 'DHHGAGE_cont';
+
     constructor(
-        model: Model,
+        model: Model<CoxSurvivalAlgorithm>,
         genderedAbridgedLifeTable: IGenderedAbridgedLifeTable,
     ) {
         super(model);
@@ -43,20 +48,136 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
      * life expectancy for the population
      *
      * @param {Data[]} population
+     * @param {boolean} useWeights Whether the final value LE value should be weighted. Defaults to true.
      * @returns
      * @memberof AbridgedLifeExpectancy
      */
-    calculateForPopulation(population: Data[]) {
+    calculateForPopulation(population: Data[], useWeights: boolean = true) {
+        debugLe.startNewCalculation(false);
+
         const malePopLifeExpectancy = this.calculateForPopulationForSex(
             population,
             'male',
+            useWeights,
         );
         const femalePopLifeExpectancy = this.calculateForPopulationForSex(
             population,
             'female',
+            useWeights,
         );
 
-        return (malePopLifeExpectancy + femalePopLifeExpectancy) / 2;
+        const le = (malePopLifeExpectancy + femalePopLifeExpectancy) / 2;
+
+        debugLe.addEndDebugInfoPopulation(le);
+
+        return le;
+    }
+
+    /**
+     * Returns the life years left for an individual
+     *
+     * @param {Data} individual
+     * @returns
+     * @memberof AbridgedLifeExpectancy
+     */
+    calculateForIndividual(individual: Data) {
+        // Variable initialization
+
+        // Algorithm selected by the individual's sex
+        const algorithm = this.model.getAlgorithmForData(individual);
+        // The continuous age field in the algorithm. This value will be varied going from one life table row to another
+        const ageContField = algorithm.findDataField(
+            this.ContAgeField,
+        ) as DerivedField;
+        // Calculate the age of the individual
+        const ageContValue = ageContField.calculateCoefficent(
+            ageContField.calculateDataToCalculateCoefficent(
+                individual,
+                algorithm.userFunctions,
+                algorithm.tables,
+            ),
+            algorithm.userFunctions,
+            algorithm.tables,
+        ) as number;
+
+        // Get the life table to use for the individual based on their sex
+
+        // Get the entered sex of the individual
+        const sex = findDatumWithName(this.SexVariable, individual)
+            .coefficent as string;
+        // Go through the categories for the sex field and find the one for the current value of sex. It's displayValue should be male or female and we use that to get the life table
+        const maleOrFemaleString = this.model.modelFields
+            .find(({ name }) => {
+                return name === this.SexVariable;
+            })!
+            .categories!.find(category => {
+                return category.value === sex;
+            })!
+            .displayValue.toLowerCase() as 'male' | 'female';
+        const lifeTableForIndividual = this.genderedAbridgedLifeTable[
+            maleOrFemaleString
+        ];
+
+        debugLe.startNewCalculation(true);
+
+        // Add qx to the base life table for this individual
+
+        const AgeField = 'DHHGAGE';
+        // We want to the populate the age value for this individual with the value from each life table row. So remove the age field from the data for this individual
+        const individualWithoutAgeDatum = individual.filter(datum => {
+            return datum.name !== AgeField;
+        });
+        const lifeTableWithQx = lifeTableForIndividual
+            // Remove all life table rows whose age group is younger than this individual
+            .filter(lifeTableRow => {
+                return (
+                    this.isInAgeGroup(lifeTableRow, ageContValue) ||
+                    lifeTableRow.age_start > ageContValue
+                );
+            })
+            .map(lifeTableRow => {
+                return Object.assign({}, lifeTableRow, {
+                    qx: this.getQx(
+                        // Add the age value to be the median for this age group or the age start for the last row since age_end will be undefined
+                        individualWithoutAgeDatum.concat({
+                            name: this.ContAgeField,
+                            coefficent: lifeTableRow.age_end
+                                ? (lifeTableRow.age_end -
+                                      lifeTableRow.age_start) /
+                                  2
+                                : lifeTableRow.age_start,
+                        }),
+                    ),
+                    nx: this.getnx(lifeTableRow),
+                });
+            });
+
+        const ageMaxAllowableValue = this.getMaxAge(ageContField);
+        // Get the index of the life table row after which we need to
+        // stop calculating values
+        const lastValidLifeTableRowIndex = this.getLastValidLifeTableRowIndex(
+            lifeTableWithQx,
+            ageMaxAllowableValue,
+        );
+        const completeLifeTable = this.getCompleteLifeTable(
+            lifeTableWithQx,
+            ageMaxAllowableValue,
+            [
+                lifeTableForIndividual[lastValidLifeTableRowIndex].age_start,
+                lifeTableForIndividual[lastValidLifeTableRowIndex - 1]
+                    .age_start,
+            ],
+        );
+
+        const lifeYearsRemaining = completeLifeTable[0].ex;
+
+        debugLe.addEndDebugInfoForIndividual(
+            completeLifeTable,
+            lifeTableWithQx.length,
+            lifeYearsRemaining,
+        );
+
+        return lifeYearsRemaining;
     }
 
     /**
@@ -80,23 +201,38 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
     private calculateForPopulationForSex(
         population: Data[],
         sex: 'male' | 'female',
+        useWeights: boolean,
     ) {
-        // The name of the age variable
-        const AgeDatumName = 'age';
-        // The name of the sex variable
-        const SexDatumName = 'sex';
+        const sexDataField = this.model.modelFields.find(({ name }) => {
+            return name === this.SexVariable;
+        })!;
+        // Get the value of the category in this model for the sex argument
+        const sexCategory = sexDataField.categories!.find(
+            ({ displayValue }) => {
+                return displayValue.toLocaleLowerCase().trim() === sex;
+            },
+        )!.value;
+
         const algorithmForCurrentSex = this.model.getAlgorithmForData([
             {
-                name: SexDatumName,
-                coefficent: sex,
+                name: this.SexVariable,
+                coefficent: sexCategory,
             },
         ]);
+
+        const ageDerivedField = algorithmForCurrentSex.findDataField(
+            this.ContAgeField,
+        ) as DerivedField;
+
         // Get the abridged life table for the current gender
         const abridgedLifeTable = this.genderedAbridgedLifeTable[sex];
 
         // Get all the individuals who are the current sex
         const populationForCurrentGender = population.filter(data => {
-            return findDatumWithName(SexDatumName, data).coefficent === sex;
+            return (
+                findDatumWithName(this.SexVariable, data).coefficent ===
+                sexCategory
+            );
         });
 
         // Calculate the one year risk for each individual in the population
@@ -105,18 +241,29 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
         });
 
         const WeightDatumName = 'WTS_M';
-        const weightDataField = algorithmForCurrentSex.findDataField(
-            WeightDatumName,
-        );
+        const weightDataField = this.model.modelFields.find(({ name }) => {
+            return name === WeightDatumName;
+        })!;
         const DefaultWeight = 1;
+
         // Calculate the weighted qx value to use for each row in the abridged life table
         const weightedQxForAgeGroups: number[] = abridgedLifeTable.map(
             lifeTableRow => {
                 // Get all the individual who are in the age group of the current life table row
                 const currentAgeGroupPop = populationForCurrentGender.filter(
                     data => {
-                        const age = findDatumWithName(AgeDatumName, data)
-                            .coefficent as number;
+                        // Calculate the age of this individual using the ageDataField variable
+                        const age = Number(
+                            ageDerivedField.calculateCoefficent(
+                                ageDerivedField.calculateDataToCalculateCoefficent(
+                                    data,
+                                    algorithmForCurrentSex.userFunctions,
+                                    algorithmForCurrentSex.tables,
+                                ),
+                                algorithmForCurrentSex.userFunctions,
+                                algorithmForCurrentSex.tables,
+                            ),
+                        );
 
                         return this.isInAgeGroup(lifeTableRow, age);
                     },
@@ -131,16 +278,21 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
                 // Get the array of weights for each individual in the current age group population
                 const weightsForCurrentAgeGroup = currentAgeGroupPop.map(
                     data => {
-                        return weightDataField.validateData(data) ===
-                            ErrorCode.NoDatumFound
+                        const weightValidation = weightDataField.validateData(
+                            data,
+                        );
+
+                        return weightValidation !== true || useWeights === false
                             ? DefaultWeight
-                            : findDatumWithName(WeightDatumName, data)
-                                  .coefficent as number;
+                            : Number(
+                                  findDatumWithName(WeightDatumName, data)
+                                      .coefficent,
+                              );
                     },
                 );
 
                 // Calculate the weighted mean using qxValuesForCurrentAgeGroup and weightsForCurrentAgeGroup
-                return (
+                const weightedQx =
                     qxValuesForCurrentAgeGroup.reduce(
                         (weightedQxMean, currentQxValue, index) => {
                             return (
@@ -150,14 +302,14 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
                             );
                         },
                         0,
-                    ) / sum(weightsForCurrentAgeGroup)
-                );
+                    ) / sum(weightsForCurrentAgeGroup);
+
+                // If the qx value is not a number then return the value of the qx in the life table row
+                return isNaN(weightedQx) ? lifeTableRow.qx : weightedQx;
             },
         );
 
-        const ageMaxAllowableValue = algorithmForCurrentSex.findDataField(
-            AgeDatumName,
-        ).interval!.higherMargin!.margin;
+        const ageMaxAllowableValue = this.getMaxAge(ageDerivedField);
         // Make a life table with qx, nx and the fields in the ref life table
         // We will complete this in the next line of code
         const refLifeTableWithQxAndNx = abridgedLifeTable
@@ -170,10 +322,9 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
             });
         // Get the index of the life table row after which we need to
         // stop calculating values
-        const lastValidLifeTableRowIndex = abridgedLifeTable.findIndex(
-            lifeTableRow => {
-                return lifeTableRow.age_start > ageMaxAllowableValue;
-            },
+        const lastValidLifeTableRowIndex = this.getLastValidLifeTableRowIndex(
+            refLifeTableWithQxAndNx,
+            ageMaxAllowableValue,
         );
         const completeLifeTable = this.getCompleteLifeTable(
             refLifeTableWithQxAndNx,
@@ -186,10 +337,19 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
 
         // The age of which ex value we will use from the life table to calculate the LE for the population
         const AgeLifeExpectancy = 20;
-        return this.getLifeExpectancyForAge(
+        const le = this.getLifeExpectancyForAge(
             completeLifeTable,
             AgeLifeExpectancy,
         );
+
+        debugLe.addSexDebugInfoForPopulation({
+            completeLifeTable,
+            sex,
+            le,
+            qxs: qxValues,
+        });
+
+        return le;
     }
 
     /**
@@ -208,7 +368,9 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
 
         return ageDifference === 0
             ? 1
-            : age_end === undefined ? FinalRowNx : ageDifference + 1;
+            : age_end === undefined
+            ? FinalRowNx
+            : ageDifference + 1;
     }
 
     /**
@@ -232,5 +394,18 @@ export class AbridgedLifeExpectancy extends LifeExpectancy<
         return age_end === undefined
             ? age >= age_start
             : inRange(age, age_start, age_end) || age === age_end;
+    }
+
+    private getMaxAge(ageContField: DataField) {
+        return ageContField.intervals![0].higherMargin!.margin;
+    }
+
+    private getLastValidLifeTableRowIndex(
+        lifeTable: IAbridgedLifeTableRow[],
+        maxAge: number,
+    ) {
+        return lifeTable.findIndex(lifeTableRow => {
+            return lifeTableRow.age_start > maxAge;
+        });
     }
 }

@@ -7,7 +7,7 @@ import {
 import * as path from 'path';
 import * as fs from 'fs';
 import { expect } from 'chai';
-import * as test from 'tape';
+import test from 'tape';
 
 test(`LifeTable.getCompleteLifeTableWithStartAge`, t => {
     const testLifeTable = csvParse(

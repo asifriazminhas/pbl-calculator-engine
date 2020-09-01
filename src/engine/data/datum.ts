@@ -30,11 +30,19 @@ export function datumFactoryFromDataField(
     dataField: DataField,
     coefficient: Coefficent,
 ): IDatum {
+    // Find an interval where the num is within it's bounds
+    const validatedInterval =
+        typeof coefficient === 'number' &&
+        dataField.intervals &&
+        dataField.intervals.find(interval => {
+            return interval.validate(coefficient);
+        });
+
     return {
         name: dataField.name,
         coefficent:
-            dataField.interval && typeof coefficient === 'number'
-                ? dataField.interval.limitNumber(coefficient)
+            dataField.intervals && validatedInterval === undefined
+                ? dataField.intervals[0].limitNumber(coefficient as number)
                 : coefficient,
     };
 }

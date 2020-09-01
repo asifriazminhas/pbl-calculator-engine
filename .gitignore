@@ -4,3 +4,6 @@ npm-debug.log
 out
 docs
 .DS_Store
+
+# Typescript
+tsconfig.tsbuildinfo

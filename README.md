@@ -32,3 +32,7 @@ The engine has two steps in it:
 * /dist - Has the compiled version of the version most useful for importing into the browser using a script tag
 * /lib - Javascript source code files
 * /src - Typescript source code files
+
+# Branches
+
+1.31.1-X - These branch versions are only used by the ProjectBigLife website for quick bug fixes due to the engine being too far ahead. These should be removed at some point.

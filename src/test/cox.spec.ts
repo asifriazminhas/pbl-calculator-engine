@@ -1,14 +1,15 @@
-import * as test from 'tape';
+import test from 'tape';
 import { expect } from 'chai';
 import { DataFieldType } from '../parsers/json/data-field-type';
 import { Data } from '../engine/data';
-import * as moment from 'moment';
+import moment from 'moment';
 /* tslint:disable-next-line */
 import { NonInteractionCovariate } from '../engine/data-field/covariate/non-interaction-covariats/non-interaction-covariate';
 import { TimeMetric } from '../engine/algorithm/regression-algorithm/cox-survival-algorithm/time-metric';
 import { ICoxSurvivalAlgorithmJson } from '../parsers/json/json-cox-survival-algorithm';
 // tslint:disable-next-line:max-line-length
 import { CoxSurvivalAlgorithm } from '../engine/algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
+import { AlgorithmType } from '../parsers/json/algorithm-type';
 
 test(`getSurvivalToTimeForCoxWithBins function`, t => {
     const covariate = new NonInteractionCovariate(
@@ -19,6 +20,7 @@ test(`getSurvivalToTimeForCoxWithBins function`, t => {
             name: 'covariateOne',
             groups: [],
             isRequired: false,
+            isRecommended: false,
             metadata: {
                 label: '',
                 shortLabel: '',
@@ -31,6 +33,7 @@ test(`getSurvivalToTimeForCoxWithBins function`, t => {
     const maximumTime = 1800;
 
     const coxWithBinsJson: ICoxSurvivalAlgorithmJson = {
+        algorithmType: AlgorithmType.CoxSurvivalAlgorithm,
         timeMetric: TimeMetric.Days,
         maximumTime: 1800,
         name: '',

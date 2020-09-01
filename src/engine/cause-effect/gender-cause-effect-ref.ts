@@ -1,8 +1,17 @@
-import { Data, findDatumWithName } from '../data';
+import { Data, findDatumWithName, IDatum } from '../data';
 import { NoCauseEffectRefFound } from '../errors';
-import { CovariateGroup } from '../data-field/covariate/covariate-group';
+import { RiskFactor } from '../../risk-factors';
 
-export type IGenderSpecificCauseEffectRef = { [K in CovariateGroup]: Data };
+export type IGenderSpecificCauseEffectRef = {
+    [K in RiskFactor]: Array<
+        {
+            clamp?: {
+                lower?: boolean;
+                upper?: boolean;
+            };
+        } & IDatum
+    >
+};
 
 export interface IGenderCauseEffectRef {
     [index: string]: IGenderSpecificCauseEffectRef;
@@ -13,8 +22,9 @@ export interface IGenderCauseEffectRef {
 export function getCauseEffectRefForData(
     genderCauseEffectRef: IGenderCauseEffectRef,
     data: Data,
+    sexField: string = 'sex',
 ): IGenderSpecificCauseEffectRef {
-    const sexDatum = findDatumWithName('sex', data);
+    const sexDatum = findDatumWithName(sexField, data);
 
     const causeEffectRefFound =
         genderCauseEffectRef[
@@ -29,7 +39,7 @@ export function getCauseEffectRefForData(
 }
 
 export function getCauseEffectDataForRiskFactors(
-    riskFactors: CovariateGroup[],
+    riskFactors: RiskFactor[],
     causeEffectRef: IGenderSpecificCauseEffectRef,
 ): Data {
     return riskFactors

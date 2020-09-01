@@ -1,14 +1,8 @@
-import { Data, findDatumWithName } from '../../../data';
-import { throwErrorIfUndefined } from '../../../../util/undefined';
-import { NoBaselineFoundForAge } from '../../../errors';
 import { BaselineJson } from '../../../../parsers/json/json-baseline';
+import { sortedIndexBy } from 'lodash';
 
 export class Baseline {
-    private baseline:
-        | number
-        | {
-              [index: number]: number | undefined;
-          };
+    private baseline: number | Array<{ time: number; baselineHazard: number }>; // time is in days
 
     constructor(baselineJson: BaselineJson) {
         if (baselineJson === null || baselineJson === undefined) {
@@ -16,37 +10,31 @@ export class Baseline {
         } else if (typeof baselineJson === 'number') {
             this.baseline = baselineJson;
         } else {
-            this.baseline = baselineJson.reduce(
-                (
-                    baseline: {
-                        [index: number]: number;
-                    },
-                    currentBaselineJsonItem,
-                ) => {
-                    baseline[currentBaselineJsonItem.age] =
-                        currentBaselineJsonItem.baseline;
-
-                    return baseline;
-                },
-                {},
-            );
+            this.baseline = baselineJson;
         }
     }
 
-    getBaselineForData(data: Data): number {
+    getBaselineHazard(timeInDays: number): number {
         /* If it's a number then it's not a function of the age datum in the data argument so return it */
         if (typeof this.baseline === 'number') {
             return this.baseline;
         } else {
-            // Get the age datum
-            const ageDatum = findDatumWithName('age', data);
-
-            // Get the baseline value for this age value. If it doesn't exist then
-            // throw an error
-            return throwErrorIfUndefined(
-                this.baseline[Number(ageDatum.coefficent)],
-                new NoBaselineFoundForAge(ageDatum.coefficent as number),
+            const closestTimeIndex = sortedIndexBy(
+                this.baseline,
+                {
+                    time: timeInDays,
+                    baselineHazard: 1,
+                },
+                baselineObj => {
+                    return baselineObj.time;
+                },
             );
+
+            return this.baseline[
+                closestTimeIndex === this.baseline.length
+                    ? closestTimeIndex - 1
+                    : closestTimeIndex
+            ].baselineHazard;
         }
     }
 }

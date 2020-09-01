@@ -1,6 +1,7 @@
 import { IPmml } from '../../../parsers/pmml/pmml';
 import { IHeader } from '../../../parsers/pmml/header/header';
 import { IDataDictionary } from '../../../parsers/pmml/data_dictionary/data_dictionary';
+// @ts-ignore
 import csvParse = require('csv-parse/lib/sync');
 import {
     IInterval,
@@ -118,6 +119,8 @@ function getDataFieldNode(
                 optype: 'continuous' as 'continuous',
                 dataType: '',
                 'X-shortLabel': '',
+                'X-required': 'false',
+                'X-recommended': 'false',
             },
             Extension: [],
         },
@@ -149,6 +152,7 @@ function getIntervalNode(min?: string, max?: string): IInterval {
             {},
             {
                 closure: 'closedClosed' as 'closedClosed',
+                'X-description': '',
             },
             min
                 ? {

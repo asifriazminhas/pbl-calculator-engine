@@ -11,9 +11,10 @@ export function parseDataFieldFromDataFieldPmmlNode(
 ): IDataFieldJson {
     return {
         name: dataFieldNode.$.name,
-        interval: parseInterval(dataFieldNode),
+        intervals: parseIntervals(dataFieldNode),
         categories: parseValues(dataFieldNode),
-        isRequired: parseIsRequired(miningField),
+        isRequired: parseIsRequired(dataFieldNode, miningField),
+        isRecommended: parseIsRecommended(dataFieldNode),
         metadata: {
             label: dataFieldNode.$.displayName,
             shortLabel: dataFieldNode.$['X-shortLabel'],
@@ -42,37 +43,57 @@ function parseValues(dataField: IDataField): ICategory[] | undefined {
     return undefined;
 }
 
-function parseInterval(dataField: IDataField): JsonInterval | undefined {
+function parseIntervals(dataField: IDataField): JsonInterval[] | undefined {
     if ('Interval' in dataField) {
-        return Object.assign(
-            {},
-            dataField.Interval.$.leftMargin
-                ? {
-                      lowerMargin: {
-                          margin: Number(dataField.Interval.$.leftMargin),
-                          isOpen: false,
-                      },
-                  }
-                : undefined,
-            dataField.Interval.$.rightMargin
-                ? {
-                      higherMargin: {
-                          margin: Number(dataField.Interval.$.rightMargin),
-                          isOpen: false,
-                      },
-                  }
-                : undefined,
-        );
+        return (dataField.Interval instanceof Array
+            ? dataField.Interval
+            : [dataField.Interval]
+        ).map(interval => {
+            return Object.assign(
+                {
+                    description: interval.$['X-description'],
+                },
+                interval.$.leftMargin
+                    ? {
+                          lowerMargin: {
+                              margin: Number(interval.$.leftMargin),
+                              isOpen: false,
+                          },
+                      }
+                    : undefined,
+                interval.$.rightMargin
+                    ? {
+                          higherMargin: {
+                              margin: Number(interval.$.rightMargin),
+                              isOpen: false,
+                          },
+                      }
+                    : undefined,
+            );
+        });
     } else {
         return undefined;
     }
 }
 
-function parseIsRequired(miningField?: IMiningField): boolean {
-    return miningField
-        ? miningField.$.invalidValueTreatment ===
-          InvalidValueTreatment.ReturnInvalid
-          ? true
-          : false
-        : false;
+function parseIsRequired(
+    dataFieldNode: IDataField,
+    miningField?: IMiningField,
+): boolean {
+    if (dataFieldNode && dataFieldNode.$['X-required']) {
+        return dataFieldNode.$['X-required'] === 'true' ? true : false;
+    }
+
+    if (miningField) {
+        return miningField.$.invalidValueTreatment ===
+            InvalidValueTreatment.ReturnInvalid
+            ? true
+            : false;
+    }
+
+    return false;
+}
+
+function parseIsRecommended(dataFieldNode: IDataField): boolean {
+    return dataFieldNode.$['X-recommended'] === 'true' ? true : false;
 }

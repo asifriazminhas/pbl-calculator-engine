@@ -7,13 +7,14 @@ import { getHealthAge } from './health-age';
 import { Data } from '../data';
 import { Predicate } from '../predicate/predicate';
 import { NoPredicateObjectFoundError } from '../predicate/predicate-errors';
+import { CoxSurvivalAlgorithm } from '../model';
 
 export class RefPopFunctions {
-    private model: Model;
+    private model: Model<CoxSurvivalAlgorithm>;
     private refPop: ReferencePopulation | RefPopsWithPredicate;
 
     constructor(
-        model: Model,
+        model: Model<CoxSurvivalAlgorithm>,
         refPop: ReferencePopulation | RefPopsWithPredicate,
     ) {
         this.model = model;
@@ -25,15 +26,16 @@ export class RefPopFunctions {
         if ((this.refPop as RefPopsWithPredicate)[0].predicate) {
             try {
                 refPopToUse = Predicate.getFirstTruePredicateObject(
-                    (this
-                        .refPop as RefPopsWithPredicate).map(currentRefProp => {
-                        return Object.assign({}, currentRefProp, {
-                            predicate: new Predicate(
-                                currentRefProp.predicate.equation,
-                                currentRefProp.predicate.variables,
-                            ),
-                        });
-                    }),
+                    (this.refPop as RefPopsWithPredicate).map(
+                        currentRefProp => {
+                            return Object.assign({}, currentRefProp, {
+                                predicate: new Predicate(
+                                    currentRefProp.predicate.equation,
+                                    currentRefProp.predicate.variables,
+                                ),
+                            });
+                        },
+                    ),
                     data,
                 ).refPop;
             } catch (err) {

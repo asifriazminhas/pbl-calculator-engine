@@ -1,27 +1,21 @@
 import { Data } from '../../data';
 import { DataField } from '../data-field';
 import { RcsCustomFunction } from './custom-function/rcs-custom-function';
-import {
-    Coefficent,
-    datumFromCovariateReferencePointFactory,
-} from '../../data';
-import * as moment from 'moment';
+import { Coefficent } from '../../data';
 import { DerivedField } from '../derived-field/derived-field';
-import { oneLine } from 'common-tags';
-import { shouldLogWarnings, shouldLogDebugInfo } from '../../../util/env';
 import { autobind } from 'core-decorators';
 import { ICovariateJson } from '../../../parsers/json/json-covariate';
 import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
 import { ITables } from '../../algorithm/tables/tables';
-import { CovariateGroup } from './covariate-group';
-import { datumFactoryFromDataField } from '../../data/datum';
 import { findDatumWithName } from '../../data/data';
 import { NoDatumFoundError } from '../../errors';
+import { RiskFactor } from '../../../risk-factors';
+import { debugRisk } from '../../../debug/debug-risk';
 
 @autobind
 export abstract class Covariate extends DataField {
     beta: number;
-    groups: CovariateGroup[];
+    groups: RiskFactor[];
     referencePoint?: number;
     customFunction?: RcsCustomFunction;
     derivedField?: DerivedField;
@@ -45,19 +39,18 @@ export abstract class Covariate extends DataField {
         userFunctions: IUserFunctions,
         tables: ITables,
     ): number {
-        if (shouldLogWarnings()) {
-            console.groupCollapsed(`${this.name}`);
-        }
-
-        const component = this.calculateComponent(this.calculateCoefficient(
+        const coefficient = this.calculateCoefficient(
             data,
             userFunctions,
             tables,
-        ) as number);
+        ) as number;
+        const component = this.calculateComponent(coefficient);
 
-        if (shouldLogDebugInfo() === true) {
-            console.groupEnd();
-        }
+        debugRisk.addCovariateDebugInfo(this.name, {
+            coefficient,
+            component,
+            beta: this.beta,
+        });
 
         return component;
     }
@@ -91,7 +84,11 @@ export abstract class Covariate extends DataField {
             coefficent,
         );
 
-        return formattedCoefficent === undefined ? 0 : formattedCoefficent;
+        if (formattedCoefficent === undefined) {
+            throw new Error(`No coefficient found for covariate ${this.name}`);
+        }
+
+        return formattedCoefficent;
     }
 
     calculateDataToCalculateCoefficent(
@@ -121,26 +118,13 @@ export abstract class Covariate extends DataField {
                         tables,
                     );
                 } catch (err) {
-                    if (shouldLogWarnings()) {
-                        console.warn(oneLine`Incomplete data to calculate coefficent for
-                            data field ${this.name}. Setting it to reference
-                            point`);
-                    }
-
-                    return [
-                        datumFactoryFromDataField(this, this.referencePoint),
-                    ];
+                    return [];
                 }
             } else {
-                // Fall back to setting it to reference point
-                if (shouldLogWarnings()) {
-                    console.warn(oneLine`Incomplete data to calculate coefficent for
-                        datafield ${this.name}. Setting it to reference point`);
-                }
-
-                return [datumFromCovariateReferencePointFactory(this)];
+                return [];
             }
         } else {
+            // If the data for this covariate coefficient's calculations already exists in the data arg we don't need to return anything
             return [datumFound];
         }
     }
@@ -153,26 +137,21 @@ export abstract class Covariate extends DataField {
      * @memberof Covariate
      */
     getDescendantFields(): DataField[] {
-        return this.derivedField ? this.derivedField.getDescendantFields() : [];
+        return this.derivedField
+            ? this.derivedField.getDescendantFields()
+            : this.customFunction
+            ? this.customFunction.firstVariableCovariate
+                  .getDescendantFields()
+                  .concat(this.customFunction.firstVariableCovariate)
+            : [];
     }
 
-    isPartOfGroup(group: CovariateGroup): boolean {
+    isPartOfGroup(group: RiskFactor): boolean {
         return this.groups.indexOf(group) !== -1;
     }
 
     private calculateComponent(coefficent: number): number {
         const component = coefficent * this.beta;
-
-        if (shouldLogDebugInfo()) {
-            console.log(`Covariate ${this.name}`);
-            console.log(
-                `Input ${coefficent} ${coefficent === this.referencePoint
-                    ? 'Set to Reference Point'
-                    : ''}`,
-            );
-            console.log(`PMML Beta ${this.beta}`);
-            console.log(`Component ${component}`);
-        }
 
         return component;
     }
@@ -180,21 +159,19 @@ export abstract class Covariate extends DataField {
     private formatCoefficentForComponent(
         coefficent: Coefficent,
     ): number | undefined {
-        if (coefficent instanceof moment || coefficent instanceof Date) {
-            throw new Error(`Coefficent is not a number ${this.name}`);
-        } else if (
+        if (
             coefficent === null ||
             coefficent === undefined ||
             coefficent === 'NA' ||
             isNaN(coefficent as number)
         ) {
+            debugRisk.addCovariateDebugInfo(this.name, {
+                setToReference: true,
+            });
+
             return this.referencePoint;
         } else {
-            const formattedCoefficient = Number(coefficent);
-
-            return this.interval
-                ? this.interval.limitNumber(formattedCoefficient)
-                : formattedCoefficient;
+            return this.formatCoefficient(coefficent);
         }
     }
 }

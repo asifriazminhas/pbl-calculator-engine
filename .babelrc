@@ -1,4 +1,5 @@
 {
+    "plugins": [["lodash", { "id": ["lodash", "core-decorators"] }]],
     "presets": [
         [
             "@babel/preset-env",
