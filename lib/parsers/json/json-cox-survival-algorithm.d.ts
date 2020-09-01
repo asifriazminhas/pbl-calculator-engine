@@ -6,7 +6,9 @@ import { IDerivedFieldJson } from './json-derived-field';
 import { IUserFunctionsJson } from './json-user-functions';
 import { BaselineJson } from './json-baseline';
 import { IBinsJson } from './json-bins';
+import { AlgorithmType } from './algorithm-type';
 export interface ICoxSurvivalAlgorithmJson extends Omit<JsonSerializable<CoxSurvivalAlgorithm>, 'covariates' | 'userFunctions' | 'baseline' | 'bins' | 'calibration'> {
+    algorithmType: AlgorithmType.CoxSurvivalAlgorithm;
     covariates: ICovariateJson[];
     derivedFields: IDerivedFieldJson[];
     userFunctions: IUserFunctionsJson;

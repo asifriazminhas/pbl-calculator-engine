@@ -1,5 +1,5 @@
 import { Data } from '../data';
-import { Model } from '../model';
+import { Model, CoxSurvivalAlgorithm } from '../model';
 import { IAbridgedLifeTableRow, IGenderedAbridgedLifeTable } from './abridged-life-table';
 import { LifeExpectancy, ICompleteLifeTableRow } from '../life-expectancy/life-expectancy';
 /**
@@ -14,17 +14,28 @@ import { LifeExpectancy, ICompleteLifeTableRow } from '../life-expectancy/life-e
  */
 export declare class AbridgedLifeExpectancy extends LifeExpectancy<IAbridgedLifeTableRow> {
     private genderedAbridgedLifeTable;
-    constructor(model: Model, genderedAbridgedLifeTable: IGenderedAbridgedLifeTable);
+    private SexVariable;
+    private ContAgeField;
+    constructor(model: Model<CoxSurvivalAlgorithm>, genderedAbridgedLifeTable: IGenderedAbridgedLifeTable);
     /**
      * Calculates the average life expectancy for a population. Uses the
      * abridged life table for each gender and then averages them to get the
      * life expectancy for the population
      *
      * @param {Data[]} population
+     * @param {boolean} useWeights Whether the final value LE value should be weighted. Defaults to true.
      * @returns
      * @memberof AbridgedLifeExpectancy
      */
-    calculateForPopulation(population: Data[]): number;
+    calculateForPopulation(population: Data[], useWeights?: boolean): number;
+    /**
+     * Returns the life years left for an individual
+     *
+     * @param {Data} individual
+     * @returns
+     * @memberof AbridgedLifeExpectancy
+     */
+    calculateForIndividual(individual: Data): number;
     /**
      * Returns the life table row where the age arg is between it's age group
      *
@@ -56,4 +67,6 @@ export declare class AbridgedLifeExpectancy extends LifeExpectancy<IAbridgedLife
      * @memberof AbridgedLifeExpectancy
      */
     private isInAgeGroup;
+    private getMaxAge;
+    private getLastValidLifeTableRowIndex;
 }

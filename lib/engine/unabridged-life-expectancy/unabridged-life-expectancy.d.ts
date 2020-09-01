@@ -1,9 +1,9 @@
-import { Model, Data } from '../model';
+import { Model, Data, CoxSurvivalAlgorithm } from '../model';
 import { IGenderedUnAbridgedLifeTable, IUnAbridgedLifeTableRow } from './unabridged-life-table';
 import { LifeExpectancy, ICompleteLifeTableRow } from '../life-expectancy/life-expectancy';
 export declare class UnAbridgedLifeExpectancy extends LifeExpectancy<IUnAbridgedLifeTableRow> {
     private genderedUnAbridgedLifeTable;
-    constructor(model: Model, genderedUnAbridgedLifeTable: IGenderedUnAbridgedLifeTable);
+    constructor(model: Model<CoxSurvivalAlgorithm>, genderedUnAbridgedLifeTable: IGenderedUnAbridgedLifeTable);
     /**
      * Calculates the life expectancy for an individual using a un-abridged
      * life table

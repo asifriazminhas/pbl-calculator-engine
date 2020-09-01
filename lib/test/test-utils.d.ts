@@ -3,7 +3,7 @@ import * as test from 'tape';
 import { Data } from '../engine/data';
 import { CoxSurvivalAlgorithm } from '../engine/algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
 export declare function getModelsToTest(modelsToExclude: string[]): Promise<Array<{
-    model: Model;
+    model: Model<any>;
     name: string;
 }>>;
 export declare function getPmmlString(derivedFields: Array<{

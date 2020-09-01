@@ -5,10 +5,10 @@ import { Omit } from 'utility-types';
 import { IDerivedFieldJson } from './json-derived-field';
 import { DataFieldType } from './data-field-type';
 import { JsonInterval } from './json-interval';
-export interface ICovariateJson extends Omit<JsonSerializable<Covariate>, 'customFunction' | 'interval'> {
+export interface ICovariateJson extends Omit<JsonSerializable<Covariate>, 'customFunction' | 'intervals'> {
     dataFieldType: DataFieldType.InteractionCovariate | DataFieldType.NonInteractionCovariate;
     customFunction?: IRcsCustomFunctionJson;
-    interval?: JsonInterval;
+    intervals?: JsonInterval[];
 }
 export declare function findCovariateJsonWithName(covariateJsons: ICovariateJson[], name: string): ICovariateJson | undefined;
 export declare function parseCovariateJsonToCovariate(covariateJson: ICovariateJson, covariateJsons: ICovariateJson[], derivedFieldJsons: IDerivedFieldJson[]): Covariate;

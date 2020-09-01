@@ -6,10 +6,10 @@ import { DerivedField } from '../derived-field/derived-field';
 import { ICovariateJson } from '../../../parsers/json/json-covariate';
 import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
 import { ITables } from '../../algorithm/tables/tables';
-import { CovariateGroup } from './covariate-group';
+import { RiskFactor } from '../../../risk-factors';
 export declare abstract class Covariate extends DataField {
     beta: number;
-    groups: CovariateGroup[];
+    groups: RiskFactor[];
     referencePoint?: number;
     customFunction?: RcsCustomFunction;
     derivedField?: DerivedField;
@@ -25,7 +25,7 @@ export declare abstract class Covariate extends DataField {
      * @memberof Covariate
      */
     getDescendantFields(): DataField[];
-    isPartOfGroup(group: CovariateGroup): boolean;
+    isPartOfGroup(group: RiskFactor): boolean;
     private calculateComponent;
     private formatCoefficentForComponent;
 }

@@ -5,9 +5,9 @@ import { IDataFieldJson } from './json-data-field';
 import { ICovariateJson } from './json-covariate';
 import { DataField } from '../../engine/data-field/data-field';
 import { JsonInterval } from './json-interval';
-export interface IDerivedFieldJson extends Omit<JsonSerializable<DerivedField>, 'derivedFrom' | 'interval'> {
+export interface IDerivedFieldJson extends Omit<JsonSerializable<DerivedField>, 'derivedFrom' | 'intervals'> {
     derivedFrom: Array<string | JsonSerializable<IDataFieldJson>>;
-    interval?: JsonInterval;
+    intervals?: JsonInterval[];
 }
 export declare function findDerivedFieldJsonWithName(derivedFieldJsons: IDerivedFieldJson[], name: string): IDerivedFieldJson | undefined;
 export declare function parseDerivedFromJsonToDerivedFrom(derivedFromJson: Array<string | JsonSerializable<IDataFieldJson>>, derivedFieldJsons: IDerivedFieldJson[], covariatesJson: ICovariateJson[]): DataField[];

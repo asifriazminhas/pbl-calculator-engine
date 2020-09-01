@@ -93,4 +93,4 @@ export declare function getConditionalExpressionAST(test: ConditionalExpressionT
 export declare function getFunctionExpressionAst(params: Array<string>, returnStatementAst: IReturnStatementAst): IFunctionExpressionAst;
 export declare function getReturnStatementAst(argument: AST): IReturnStatementAst;
 export declare function getObjectExpressionAst(properties: IPropertyAst[]): IObjectExpressionAst;
-export declare function getPropertyAst(key: string, value: ILiteralAST | IMemberExpressionAST): IPropertyAst;
+export declare function getPropertyAst(key: string, value: ILiteralAST | IMemberExpressionAST | IIdentifierAST): IPropertyAst;

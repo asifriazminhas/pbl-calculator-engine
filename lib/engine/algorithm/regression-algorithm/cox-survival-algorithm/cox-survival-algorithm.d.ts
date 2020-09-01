@@ -2,13 +2,12 @@ import { RegressionAlgorithm } from '../regression-algorithm';
 import { Bins } from './bins/bins';
 import { TimeMetric } from './time-metric';
 import { Data } from '../../../data/data';
-import * as moment from 'moment';
+import moment from 'moment';
 import { Calibration } from './calibration/calibration';
 import { ICoxSurvivalAlgorithmJson } from '../../../../parsers/json/json-cox-survival-algorithm';
 import { Baseline } from '../baseline/baseline';
 import { CalibrationJson } from '../../../../parsers/json/json-calibration';
 import { BaselineJson } from '../../../../parsers/json/json-baseline';
-import { DataNameReport } from '../../algorithm';
 import { DataField } from '../../../data-field/data-field';
 export interface INewPredictor {
     name: string;
@@ -22,7 +21,6 @@ export declare class CoxSurvivalAlgorithm extends RegressionAlgorithm {
     calibration: Calibration;
     baseline: Baseline;
     constructor(coxSurvivalAlgorithmJson: ICoxSurvivalAlgorithmJson);
-    buildDataNameReport(headers: string[]): DataNameReport;
     evaluate(data: Data, time?: Date | moment.Moment): number;
     getRiskToTime(data: Data, time?: Date | moment.Moment): number;
     getSurvivalToTime(data: Data, time?: Date | moment.Moment): number;
@@ -39,8 +37,9 @@ export declare class CoxSurvivalAlgorithm extends RegressionAlgorithm {
      * @memberof CoxSurvivalAlgorithm
      */
     findDataField(name: string): DataField;
+    getRequiredVariables(): DataField[];
+    getRecommendedVariables(): DataField[];
     private getSurvivalToTimeWithBins;
     private getRiskToTimeWithoutBins;
     private getTimeMultiplier;
-    private sortCovariatesByName;
 }

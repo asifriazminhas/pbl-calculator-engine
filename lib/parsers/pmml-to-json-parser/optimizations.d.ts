@@ -1,2 +1,3 @@
 import { IModelJson } from '../../parsers/json/json-model';
-export declare function optimizeModel(model: IModelJson): IModelJson;
+import { JsonAlgorithms } from '../json/json-algorithms';
+export declare function optimizeModel<T extends JsonAlgorithms>(model: IModelJson<T>): IModelJson<T>;

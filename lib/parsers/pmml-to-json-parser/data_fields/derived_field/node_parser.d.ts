@@ -66,4 +66,4 @@ export declare function getASTForCallExpressionApply(apply: IApply, userDefinedF
  * @returns {CallExpressionAST}
  */
 export declare function getASTForUserDefinedFunctionApply(apply: IApply, userDefinedFunctionNames: Array<string>, wrapFieldRefInMemberExpressionAst: boolean): ICallExpressionAST;
-export declare function getAstForMapValues(mapValues: IMapValues): ICallExpressionAST;
+export declare function getAstForMapValues(mapValues: IMapValues, isInDefineFunction: boolean): ICallExpressionAST;

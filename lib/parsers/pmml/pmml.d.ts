@@ -10,11 +10,12 @@ import { ICustomHeader } from './custom/header';
 import { IRestrictedCubicSpline } from './custom/restricted_cubic_spline';
 import { ITaxonomy } from './taxonomy';
 import { IMiningSchema } from './mining-schema/mining-schema';
+import { ISimpleModel } from './simple-model/simple-model';
 export interface IOutput {
     OutputField: {
         $: {
             name: string;
-            targetField: string;
+            targetField?: string;
         };
     };
 }
@@ -23,6 +24,7 @@ export interface IPmml {
     DataDictionary: IDataDictionary;
     LocalTransformations: ILocalTransformations;
     GeneralRegressionModel?: IGeneralRegressionModel;
+    SimpleModel?: ISimpleModel;
     MiningSchema: IMiningSchema;
     Taxonomy?: ITaxonomy[] | ITaxonomy;
     Output?: IOutput;

@@ -4,6 +4,7 @@ import { ErrorCode } from '../error-code';
 export declare class Interval {
     lowerMargin?: Margin;
     higherMargin?: Margin;
+    description: string;
     constructor(intervalJson: JsonInterval);
     limitNumber(num: number): number;
     /**
@@ -25,4 +26,5 @@ export declare class Interval {
      * @memberof Interval
      */
     validateHigherMargin(num: number): ErrorCode | true;
+    validate(num: number): boolean;
 }

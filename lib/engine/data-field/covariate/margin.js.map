@@ -1,1 +1,1 @@
-{"version":3,"file":"margin.js","sourceRoot":"","sources":["../../../../src/engine/data-field/covariate/margin.ts"],"names":[],"mappings":";;AAEA,MAAa,MAAM;IAIf,YAAY,UAAsB;QAC9B,IAAI,CAAC,MAAM,GAAG,UAAU,CAAC,MAAM,CAAC;QAChC,IAAI,CAAC,MAAM,GAAG,UAAU,CAAC,MAAM,CAAC;IACpC,CAAC;CACJ;AARD,wBAQC"}
+{"version":3,"file":"margin.js","sourceRoot":"","sources":["../../../../src/engine/data-field/covariate/margin.ts"],"names":[],"mappings":"AAEA,MAAM,OAAO,MAAM;IAIf,YAAY,UAAsB;QAC9B,IAAI,CAAC,MAAM,GAAG,UAAU,CAAC,MAAM,CAAC;QAChC,IAAI,CAAC,MAAM,GAAG,UAAU,CAAC,MAAM,CAAC;IACpC,CAAC;CACJ"}

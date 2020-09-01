@@ -1,7 +1,7 @@
 import { IDatum } from './datum';
 import { DataField } from '../data-field/data-field';
-import { CovariateGroup } from '../data-field/covariate/covariate-group';
 import { CoxSurvivalAlgorithm } from '../algorithm/regression-algorithm/cox-survival-algorithm/cox-survival-algorithm';
+import { RiskFactor } from '../../risk-factors';
 export declare type Data = IDatum[];
 export declare function updateDataWithData(data: Data, dataUpdate: Data): Data;
 /**
@@ -29,4 +29,4 @@ export declare function filterDataForFields(data: Data, dataFields: DataField[])
  * @param {Data} data
  * @returns {Data}
  */
-export declare function filterDataUsedToCalculateCoefficientsForCovariateGroup(covariateGroup: CovariateGroup, cox: CoxSurvivalAlgorithm, data: Data): Data;
+export declare function filterDataUsedToCalculateCoefficientsForCovariateGroup(covariateGroup: RiskFactor, cox: CoxSurvivalAlgorithm, data: Data): Data;

@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+import moment from 'moment';
 declare function ifelse(booleanOne: boolean, whenTrue: any, whenFalse: any): any;
 declare const _default: {
     exp: (value: number) => number;
@@ -10,6 +10,7 @@ declare const _default: {
     max: (num1: number, num2: number) => number;
     sum: (...args: number[]) => number;
     isIn: (...args: number[]) => boolean;
+    colonOperator: (start: number, end: number) => number[];
     log: (num: number) => number;
     ifelse: typeof ifelse;
     ifelse2: typeof ifelse;
@@ -20,5 +21,9 @@ declare const _default: {
     nchar: (str: string) => number | undefined;
     'as.numeric': (variableToCoerce: any) => number | undefined;
     'is.null': (value: any) => boolean;
+    zScore: (mean: number, sd: number, value: number) => number;
+    'as.Date': (dateString: string, format: string) => moment.Moment;
+    format: (object: any) => string;
+    'Sys.Date': () => moment.Moment;
 };
 export default _default;

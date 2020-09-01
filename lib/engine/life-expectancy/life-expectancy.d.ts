@@ -1,4 +1,4 @@
-import { Model } from '../model';
+import { Model, CoxSurvivalAlgorithm } from '../model';
 import { Data } from '../data';
 /**
  * Base class for Life Expectancy and related calculations
@@ -10,8 +10,8 @@ import { Data } from '../data';
  * used by the implementation class
  */
 export declare abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
-    model: Model;
-    constructor(model: Model);
+    model: Model<CoxSurvivalAlgorithm>;
+    constructor(model: Model<CoxSurvivalAlgorithm>);
     /**
      *
      *

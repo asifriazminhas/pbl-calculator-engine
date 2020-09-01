@@ -1,1 +1,1 @@
-{"version":3,"file":"data-field-type.js","sourceRoot":"","sources":["../../../src/parsers/json/data-field-type.ts"],"names":[],"mappings":";;AAAA,IAAY,aAKX;AALD,WAAY,aAAa;IACrB,2DAAa,CAAA;IACb,iEAAgB,CAAA;IAChB,uFAA2B,CAAA;IAC3B,iFAAwB,CAAA;AAC5B,CAAC,EALW,aAAa,GAAb,qBAAa,KAAb,qBAAa,QAKxB"}
+{"version":3,"file":"data-field-type.js","sourceRoot":"","sources":["../../../src/parsers/json/data-field-type.ts"],"names":[],"mappings":"AAAA,MAAM,CAAN,IAAY,aAKX;AALD,WAAY,aAAa;IACrB,2DAAa,CAAA;IACb,iEAAgB,CAAA;IAChB,uFAA2B,CAAA;IAC3B,iFAAwB,CAAA;AAC5B,CAAC,EALW,aAAa,KAAb,aAAa,QAKxB"}

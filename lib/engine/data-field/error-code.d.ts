@@ -34,5 +34,9 @@ export declare enum ErrorCode {
      * Returned when the coefficient of a Datum object does not match one of the
      * allowed category values in the categories fields
      */
-    InvalidCategory = 5
+    InvalidCategory = 5,
+    /**
+     * Returned when the field has intervals but the coefficient is not a number
+     */
+    NotANumber = 6
 }

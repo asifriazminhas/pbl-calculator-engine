@@ -4,7 +4,6 @@ import { IDerivedFieldJson } from '../../../parsers/json/json-derived-field';
 import { IUserFunctions } from '../../algorithm/user-functions/user-functions';
 import { ITables } from '../../algorithm/tables/tables';
 export declare function getLeafFieldsForDerivedField(derivedField: DerivedField): DataField[];
-export declare function findDescendantDerivedField(derivedField: DerivedField, name: string): DerivedField | undefined;
 export declare class DerivedField extends DataField {
     equation: string;
     derivedFrom: DataField[];
