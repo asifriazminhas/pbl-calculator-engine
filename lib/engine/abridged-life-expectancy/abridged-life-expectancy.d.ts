@@ -46,6 +46,27 @@ export declare class AbridgedLifeExpectancy extends LifeExpectancy<IAbridgedLife
      * @memberof AbridgedLifeExpectancy
      */
     protected getLifeTableRowForAge(completeLifeTable: Array<ICompleteLifeTableRow & IAbridgedLifeTableRow>, age: number): (ICompleteLifeTableRow & IAbridgedLifeTableRow) | undefined;
+    protected getFirstTxValue(lifeTable: Array<IAbridgedLifeTableRow & {
+        lx: number;
+    }>, maxAge: number): number;
+    /**
+     * Calculates the knots used in the calculation of Tx for the last
+     * row in the life table
+     *
+     * Hsieh J. A general theory of life table construction and a precise
+     * abridged life table method. Biom J 1991;2:143-62.
+     *
+     * @private
+     * @param {ICompleteLifeTableRow[]} lifeTable A life table whose lx values
+     * are properly populated. The life table should end at the row whose Tx
+     * value needs to be calculated using splines
+     * @param {[number, number]} ages Age values to be used in the formula
+     * for calculating the second knot. Should be the age value in the last
+     * row of the life table followed by the age value in the row before
+     * @returns {[number, number]}
+     * @memberof LifeExpectancy
+     */
+    private getKnots;
     private calculateForPopulationForSex;
     /**
      * Return the nx value for this life table row which is the range of ages

@@ -35,7 +35,7 @@ export declare abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
     protected getCompleteLifeTable(refLifeTableWithQxAndNx: Array<T & {
         qx: number;
         nx: number;
-    }>, maxAge: number, knotAges: [number, number]): Array<ICompleteLifeTableRow & T>;
+    }>, maxAge: number): Array<ICompleteLifeTableRow & T>;
     /**
      * Returns the qx value to use in the life table represented by the data
      * argument
@@ -62,24 +62,10 @@ export declare abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
      * @memberof LifeExpectancy
      */
     protected abstract getLifeTableRowForAge(completeLifeTable: Array<T & ICompleteLifeTableRow>, age: number): (T & ICompleteLifeTableRow) | undefined;
-    /**
-     * Calculates the knots used in the calculation of Tx for the last
-     * row in the life table
-     *
-     * Hsieh J. A general theory of life table construction and a precise
-     * abridged life table method. Biom J 1991;2:143-62.
-     *
-     * @private
-     * @param {ICompleteLifeTableRow[]} lifeTable A life table whose lx values
-     * are properly populated. The life table should end at the row whose Tx
-     * value needs to be calculated using splines
-     * @param {[number, number]} ages Age values to be used in the formula
-     * for calculating the second knot. Should be the age value in the last
-     * row of the life table followed by the age value in the row before
-     * @returns {[number, number]}
-     * @memberof LifeExpectancy
-     */
-    private getKnots;
+    protected abstract getFirstTxValue(lifeTable: Array<T & {
+        Lx: number;
+        lx: number;
+    }>, maxAge: number): number;
 }
 export interface IBaseRefLifeTableRow {
     ax: number;
