@@ -13,7 +13,9 @@ import { DataField } from '../data-field/data-field';
 import { flatten } from 'lodash';
 import { filterDataForFields } from '../data/data';
 import { findDatumWithName } from '../data';
+import { autobind } from 'core-decorators';
 
+@autobind
 export class UnAbridgedLifeExpectancy extends LifeExpectancy<
     IUnAbridgedLifeTableRow
 > {
