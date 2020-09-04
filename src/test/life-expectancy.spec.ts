@@ -22,7 +22,7 @@ test(`Life table calculations`, t => {
         const expectedLifeTable: CompleteLifeTable = require(`${TestAssetsFolderPath}/life-table/abridged-life-table/male-complete-life-table.json`);
         const actualLifeTable = abridgedLifeExpectancy[
             'getCompleteLifeTable'
-        ](refLifeTable.male, 80, [80, 75]);
+        ](refLifeTable.male, 80);
 
         expectedLifeTable.forEach((expectedLifeTableRow, index) => {
             expect(
