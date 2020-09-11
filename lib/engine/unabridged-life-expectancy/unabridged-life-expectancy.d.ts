@@ -13,8 +13,10 @@ export declare class UnAbridgedLifeExpectancy extends LifeExpectancy<IUnAbridged
      * @memberof UnABridgedLifeExpectancy
      */
     calculateForIndividual(data: Data): number;
+    getSurvivalToAge(data: Data, toAge: number): number;
     protected getLifeTableRowForAge(completeLifeTable: Array<IUnAbridgedLifeTableRow & ICompleteLifeTableRow>, age: number): (IUnAbridgedLifeTableRow & ICompleteLifeTableRow) | undefined;
     protected getFirstTxValue(lifeTable: Array<IUnAbridgedLifeTableRow & {
         Lx: number;
     }>): number;
+    private getCompleteUnAbridgedLifeTable;
 }

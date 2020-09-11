@@ -6,7 +6,7 @@ declare const _default: {
     'is.na': (value: any) => boolean;
     not: (value: boolean) => boolean;
     notEqual: (valueOne: any, valueTwo: any) => boolean;
-    formatDatetime: (date: moment.Moment | Date, format: string) => string;
+    formatDatetime: (date: Date | moment.Moment, format: string) => string;
     max: (num1: number, num2: number) => number;
     sum: (...args: number[]) => number;
     isIn: (...args: number[]) => boolean;
