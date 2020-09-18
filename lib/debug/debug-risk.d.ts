@@ -10,7 +10,7 @@ declare class DebugRisk {
     startNewCalculation(): void;
     addFieldDebugInfo(fieldName: string, coefficient: any): void;
     addCovariateDebugInfo(covariateName: string, debugInfo: Partial<ICovariateFieldDebugInfo>): void;
-    addEndDebugInfo(covariates: Covariate[], riskData: Data, score: number, risk: number): void;
+    addEndDebugInfo(covariates: Covariate[], riskData: Data, score: number, risk: number, baselineHazard: number): void;
     printDebugInfo(printIndex?: number): void;
     getCovariateDebugInfo(calcIndex: number, covariateName: string): ICovariateFieldDebugInfo;
     private printFieldDebugInfo;
@@ -29,6 +29,7 @@ export interface IRiskDebugInfo {
     riskData: Data;
     score: number;
     risk: number;
+    baselineHazard: number;
 }
 interface IDataFieldDebugInfo {
     coefficient: any;

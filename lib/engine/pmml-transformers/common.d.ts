@@ -23,7 +23,7 @@ export interface CategoricalDataField extends BaseDataField {
 }
 export declare function getDataFieldNode(dataField: ContinuousDataField | CategoricalDataField): ({
     '@name': string;
-    '@optype': "categorical" | "continuous";
+    '@optype': "continuous" | "categorical";
     '@dataType': string;
     '@displayName': string;
 } & {
@@ -34,7 +34,7 @@ export declare function getDataFieldNode(dataField: ContinuousDataField | Catego
     };
 }) | ({
     '@name': string;
-    '@optype': "categorical" | "continuous";
+    '@optype': "continuous" | "categorical";
     '@dataType': string;
     '@displayName': string;
 } & {

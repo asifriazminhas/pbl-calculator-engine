@@ -14,8 +14,8 @@ export declare class SurvivalModelFunctions {
     private modelJson;
     constructor(model: Model<CoxSurvivalAlgorithm>, modelJson: IModelJson<ICoxSurvivalAlgorithmJson>);
     getAlgorithmForData(data: Data): CoxSurvivalAlgorithm;
-    getRiskToTime: (data: IDatum[], time?: Date | moment.Moment | undefined) => number;
-    getSurvivalToTime: (data: IDatum[], time?: Date | moment.Moment | undefined) => number;
+    getRiskToTime: (data: IDatum[], time?: moment.Moment | Date | undefined) => number;
+    getSurvivalToTime: (data: IDatum[], time?: moment.Moment | Date | undefined) => number;
     addPredictor(newPredictor: INewPredictor): SurvivalModelFunctions;
     reCalibrateOutcome(calibrationJson: CalibrationJson | IGenderCalibrationObjects): SurvivalModelFunctions;
     getModel(): Model<CoxSurvivalAlgorithm>;

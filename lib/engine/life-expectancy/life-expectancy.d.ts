@@ -68,6 +68,7 @@ export declare abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
     }>, maxAge: number): number;
 }
 export interface IBaseRefLifeTableRow {
+    age: number;
     ax: number;
 }
 export interface ICompleteLifeTableRow extends IBaseRefLifeTableRow {
@@ -79,3 +80,4 @@ export interface ICompleteLifeTableRow extends IBaseRefLifeTableRow {
     Tx: number;
     nx: number;
 }
+export declare function findLifeTableRow<T extends IBaseRefLifeTableRow>(lifeTable: T[], age: number): T;

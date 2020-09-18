@@ -16,7 +16,7 @@ export interface INewPredictor {
 }
 export declare class CoxSurvivalAlgorithm extends RegressionAlgorithm {
     timeMetric: TimeMetric;
-    maximumTime: number;
+    maximumTime?: number;
     bins?: Bins;
     calibration: Calibration;
     baseline: Baseline;
