@@ -6,6 +6,7 @@ import {
 import {
     LifeExpectancy,
     ICompleteLifeTableRow,
+    findLifeTableRow,
 } from '../life-expectancy/life-expectancy';
 import { InteractionCovariate } from '../data-field/covariate/interaction-covariate/interaction-covariate';
 import { NonInteractionCovariate } from '../data-field/covariate/non-interaction-covariats/non-interaction-covariate';
@@ -53,7 +54,7 @@ export class UnAbridgedLifeExpectancy extends LifeExpectancy<
             // Get the survival time for the median survival value (50) for
             // this bin
             const MedianSurvival = 50;
-            return binData.find((binDatum) => {
+            return binData.find(binDatum => {
                 return binDatum.survivalPercent === MedianSurvival;
             })!.time as number;
         } else {
@@ -69,29 +70,50 @@ export class UnAbridgedLifeExpectancy extends LifeExpectancy<
         }
     }
 
-    public getSurvivalToAge(data: Data, toAge: number): number {
-        const AgeDatumName = 'age';
-        const ageDatum = findDatumWithName(AgeDatumName, data);
+    getSurvivalToAge(data: Data, toAge: number): number {
+        const individualsAge = this.getIndividualsAge(data);
 
         const completeLifeTable = this.getCompleteUnAbridgedLifeTable(data);
 
-        const lifeTableRowForCurrentAge = completeLifeTable.find(({ age }) => {
-            return age === ageDatum.coefficent;
-        });
-        if (!lifeTableRowForCurrentAge) {
-            throw new Error(
-                `No life table row found for individual's age ${ageDatum.coefficent}`,
-            );
-        }
+        const lifeTableRowForCurrentAge = findLifeTableRow(
+            completeLifeTable,
+            individualsAge,
+        );
 
-        const lifeTableRowForToAge = completeLifeTable.find(({ age }) => {
-            return age === toAge;
-        });
-        if (!lifeTableRowForToAge) {
-            throw new Error(`No life table row found for toAge ${toAge}`);
-        }
+        const lifeTableRowForToAge = findLifeTableRow(completeLifeTable, toAge);
 
-        return lifeTableRowForToAge.lx / lifeTableRowForCurrentAge.lx;
+        return this.calculateSurvivalToAge(
+            lifeTableRowForCurrentAge.lx,
+            lifeTableRowForToAge.lx,
+        );
+    }
+
+    getSurvivalForAllAges(
+        data: Data,
+    ): Array<{
+        age: number;
+        survivalProbability: number;
+    }> {
+        const individualsAge = this.getIndividualsAge(data);
+
+        const completeLifeTable = this.getCompleteUnAbridgedLifeTable(data);
+
+        const lifeTableRowForIndividualsAge = findLifeTableRow(
+            completeLifeTable,
+            individualsAge,
+        );
+
+        return completeLifeTable
+            .slice(completeLifeTable.indexOf(lifeTableRowForIndividualsAge) + 1)
+            .map(lifeTableRow => {
+                return {
+                    age: lifeTableRow.age,
+                    survivalProbability: this.calculateSurvivalToAge(
+                        lifeTableRowForIndividualsAge.lx,
+                        lifeTableRow.lx,
+                    ),
+                };
+            });
     }
 
     protected getLifeTableRowForAge(
@@ -100,7 +122,7 @@ export class UnAbridgedLifeExpectancy extends LifeExpectancy<
         >,
         age: number,
     ) {
-        return completeLifeTable.find((lifeTableRow) => {
+        return completeLifeTable.find(lifeTableRow => {
             return lifeTableRow.age === age;
         });
     }
@@ -124,7 +146,7 @@ export class UnAbridgedLifeExpectancy extends LifeExpectancy<
         const ageDatum = findDatumWithName(AgeDatumName, data);
 
         const ageInteractionCovariates = algorithm.covariates.filter(
-            (covariate) => {
+            covariate => {
                 return (
                     covariate instanceof InteractionCovariate &&
                     covariate.isPartOfGroup('AGE')
@@ -132,7 +154,7 @@ export class UnAbridgedLifeExpectancy extends LifeExpectancy<
             },
         );
         const ageNonInteractionCovariates = algorithm.covariates.filter(
-            (covariate) => {
+            covariate => {
                 return (
                     covariate instanceof NonInteractionCovariate &&
                     covariate.isPartOfGroup('AGE')
@@ -142,7 +164,7 @@ export class UnAbridgedLifeExpectancy extends LifeExpectancy<
         const allAgeFields = DataField.getUniqueDataFields(
             flatten(
                 ageNonInteractionCovariates
-                    .map((covariate) => {
+                    .map(covariate => {
                         return covariate.getDescendantFields();
                     })
                     .concat(ageInteractionCovariates)
@@ -193,7 +215,7 @@ export class UnAbridgedLifeExpectancy extends LifeExpectancy<
         ];
         // The partial life table we will
         const refLifeTableWithQxAndNx = unAbridgedLifeTable.map(
-            (lifeTableRow) => {
+            lifeTableRow => {
                 return Object.assign({}, lifeTableRow, {
                     qx: this.getQx(
                         lifeTableDataWithoutAge.concat({
@@ -210,7 +232,7 @@ export class UnAbridgedLifeExpectancy extends LifeExpectancy<
         // Get the index of the life table row after which we need to
         // stop calculating values
         const lastValidLifeTableRowIndex = unAbridgedLifeTable.findIndex(
-            (lifeTableRow) => {
+            lifeTableRow => {
                 return lifeTableRow.age > ageMaxAllowableValue;
             },
         );
@@ -219,5 +241,18 @@ export class UnAbridgedLifeExpectancy extends LifeExpectancy<
             refLifeTableWithQxAndNx,
             unAbridgedLifeTable[lastValidLifeTableRowIndex].age,
         );
+    }
+
+    private calculateSurvivalToAge(
+        lxForCurrentAge: number,
+        lxForSurvivalAge: number,
+    ): number {
+        return lxForSurvivalAge / lxForCurrentAge;
+    }
+
+    private getIndividualsAge(individual: Data): number {
+        const AgeDatumName = 'age';
+
+        return findDatumWithName(AgeDatumName, individual).coefficent as number;
     }
 }
