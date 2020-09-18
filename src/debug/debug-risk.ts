@@ -36,6 +36,7 @@ class DebugRisk {
             riskData: [],
             score: NaN,
             risk: NaN,
+            baselineHazard: NaN,
         });
     }
 
@@ -65,6 +66,7 @@ class DebugRisk {
         riskData: Data,
         score: number,
         risk: number,
+        baselineHazard: number,
     ): void {
         if (this.shouldRunDebugMethod() === false) return;
 
@@ -72,6 +74,7 @@ class DebugRisk {
         this.currentCalculation.riskData = riskData;
         this.currentCalculation.score = score;
         this.currentCalculation.risk = risk;
+        this.currentCalculation.baselineHazard = baselineHazard;
 
         this.calculationStarted = false;
     }
@@ -85,7 +88,13 @@ class DebugRisk {
                   });
 
         debugInfoToPrint.forEach((currentDebugInfo, index) => {
-            const { covariates, riskData, risk, score } = currentDebugInfo;
+            const {
+                covariates,
+                riskData,
+                risk,
+                score,
+                baselineHazard,
+            } = currentDebugInfo;
 
             const covariateDepTrees = covariates.map(covariate => {
                 return new CovariateDepGraph(covariate);
@@ -97,6 +106,7 @@ class DebugRisk {
 
             console.log(`5 Year Risk: ${risk}`);
             console.log(`Score: ${score}`);
+            console.log(`Baseline Hazard ${baselineHazard}`);
 
             covariateDepTrees.forEach(covariateDepTree => {
                 this.printFieldDebugInfo(
@@ -265,6 +275,7 @@ export interface IRiskDebugInfo {
     riskData: Data;
     score: number;
     risk: number;
+    baselineHazard: number;
 }
 
 interface IDataFieldDebugInfo {

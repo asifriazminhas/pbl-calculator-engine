@@ -25,7 +25,10 @@ export interface INewPredictor {
 
 export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
     timeMetric: TimeMetric;
-    maximumTime: number;
+    // If maximum time is undefined then we do not use a time multiplier on the
+    // risk. This is used in models where there is a cumulative baseline hazard
+    // instead of only one baseline hazard for the entire time period
+    maximumTime?: number;
     bins?: Bins;
     calibration: Calibration;
     baseline: Baseline;
@@ -220,7 +223,13 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
                 : binDataForScore[binDataForTimeIndex - 1].survivalPercent /
                   100;
 
-        debugRisk.addEndDebugInfo(this.covariates, data, score, 1 - survival);
+        debugRisk.addEndDebugInfo(
+            this.covariates,
+            data,
+            score,
+            1 - survival,
+            NaN,
+        );
 
         return survival;
     }
@@ -248,9 +257,12 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
             moment().startOf('day'),
             'days',
         );
+        const baselineHazard = this.baseline.getBaselineHazard(
+            predictionTimeInDays,
+        );
         // baseline*calibration*e^score
         const exponentiatedScoreTimesBaselineTimesCalibration =
-            this.baseline.getBaselineHazard(predictionTimeInDays) *
+            baselineHazard *
             this.calibration.getCalibrationFactorForData(data) *
             Math.E ** score;
         // 1 - e^(-previousValue)
@@ -262,6 +274,7 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
             data,
             score,
             maximumTimeRiskProbability,
+            baselineHazard,
         );
 
         return (
@@ -270,6 +283,10 @@ export class CoxSurvivalAlgorithm extends RegressionAlgorithm {
     }
 
     private getTimeMultiplier(time: moment.Moment) {
+        if (this.maximumTime === undefined) {
+            return 1;
+        }
+
         return Math.min(
             Math.abs(
                 moment()
