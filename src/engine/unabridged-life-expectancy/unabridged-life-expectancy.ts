@@ -61,7 +61,13 @@ export class UnAbridgedLifeExpectancy extends LifeExpectancy<
             const AgeDatumName = 'age';
             const ageDatum = findDatumWithName(AgeDatumName, data);
 
-            const completeLifeTable = this.getCompleteUnAbridgedLifeTable(data);
+            const validatedData = this.model
+                .getAlgorithmForData(data)
+                .validateData(data);
+
+            const completeLifeTable = this.getCompleteUnAbridgedLifeTable(
+                validatedData,
+            );
 
             return this.getLifeExpectancyForAge(
                 completeLifeTable,
