@@ -28,5 +28,5 @@ export declare abstract class RegressionAlgorithm extends Algorithm {
      * @returns {Data}
      * @memberof RegressionAlgorithm
      */
-    private validateData;
+    validateData(data: Data): Data;
 }

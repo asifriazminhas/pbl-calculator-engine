@@ -70,6 +70,8 @@ export declare abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
 export interface IBaseRefLifeTableRow {
     age: number;
     ax: number;
+    qx: number;
+    ex: number;
 }
 export interface ICompleteLifeTableRow extends IBaseRefLifeTableRow {
     ex: number;
