@@ -219,22 +219,25 @@ export class UnAbridgedLifeExpectancy extends LifeExpectancy<
                 | 'male'
                 | 'female'
         ];
+        const ageMaxAllowableValue = algorithm.findDataField(AgeDatumName)
+            .intervals![0].higherMargin!.margin;
         // The partial life table we will
         const refLifeTableWithQxAndNx = unAbridgedLifeTable.map(
             lifeTableRow => {
                 return Object.assign({}, lifeTableRow, {
-                    qx: this.getQx(
-                        lifeTableDataWithoutAge.concat({
-                            name: AgeDatumName,
-                            coefficent: lifeTableRow.age,
-                        }),
-                    ),
+                    qx:
+                        lifeTableRow.age > ageMaxAllowableValue
+                            ? lifeTableRow.qx
+                            : this.getQx(
+                                  lifeTableDataWithoutAge.concat({
+                                      name: AgeDatumName,
+                                      coefficent: lifeTableRow.age,
+                                  }),
+                              ),
                     nx: 1,
                 });
             },
         );
-        const ageMaxAllowableValue = algorithm.findDataField(AgeDatumName)
-            .intervals![0].higherMargin!.margin;
         // Get the index of the life table row after which we need to
         // stop calculating values
         const lastValidLifeTableRowIndex = unAbridgedLifeTable.findIndex(
