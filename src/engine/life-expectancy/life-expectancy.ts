@@ -45,30 +45,18 @@ export abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
     ): Array<ICompleteLifeTableRow & T> {
         // The complete life table we will return at the end
         // Extend each row of the life table and set the lx, dx, Lx, Tx and
-        // ex fields to -1. They will be filled in later
-        let completeLifeTable = refLifeTableWithQxAndNx.map(lifeTableRow => {
+        // ex fields to -1. Set ex values to the one in the life table since
+        // for ages greater than the maxAge we will be using those
+        // ex values. All other values will be filled in later
+        const completeLifeTable = refLifeTableWithQxAndNx.map(lifeTableRow => {
             return Object.assign({}, lifeTableRow, {
                 lx: -1,
                 dx: -1,
                 Lx: -1,
                 Tx: -1,
-                ex: -1,
+                ex: lifeTableRow.ex,
             });
         });
-        // Get the index of the life table row for the maxAge arg
-        const indexOfLifeTableRowForMaxAge = completeLifeTable.indexOf(
-            throwErrorIfUndefined(
-                this.getLifeTableRowForAge(completeLifeTable, maxAge),
-                new Error(`No life table row found for age ${maxAge}`),
-            ),
-        );
-        // We only need the first row and row which is applicable for the
-        // maxAge arg since all the qx values after that will not be
-        // valid
-        completeLifeTable = completeLifeTable.slice(
-            0,
-            indexOfLifeTableRowForMaxAge + 1,
-        );
 
         const lxForFirstRow = 100000;
         // Populate the lx, dx and Lx values in the life table
@@ -97,8 +85,13 @@ export abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
                 index === 0
                     ? this.getFirstTxValue(completeLifeTable, maxAge)
                     : completeLifeTable[index - 1].Tx + lifeTableRow.Lx;
-            // ex = Tx/lx
-            lifeTableRow.ex = lifeTableRow.Tx / lifeTableRow.lx;
+            // ex = Tx/lx or use the ex value from the life table if we
+            // cannot calculate it for this algorithm if this life table
+            // row's age is greater than its maxAge
+            lifeTableRow.ex =
+                lifeTableRow.age > maxAge
+                    ? lifeTableRow.ex
+                    : lifeTableRow.Tx / lifeTableRow.lx;
         });
         // Reverse it again
         completeLifeTable.reverse();
@@ -171,6 +164,8 @@ export abstract class LifeExpectancy<T extends IBaseRefLifeTableRow> {
 export interface IBaseRefLifeTableRow {
     age: number;
     ax: number;
+    qx: number;
+    ex: number;
 }
 
 export interface ICompleteLifeTableRow extends IBaseRefLifeTableRow {

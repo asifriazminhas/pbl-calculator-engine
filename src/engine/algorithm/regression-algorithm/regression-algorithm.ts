@@ -134,7 +134,7 @@ export abstract class RegressionAlgorithm extends Algorithm {
      * @returns {Data}
      * @memberof RegressionAlgorithm
      */
-    private validateData(data: Data): Data {
+    validateData(data: Data): Data {
         const allDataFields = this.getAllFields();
 
         return data.map(datum => {
